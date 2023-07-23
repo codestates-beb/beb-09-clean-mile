@@ -1,5 +1,18 @@
 version: '3.9'
 services:
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile.dev
+    image: server
+    container_name: server
+    restart: always
+    ports:
+      - 8080:8080
+    volumes:
+      - /tmp/server/npm_cache:/root/.npm:z
+      - ./server/src:/usr/src/app/src:z
+
   mongo:
     image: mongo:7.0.0-rc8
     container_name: mongo
