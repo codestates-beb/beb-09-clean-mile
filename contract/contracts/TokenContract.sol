@@ -14,7 +14,7 @@ interface ERC20Interface {
     event Approval(address indexed owner, address indexed spender, uint256 amount);
 }
 
-contract ecoMileToken is ERC20Interface {
+contract TokenContract is ERC20Interface {
     mapping (address => uint256) private _balances;
     mapping (address => mapping (address => uint256)) public _allowances;
 
