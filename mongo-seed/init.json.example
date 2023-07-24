@@ -1,0 +1,20 @@
+[
+  {
+    "email": "",
+    "name": "",
+    "phone_number": "",
+    "hashed_pw": "",
+    "nickname": "",
+    "social_provider": "",
+    "banner_image_url": "",
+    "wallet": {
+      "address": "",
+      "private_key": "",
+      "token_amount": 0,
+      "badge_amount": 0,
+      "total_badge_score": 0
+    },
+    "created_at": "",
+    "updated_at": ""
+  }
+]
