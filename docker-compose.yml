@@ -12,6 +12,8 @@ services:
     volumes:
       - /tmp/server/npm_cache:/root/.npm:z
       - ./server/src:/usr/src/app/src:z
+    environment:
+      EXAMPLE_ENV: example
 
   mongo:
     image: mongo:7.0.0-rc8
