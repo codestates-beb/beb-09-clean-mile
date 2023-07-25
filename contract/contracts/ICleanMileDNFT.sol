@@ -19,5 +19,7 @@ interface ICleanMileDNFT {
     function dnftName(uint256 _tokenId) external view returns (string memory);
     function upgrade(uint256 _tokenId) external returns(bool);
     function setBadge(address badgeAddress) external returns(bool);
-    function ownerLevel (uint256 _tokenId) external returns(uint256);
+    function upgradeCheck (uint256 _tokenId) external returns(uint256);
+
+    event UpgradeDNFT(address indexed sender,uint256 tokenId);
 }
