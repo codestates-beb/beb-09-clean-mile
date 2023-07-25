@@ -1,4 +1,6 @@
 const mongoose = require("mongoose");
+const bcrypt = require("bcrypt");
+const config = require("../config/index");
 
 /**
  * Users Collection Schema
@@ -8,6 +10,7 @@ const userSchema = new mongoose.Schema({
     // 사용자 이메일
     type: String,
     required: true,
+    unique: true,
   },
   name: {
     // 사용자 이름
@@ -32,6 +35,7 @@ const userSchema = new mongoose.Schema({
   nickname: {
     // 사용자 닉네임
     type: String,
+    unique: true,
   },
   social_provider: {
     // 소셜 로그인
@@ -94,8 +98,25 @@ const userSchema = new mongoose.Schema({
 /**
  * 데이터 저장 전에 비밀번호 암호화 처리
  */
-userSchema.pre("save", (next) => {
-  let user = this;
+userSchema.pre("save", function (next) {
+  const user = this;
+  if (user.isModified("hashed_pw")) {
+    bcrypt.genSalt(config.saltRounds, (err, salt) => {
+      if (err) {
+        return next(err);
+      }
+
+      bcrypt.hash(user.hashed_pw, salt, (err, hash) => {
+        if (err) {
+          return next(err);
+        }
+        user.hashed_pw = hash;
+        next();
+      });
+    });
+  } else {
+    next();
+  }
 });
 
 const Users = mongoose.model("user", userSchema);

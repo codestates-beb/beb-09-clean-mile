@@ -91,4 +91,82 @@ const checkEmail = async (email) => {
   }
 };
 
-module.exports = { checkEmail, sendEmail };
+/**
+ * 닉네임 중복 체크 함수
+ * @param {string} nickname
+ * @returns 중복 여부
+ */
+const checkNickName = async (nickname) => {
+  try {
+    const result = await UserModel.findOne({ nickname: nickname });
+    if (!result) {
+      return { success: true };
+    } else {
+      return { success: false };
+    }
+  } catch (err) {
+    console.error("Error:", err);
+    throw new Error(err);
+  }
+};
+
+/**
+ * 이메일 인증 코드 확인 함수
+ * @param {string} email
+ * @param {*} code
+ * @returns 일치 여부
+ */
+const checkEmailAuthCode = async (email, code) => {
+  try {
+    const emailData = await MailModel.findOne({ email: email });
+    if (
+      Number(emailData.code) === Number(code) &&
+      emailData.expiry >= Date.now()
+    ) {
+      return { success: true };
+    } else {
+      return { success: false };
+    }
+  } catch (err) {
+    console.error("Error:", err);
+    throw new Error(err);
+  }
+};
+
+/**
+ * 사용자 정보 저장 함수
+ * @param {*} userData
+ * @returns 저장 여부
+ */
+const saveUserData = async (userData) => {
+  try {
+    const saveUserData = new UserModel({
+      email: userData.email,
+      name: userData.name,
+      phone_number: userData.phone_number,
+      hashed_pw: userData.password,
+      nickname: userData.nickname,
+      social_provider: userData.social_provider,
+      wallet: {
+        address: userData.walle_address,
+      },
+    });
+    const result = await saveUserData.save();
+    if (!result) {
+      return { success: false };
+    } else {
+      return { success: true };
+    }
+  } catch (err) {
+    console.error("Error:", err);
+    throw new Error(err);
+  }
+};
+
+module.exports = {
+  checkEmail,
+  sendEmail,
+  checkNickName,
+  checkEmailAuthCode,
+  saveUserData,
+};

@@ -2,6 +2,9 @@ const Router = require("express");
 const {
   checkEmail,
   sendEmail,
+  checkNickName,
+  checkEmailAuthCode,
+  saveUserData,
 } = require("../../../services/client/usersController");
 const route = Router();
 
@@ -59,14 +62,96 @@ module.exports = (app) => {
    * @group users - 사용자 관련
    * @summary 닉네임 중복 체크
    */
-  route.post("/validate-nickname", (req, res) => {});
+  route.post("/validate-nickname", async (req, res) => {
+    try {
+      const nickname = req.body.nickname;
+      if (!nickname) {
+        return res.status(400).json({
+          success: false,
+          message: "닉네임을 입력해주세요.",
+        });
+      }
+
+      // 닉네임 중복 체크
+      const checkNickNameResult = await checkNickName(nickname);
+      if (!checkNickNameResult.success) {
+        return res.status(400).json({
+          success: false,
+          message: "이미 사용중인 닉네임입니다.",
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: "사용 가능한 닉네임입니다.",
+      });
+    } catch (err) {
+      console.error("Error:", err);
+      return res.status(500).json({
+        success: false,
+        message: "서버 오류",
+      });
+    }
+  });
 
   /**
    * @route POST /users/signup
    * @group users - 사용자 관련
    * @summary 회원가입 (이메일 인증 코드 검증 포함)
    */
-  route.post("/signup", (req, res) => {});
+  route.post("/signup", async (req, res) => {
+    try {
+      const userData = req.body;
+      if (
+        !userData.email ||
+        !userData.name ||
+        !userData.phone_number ||
+        !userData.password ||
+        !userData.nickname ||
+        !userData.walle_address ||
+        !userData.social_provider ||
+        !userData.email_verificatio_code
+      ) {
+        return res.status(400).json({
+          success: false,
+          message: "필수 정보를 입력해주세요.",
+        });
+      }
+
+      // 이메일 인증 코드 검증
+      const chkMailAuthCode = await checkEmailAuthCode(
+        userData.email,
+        userData.email_verificatio_code
+      );
+      if (!chkMailAuthCode.success) {
+        return res.status(400).json({
+          success: false,
+          message: "이메일 인증에 실패했습니다.",
+        });
+      }
+
+      // 사용자 정보 저장
+      const saveDataResult = await saveUserData(userData);
+      console.log(saveDataResult);
+      if (!saveDataResult.success) {
+        return res.status(400).json({
+          success: false,
+          message: "사용자 정보 저장에 실패했습니다.",
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: "회원가입에 성공했습니다.",
+      });
+    } catch (err) {
+      console.error("Error:", err);
+      return res.status(500).json({
+        success: false,
+        message: "서버 오류",
+      });
+    }
+  });
 
   /**
    * @route POST /users/login

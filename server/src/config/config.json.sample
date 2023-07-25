@@ -3,5 +3,5 @@
   "DATABASE_URL": "",
   "NAVER_MAIL_ID": "",
   "NAVER_MAIL_PW": "",
-  "ADMIN_EMAIL": "clean_mile@naver.com"
+  "ADMIN_EMAIL": "clean_mile@naver.com",
 }

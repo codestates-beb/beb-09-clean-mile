@@ -17,4 +17,7 @@ module.exports = {
     mailId: config.MAIL_ID,
     mailPassword: config.MAIL_PW,
   },
+
+  // bcrypt
+  saltRounds: 10,
 };
