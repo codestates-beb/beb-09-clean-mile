@@ -44,7 +44,7 @@ contract CleanMileBadge is ERC1155, ICleanMileBadge ,Ownable {
         _badgeURIs[tokenId] = _uri;
         _tokenToBadgeType[tokenId] = badgeType;
 
-        emit TransferSingle(msg.sender, address(0), account, tokenId, amount);
+        emit MintBadge(msg.sender, account, badgeType, amount, _uri);
     }
 
     // ERC-1155 표준에 정의된 URI를 가져오기 위한 함수입니다.
@@ -131,7 +131,7 @@ contract CleanMileBadge is ERC1155, ICleanMileBadge ,Ownable {
         return _tokenToBadgeType[tokenId];
     }
 
-    // 유저의 뱃지 점수를 조회하는 함수입니다 .
+    // 유저의 뱃지 점수를 조회하는 함수입니다.
     function userBadgeScore(address _address) public view returns(uint256) {
         return _userBadgeScore[_address];
     }

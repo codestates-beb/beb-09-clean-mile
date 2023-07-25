@@ -37,15 +37,15 @@ contract CleanMileToken is IERC20 {
     function decimals() public view returns (uint8) {
         return _decimals;
     }
-    // ERC20 총 발행량 확인
+
     function totalSupply() external view virtual  returns (uint256) {
         return _totalSupply;
     }
-    // Owner의 토큰 보유량 확인
+
     function balanceOf(address account) external view virtual returns (uint256) {
         return _balances[account];
     }
-    // ERC20 직접전송
+
     function transfer(address recipient, uint amount) public virtual returns (bool) {
         _transfer(msg.sender, recipient, amount);
         return true;
@@ -64,7 +64,6 @@ contract CleanMileToken is IERC20 {
     // spender가 거래 가능하도록 양도 받은 토큰을 전송
     function transferFrom(address sender, address recipient, uint256 amount) external virtual returns (bool) {
         uint256 currentAllowance = _allowances[sender][recipient];
-        // require(currentAllowance >= amount, "ERC20: transfer amount exceeds allowance");
         if (amount > currentAllowance) revert ExceedsAllowance(amount);
         _approve(sender, recipient, currentAllowance-amount, false);
         _transfer(sender, recipient, amount);
@@ -72,12 +71,9 @@ contract CleanMileToken is IERC20 {
     }
     
     function _transfer(address sender, address recipient, uint256 amount) internal virtual {
-        // require(sender != address(0), "ERC20: transfer from the zero address");
         if (sender == address(0)) revert FromZeroAddress(); 
-        // require(recipient != address(0), "ERC20: transfer to the zero address");
         if (recipient == address(0)) revert ToZeroAddress();
         uint256 senderBalance = _balances[sender];
-        // require(senderBalance >= amount, "ERC20: transfer amount exceeds balance");
         if (amount > senderBalance) revert ExceedsBalance(amount, senderBalance);
         unchecked {
             _balances[sender] = senderBalance - amount;    
@@ -87,9 +83,7 @@ contract CleanMileToken is IERC20 {
     }
     
     function _approve(address owner, address spender, uint256 amount, bool emitEvent) internal virtual {
-        // require(owner != address(0), "ERC20: approve from the zero address");
         if (owner == address(0)) revert FromZeroAddress(); 
-        // require(spender != address(0), "ERC20: approve to the zero address");
         if (spender == address(0)) revert ToZeroAddress();
         _allowances[owner][spender] = amount;
         if (emitEvent) emit Approval(owner, spender, amount);
