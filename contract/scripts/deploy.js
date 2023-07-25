@@ -5,11 +5,11 @@ async function main() {
       // Step 1: Import necessary modules and contracts
       const Badge = await ethers.getContractFactory("BadgeContract");
       const DNFT = await ethers.getContractFactory("DNFT");
-      const Token  = await ethers.getContractFactory("TokenContract");
+      const Token  = await ethers.getContractFactory("ERC20");
     
       // Step 2: Fetch contract source code
-      const dnftContract = await DNFT.deploy("","");
-      const badgeContract = await Badge.deploy("");
+      const dnftContract = await DNFT.deploy("user DNFT","dnft");
+      const badgeContract = await Badge.deploy();
       const tokenContract = await Token.deploy("ECO Token", "EM");
     
       console.log("DNFT contract address:",dnftContract.target);
