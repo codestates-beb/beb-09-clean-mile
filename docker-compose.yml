@@ -15,6 +15,7 @@ services:
     environment:
       EXAMPLE_ENV: example
 
+<<<<<<< HEAD
   mongo:
     image: mongo:7.0-rc
     container_name: mongo
@@ -35,6 +36,8 @@ services:
     links:
       - mongo
 
+=======
+>>>>>>> 218462b4bc8608890ba0d48db7712cc67d44d80b
   ganache:
     image: trufflesuite/ganache:latest
     container_name: ganache
@@ -46,7 +49,5 @@ services:
       - ganache_data:/data
 
 volumes:
-  mongo_data:
-    driver: local
   ganache_data:
     driver: local
