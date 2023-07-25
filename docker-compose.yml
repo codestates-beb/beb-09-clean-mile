@@ -27,6 +27,14 @@ services:
     volumes:
       - mongo_data:/data/db
 
+  mongo-seed:
+    build:
+      context: ./mongo-seed
+      dockerfile: Dockerfile
+    image: mongo-seed
+    links:
+      - mongo
+
   ganache:
     image: trufflesuite/ganache:latest
     container_name: ganache

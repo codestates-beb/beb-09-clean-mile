@@ -2,5 +2,6 @@
 .env
 .vscode
 config.json
+init.json
 node_modules
 package-lock.json
