@@ -54,11 +54,15 @@ contract CleanMileDNFT is ERC721, Ownable ,ICleanMileDNFT {
     function updateDescription(uint256 _tokenId, string calldata _description) onlyOwner external {
         if (ownerOf(_tokenId) != msg.sender) revert NotOwner(_tokenId, msg.sender);
         _dnftData[_tokenId].description = _description;
+
+        emit UpgradeDNFT(msg.sender, _tokenId);
     }
 
     function updateName(uint256 _tokenId, string calldata _name) onlyOwner external {
         if (ownerOf(_tokenId) != msg.sender) revert NotOwner(_tokenId, msg.sender);
         _dnftData[_tokenId].name = _name;
+
+        emit UpgradeDNFT(msg.sender, _tokenId);
     }
 
     function dnftType(uint256 _tokenId) public view returns (DnftType) {
@@ -85,6 +89,12 @@ contract CleanMileDNFT is ERC721, Ownable ,ICleanMileDNFT {
         uint256 currentLevel = uint256(dnftType(_tokenId))+1;
         //만약 최대 레벨이라면 
         if (currentLevel>5) revert MaxLevel(_tokenId);
+        uint256 nextLevel = upgradeCheck(_tokenId);
+        if (nextLevel>currentLevel){
+            _setTokenURI(_tokenId, IpfsUri[currentLevel]);
+            _dnftData[_tokenId].dnftType = DnftType(currentLevel);
+            emit UpgradeDNFT(msg.sender, _tokenId);
+        }
         return false;
     }
 
@@ -109,7 +119,7 @@ contract CleanMileDNFT is ERC721, Ownable ,ICleanMileDNFT {
          return true;
     }
 
-    function ownerLevel (uint256 _tokenId) public returns(uint256){
+    function upgradeCheck(uint256 _tokenId) public returns(uint256){
         require(address(_badge) !=  address(0x0), '');
         address owner = ownerOf(_tokenId);
         uint256 ownerScore = _badge.userBadgeScore(owner);
