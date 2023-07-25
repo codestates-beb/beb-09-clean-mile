@@ -1,4 +1,4 @@
-version: '3.9'
+version: "3.9"
 services:
   server:
     build:
@@ -16,7 +16,7 @@ services:
       EXAMPLE_ENV: example
 
   mongo:
-    image: mongo:7.0.0-rc8
+    image: mongo:7.0-rc
     container_name: mongo
     restart: always
     ports:

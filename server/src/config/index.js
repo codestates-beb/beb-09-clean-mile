@@ -9,4 +9,12 @@ module.exports = {
 
   // node environment
   nodeEnv: process.env.NODE_ENV,
+
+  // naver mail
+  mail: {
+    serviceName: "Naver",
+    adminEmail: config.ADMIN_EMAIL,
+    mailId: config.MAIL_ID,
+    mailPassword: config.MAIL_PW,
+  },
 };

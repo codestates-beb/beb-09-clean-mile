@@ -6,7 +6,7 @@ const routes = require("../api");
 const config = require("../config");
 const accessLogStream = require("../loaders/morgan");
 
-module.exports = function (app) {
+module.exports = (app) => {
   // Enable Cross Origin Resource Sharing to all origins by default
   app.use(
     cors({

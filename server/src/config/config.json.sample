@@ -1,0 +1,6 @@
+{
+  "PORT": 8080,
+  "DATABASE_URL": "",
+  "NAVER_MAIL_ID": "",
+  "NAVER_MAIL_PW": ""
+}
