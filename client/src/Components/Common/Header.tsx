@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import { GiHamburgerMenu } from 'react-icons/gi';
@@ -16,6 +17,21 @@ const Header = () => {
       <div className="w-3/4 md:w-full h-full flex justify-end items-center gap-20">
         <nav className='md:hidden sm:hidden xs:hidden'>
           <ul className=" flex gap-14">
+=======
+import React from 'react';
+import Image from 'next/image';
+import { logo } from '../Reference';
+
+const Header = () => {
+  return (
+    <div className="w-full h-20 flex items-center justify-between px-10 border-b bg-white">
+      <div className="w-1/12 flex items-center justify-center">
+        <img src='/assets/images/clean_mile_logo_2.png' className='w-30' alt="logo" />
+      </div>
+      <div className="w-3/4 h-full flex justify-end items-center gap-20">
+        <nav>
+          <ul className="flex gap-14">
+>>>>>>> 27fc0cccc76fe7455b6d2fd8aac780c08ff11534
             <li className='font-semibold cursor-pointer hover:text-green-600 transition duration-200'>Info</li>
             <li className='font-semibold cursor-pointer hover:text-green-600 transition duration-200'>Notice</li>
             <li className='font-semibold cursor-pointer hover:text-green-600 transition duration-200'>Events</li>
@@ -31,10 +47,15 @@ const Header = () => {
             py-2 
             rounded-lg 
             transition 
+<<<<<<< HEAD
             duration-300
             sm:text-sm"
             onClick={() => router.push('/login')}>
             Login
+=======
+            duration-300">
+              Login
+>>>>>>> 27fc0cccc76fe7455b6d2fd8aac780c08ff11534
           </button>
           <button className="
             bg-main-green 
@@ -42,6 +63,7 @@ const Header = () => {
             hover:bg-green-600 
             hover:text-white 
             px-4 
+<<<<<<< HEAD
             sm:px-2
             py-2 
             sm:py-1
@@ -50,16 +72,25 @@ const Header = () => {
             duration-300
             sm:text-sm
             ">
+=======
+            py-2 
+            rounded-lg 
+            transition 
+            duration-300">
+>>>>>>> 27fc0cccc76fe7455b6d2fd8aac780c08ff11534
               Register
           </button>
         </div>
       </div>
+<<<<<<< HEAD
       <div className="hidden xl:hidden lg:hidden md:block sm:block xs:block flex items-center">
         <button type="button" className="text-gray-500 hover:text-white focus:outline-none focus:text-white" onClick={() => setIsOpen(!isOpen)}>
           {isOpen ? <IoCloseSharp size={30} className="text-black" /> : <GiHamburgerMenu size={30} className="text-black" />}
         </button>
         {isOpen ? <Nav isOpen={isOpen} /> : null}
       </div>
+=======
+>>>>>>> 27fc0cccc76fe7455b6d2fd8aac780c08ff11534
     </div>
   );
 };
