@@ -14,4 +14,7 @@ interface ICleanMileBadge {
     function approvalForToken(address account, uint256 tokenId) external view returns (bool);
     function badgeType(uint256 tokenId) external view returns (BadgeType);
     function userBadgeScore(address _address) external view returns(uint256);
+ 
+    event MintBadge(address indexed sender,address account,BadgeType badgeType,uint256 amount,string _uri);
+
 } 

@@ -87,7 +87,7 @@ contract CleanMileDNFT is ERC721, Ownable ,ICleanMileDNFT {
         if (ownerOf(_tokenId) != msg.sender) revert NotOwner(_tokenId, msg.sender);
         // 현재 단계를 가져옴
         uint256 currentLevel = uint256(dnftType(_tokenId))+1;
-        //만약 최대 레벨이라면 
+        //최대 레벌에서는 업그레이드 불가능
         if (currentLevel>5) revert MaxLevel(_tokenId);
         uint256 nextLevel = upgradeCheck(_tokenId);
         if (nextLevel>currentLevel){
@@ -99,7 +99,6 @@ contract CleanMileDNFT is ERC721, Ownable ,ICleanMileDNFT {
     }
 
     function _setTokenURI(uint256 tokenId, string memory _tokenURI) internal virtual {
-        // require(_exists(tokenId), "ERC721Metadata: URI set of nonexistent token");
         if (!_exists(tokenId)) revert NonexistentToken(tokenId); 
         _tokenURIs[tokenId] = _tokenURI;
     }
