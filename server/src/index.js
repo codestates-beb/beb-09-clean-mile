@@ -1,13 +1,23 @@
-const express = require('express');
+const express = require("express");
+const expressApp = require("./loaders/index.js");
+const config = require("./config/index.js");
 
-const app = express();
+async function startServer() {
+  const app = express();
+  await expressApp(app);
 
-app.get('/', (req, res) => {
-  res.send('OK');
-});
+  app
+    .listen(config.port, () => {
+      console.log(`
+    ################################################
+    🛡️  Server listening on port: ${config.port} 🛡️
+    ################################################
+  `);
+    })
+    .on("error", (err) => {
+      console.log(err);
+      process.exit(1);
+    });
+}
 
-console.log(process.env.EXAMPLE_ENV);
-
-app.listen(8080, () => {
-  console.log('Listening on port 8080');
-});
+startServer();
