@@ -8,6 +8,7 @@ module.exports = {
     './src/Components/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   important: true,
+  
   theme: {
     screens: {
       xs: { min: "280px", max: "389px"},
@@ -16,9 +17,6 @@ module.exports = {
       lg: { min: "1024px", max: "1980px" },
       xl: { min: "2560px" },
     },
-    backgroundImage: theme => ({
-      'hero-pattern': "url('/assets/images/plogging.png')",
-    }),
     extend: {
       colors: {
         main: {
