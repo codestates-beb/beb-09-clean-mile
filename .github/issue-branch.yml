@@ -1,9 +1,9 @@
 branchName: '${issue.number}'
 defaultBranch: 'dev'
 branches:
-  - label: enhancement
-    prefix: feat/
   - label: bug
     prefix: fix/
+  - label: '*'
+    prefix: feat/
 autoCloseIssue: true
 commentMessage: 'Branch ${branchName} created for issue: ${issue.title}'
