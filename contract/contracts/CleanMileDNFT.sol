@@ -8,7 +8,8 @@ import "./ICleanMileDNFT.sol";
 import "./ICleanMileBadge.sol";
 
 error NotOwner(uint256 _tokenId, address sender);
-error NonexistentToken(uint256 _tokenId, string tokenURI);
+error NonexistentToken(uint256 _tokenId);
+error MaxLevel(uint256 _tokenId);
 
 contract CleanMileDNFT is ERC721, Ownable ,ICleanMileDNFT {
     using Counters for Counters.Counter;
@@ -51,32 +52,24 @@ contract CleanMileDNFT is ERC721, Ownable ,ICleanMileDNFT {
     }
 
     function updateDescription(uint256 _tokenId, string calldata _description) onlyOwner external {
-        // require(ownerOf(_tokenId) == msg.sender, "DNFT: Not the owner of the DNFT");
         if (ownerOf(_tokenId) != msg.sender) revert NotOwner(_tokenId, msg.sender);
         _dnftData[_tokenId].description = _description;
     }
 
     function updateName(uint256 _tokenId, string calldata _name) onlyOwner external {
-        // require(ownerOf(_tokenId) == msg.sender, "DNFT: Not the owner of the DNFT");
         if (ownerOf(_tokenId) != msg.sender) revert NotOwner(_tokenId, msg.sender);
         _dnftData[_tokenId].name = _name;
     }
 
     function dnftType(uint256 _tokenId) public view returns (DnftType) {
-        // require(ownerOf(_tokenId) == msg.sender, "DNFT: Not the owner of the DNFT");
-        if (ownerOf(_tokenId) != msg.sender) revert NotOwner(_tokenId, msg.sender);
         return _dnftData[_tokenId].dnftType;
     }
 
     function dnftDescription(uint256 _tokenId) public view returns (string memory) {
-        // require(ownerOf(_tokenId) == msg.sender, "DNFT: Not the owner of the DNFT");
-        if (ownerOf(_tokenId) != msg.sender) revert NotOwner(_tokenId, msg.sender);
         return _dnftData[_tokenId].description;
     }
 
         function dnftName(uint256 _tokenId) public view returns (string memory) {
-        // require(ownerOf(_tokenId) == msg.sender, "DNFT: Not the owner of the DNFT");
-        if (ownerOf(_tokenId) != msg.sender) revert NotOwner(_tokenId, msg.sender);
         return _dnftData[_tokenId].name;
     }
 
@@ -85,20 +78,19 @@ contract CleanMileDNFT is ERC721, Ownable ,ICleanMileDNFT {
     }
 
     function upgrade(uint256 _tokenId) external onlyOwner returns(bool){
+        // 토큰이 존재하는지, 토큰이 주인이 맞는지 검사
+        if (!_exists(_tokenId)) revert NonexistentToken(_tokenId);
+        if (ownerOf(_tokenId) != msg.sender) revert NotOwner(_tokenId, msg.sender);
         // 현재 단계를 가져옴
-        uint256 currentLevel = ownerLevel(_tokenId);
-        uint256 pastLevel = uint256(dnftType(_tokenId))+1;
-        // 만약 다르다면 업그레이드 기준 충족
-        if (currentLevel > pastLevel){
-            _setTokenURI(_tokenId, IpfsUri[currentLevel-1]);
-            return true;
-        }
+        uint256 currentLevel = uint256(dnftType(_tokenId))+1;
+        //만약 최대 레벨이라면 
+        if (currentLevel>5) revert MaxLevel(_tokenId);
         return false;
     }
 
     function _setTokenURI(uint256 tokenId, string memory _tokenURI) internal virtual {
         // require(_exists(tokenId), "ERC721Metadata: URI set of nonexistent token");
-        if (!_exists(tokenId)) revert NonexistentToken(tokenId, _tokenURI); 
+        if (!_exists(tokenId)) revert NonexistentToken(tokenId); 
         _tokenURIs[tokenId] = _tokenURI;
     }
 
