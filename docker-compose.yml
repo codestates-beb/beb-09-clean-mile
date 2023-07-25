@@ -15,26 +15,6 @@ services:
     environment:
       EXAMPLE_ENV: example
 
-  mongo:
-    image: mongo:7.0.0-rc8
-    container_name: mongo
-    restart: always
-    ports:
-      - 27017:27017
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: example
-    volumes:
-      - mongo_data:/data/db
-
-  mongo-seed:
-    build:
-      context: ./mongo-seed
-      dockerfile: Dockerfile
-    image: mongo-seed
-    links:
-      - mongo
-
   ganache:
     image: trufflesuite/ganache:latest
     container_name: ganache
@@ -46,7 +26,5 @@ services:
       - ganache_data:/data
 
 volumes:
-  mongo_data:
-    driver: local
   ganache_data:
     driver: local
