@@ -16,7 +16,7 @@ describe("CleanMileToken", function () {
   it("토큰을 발행하고 정보를 확인합니다.", async function () {
     const name = "CleanMileToken";
     const symbol = "CMT";
-    const totalSupply = 100000000;
+    const totalSupply = 100000000n * 10n ** 18n
 
     const tokenName = await cleanMileToken.name();
     const tokenSymbol = await cleanMileToken.symbol();
@@ -24,7 +24,7 @@ describe("CleanMileToken", function () {
 
     expect(name).to.equal(tokenName);
     expect(symbol).to.equal(tokenSymbol);
-    expect(totalSupply).to.equal(tokenTotalSupply);
+    expect(totalSupply.toString()).to.equal(tokenTotalSupply.toString());
   });
 
   it("타인에게 토큰 전송 권한을 부여 합니다.", async function () {
@@ -39,16 +39,17 @@ describe("CleanMileToken", function () {
 
   it("토큰 전송 권한을 부여 받은 사람이 타인에게 토큰을 전송합니다.", async function () {
     const amount = 1000;
-    const totalSupply = 100000000;
+    const amountBigInt = 1000n;
+    const totalSupply = 100000000n * 10n ** 18n
     
-    await cleanMileToken.approve(addr1.address, amount);
+    await cleanMileToken.approve(addr2.address, amount);
 
-    await cleanMileToken.connect(addr1).transfer(addr2.address,amount);
+    await cleanMileToken.transferFrom(owner.address,addr2.address,amount);
 
     const spenderBalance = await cleanMileToken.balanceOf(owner.address);
     const recipientBalance = await cleanMileToken.balanceOf(addr2.address);
 
-    expect(spenderBalance).to.equal(totalSupply-amount);
+    expect(spenderBalance.toString()).to.equal((totalSupply-amountBigInt).toString());
     expect(recipientBalance).to.equal(amount);
   })
 });

@@ -12,38 +12,34 @@ describe("CleanMileDNFT", function () {
     [owner, addr1, addr2] = await ethers.getSigners();
     const CleanMileDNFT = await ethers.getContractFactory("CleanMileDNFT");
     cleanMileDNFT = await CleanMileDNFT.deploy("CleanMileDNFT", "CMNFT");
-    const CleanMileBadge = await ethers.getContractFactory("CleanMileBadge");
-    cleanMileBadge = await CleanMileBadge.deploy();
+    const CleanMileBadage = await ethers.getContractFactory("CleanMileBadge");
+    cleanMileBadge = await CleanMileBadage.deploy();
   });
 
-  it("Positive) 레벨 1의 DNFT를 생성합니다.", async function () {
+  it("Positive) 레벨 1의 DNFT를 생성합니다", async function () {
     const tokenId = 0;
     const description = "Description 1";
     const name = "DNFT 1";
-    const tokenURI = "ipfs://1";
 
-    await cleanMileDNFT.mintDNFT(addr1.address, description, name, tokenURI);
+    await cleanMileDNFT.mintDNFT(addr1.address, name, description,0);
 
     // DNFT 데이터 확인
-    const dnftType = await cleanMileDNFT.dnftType(tokenId);
+    const dnftType = await cleanMileDNFT.dnftLevel(tokenId);
     const dnftDescription = await cleanMileDNFT.dnftDescription(tokenId);
     const dnftName = await cleanMileDNFT.dnftName(tokenId);
     const tokenOwner = await cleanMileDNFT.ownerOf(tokenId);
-    const tokenUri = await cleanMileDNFT.tokenURI(tokenId);
     expect(dnftType).to.equal(0); // DnftType.level_1은 enum 값 0
     expect(dnftDescription).to.equal(description);
     expect(dnftName).to.equal(name);
     expect(tokenOwner).to.equal(addr1.address);
-    expect(tokenUri).to.equal(tokenURI);
   });
 
   it("Positive) DNFT의 Name과 Description을 업그레이드 합니다.", async function () {
     const tokenId = 0;
     const description = "Description 1";
     const name = "DNFT 1";
-    const tokenURI = "ipfs://1";
 
-    await cleanMileDNFT.mintDNFT(addr1.address, description, name, tokenURI);
+    await cleanMileDNFT.mintDNFT(addr1.address, name, description,0);
 
     const newName = "new DNFT 1";
     const newDescription = "new Description 1";
@@ -63,10 +59,9 @@ describe("CleanMileDNFT", function () {
     const badgeId = 0;
     const description = "Description 1";
     const name = "DNFT 1";
-    const tokenURI = "ipfs://1";
     
 
-    await cleanMileDNFT.mintDNFT(addr1.address, description, name, tokenURI);
+    await cleanMileDNFT.mintDNFT(addr1.address, name, description, 0);
 
     await cleanMileDNFT.setBadge(cleanMileBadge.target);
 
@@ -76,13 +71,60 @@ describe("CleanMileDNFT", function () {
 
     await cleanMileBadge.transferBadge(owner.address,addr1.address,badgeId,1);
 
-    await cleanMileDNFT.connect(addr1).upgrade(dnftId)
+    await cleanMileDNFT.connect(addr1).upgradeDNFT(dnftId)
 
-    const dnftType = await cleanMileDNFT.dnftType(dnftId);
+    const dnftLevel = await cleanMileDNFT.dnftLevel(dnftId);
     const badgeScore = await cleanMileBadge.userBadgeScore(addr1.address);
 
     expect(badgeScore).to.equal(20);
-    expect(dnftType).to.equal(1); 
+    expect(dnftLevel).to.equal(1);
+  })
+
+  it("Negative) 뱃지 점수가 모자란 상태에서 업그레이드 요청 시 실패", async function () {
+    const dnftId = 0;
+    const badgeId = 0;
+    const description = "Description 1";
+    const name = "DNFT 1";
+    
+
+    await cleanMileDNFT.mintDNFT(addr1.address, name, description, 0);
+
+    await cleanMileDNFT.setBadge(cleanMileBadge.target);
+
+    await cleanMileBadge.mintBadge(owner.address, 2, 10, 'this is sample');
+
+    await cleanMileBadge.transferBadge(owner.address,addr1.address,badgeId,1);
+
+    await cleanMileDNFT.connect(addr1).upgradeDNFT(dnftId);
+
+    const dnftLevel = await cleanMileDNFT.dnftLevel(dnftId);
+
+    expect(dnftLevel).to.equal(0);
+  })
+
+  it("Negative) 토큰 Owner가 아닌 사람이 Name, Description 업데이트 시도 시 실패", async function() {
+    const dnftId = 0;
+    const description = "Description 1";
+    const name = "DNFT 1";
+    
+    await cleanMileDNFT.mintDNFT(addr1.address, name, description, 0);
+
+    const newName = "new DNFT 1";
+    await cleanMileDNFT.updateName(dnftId, newName).catch(err => {
+      expect(err.message).to.contain("NotOwner");
+    });
+
+    const newDescription = "new Description 1";
+    await cleanMileDNFT.updateDescription(dnftId, newDescription).catch(err => {
+      expect(err.message).to.contain("NotOwner");
+    });
+
+    const currentName = await cleanMileDNFT.dnftName(dnftId);
+    const currentDescription = await cleanMileDNFT.dnftDescription(dnftId);
+
+    expect(currentName).to.equal(name);
+    expect(currentDescription).to.equal(description);
   })
 
 });
+
