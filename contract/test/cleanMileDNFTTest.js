@@ -12,11 +12,11 @@ describe("CleanMileDNFT", function () {
     [owner, addr1, addr2] = await ethers.getSigners();
     const CleanMileDNFT = await ethers.getContractFactory("CleanMileDNFT");
     cleanMileDNFT = await CleanMileDNFT.deploy("CleanMileDNFT", "CMNFT");
-    const CleanMileBadage = await ethers.getContractFactory("CleanMileBadge");
-    cleanMileBadge = await CleanMileBadage.deploy();
+    const CleanMileBadge = await ethers.getContractFactory("CleanMileBadge");
+    cleanMileBadge = await CleanMileBadge.deploy();
   });
 
-  it("레벨 1의 DNFT를 생성합니다", async function () {
+  it("Positive) 레벨 1의 DNFT를 생성합니다.", async function () {
     const tokenId = 0;
     const description = "Description 1";
     const name = "DNFT 1";
@@ -37,7 +37,7 @@ describe("CleanMileDNFT", function () {
     expect(tokenUri).to.equal(tokenURI);
   });
 
-  it("DNFT의 Name과 Description을 업그레이드 합니다.", async function () {
+  it("Positive) DNFT의 Name과 Description을 업그레이드 합니다.", async function () {
     const tokenId = 0;
     const description = "Description 1";
     const name = "DNFT 1";
@@ -58,7 +58,7 @@ describe("CleanMileDNFT", function () {
     expect(dnftDescription).to.equal(newDescription);
   });
 
-  it("DNFT에게 뱃지를 지급하고 기준을 충족한다면 업그레이드 합니다.", async function () {
+  it("Positive) DNFT에게 뱃지를 지급하고 기준을 충족한다면 업그레이드 합니다.", async function () {
     const dnftId = 0;
     const badgeId = 0;
     const description = "Description 1";
@@ -82,7 +82,7 @@ describe("CleanMileDNFT", function () {
     const badgeScore = await cleanMileBadge.userBadgeScore(addr1.address);
 
     expect(badgeScore).to.equal(20);
-    expect(dnftType).to.equal(1);
+    expect(dnftType).to.equal(1); 
   })
 
 });

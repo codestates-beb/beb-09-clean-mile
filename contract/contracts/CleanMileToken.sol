@@ -21,7 +21,7 @@ contract CleanMileToken is IERC20 {
         _name = getName;
         _symbol = getSymbol;
         _decimals = 18;
-        _totalSupply = 100000000e18;
+        _totalSupply = 100000000;
         _balances[msg.sender] = _totalSupply;
     }
 
