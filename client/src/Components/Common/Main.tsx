@@ -69,7 +69,7 @@ const Main = () =>  {
                     src={item.image} 
                     layout='fill'
                     objectFit='cover' 
-                    alt='nft image' 
+                    alt='insta image' 
                   />
                 </div>
                 <div className='p-6 sm:p-3 xs:p-2 w-full'>

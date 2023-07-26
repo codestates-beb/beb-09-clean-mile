@@ -24,7 +24,7 @@ const Nav: React.FC<NavProps> = ({ isOpen }) => {
           <li className="hover:bg-green-600 hover:text-white font-bold text-lg w-full flex items-center justify-center h-16 transition-all duration-200 cursor-pointer"
             onClick={() => navigateTo('/notice')}>Notice</li>
           <li className="hover:bg-green-600 hover:text-white font-bold text-lg w-full flex items-center justify-center h-16 transition-all duration-200 cursor-pointer"
-            onClick={() => navigateTo('/events')}>Events</li>
+            onClick={() => navigateTo('/posts/events')}>Events</li>
           <li className="hover:bg-green-600 hover:text-white font-bold text-lg w-full flex items-center justify-center h-16 transition-all duration-200 cursor-pointer"
             onClick={() => setIsMenu(!isMenu)}>
             Community
@@ -36,7 +36,7 @@ const Nav: React.FC<NavProps> = ({ isOpen }) => {
                 General
               </li>
               <li className='w-full text-center list-none cursor-pointer px-5 py-3 font-semibold hover:bg-green-600 hover:text-white'
-                onClick={() => router.push('/review')}>
+                onClick={() => router.push('/posts/review')}>
                 Review
               </li>
             </ul>
