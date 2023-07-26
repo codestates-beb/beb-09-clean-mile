@@ -5,3 +5,5 @@ config.json
 init.json
 node_modules
 package-lock.json
+client/src/assets/images/clean_mile_logo.png:Zone.Identifier
+client/src/assets/images/google_logo.png:Zone.Identifier
