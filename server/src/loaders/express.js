@@ -33,7 +33,7 @@ module.exports = (app) => {
   }
 
   // morgan 미들웨어를 통해 로그를 출력할 파일 지정
-  // app.use(morgan(logType), { stream: accessLogStream });
+  //app.use(morgan(logType), { stream: accessLogStream });
 
   // morgan 미들웨어를 통해 console에 로그를 출력
   app.use(morgan(logType));

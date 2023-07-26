@@ -12,7 +12,7 @@ module.exports = {
 
   // naver mail
   mail: {
-    serviceName: "Naver",
+    serviceName: config.SERVICE_NAME,
     adminEmail: config.ADMIN_EMAIL,
     mailId: config.MAIL_ID,
     mailPassword: config.MAIL_PW,
@@ -20,4 +20,7 @@ module.exports = {
 
   // bcrypt
   saltRounds: 10,
+
+  // jwt
+  jwtSecret: config.SECRET_CODE,
 };

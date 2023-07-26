@@ -123,6 +123,7 @@ const checkEmailAuthCode = async (email, code) => {
       Number(emailData.code) === Number(code) &&
       emailData.expiry >= Date.now()
     ) {
+      await emailData.updateOne({ authenticated: true });
       return { success: true };
     } else {
       return { success: false };
@@ -163,10 +164,30 @@ const saveUserData = async (userData) => {
   }
 };
 
+/**
+ * 이메일을 이용한 사용자 정보 조회 함수
+ * @param {string} email
+ * @returns 조회 결과
+ */
+const findUser = async (email) => {
+  try {
+    const result = await UserModel.findOne({ email: email });
+    if (!result) {
+      return { success: false };
+    } else {
+      return { success: true, data: result };
+    }
+  } catch (err) {
+    console.error("Error:", err);
+    throw new Error(err);
+  }
+};
+
 module.exports = {
   checkEmail,
   sendEmail,
   checkNickName,
   checkEmailAuthCode,
   saveUserData,
+  findUser,
 };

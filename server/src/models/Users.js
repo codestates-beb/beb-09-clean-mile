@@ -96,7 +96,7 @@ const userSchema = new mongoose.Schema({
 });
 
 /**
- * 데이터 저장 전에 비밀번호 암호화 처리
+ * 사용자 비밀번호 암호화 함수
  */
 userSchema.pre("save", function (next) {
   const user = this;
@@ -118,6 +118,15 @@ userSchema.pre("save", function (next) {
     next();
   }
 });
+
+/**
+ * 사용자 비밀번호 비교 함수
+ * @param {string} plainPW
+ * @returns 일치 여부
+ */
+userSchema.methods.comparePassword = async function (enterPassword) {
+  return await bcrypt.compare(enterPassword, this.hashed_pw);
+};
 
 const Users = mongoose.model("user", userSchema);
 module.exports = Users;
