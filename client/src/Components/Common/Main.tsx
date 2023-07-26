@@ -1,8 +1,10 @@
 import React from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/router';
 import { hero_img, insta_icon, insta_logo } from '../Reference';
 
 const Main = () =>  {
+  const router = useRouter();
 
   const dummy = [
     { id: 1, image: hero_img, insta_id: 'test1', insta_content: 'skfjklsfjklsjfkljsklf' },
@@ -24,7 +26,10 @@ const Main = () =>  {
             Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.
           </p>
           <div className='flex justify-end items-end w-full md:justify-center sm:justify-center xs:justify-center'>
-            <button className='bg-main-blue hover:bg-blue-600 rounded-xl text-white font-semibold px-20 py-3 md:px-16 sm:px-12 xs:px-6 md:text-sm sm:text-sm xs:text-xs transition duration-300'>Get Started</button>
+            <button className='bg-main-blue hover:bg-blue-600 rounded-xl text-white font-semibold px-20 py-3 md:px-16 sm:px-12 xs:px-6 md:text-sm sm:text-sm xs:text-xs transition duration-300'
+              onClick={() => router.push('/login')}>
+              Get Started
+            </button>
           </div>
         </div>
       </div>

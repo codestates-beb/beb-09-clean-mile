@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import Image from 'next/image';
 import { RiKakaoTalkFill } from 'react-icons/ri';
 import { FcGoogle } from 'react-icons/fc';
 import { IoEyeSharp, IoEyeOffSharp } from 'react-icons/io5';
-import { Three } from '../Components/Reference';
+import { Three, logo } from '../Reference';
 
 const Login = () => {
   const router = useRouter();
@@ -13,13 +14,17 @@ const Login = () => {
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
 
+  /**
+   * 비밀번호 가시성 상태를 전환하는 함수
+   */
   const passwordVisibility = () => {
     setPwVisible(!isPwdVisible);
   };
+
   /**
-   * - 비밀번호 유효성 검사를 수행하는 함수
-   * - 비밀번호는 최소 8자 이상이어야 하며,
-   * - 대문자, 소문자, 숫자, 특수기호가 모두 포함되어야 함
+   * 사용자의 비밀번호를 검증하는 함수
+   * 비밀번호는 최소 8자 이상이어야 하며, 최소한 하나의 대문자, 소문자, 숫자, 특수문자가 포함되어야 함
+   * 만약 비밀번호가 이 요구사항을 만족하지 않을 경우, `passwordError` 상태를 관련 오류 메시지로 업데이트
    */
   const validatePassword = () => {
     const passwordRegex = /^(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
@@ -32,11 +37,15 @@ const Login = () => {
     }
   };
 
-
   useEffect(() => {
       validatePassword();
   }, [password]);
 
+  /**
+   * 이메일을 검증하는 함수
+   * 이메일은 특정 형식에 맞아야 함
+   * 만약 이메일이 이 형식에 맞지 않을 경우, `emailError` 상태를 오류 메시지로 업데이트
+   */
   const validateEmail = () => {
     const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!re.test(email)) {
@@ -55,8 +64,11 @@ const Login = () => {
   return (
     <div className='w-full min-h-screen grid grid-cols-2'>
       <Three />
-      <div className='flex flex-col items-center justify-center gap-48 lg:gap-24 sm:gap-20 xs:gap-12 lg:py-6'>
-        <h1 className='text-6xl lg:text-5xl md:text-4xl sm:text-3xl xs:text-3xl font-bold'>Login</h1>
+      <div className='flex flex-col items-center justify-center gap-40 lg:gap-24 sm:gap-20 xs:gap-12 lg:py-6'>
+        <div className='flex flex-col items-center justify-center gap-6'>
+          <Image src={logo} className='cursor-pointer md:w-1/2 sm:w-1/3 xs:w-1/2' width={150} height={100} alt='clean mile logo' onClick={() => router.push('/')} />
+          <h1 className='text-6xl lg:text-4xl md:text-4xl sm:text-3xl xs:text-3xl font-bold'>Login</h1>
+        </div>
         <div className="w-[80%] flex flex-col items-center justify-center gap-12">
           <div className='w-[50%] lg:w-[90%] md:w-full sm:w-full xs:w-full flex flex-col gap-12'>
             <div className='w-full flex flex-col sm:gap-4 xs:gap-2 justify-center items-center'>

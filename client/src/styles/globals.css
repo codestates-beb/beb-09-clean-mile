@@ -24,6 +24,16 @@ input {
   outline: none;
 }
 
+select {
+  appearance: none;
+  background-image: url('../assets/images/down-filled-triangular-arrow.png');
+  background-repeat: no-repeat;
+  background-position: right 6px center;
+  background-size: 12px;
+}
+
+
+/* hero */
 .hero-bg {
   position: relative;
   width: 100%;
