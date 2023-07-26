@@ -19,7 +19,7 @@ contract CleanMileDNFT is ERC721, ICleanMileDNFT, Ownable {
 
     ICleanMileBadge private _badge;
 
-    string[] IpfsUri = [
+    string[6] IpfsUri = [
         "https://gold-cool-goat-213.mypinata.cloud/ipfs/QmfFbvLH37DebBqmVBm7V8ecfzgjFPnPeHRYiYk1PNoW84/1level.png",
         "https://gold-cool-goat-213.mypinata.cloud/ipfs/QmfFbvLH37DebBqmVBm7V8ecfzgjFPnPeHRYiYk1PNoW84/2level.png",
         "https://gold-cool-goat-213.mypinata.cloud/ipfs/QmfFbvLH37DebBqmVBm7V8ecfzgjFPnPeHRYiYk1PNoW84/3level.png",
@@ -66,25 +66,30 @@ contract CleanMileDNFT is ERC721, ICleanMileDNFT, Ownable {
         string calldata _description,
         UserType userType
     ) external onlyOwner {
+        if (!(userType == UserType.Admin || userType == UserType.User)) {
+            revert InvalidUserType();
+        }
+
+        DNFTLevel _level;
+
         if (userType == UserType.Admin) {
-            _mintAdminDNFT(_to, _name, _description);
-            return;
+            _level = DNFTLevel.level_6;
+        } else {
+            _level = DNFTLevel.level_1;
         }
 
-        if (userType == UserType.User) {
-            _mintDNFT(_to, _name, _description);
-            return;
-        }
+        string memory _tokenURI = IpfsUri[uint256(_level)];
 
-        revert InvalidUserType();
+        _mintDNFT(_to, _name, _description, _tokenURI, _level);
     }
 
     function _mintDNFT(
         address _to,
         string calldata _name,
-        string calldata _description
+        string calldata _description,
+        string memory _tokenURI,
+        DNFTLevel _level
     ) internal virtual {
-        string memory _tokenURI = IpfsUri[0];
         uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
 
@@ -94,26 +99,7 @@ contract CleanMileDNFT is ERC721, ICleanMileDNFT, Ownable {
         _dnftData[tokenId] = DNFTData({
             name: _name,
             description: _description,
-            level: DNFTLevel.level_1
-        });
-    }
-
-    function _mintAdminDNFT(
-        address _to,
-        string calldata _name,
-        string calldata _description
-    ) internal virtual {
-        string memory _tokenURI = IpfsUri[5];
-        uint256 tokenId = _tokenIdCounter.current();
-        _tokenIdCounter.increment();
-
-        _mint(_to, tokenId);
-        _setTokenURI(tokenId, _tokenURI);
-
-        _dnftData[tokenId] = DNFTData({
-            name: _name,
-            description: _description,
-            level: DNFTLevel.level_6
+            level: _level
         });
     }
 
@@ -129,8 +115,6 @@ contract CleanMileDNFT is ERC721, ICleanMileDNFT, Ownable {
         if (ownerOf(_tokenId) != msg.sender)
             revert NotOwner(_tokenId, msg.sender);
         _dnftData[_tokenId].name = _name;
-
-        // emit UpgradeDNFT(msg.sender, _tokenId);
     }
 
     function updateDescription(
@@ -140,8 +124,6 @@ contract CleanMileDNFT is ERC721, ICleanMileDNFT, Ownable {
         if (ownerOf(_tokenId) != msg.sender)
             revert NotOwner(_tokenId, msg.sender);
         _dnftData[_tokenId].description = _description;
-
-        // emit UpgradeDNFT(msg.sender, _tokenId);
     }
 
     function setBadge(address badgeAddress) public onlyOwner returns (bool) {
