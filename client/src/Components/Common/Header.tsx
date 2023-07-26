@@ -20,11 +20,11 @@ const Header = () => {
 
   return (
     <>
-      <div className="w-full h-20 flex items-center justify-between px-10 sm:px-3 xs:px-3 border-b bg-white md:gap-6 sm:gap-4 xs:gap-4 sticky top-0 z-50">
-        <div className="w-[15%] md:w-[30%] sm:w-[80%] xs:w-[50%] h-full flex items-center justify-center overflow-hidden">
-          <img src='/assets/images/clean_mile_logo_2.png' className='w-[60%] md:w-[90%] sm:w-[100%] xs:w-[100%] cursor-pointer' alt="logo" onClick={() => navigateTo('/')} />
+      <div className="w-full mx-auto sm:overflow-hidden h-20 flex items-center justify-between px-10 sm:px-3 xs:px-3 border-b bg-white md:gap-6 sm:gap-4 xs:gap-4 sticky top-0 z-50">
+        <div className="w-[15%] md:w-[30%] sm:w-full xs:w-[50%] h-full flex items-center sm:justify-start overflow-hidden">
+          <img src='/assets/images/clean_mile_logo_2.png' className='w-[50%] lg:w-[90%] md:w-[90%] sm:w-[80%] xs:w-[100%] cursor-pointer' alt="logo" onClick={() => navigateTo('/')} />
         </div>
-        <div className="w-3/4 md:w-full h-full flex justify-end items-center gap-20">
+        <div className="w-3/4 md:w-full sm:w-fullh-full flex justify-end items-center gap-20">
           <nav className='flex justify-center items-center md:hidden sm:hidden xs:hidden relative'>
             <ul className="flex justify-center items-center gap-14">
               <li className={
@@ -102,7 +102,7 @@ const Header = () => {
               )}
             </ul>
           </nav>
-          <div className="flex gap-4">
+          <div className="flex gap-5">
             <button className="
               text-main-yellow 
               hover:text-black 
@@ -133,16 +133,16 @@ const Header = () => {
               onClick={() => router.push('/signup')}>
                 Register
             </button>
+            <div className="xl:hidden lg:hidden md:block sm:block xs:block flex items-center relative">
+              <button type="button" className="text-gray-500 hover:text-white focus:outline-none focus:text-white" onClick={() => setIsOpen(!isOpen)}>
+                {isOpen ? <IoCloseSharp size={30} className="text-black" /> : <GiHamburgerMenu size={30} className="text-black" />}
+              </button>
+              {isOpen ? <Nav isOpen={isOpen} /> : null}
+            </div>
           </div>
         </div>
-        <div className="hidden xl:hidden lg:hidden md:block sm:block xs:block flex items-center relative">
-          <button type="button" className="text-gray-500 hover:text-white focus:outline-none focus:text-white" onClick={() => setIsOpen(!isOpen)}>
-            {isOpen ? <IoCloseSharp size={30} className="text-black" /> : <GiHamburgerMenu size={30} className="text-black" />}
-          </button>
-          {isOpen ? <Nav isOpen={isOpen} /> : null}
-        </div>
       </div>
-      <NewNotice />
+      {router.pathname !== '/' && router.pathname !== '/user/mypage' && <NewNotice />}
     </>
   );
 };

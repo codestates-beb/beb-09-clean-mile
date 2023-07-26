@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { RiKakaoTalkFill } from 'react-icons/ri';
 import { FcGoogle } from 'react-icons/fc';
 import { IoEyeSharp, IoEyeOffSharp } from 'react-icons/io5';
-import { Three, logo } from '../Reference';
+import { Three, logo, meta_mask_logo } from '../Reference';
 
 const SignUp = () => {
   const router = useRouter();
@@ -199,16 +199,22 @@ const SignUp = () => {
                 </div>
               </div>
             </div>
-            <div className='w-full flex flex-col justify-center items-center gap-5 mt-12'>
-              <button className='w-[50%] lg:w-[70%] md:w-full sm:w-full xs:w-full bg-main-green hover:bg-green-600 px-7 py-2 rounded-xl text-white text-lg md:text-base sm:text-base xs:text-base font-semibold transition duration-300'>
-              SignUp
+            <div className='w-full flex flex-col justify-center items-center'>
+              <button className='w-[50%] lg:w-[60%] md:w-[70%] sm:w-full xs:w-full sm:w-full xs:w-full flex items-center justify-center font-semibold text-white text-lg text-md lg:text-md md:text-md sm:text-base xs:text-sm bg-[#F3AA60] hover:bg-[#FF8551] rounded-xl px-12 lg:px-6 md:px-4 sm:px-2 xs:px-2 py-3 lg:py-2 md:py-3 sm:py-3 xs:py-2 transition duration-300'>
+                <Image src={meta_mask_logo} width={100} height={100} alt='meta mask logo' className='w-[10%] lg:w-[15%] sm:w-[15%] xs:w-[15%]' />
+                <span className='text-center w-[90%] lg:w-[80%] md:text-sm sm:text-xs xs:text-xs'>MetaMask Connect</span>
               </button>
-              <div className='w-[50%] lg:w-[70%] md:w-full sm:w-full xs:w-full flex sm:flex-col xs:flex-col sm:items-center xs:items-center gap-6'>
-                <button className='w-[50%] sm:w-full xs:w-full flex items-center justify-center bg-main-yellow hover:bg-yellow-500 px-7 py-2 rounded-xl text-white text-lg font-semibold transition duration-300'>
+            </div>
+            <div className='w-full flex flex-col justify-center items-center gap-5 mt-12'>
+              <button className='w-[80%] lg:w-[70%] md:w-full sm:w-full xs:w-full bg-main-green hover:bg-green-600 px-7 py-2 rounded-xl text-white text-lg md:text-base sm:text-base xs:text-base font-semibold transition duration-300'>
+                SignUp
+              </button>
+              <div className='w-[80%] lg:w-[70%] md:w-full sm:w-full xs:w-full flex sm:flex-col xs:flex-col sm:items-center xs:items-center gap-6'>
+                <button className='w-[80%] sm:w-full xs:w-full flex items-center justify-center bg-main-yellow hover:bg-yellow-500 px-7 py-2 rounded-xl text-white text-lg font-semibold transition duration-300'>
                   <RiKakaoTalkFill size={25} className='w-[30%]' />
                   <span className='text-center w-[90%] md:text-sm sm:text-sm xs:text-sm'>KaKao</span>
                 </button>
-                <button className='w-[50%] sm:w-full xs:w-full flex items-center justify-center bg-white hover:bg-gray-300 px-7 py-2 rounded-xl text-gray-700 border text-lg font-semibold transition duration-300'>
+                <button className='w-[80%] sm:w-full xs:w-full flex items-center justify-center bg-white hover:bg-gray-300 px-7 py-2 rounded-xl text-gray-700 border text-lg font-semibold transition duration-300'>
                   <FcGoogle size={25} className='w-[30%]' />
                   <span className='text-center w-[90%] md:text-sm sm:text-sm xs:text-sm'>Google</span>
                 </button>
