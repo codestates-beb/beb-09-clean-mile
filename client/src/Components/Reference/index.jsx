@@ -6,9 +6,12 @@ import Footer from '../Common/Footer';
 import Login from '../Users/Login';
 import SignUp from '../Users/SignUp';
 import Notice from '../Notice';
-import General from '../Posts/General';
+import General from '../General/General';
+import Events from '../Events/Events';
+import Review from '../Review/Review';
 
 import Three from '../Three';
+import SearchInput from '../Common/SearchInput';
 
 import logo from '../../assets/images/clean_mile_logo.png';
 import hero_img from '../../assets/images/plogging.png';
@@ -26,7 +29,10 @@ export {
   SignUp,
   Notice,
   General,
+  Events,
+  Review,
   Three,
+  SearchInput,
   logo,
   hero_img,
   insta_logo,

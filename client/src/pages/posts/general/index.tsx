@@ -1,5 +1,5 @@
 import React from 'react';
-import { Header, General, Footer } from '../../Components/Reference'
+import { Header, General, Footer } from '../../../Components/Reference'
 
 const GeneralPage = () => {
   return (
