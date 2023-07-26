@@ -6,7 +6,7 @@ const routes = require("../api");
 const config = require("../config");
 const accessLogStream = require("../loaders/morgan");
 
-module.exports = function (app) {
+module.exports = (app) => {
   // Enable Cross Origin Resource Sharing to all origins by default
   app.use(
     cors({
@@ -33,7 +33,7 @@ module.exports = function (app) {
   }
 
   // morgan 미들웨어를 통해 로그를 출력할 파일 지정
-  // app.use(morgan(logType), { stream: accessLogStream });
+  //app.use(morgan(logType), { stream: accessLogStream });
 
   // morgan 미들웨어를 통해 console에 로그를 출력
   app.use(morgan(logType));
