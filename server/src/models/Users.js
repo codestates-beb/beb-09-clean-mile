@@ -1,6 +1,6 @@
-const mongoose = require("mongoose");
-const bcrypt = require("bcrypt");
-const config = require("../config/index");
+const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
+const config = require('../config/index');
 
 /**
  * Users Collection Schema
@@ -81,26 +81,26 @@ const userSchema = new mongoose.Schema({
   post: {
     // posts collection의 _id를 참조
     type: mongoose.Schema.Types.ObjectId,
-    ref: "post",
+    ref: 'post',
   },
   comment: {
     // comments collection의 _id를 참조
     type: mongoose.Schema.Types.ObjectId,
-    ref: "comment",
+    ref: 'comment',
   },
   dnft: {
     // dnfts collection의 _id를 참조
     type: mongoose.Schema.Types.ObjectId,
-    ref: "dnft",
+    ref: 'dnft',
   },
 });
 
 /**
  * 사용자 비밀번호 암호화 함수
  */
-userSchema.pre("save", function (next) {
+userSchema.pre('save', function (next) {
   const user = this;
-  if (user.isModified("hashed_pw")) {
+  if (user.isModified('hashed_pw')) {
     bcrypt.genSalt(config.saltRounds, (err, salt) => {
       if (err) {
         return next(err);
@@ -128,5 +128,5 @@ userSchema.methods.comparePassword = async function (enterPassword) {
   return await bcrypt.compare(enterPassword, this.hashed_pw);
 };
 
-const Users = mongoose.model("user", userSchema);
+const Users = mongoose.model('user', userSchema);
 module.exports = Users;

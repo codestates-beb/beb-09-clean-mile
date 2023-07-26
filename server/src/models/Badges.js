@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const badgeSchema = new mongoose.Schema({
   name: {
@@ -55,9 +55,9 @@ const badgeSchema = new mongoose.Schema({
   event: {
     // events collection의 _id를 참조
     type: mongoose.Schema.Types.ObjectId,
-    ref: "event",
+    ref: 'event',
   },
 });
 
-const Badge = mongoose.model("badge", badgeSchema);
+const Badge = mongoose.model('badge', badgeSchema);
 module.exports = Badge;

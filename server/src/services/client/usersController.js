@@ -1,8 +1,8 @@
-const { findOne } = require("../../models/Badges");
-const smtpTransport = require("../../loaders/email");
-const config = require("../../config/index");
-const MailModel = require("../../models/Mails");
-const UserModel = require("../../models/Users");
+const { findOne } = require('../../models/Badges');
+const smtpTransport = require('../../loaders/email');
+const config = require('../../config/index');
+const MailModel = require('../../models/Mails');
+const UserModel = require('../../models/Users');
 
 /**
  * 랜덤 인증코드 생성 함수 (min ~ max)
@@ -31,8 +31,8 @@ const saveAuthCode = async (email, authCode) => {
     const result = await mailData.save(); // 데이터 저장
     return result._id;
   } catch (err) {
-    console.error("Error:", err);
-    throw new Error(err);
+    console.error('Error:', err);
+    throw Error(err);
   }
 };
 
@@ -47,7 +47,7 @@ const sendEmail = async (email) => {
     const mailOptions = {
       from: config.mail.adminEmail,
       to: email,
-      subject: "[Clean Mile]인증 관련 이메일 입니다",
+      subject: '[Clean Mile]인증 관련 이메일 입니다',
       text: `오른쪽 숫자 6자리를 입력해주세요 : ${authCode}`,
     };
 
@@ -61,14 +61,14 @@ const sendEmail = async (email) => {
       .catch(async (err) => {
         // 메일 전송 실패시 DB에 저장된 인증코드 삭제
         await MailModel.deleteOne({ _id: mailSaveId });
-        console.error("Error:", err);
-        throw new Error(err);
+        console.error('Error:', err);
+        throw Error(err);
       });
 
     return { success: true };
   } catch (err) {
-    console.error("Error:", err);
-    throw new Error(err);
+    console.error('Error:', err);
+    throw Error(err);
   }
 };
 
@@ -86,8 +86,8 @@ const checkEmail = async (email) => {
       return { success: false };
     }
   } catch (err) {
-    console.error("Error:", err);
-    throw new Error(err);
+    console.error('Error:', err);
+    throw Error(err);
   }
 };
 
@@ -105,8 +105,8 @@ const checkNickName = async (nickname) => {
       return { success: false };
     }
   } catch (err) {
-    console.error("Error:", err);
-    throw new Error(err);
+    console.error('Error:', err);
+    throw Error(err);
   }
 };
 
@@ -129,8 +129,8 @@ const checkEmailAuthCode = async (email, code) => {
       return { success: false };
     }
   } catch (err) {
-    console.error("Error:", err);
-    throw new Error(err);
+    console.error('Error:', err);
+    throw Error(err);
   }
 };
 
@@ -141,6 +141,7 @@ const checkEmailAuthCode = async (email, code) => {
  */
 const saveUserData = async (userData) => {
   try {
+    console.log(userData);
     const saveUserData = new UserModel({
       email: userData.email,
       name: userData.name,
@@ -149,7 +150,7 @@ const saveUserData = async (userData) => {
       nickname: userData.nickname,
       social_provider: userData.social_provider,
       wallet: {
-        address: userData.walle_address,
+        address: userData.wallet_address,
       },
     });
     const result = await saveUserData.save();
@@ -159,8 +160,8 @@ const saveUserData = async (userData) => {
       return { success: true };
     }
   } catch (err) {
-    console.error("Error:", err);
-    throw new Error(err);
+    console.error('Error:', err);
+    throw Error(err);
   }
 };
 
@@ -178,8 +179,30 @@ const findUser = async (email) => {
       return { success: true, data: result };
     }
   } catch (err) {
-    console.error("Error:", err);
-    throw new Error(err);
+    console.error('Error:', err);
+    throw Error(err);
+  }
+};
+
+/**
+ * 사용자 닉네임 변경 함수
+ * @param {string} email
+ * @param {string} nickname
+ * @returns 성공여부
+ */
+const chgNickname = async (email, nickname) => {
+  try {
+    const userData = await UserModel.findOne({ email: email });
+    if (!userData) {
+      return { success: false };
+    } else {
+      userData.nickname = nickname;
+      const result = await userData.save();
+      return { success: true, data: result.nickname };
+    }
+  } catch (err) {
+    console.error('Error:', err);
+    throw Error(err);
   }
 };
 
@@ -190,4 +213,5 @@ module.exports = {
   checkEmailAuthCode,
   saveUserData,
   findUser,
+  chgNickname,
 };

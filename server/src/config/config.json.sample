@@ -1,9 +1,9 @@
 {
-  "PORT": 8080,
-  "DATABASE_URL": "",
-  "SERVICE_NAME": "Naver",
-  "NAVER_MAIL_ID": "",
-  "NAVER_MAIL_PW": "",
-  "ADMIN_EMAIL": "clean_mile@naver.com",
-  "SECRET_CODE": ""
+  'PORT': 8080,
+  'DATABASE_URL': '',
+  'SERVICE_NAME': 'Naver',
+  'NAVER_MAIL_ID': '',
+  'NAVER_MAIL_PW': '',
+  'ADMIN_EMAIL': 'clean_mile@naver.com',
+  'SECRET_CODE': ''
 }
