@@ -16,8 +16,11 @@ interface ICleanMileDNFT {
         address _to,
         string calldata _description,
         string calldata _name,
-        string calldata _tokenURI
+        string calldata _tokenURI,
+        uint256 userType
     ) external;
+
+    function mintAdminDNFT(address _to, string calldata _name) external;
 
     function updateDescription(
         uint256 _tokenId,

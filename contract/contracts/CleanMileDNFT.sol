@@ -42,9 +42,9 @@ contract CleanMileDNFT is ERC721, Ownable, ICleanMileDNFT {
 
     function mintDNFT(
         address _to,
-        string memory _description,
-        string memory _name,
-        string memory _tokenURI
+        string calldata _description,
+        string calldata _name,
+        string calldata _tokenURI
     ) external onlyOwner {
         uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
@@ -55,6 +55,22 @@ contract CleanMileDNFT is ERC721, Ownable, ICleanMileDNFT {
             name: _name,
             description: _description,
             dnftType: DnftType.level_1
+        });
+    }
+
+    function mintAdminDNFT(
+        address _to,
+        string calldata _name
+    ) external onlyOwner {
+        uint256 tokenId = _tokenIdCounter.current();
+        _tokenIdCounter.increment();
+        _mint(_to, tokenId);
+        _setTokenURI(tokenId, IpfsUri[5]);
+
+        _dnftData[tokenId] = DNFTData({
+            name: _name,
+            description: "administrator",
+            dnftType: DnftType.level_6
         });
     }
 
