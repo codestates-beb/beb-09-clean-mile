@@ -11,7 +11,7 @@ interface ICleanMileBadge {
 
     function mintBadge(
         address account,
-        BadgeType badgeType,
+        BadgeType _badgeType,
         uint256 amount,
         string memory _uri
     ) external;

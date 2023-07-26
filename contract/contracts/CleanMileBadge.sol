@@ -39,7 +39,7 @@ contract CleanMileBadge is ERC1155, ICleanMileBadge, Ownable {
     // 뱃지를 발급하는 함수입니다.
     function mintBadge(
         address account,
-        BadgeType badgeType,
+        BadgeType _badgeType,
         uint256 amount,
         string memory _uri
     ) external onlyOwner {
@@ -52,9 +52,9 @@ contract CleanMileBadge is ERC1155, ICleanMileBadge, Ownable {
 
         _badgeBalances[tokenId][account] += amount;
         _badgeURIs[tokenId] = _uri;
-        _tokenToBadgeType[tokenId] = badgeType;
+        _tokenToBadgeType[tokenId] = _badgeType;
 
-        emit MintBadge(msg.sender, account, badgeType, amount, _uri);
+        emit MintBadge(msg.sender, account, _badgeType, amount, _uri);
     }
 
     // ERC-1155 표준에 정의된 URI를 가져오기 위한 함수입니다.
