@@ -32,7 +32,7 @@ const Nav: React.FC<NavProps> = ({ isOpen }) => {
           {isMenu && (
             <ul className="w-full bg-white flex flex-col justify-center items-center">
               <li className='w-full text-center list-none cursor-pointer px-5 py-3 font-semibold hover:bg-green-600 hover:text-white'
-                onClick={() => router.push('/general')}>
+                onClick={() => router.push('/posts/general')}>
                 General
               </li>
               <li className='w-full text-center list-none cursor-pointer px-5 py-3 font-semibold hover:bg-green-600 hover:text-white'
