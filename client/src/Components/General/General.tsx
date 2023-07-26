@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
+import { SearchInput } from '../Reference';
 
 const General = () => {
   const router = useRouter();
@@ -63,8 +64,8 @@ const General = () => {
       <h1 className='font-bold text-5xl lg:text-4xl md:text-3xl sm:text-2xl xs:text-xl text-center'>
         General
       </h1>
-      <div className='flex justify-center items-center w-full'>
-        <div className='w-full'>
+      <div className={`flex justify-center items-center w-full`}>
+        <div className={`w-full ${currentPosts.length === 0 && 'min-h-screen items-center justify-around'}`}>
           <div className='flex justify-end mb-3'>
             <select className="border border-black py-2 px-4 pr-7 rounded-md text-sm" onChange={handleFilterChange}>
               <option className="text-sm xs:text-xs" value="newest">최신 순</option>
@@ -126,7 +127,7 @@ const General = () => {
                 )}
               </tbody>
             </table>
-            <div className='w-full mt-16 sm:mt-10 xs:mt-5 flex justify-center'>
+            <div className='w-full mt-16 sm:mt-10 xs:mt-5 mb-5 flex justify-center'>
               <div className='flex items-center'>
                 {Array.from({ length: totalPages }, (_, i) => (
                   <button
@@ -139,20 +140,9 @@ const General = () => {
                 ))}
               </div>
             </div>
-            <div className='w-full mt-16 sm:mt-10 xs:mt-5 mb-5 flex justify-center items-center'>
-              <select className="border border-black py-2 px-4 pr-6 rounded mr-5 text-sm">
-                <option className="text-sm sm:text-xs" value="option1">제목 + 내용</option>
-                <option className="text-sm sm:text-xs" value="option2">제목</option>
-                <option className="text-sm sm:text-xs" value="option3">내용</option>
-                <option className="text-sm sm:text-xs" value="option3">작성자</option>
-              </select>
-              <input className='border rounded-lg border-black py-2 px-4 xs:px-2 w-5/12' type="text" placeholder='게시글 검색'/>
-              <div className='ml-5 sm:ml-2 xs:ml-2'>
-                <button className='border rounded-lg py-2 xs:py-3 px-6 sm:px-2 xs:px-3 sm:text-sm xs:text-xs bg-main-blue text-white hover:bg-blue-600 transition duration-300' type="button">검색</button>
-              </div>
-            </div>
+          <SearchInput />
           </div>
-        </div>
+        </div>  
       </div>
     </div>
   )
