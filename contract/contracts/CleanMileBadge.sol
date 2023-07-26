@@ -80,9 +80,9 @@ contract CleanMileBadge is ERC1155, ICleanMileBadge, Ownable {
             !approvalForToken(msg.sender, tokenId)
         ) revert NoAuthority(msg.sender);
 
-        _transferBadge(msg.sender, to, tokenId, amount);
+        _transferBadge(from, to, tokenId, amount);
 
-        emit TransferSingle(msg.sender, msg.sender, to, tokenId, amount);
+        emit TransferSingle(msg.sender, from, to, tokenId, amount);
     }
 
     // 토큰 주인이나 권한을 받은 사용자가 한가지 종류의 토큰을 여러 사람에게 전송합니다.
@@ -127,14 +127,13 @@ contract CleanMileBadge is ERC1155, ICleanMileBadge, Ownable {
 
     // 사용자가 특정 연산자에게 토큰 전송 권한을 부여하는 함수입니다.
     function setApprovalForAll(
-        address account,
         address operator,
         bool approved
-    ) public virtual {
+    ) public override {
         if (operator == msg.sender) revert SelfApprove();
 
         // 연산자에 대한 권한을 설정합니다.
-        _setApprovalForAll(account, operator, approved);
+        _setApprovalForAll(msg.sender, operator, approved);
     }
 
     // ERC-1155 표준에 정의된 isApprovedForAll 함수를 오버라이드합니다.
