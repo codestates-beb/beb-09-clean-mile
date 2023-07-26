@@ -22,7 +22,7 @@ const Header = () => {
     <>
       <div className="w-full h-20 flex items-center justify-between px-10 sm:px-3 xs:px-3 border-b bg-white md:gap-6 sm:gap-4 xs:gap-4 sticky top-0 z-50">
         <div className="w-[15%] md:w-[30%] sm:w-[80%] xs:w-[50%] h-full flex items-center justify-center overflow-hidden">
-          <img src='/assets/images/clean_mile_logo_2.png' className='w-[60%] md:w-[90%] sm:w-[100%] xs:w-[100%]' alt="logo" />
+          <img src='/assets/images/clean_mile_logo_2.png' className='w-[60%] md:w-[90%] sm:w-[100%] xs:w-[100%] cursor-pointer' alt="logo" onClick={() => navigateTo('/')} />
         </div>
         <div className="w-3/4 md:w-full h-full flex justify-end items-center gap-20">
           <nav className='flex justify-center items-center md:hidden sm:hidden xs:hidden relative'>
@@ -37,8 +37,10 @@ const Header = () => {
                 transition 
                 duration-200 
                 ${router.pathname === '/' ? 'text-green-600' : null}`}
-                onClick={() => navigateTo('/')}>
-                Info
+                >
+                <Link href='/'>
+                  Info
+                </Link>
               </li>
               <li className={
                 `flex 
@@ -50,8 +52,10 @@ const Header = () => {
                 transition 
                 duration-200 
                 ${router.pathname === '/notice' ? 'text-green-600' : null}`}
-                onClick={() => navigateTo('/notice')}>
-                Notice
+                >
+                <Link href='/notice'>
+                  Notice
+                </Link>  
               </li>
               <li className={
                 `flex 
@@ -62,9 +66,11 @@ const Header = () => {
                 hover:text-green-600 
                 transition 
                 duration-200 
-                ${router.pathname === '/events' ? 'text-green-600' : null}`}
-                onClick={() => navigateTo('/events')}>
-                Events
+                ${router.pathname === '/posts/events' ? 'text-green-600' : null}`}
+                >
+                <Link href='/posts/events'>
+                  Events  
+                </Link>
               </li>
               <li className={
                 `flex 
@@ -82,15 +88,15 @@ const Header = () => {
               {isMenu && (
                 <ul className="w-[30%] bg-white flex flex-col justify-center items-center border rounded-xl absolute z-50"
                 style={{ top: '150%', right: -15 }}>
-                  <li className='w-full text-center list-none cursor-pointer px-5 py-3 font-semibold hover:bg-green-600 hover:text-white hover:rounded-xl'
-                    onClick={() => navigateTo('/posts/general')}>
-                      <Link href='/posts/general'>
-                        General
-                      </Link>
+                  <li className='w-full text-center list-none cursor-pointer px-5 py-3 font-semibold hover:bg-green-600 hover:text-white hover:rounded-xl'>
+                    <Link href='/posts/general'>
+                      General
+                    </Link>
                   </li>
-                  <li className='w-full text-center list-none cursor-pointer px-5 py-3 font-semibold hover:bg-green-600 hover:text-white hover:rounded-xl'
-                    onClick={() => navigateTo('/posts/review')}>
-                    Review
+                  <li className='w-full text-center list-none cursor-pointer px-5 py-3 font-semibold hover:bg-green-600 hover:text-white hover:rounded-xl'>
+                    <Link href='/posts/review'>
+                      Review
+                    </Link>
                   </li>
                 </ul>
               )}
