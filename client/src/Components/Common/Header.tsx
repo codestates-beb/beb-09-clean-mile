@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { GiHamburgerMenu } from 'react-icons/gi';
 import { IoCloseSharp } from 'react-icons/io5';
@@ -26,32 +27,69 @@ const Header = () => {
         <div className="w-3/4 md:w-full h-full flex justify-end items-center gap-20">
           <nav className='flex justify-center items-center md:hidden sm:hidden xs:hidden relative'>
             <ul className="flex justify-center items-center gap-14">
-              <li className={`flex justify-center items-center font-semibold cursor-pointer hover:text-green-600 transition duration-200 ${router.pathname === '/' ? 'text-green-600' : null}`}
+              <li className={
+                `flex 
+                justify-center 
+                items-center 
+                font-semibold 
+                cursor-pointer 
+                hover:text-green-600 
+                transition 
+                duration-200 
+                ${router.pathname === '/' ? 'text-green-600' : null}`}
                 onClick={() => navigateTo('/')}>
                 Info
               </li>
-              <li className={`flex justify-center items-center font-semibold cursor-pointer hover:text-green-600 transition duration-200 ${router.pathname === '/notice' ? 'text-green-600' : null}`}
+              <li className={
+                `flex 
+                justify-center 
+                items-center 
+                font-semibold 
+                cursor-pointer 
+                hover:text-green-600 
+                transition 
+                duration-200 
+                ${router.pathname === '/notice' ? 'text-green-600' : null}`}
                 onClick={() => navigateTo('/notice')}>
                 Notice
               </li>
-              <li className={`flex justify-center items-center font-semibold cursor-pointer hover:text-green-600 transition duration-200 ${router.pathname === '/events' ? 'text-green-600' : null}`}
+              <li className={
+                `flex 
+                justify-center 
+                items-center 
+                font-semibold 
+                cursor-pointer 
+                hover:text-green-600 
+                transition 
+                duration-200 
+                ${router.pathname === '/events' ? 'text-green-600' : null}`}
                 onClick={() => navigateTo('/events')}>
                 Events
               </li>
-              <li 
-                className={`flex justify-center items-center font-semibold cursor-pointer hover:text-green-600 transition duration-200 ${router.pathname === '/community' ? 'text-green-600' : null}`}
+              <li className={
+                `flex 
+                justify-center 
+                items-center 
+                font-semibold 
+                cursor-pointer 
+                hover:text-green-600 
+                transition 
+                duration-200 
+                ${router.pathname === '/posts/general' || router.pathname === '/posts/review'  ? 'text-green-600' : null}`}
                 onClick={() => setIsMenu(!isMenu)}>
                 Community
               </li>
               {isMenu && (
-                <ul className="w-[30%] bg-white flex flex-col justify-center items-center border rounded-xl absolute z-20"
+                <ul className="w-[30%] bg-white flex flex-col justify-center items-center border rounded-xl absolute z-50"
                 style={{ top: '150%', right: -15 }}>
                   <li className='w-full text-center list-none cursor-pointer px-5 py-3 font-semibold hover:bg-green-600 hover:text-white hover:rounded-xl'
-                    onClick={() => router.push('/general')}>
-                    General
+                    onClick={() => navigateTo('/posts/general')}>
+                      <Link href='/posts/general'>
+                        General
+                      </Link>
                   </li>
                   <li className='w-full text-center list-none cursor-pointer px-5 py-3 font-semibold hover:bg-green-600 hover:text-white hover:rounded-xl'
-                    onClick={() => router.push('/review')}>
+                    onClick={() => navigateTo('/posts/review')}>
                     Review
                   </li>
                 </ul>

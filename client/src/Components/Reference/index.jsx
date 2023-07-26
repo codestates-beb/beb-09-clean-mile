@@ -6,6 +6,7 @@ import Footer from '../Common/Footer';
 import Login from '../Users/Login';
 import SignUp from '../Users/SignUp';
 import Notice from '../Notice';
+import General from '../Posts/General';
 
 import Three from '../Three';
 
@@ -24,6 +25,7 @@ export {
   Login,
   SignUp,
   Notice,
+  General,
   Three,
   logo,
   hero_img,

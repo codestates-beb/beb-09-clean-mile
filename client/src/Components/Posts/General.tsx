@@ -2,32 +2,32 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 
-const Notice = () => {
+const General = () => {
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
   const [filter, setFilter] = useState('newest');
 
   const dummyNotice = [
-    { id: 1, title: 'test1', content: 'test111', writer: 'admin', date: '2023-07-26', views: 0 },
-    { id: 2, title: 'test2', content: 'test222', writer: 'admin', date: '2023-07-25', views: 0 },
-    { id: 3, title: 'test3', content: 'test333', writer: 'admin', date: '2023-07-24', views: 0 },
-    { id: 4, title: 'test4', content: 'test444', writer: 'admin', date: '2023-07-23', views: 0 },
-    { id: 5, title: 'test5', content: 'test555', writer: 'admin', date: '2023-07-22', views: 0 },
-    { id: 6, title: 'test6', content: 'test666', writer: 'admin', date: '2023-07-21', views: 0 },
-    { id: 7, title: 'test7', content: 'test777', writer: 'admin', date: '2023-07-20', views: 0 },
-    { id: 8, title: 'test8', content: 'test888', writer: 'admin', date: '2023-07-19', views: 0 },
-    { id: 9, title: 'test9', content: 'test999', writer: 'admin', date: '2023-07-18', views: 0 },
-    { id: 10, title: 'test10', content: 'test1010', writer: 'admin', date: '2023-07-17', views: 0 },
-    { id: 11, title: 'test1', content: 'test111', writer: 'admin', date: '2023-07-16', views: 0 },
-    { id: 12, title: 'test2', content: 'test222', writer: 'admin', date: '2023-07-15', views: 0 },
-    { id: 13, title: 'test3', content: 'test333', writer: 'admin', date: '2023-07-14', views: 0 },
-    { id: 14, title: 'test4', content: 'test444', writer: 'admin', date: '2023-07-13', views: 0 },
-    { id: 15, title: 'test5', content: 'test555', writer: 'admin', date: '2023-07-12', views: 0 },
-    { id: 16, title: 'test6', content: 'test666', writer: 'admin', date: '2023-07-11', views: 0 },
-    { id: 17, title: 'test7', content: 'test777', writer: 'admin', date: '2023-07-10', views: 0 },
-    { id: 18, title: 'test8', content: 'test888', writer: 'admin', date: '2023-07-09', views: 0 },
-    { id: 19, title: 'test9', content: 'test999', writer: 'admin', date: '2023-07-08', views: 0 },
-    { id: 20, title: 'test10', content: 'test1010', writer: 'admin', date: '2023-07-07', views: 0 },
+    { id: 1, title: 'general1', content: 'general111', writer: 'admin', date: '2023-07-26', views: 0 },
+    { id: 2, title: 'general2', content: 'general222', writer: 'admin', date: '2023-07-25', views: 0 },
+    { id: 3, title: 'general3', content: 'general333', writer: 'admin', date: '2023-07-24', views: 0 },
+    { id: 4, title: 'general4', content: 'general444', writer: 'admin', date: '2023-07-23', views: 0 },
+    { id: 5, title: 'general5', content: 'general555', writer: 'admin', date: '2023-07-22', views: 0 },
+    { id: 6, title: 'general6', content: 'general666', writer: 'admin', date: '2023-07-21', views: 0 },
+    { id: 7, title: 'general7', content: 'general777', writer: 'admin', date: '2023-07-20', views: 0 },
+    { id: 8, title: 'general8', content: 'general888', writer: 'admin', date: '2023-07-19', views: 0 },
+    { id: 9, title: 'general9', content: 'general999', writer: 'admin', date: '2023-07-18', views: 0 },
+    { id: 10, title: 'general10', content: 'general1010', writer: 'admin', date: '2023-07-17', views: 0 },
+    { id: 11, title: 'general1', content: 'general111', writer: 'admin', date: '2023-07-16', views: 0 },
+    { id: 12, title: 'general2', content: 'general222', writer: 'admin', date: '2023-07-15', views: 0 },
+    { id: 13, title: 'general3', content: 'general333', writer: 'admin', date: '2023-07-14', views: 0 },
+    { id: 14, title: 'general4', content: 'general444', writer: 'admin', date: '2023-07-13', views: 0 },
+    { id: 15, title: 'general5', content: 'general555', writer: 'admin', date: '2023-07-12', views: 0 },
+    { id: 16, title: 'general6', content: 'general666', writer: 'admin', date: '2023-07-11', views: 0 },
+    { id: 17, title: 'general7', content: 'general777', writer: 'admin', date: '2023-07-10', views: 0 },
+    { id: 18, title: 'general8', content: 'general888', writer: 'admin', date: '2023-07-09', views: 0 },
+    { id: 19, title: 'general9', content: 'general999', writer: 'admin', date: '2023-07-08', views: 0 },
+    { id: 20, title: 'general10', content: 'general1010', writer: 'admin', date: '2023-07-07', views: 0 },
   ]
 
   // 필터 변경 핸들러
@@ -52,7 +52,7 @@ const Notice = () => {
 
   useEffect(() => {
     // URL query에 page 번호를 기록하려면 아래 코드를 활성화하세요.
-    router.push(`/notice?page=${currentPage}`);
+    router.push(`/posts/general?page=${currentPage}`);
   }, [currentPage]);
 
   // 기존 dummyNotice를 sortedPosts로 교체
@@ -61,7 +61,7 @@ const Notice = () => {
   return (
     <div className='w-full flex flex-col justify-center gap-12 px-24 sm:px-2 xs:px-2 py-14 lg:py-12 md:py-6 sm:py-6 xs:py-3'>
       <h1 className='font-bold text-5xl lg:text-4xl md:text-3xl sm:text-2xl xs:text-xl text-center'>
-        Notice
+        General
       </h1>
       <div className='flex justify-center items-center w-full'>
         <div className='w-full'>
@@ -158,4 +158,4 @@ const Notice = () => {
   )
 }
 
-export default Notice;
+export default General;
