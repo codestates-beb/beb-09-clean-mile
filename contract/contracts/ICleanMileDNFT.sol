@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 interface ICleanMileDNFT {
     //level 1~5는 일반 사용자 level_6은 관리자
-    enum DnftType {
+    enum DNFTLevel {
         level_1,
         level_2,
         level_3,
@@ -12,36 +12,46 @@ interface ICleanMileDNFT {
         level_6
     }
 
+    enum UserType {
+        User,
+        Admin
+    }
+
+    struct DNFTData {
+        string name;
+        string description;
+        DNFTLevel level;
+    }
+
+    event UpgradeDNFT(address indexed sender, uint256 tokenId);
+
+    function dnftName(uint256 _tokenId) external view returns (string memory);
+
+    function dnftDescription(
+        uint256 _tokenId
+    ) external view returns (string memory);
+
+    function dnftLevel(uint256 _tokenId) external view returns (DNFTLevel);
+
+    function dnftData(uint256 _tokenId) external view returns (DNFTData memory);
+
     function mintDNFT(
         address _to,
-        string calldata _description,
         string calldata _name,
-        string calldata _tokenURI,
-        uint256 userType
+        string calldata _description,
+        UserType userType
     ) external;
 
-    function mintAdminDNFT(address _to, string calldata _name) external;
+    function updateName(uint256 _tokenId, string calldata _name) external;
 
     function updateDescription(
         uint256 _tokenId,
         string calldata _description
     ) external;
 
-    function updateName(uint256 _tokenId, string calldata _name) external;
-
-    function dnftType(uint256 _tokenId) external view returns (DnftType);
-
-    function dnftDescription(
-        uint256 _tokenId
-    ) external view returns (string memory);
-
-    function dnftName(uint256 _tokenId) external view returns (string memory);
-
-    function upgrade(uint256 _tokenId) external returns (bool);
-
     function setBadge(address badgeAddress) external returns (bool);
 
-    function upgradeCheck(uint256 _tokenId) external returns (uint256);
+    function upgradeDNFT(uint256 _tokenId) external returns (bool);
 
-    event UpgradeDNFT(address indexed sender, uint256 tokenId);
+    function upgradeCheck(uint256 _tokenId) external returns (DNFTLevel);
 }
