@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import Image from 'next/image';
 import { RiKakaoTalkFill } from 'react-icons/ri';
 import { FcGoogle } from 'react-icons/fc';
 import { IoEyeSharp, IoEyeOffSharp } from 'react-icons/io5';
-import { Three } from '../Components/Reference';
+import { Three, logo } from '../Reference';
 
 const SignUp = () => {
   const router = useRouter();
@@ -21,36 +22,43 @@ const SignUp = () => {
 
   console.log(nickname);
 
+  /**
+   * 비밀번호 가시성 상태를 전환하는 함수
+   */
   const passwordVisibility = () => {
     setPwVisible(!isPwdVisible);
   };
 
+  /**
+   * 비밀번호 확인 가시성 상태를 전환하는 함수      
+   */
   const pwConfirmVisibility = () => {
     setPwConfirmVisible(!isPwConfirmVisible);
   };
 
   /**
    * 닉네임을 유효성 검사하는 함수
-   * 입력한 닉네임이 유효한지 확인하고, 유효하지 않은 경우 에러 메시지를 설정 
+   * 닉네임은 최소 2자 이상이고 최대 8자 이하여야 함
+   * 유효하지 않은 경우 관련된 오류 메시지를 설
    */
-const validateNickname = () => {
-  if (nickname.length < 2) {
-      setErrorMessage('닉네임은 최소 2자 이상이어야 합니다.');
-  } else if (nickname.length > 8) {
-      setErrorMessage('닉네임은 최대 8자 입니다.');
-  } else {
-      setErrorMessage('');
-  }
-};
+  const validateNickname = () => {
+    if (nickname.length < 2) {
+        setErrorMessage('닉네임은 최소 2자 이상이어야 합니다.');
+    } else if (nickname.length > 8) {
+        setErrorMessage('닉네임은 최대 8자 입니다.');
+    } else {  
+        setErrorMessage('');
+    }
+  };
 
   useEffect(() => {
     validateNickname();
   }, [nickname]);
 
-    /**
-   * 비밀번호 유효성 검사를 수행하는 함수
-   * - 비밀번호는 최소 8자 이상이어야 하며,
-   * - 대문자, 소문자, 숫자, 특수기호가 모두 포함되어야 함
+  /**
+   * 비밀번호의 유효성을 검증하는 함수
+   * 비밀번호는 최소 8자 이상이어야 하며, 최소한 하나의 대문자, 소문자, 숫자, 특수문자가 포함되어야 함
+   * 유효하지 않은 경우 관련된 오류 메시지를 설정
    */
   const validatePassword = () => {
     const passwordRegex = /^(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
@@ -64,9 +72,10 @@ const validateNickname = () => {
   };
 
   /**
-   * 비밀번호 확인 유효성 검사를 수행하는 함수
-   * - 비밀번호 확인 입력값이 비어있지 않아야 하며,
-   * - 비밀번호 입력값과 비밀번호 확인 입력값이 동일해야 함
+   * 비밀번호 확인의 유효성을 검증하는 함수
+   * 비밀번호 확인 입력값이 비어있지 않아야 하며,
+   * 비밀번호 입력값과 비밀번호 확인 입력값이 동일해야 함
+   * 유효하지 않은 경우 관련된 오류 메시지를 설정
    */
   const passwordConfirm = () => {
     if (password.length <= 0 && pwConfirm.length <= 0 ) {
@@ -90,6 +99,11 @@ const validateNickname = () => {
       passwordConfirm();
   }, [pwConfirm]);
 
+  /**
+   * 이메일을 검증하는 함수
+   * 이메일은 특정 형식에 맞아야 함
+   * 만약 이메일이 이 형식에 맞지 않을 경우, `emailError` 상태를 오류 메시지로 업데이트
+   */
   const validateEmail = () => {
     const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!re.test(email)) {
@@ -109,41 +123,46 @@ const validateNickname = () => {
     <div className='w-full min-h-screen grid grid-cols-2'>
       <Three />
       <div className='flex flex-col items-center justify-center gap-48 lg:gap-24 sm:gap-20 xs:gap-12 lg:py-6'>
-        <h1 className='text-6xl lg:text-4xl md:text-4xl sm:text-3xl xs:text-3xl font-bold'>SignUp</h1>
+        <div className='flex flex-col items-center justify-center gap-6'>
+          <Image src={logo} className='cursor-pointer md:w-1/2 sm:w-1/3 xs:w-1/2' width={150} height={100} alt='clean mile logo' onClick={() => router.push('/')} />
+          <h1 className='text-6xl lg:text-4xl md:text-4xl sm:text-3xl xs:text-3xl font-bold'>SignUp</h1>
+        </div>
         <div className="w-[80%] lg:w-full flex flex-col items-center justify-center gap-12">
           <div className='w-full lg:w-[90%] md:w-full sm:w-full xs:w-full flex flex-col gap-12'>
             <div className='w-full h-full grid grid-cols-2 md:flex md:flex-col sm:flex sm:flex-col xs:flex xs:flex-col gap-12 md:gap-6 sm:gap-2 xs:gap-2 items-center justify-center'>
-              <div className='w-full flex flex-col gap-12 sm:gap-6 items-center justify-center'>
+              <div className='w-full flex flex-col gap-12 sm:gap-6 xs:gap-2 items-center justify-center'>
                 <div className='w-full flex flex-col sm:gap-4 xs:gap-2 justify-center items-center -mb-[1rem]'>
                   <label className='w-full sm:w-full xs:w-full font-semibold text-md lg:text-md md:text-md sm:text-base xs:text-sm' htmlFor='email'>E-Mail</label>
-                  <div className="w-full flex flex-col">
-                    <input className="w-full border border-gray-500 rounded-lg px-2 py-3 pr-10 lg:py-2 md:py-2 sm:py-2 xs:py-1" 
+                  <div className="w-full flex gap-4 sm:gap-2 xs:gap-2">
+                    <input className="w-full border border-gray-500 rounded-lg px-2 py-3 lg:py-2 md:py-2 sm:py-2 xs:py-1" 
                       type='email' 
                       id='email' 
                       placeholder='e-mail'
                       value={email}
                       onChange={(e:React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)} />
-                    <p className='font-normal text-xs text-red-500' style={{ minHeight: '1rem' }}>{email.length > 0 && emailError}</p>
+                    <button className='border rounded-xl p-3 sm:p-2 xs:p-2 sm:text-sm xs:text-sm bg-main-blue text-white hover:bg-blue-600 transition duration-300'>Confirm</button>
                   </div>
+                    <p className='font-normal text-xs text-red-500' style={{ minHeight: '1rem' }}>{email.length > 0 && emailError}</p>
                 </div>  
                 <div className='w-full flex flex-col sm:gap-4 xs:gap-2 justify-center items-center -mb-[1rem]'>
                   <label className='w-full sm:w-full xs:w-full font-semibold text-md lg:text-md md:text-md sm:text-base xs:text-sm' htmlFor='nickname'>Nickname</label>
-                  <div className='w-full flex flex-col'>
-                    <input className="w-full border border-gray-500 rounded-lg px-2 py-3 pr-10 lg:py-2 md:py-2 sm:py-2 xs:py-1" 
+                  <div className='w-full flex gap-4 sm:gap-2 xs:gap-2'>
+                    <input className="w-full border border-gray-500 rounded-lg px-2 py-3 lg:py-2 md:py-2 sm:py-2 xs:py-1" 
                       type='text' 
                       id='nickname' 
                       placeholder='nickname'
                       value={nickname}
                       onChange={(e:React.ChangeEvent<HTMLInputElement>) => setNickname(e.target.value)} />
-                    <p className='font-normal text-xs text-red-500' style={{ minHeight: '1rem' }}>{nickname.length > 0 && errorMessage}</p>
+                    <button className='border rounded-xl p-3 sm:p-2 xs:p-2 sm:text-sm xs:text-sm bg-main-blue text-white hover:bg-blue-600 transition duration-300'>Confirm</button>
                   </div>
+                  <p className='font-normal text-xs text-red-500' style={{ minHeight: '1rem' }}>{nickname.length > 0 && errorMessage}</p>
                 </div>
                 <div className='w-full flex flex-col sm:gap-4 xs:gap-2 justify-center items-center'>
                   <label className='w-full sm:w-full xs:w-full font-semibold text-md lg:text-md md:text-md sm:text-base xs:text-sm' htmlFor='name'>Name</label>
                   <input className="w-full border border-gray-500 rounded-lg px-2 py-3 pr-10 lg:py-2 md:py-2 sm:py-2 xs:py-1" type='text' id='name' placeholder='name' />
                 </div>
               </div>
-              <div className='w-full flex flex-col gap-12 sm:gap-6 items-center justify-center'>
+              <div className='w-full flex flex-col gap-12 sm:gap-6 xs:gap-2 items-center justify-center'>
                 <div className='w-full flex flex-col gap-2 sm:gap-4 xs:gap-2 justify-center items-center'>
                   <label className='w-full sm:w-full xs:w-full font-semibold text-md lg:text-md md:text-md sm:text-base xs:text-sm' htmlFor='phoneNumber'>Phone Number</label>
                   <input className="w-full border border-gray-500 rounded-lg px-2 py-3 lg:py-2 md:py-2 sm:py-2 xs:py-1" type='number' id='phoneNumber' />
@@ -181,10 +200,10 @@ const validateNickname = () => {
               </div>
             </div>
             <div className='w-full flex flex-col justify-center items-center gap-5 mt-12'>
-              <button className='w-[50%] lg:w-[70%] md:w-full sm:w-full xs-w-full bg-main-green hover:bg-green-600 px-7 py-2 rounded-xl text-white text-lg md:text-base sm:text-base xs:text-base font-semibold transition duration-300'>
+              <button className='w-[50%] lg:w-[70%] md:w-full sm:w-full xs:w-full bg-main-green hover:bg-green-600 px-7 py-2 rounded-xl text-white text-lg md:text-base sm:text-base xs:text-base font-semibold transition duration-300'>
               SignUp
               </button>
-              <div className='w-[50%] lg:w-[70%] md:w-full sm:w-full xs-w-full flex sm:flex-col xs:flex-col sm:items-center xs:items-center gap-6'>
+              <div className='w-[50%] lg:w-[70%] md:w-full sm:w-full xs:w-full flex sm:flex-col xs:flex-col sm:items-center xs:items-center gap-6'>
                 <button className='w-[50%] sm:w-full xs:w-full flex items-center justify-center bg-main-yellow hover:bg-yellow-500 px-7 py-2 rounded-xl text-white text-lg font-semibold transition duration-300'>
                   <RiKakaoTalkFill size={25} className='w-[30%]' />
                   <span className='text-center w-[90%] md:text-sm sm:text-sm xs:text-sm'>KaKao</span>
