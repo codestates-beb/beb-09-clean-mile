@@ -10,10 +10,12 @@ import Notice from '../Notice/Notice';
 import NoticeDetail from '../Notice/NoticeDetail';
 import General from '../General/General';
 import GeneralDetail from '../General/GeneralDetail';
+import GeneralCreate from '../General/GeneralCreate';
 import Events from '../Events/Events';
 import EventDetail from '../Events/EventDetail';
 import Review from '../Review/Review';
 import ReviewDetail from '../Review/ReviewDetail';
+import ReviewCreate from '../Review/ReviewCreate';
 
 import Three from '../Three';
 import SearchInput from '../Common/SearchInput';
@@ -38,10 +40,12 @@ export {
   NoticeDetail,
   General,
   GeneralDetail,
+  GeneralCreate,
   Events,
   EventDetail,
   Review,
   ReviewDetail,
+  ReviewCreate,
   Three,
   SearchInput,
   logo,
