@@ -205,15 +205,15 @@ module.exports = (app) => {
 
       // 쿠키에 토큰 저장
       res.cookie('accessToken', accessToken, {
-        httpOnly: false, // js에서 접근 가능
-        secure: false, // HTTPS 연결에서만 쿠키를 전송 (설정 후 수정 필요)
+        httpOnly: true, // js에서 접근 가능
+        secure: true, // HTTPS 연결에서만 쿠키를 전송 (설정 후 수정 필요)
         sameSite: 'strict', // CSRF와 같은 공격을 방지 (None, Lax, Strict)
         maxAge: 1000 * 60 * 15, // 15분 (밀리초 단위)
       });
 
       res.cookie('refreshToken', refreshToken, {
         httpOnly: true, // js에서 접근 불가능
-        secure: false, // HTTPS 연결에서만 쿠키를 전송 (설정 후 수정 필요)
+        secure: true, // HTTPS 연결에서만 쿠키를 전송 (설정 후 수정 필요)
         sameSite: 'strict', // CSRF와 같은 공격을 방지 (None, Lax, Strict)
         maxAge: 1000 * 60 * 60 * 24 * 14, // 14일 (밀리초 단위)
       });
@@ -271,12 +271,8 @@ module.exports = (app) => {
       }
 
       // 토큰 검증
-      const decoded = jwt.decode(refreshToken);
-      const refreshTokenAuth = jwtController.refreshVerify(
-        refreshToken,
-        decoded
-      );
-      if (!refreshTokenAuth) {
+      const refreshTokenAuth = jwtController.refreshVerify(refreshToken);
+      if (!refreshTokenAuth.success) {
         return res.status(401).json({
           success: false,
           message: 'Refresh Token 검증에 실패했습니다.',
@@ -284,12 +280,22 @@ module.exports = (app) => {
       }
 
       // 토큰이 유효한 경우
-      const newAccessToken = jwtController.sign(decoded.email);
+      const newAccessToken = jwtController.sign(refreshTokenAuth.decoded.email);
       res.cookie('accessToken', newAccessToken, {
-        httpOnly: false, // js에서 접근 가능
+        httpOnly: true, // js에서 접근 가능
         secure: false, // HTTPS 연결에서만 쿠키를 전송 (설정 후 수정 필요)
         sameSite: 'strict', // CSRF와 같은 공격을 방지
         maxAge: 1000 * 60 * 15, // 15분 (밀리초 단위)
+      });
+
+      const newRefreshToken = jwtController.refresh(
+        refreshTokenAuth.decoded.email
+      );
+      res.cookie('refreshToken', newRefreshToken, {
+        httpOnly: true, // js에서 접근 불가능
+        secure: false, // HTTPS 연결에서만 쿠키를 전송 (설정 후 수정 필요)
+        sameSite: 'strict', // CSRF와 같은 공격을 방지
+        maxAge: 1000 * 60 * 60 * 24 * 14, // 14일 (밀리초 단위)
       });
 
       return res.status(200).json({

@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const config = require('../config');
+const UserModel = require('../models/Users');
 
 module.exports = {
   /**
@@ -15,11 +16,11 @@ module.exports = {
     };
 
     // 시크릿 키로 서명된 Access 토큰 발급 후 반환
-    return jwt.sign(payload, config.jwtSecret, {
-      expiresIn: '1m', // 만료 시간
+    return jwt.sign(payload, config.jwt.jwtSecret, {
+      expiresIn: '15m', // 만료 시간
       algorithm: 'HS256', // 암호화 알고리즘
-      issuer: 'cleanMileServer', // 발행자
-      audience: 'http://127.0.0.1/', // 발행 대상
+      issuer: config.jwt.isu, // 발행자
+      audience: config.jwt.isu, // 발행 대상
       subject: 'userInfo', // 토큰 발행 목적
     });
   },
@@ -32,7 +33,7 @@ module.exports = {
   verify: (token) => {
     let decoded;
     try {
-      decoded = jwt.verify(token, config.jwtSecret);
+      decoded = jwt.verify(token, config.jwt.jwtSecret);
       return {
         success: true,
         decoded: decoded,
@@ -55,11 +56,11 @@ module.exports = {
     const payload = {
       email: email, // custom claims
     };
-    return jwt.sign(payload, config.jwtSecret, {
+    return jwt.sign(payload, config.jwt.jwtSecret, {
       algorithm: 'HS256', // 암호화 알고리즘
       expiresIn: '14d', // 만료 시간
-      issuer: 'cleanMileServer', // 발행자
-      audience: 'http://127.0.0.1/', // 발행 대상
+      issuer: config.jwt.isu, // 발행자
+      audience: config.jwt.aud, // 발행 대상
       subject: 'auth', // 토큰 발행 목적
     });
   },
@@ -67,16 +68,34 @@ module.exports = {
   /**
    * Refresh 토큰 검증
    * @param {string} token
-   * @param {string} email
    * @returns 검증 결과
    */
-  refreshVerify: (token, decodeData) => {
+  refreshVerify: (token) => {
     try {
-      const decoded = jwt.verify(token, config.jwtSecret);
-      return (
-        decoded.email === decodeData.email &&
-        decoded.issuer === decodeData.issuer
-      );
+      const decoded = jwt.verify(token, config.jwt.jwtSecret);
+
+      // 사용자 확인
+      const findUser = UserModel.findOne({ email: decoded.email });
+      if (!findUser) {
+        return {
+          success: false,
+          message: '사용자를 찾을 수 없습니다.',
+        };
+      }
+
+      if (
+        decoded.email === findUser.email &&
+        decoded.issuer === config.jwt.isu
+      ) {
+        return {
+          success: true,
+          decoded: decoded,
+        };
+      } else {
+        return {
+          success: false,
+        };
+      }
     } catch (err) {
       console.error('Error:', err);
       return {

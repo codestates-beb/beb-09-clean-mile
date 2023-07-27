@@ -22,7 +22,11 @@ module.exports = {
   saltRounds: 10,
 
   // jwt
-  jwtSecret: config.SECRET_CODE,
+  jwt: {
+    jwtSecret: config.SECRET_CODE,
+    isu: config.ISSUER,
+    aud: config.AUDIENCE,
+  },
 
   // AWS - S3
   awsS3: {
