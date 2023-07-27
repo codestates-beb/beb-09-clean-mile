@@ -133,7 +133,7 @@ const Header = () => {
               onClick={() => router.push('/signup')}>
                 Register
             </button>
-            <div className="xl:hidden lg:hidden md:block sm:block xs:block flex items-center relative">
+            <div className="hidden xl:hidden lg:hidden md:block sm:block xs:block flex items-center relative">
               <button type="button" className="text-gray-500 hover:text-white focus:outline-none focus:text-white" onClick={() => setIsOpen(!isOpen)}>
                 {isOpen ? <IoCloseSharp size={30} className="text-black" /> : <GiHamburgerMenu size={30} className="text-black" />}
               </button>

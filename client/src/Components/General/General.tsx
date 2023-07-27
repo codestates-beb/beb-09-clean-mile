@@ -72,22 +72,22 @@ const General = () => {
               <option className="text-sm xs:text-xs" value="oldest">오래된 순</option>
             </select>
             <Link className='
-                border 
-                rounded-xl 
-                py-2 
-                w-[5%] 
-                bg-main-blue
-                text-white 
-                font-semibold 
-                hover:bg-blue-600
-                transition-all 
-                duration-300 
-                text-md
-                text-center' 
-                href='/posts/general/create'>
-                <button type="button">
-                  글쓰기
-                </button>
+              border 
+              rounded-xl 
+              py-2 
+              px-10
+              bg-main-blue
+              text-white 
+              font-semibold 
+              hover:bg-blue-600
+              transition-all 
+              duration-300 
+              text-md
+              text-center' 
+              href='/posts/general/create'>
+              <button type="button">
+                Write
+              </button>
             </Link>
           </div>
           <div className='w-full'>
