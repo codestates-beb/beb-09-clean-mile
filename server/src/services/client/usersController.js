@@ -207,73 +207,60 @@ const findUserNickname = async (nickname) => {
 };
 
 /**
- * 사용자 DNFT 정보 조회
+ * @todo 컨트랙트 부분 수정 필요
+ * 본인 프로필 조회
  * @param {*} userId
  * @returns 조회 결과
  */
-const findUserDnft = async (userId) => {
+const findMyUserData = async (userId) => {
   try {
-    const result = await DNFTModel.find({ user_id: userId });
-    if (!result) {
-      return { success: false };
-    } else {
-      return { success: true, data: result };
-    }
-  } catch (err) {
-    console.error('Error:', err);
-    throw Error(err);
-  }
-};
+    // dnft 정보 조회
+    // const dnftResult = await DNFTModel.find({ user_id: userId });
 
-/**
- * @todo 컨트랙트 개발 후 수정 필요
- * 사용자 뱃지 정보 조회
- * @param {*} userId
- * @returns 조회 결과
- */
-const findUserBadge = async (userId) => {
-  try {
     // 뱃지 정보 조회
-  } catch (err) {
-    console.error('Error:', err);
-    throw Error(err);
-  }
-};
+    // const badgeResult = await BadgeModel.find({ user_id: userId });
 
-/**
- * 사용자 게시글 조회
- * @param {*} userId
- * @returns 조회 결과 (array)
- */
-const findUserPost = async (userId) => {
-  try {
-    const result = await PostModel.find({ user_id: userId });
-    if (result.length === 0) {
-      return { success: false };
-    } else {
-      return { success: true, data: result };
-    }
-  } catch (err) {
-    console.error('Error:', err);
-    throw Error(err);
-  }
-};
+    // 게시글 정보 조회
+    const postResult = await PostModel.find({ user_id: userId });
 
-/**
- * 사용자 참여 이벤트 조회
- * @param {*} userId
- * @returns 조회 결과 (array)
- */
-const findUserEvent = async (userId) => {
-  try {
-    const result = await EventModel.find({
+    // 참여 이벤트 정보 조회
+    const eventResult = await EventModel.find({
       [`users.${userId}`]: { $exists: true },
     });
-    if (result.length === 0) {
-      return { success: false };
-    } else {
-      return { success: true, data: result };
-    }
+
+    const result = {
+      // dnft: dnftResult,
+      // badge: badgeResult,
+      post: postResult,
+      event: eventResult,
+    };
+
+    return { success: true, data: result };
+  } catch (err) {
+    console.error('Error:', err);
+    throw Error(err);
+  }
+};
+
+/**
+ * @todo 컨트랙트 부분 수정 필요
+ * 다른 사용자의 프로필 조회
+ * @param {*} userId
+ * @returns 조회 결과
+ */
+const findOtherUserData = async (userId) => {
+  try {
+    // dnft 정보 조회
+    // const dnftResult = await DNFTModel.find({ user_id: userId });
+
+    // 뱃지 정보 조회
+    // const badgeResult = await BadgeModel.find({ user_id: userId });
+
+    const result = {
+      // dnft: dnftResult,
+      // badge: badgeResult,
+    };
+    return { success: true, data: result };
   } catch (err) {
     console.error('Error:', err);
     throw Error(err);
@@ -337,9 +324,7 @@ module.exports = {
   findUserEmail,
   findUserNickname,
   chgNickname,
-  findUserDnft,
-  findUserBadge,
-  findUserPost,
-  findUserEvent,
+  findMyUserData,
+  findOtherUserData,
   chgBanner,
 };

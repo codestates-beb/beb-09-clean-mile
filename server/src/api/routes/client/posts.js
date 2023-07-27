@@ -169,7 +169,16 @@ module.exports = (app) => {
    * @group Posts
    * @Summary 게시글 목록 조회
    */
-  route.get('/lists', async (req, res) => {});
+  route.get('/lists', async (req, res) => {
+    try {
+    } catch (err) {
+      console.error('Error:', err);
+      return res.status(500).json({
+        success: false,
+        message: '서버 오류',
+      });
+    }
+  });
 
   /**
    * @router GET /posts/detail

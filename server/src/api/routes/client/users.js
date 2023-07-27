@@ -12,10 +12,8 @@ const {
   findUserEmail,
   findUserNickname,
   chgNickname,
-  findUserDnft,
-  findUserBadge,
-  findUserPost,
-  findUserEvent,
+  findMyUserData,
+  findOtherUserData,
   chgBanner,
 } = require('../../../services/client/usersController');
 const route = Router();
@@ -345,27 +343,28 @@ module.exports = (app) => {
         user: findUserData.data,
       };
 
-      // dnft 정보 조회
-      // await findUserDnft(findUserData.data._id).then((result) => {
-      //  resultData.Dnft = result.data;
-      // });
-
-      // 뱃지 정보 조회
-      // await findUserBadge(findUser.data._id).then((result) => {
-      //  resultData.Badge = result.data;
-      // });
-
       // 본인 프로필 조회
       if (findUserData.data.email == email) {
-        // 참여한 이벤트 리스트 조회
-        await findUserEvent(findUserData.data._id).then((result) => {
-          resultData.EventList = result.data;
-        });
-
-        // 작성한 게시글 리스트 조회
-        await findUserPost(findUserData.data._id).then((result) => {
-          resultData.PostList = result.data;
-        });
+        const myUserData = await findMyUserData(findUserData.data._id);
+        if (myUserData.success) {
+          resultData = {
+            ...resultData,
+            // dnft: myUserData.data.dnft,
+            // badge: myUserData.data.badge,
+            post: myUserData.data.post,
+            event: myUserData.data.event,
+          };
+        }
+      } else {
+        // 타인 프로필 조회
+        const otherUserData = await findOtherUserData(findUserData.data._id);
+        if (otherUserData.success) {
+          resultData = {
+            ...resultData,
+            // dnft: otherUserData.data.dnft,
+            // badge: otherUserData.data.badge,
+          };
+        }
       }
 
       return res.status(200).json({
@@ -478,6 +477,56 @@ module.exports = (app) => {
     }
   );
 };
+
+/**
+ * @route GET /users/userInfo
+ * @group users - 사용자 관련
+ * @summary 사용자 정보 조회
+ */
+route.get('/userInfo', isAuth, async (req, res) => {
+  try {
+    const email = req.decoded.email;
+
+    // 사용자 이메일로 정보 조회
+    const userResult = await findUserEmail(email);
+    if (!userResult.success) {
+      return res.status(400).json({
+        success: false,
+        message: '가입되지 않은 이메일입니다.',
+      });
+    }
+
+    // 반환 결과 데이터
+    userResult.data.hashed_pw = '';
+    let resultData = {
+      user: userResult.data,
+    };
+
+    // 사용자 나머지 정보 조회
+    const myUserData = await findMyUserData(userResult.data._id);
+    if (myUserData.success) {
+      resultData = {
+        ...resultData,
+        // dnft: myUserData.data.dnft,
+        // badge: myUserData.data.badge,
+        post: myUserData.data.post,
+        event: myUserData.data.event,
+      };
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: '사용자 정보 조회에 성공했습니다.',
+      data: resultData,
+    });
+  } catch (err) {
+    console.error('Error:', err);
+    return res.status(500).json({
+      success: false,
+      message: '서버 오류',
+    });
+  }
+});
 
 /**
  * @todo DNFT 업그레이드
