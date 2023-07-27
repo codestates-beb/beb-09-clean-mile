@@ -34,7 +34,7 @@ const Page = () => {
   return (
     <>
       <Head>
-        <title>Login | Devias Kit</title>
+        <title>Login | Clean Mile</title>
       </Head>
       <Box
         sx={{
