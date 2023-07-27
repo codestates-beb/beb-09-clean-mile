@@ -170,12 +170,12 @@ const Events = () => {
                       alt='event poster'
                     />
                   </div>
-                  <div className='flex flex-col px-6 py-4 gap-6'>
+                  <div className='flex flex-col px-6 sm:px-2 xs:px-2 py-4 gap-6'>
                     <div>
                       <h2 className="text-xl font-bold hover:underline sm:text-lg xs:text-sm">{item.insta_id}</h2>
                     </div>
                     <p className="text-gray-700 font-semibold lg:text-sm sm:text-xs xs:text-xs overflow-ellipsis overflow-hidden h-[20px] whitespace-nowrap">{item.insta_content}</p>
-                    <button className='w-3/5 lg:w-full md:w-full sm:w-full xs:w-full flex items-center justify-around gap-6 lg:gap-4 md:gap-4 sm:gap-2 xs:gap-2 bg-main-blue hover:bg-blue-600 rounded-xl lg:rounded-lg px-3 lg:px-2 md:px-2 sm:px-2 xs:px-2 py-2 lg:py-1 md:py-1 sm:py-1 xs:py-1 text-white lg:text-sm md:text-sm sm:text-sm md:text-sm font-semibold transition duration-300'>
+                    <button className='w-3/5 lg:w-full md:w-full sm:w-full xs:w-full flex items-center justify-around gap-6 lg:gap-4 md:gap-4 sm:gap-2 xs:gap-2 bg-main-blue hover:bg-blue-600 rounded-xl lg:rounded-lg px-3 lg:px-2 md:px-2 sm:px-2 xs:px-1 py-2 lg:py-1 md:py-1 sm:py-1 xs:py-1 text-white lg:text-sm md:text-sm sm:text-xs xs:text-xs font-semibold transition duration-300'>
                       Read more
                       <MdOutlineArrowForwardIos size={20} className='rounded-xl w-[10%]' />
                     </button>
