@@ -9,7 +9,7 @@ import "slick-carousel/slick/slick-theme.css";
 import { AiOutlineDelete, AiOutlineHeart, AiFillHeart } from 'react-icons/ai'
 import { google_logo, insta_icon, insta_logo, meta_mask_logo } from '../Reference';
 
-const GeneralDetail = () => {
+const EventDetail = () => {
   const router = useRouter();
 
   const [comment, setComment] = useState('');
@@ -44,7 +44,7 @@ const GeneralDetail = () => {
   <>
     <div className='w-[90%] min-h-screen mx-auto mt-20 flex flex-col gap-12'>
       <div className='flex justify-center w-full'>
-        <h1 className='font-bold text-5xl mb-5 xs:text-4xl'>General</h1>
+        <h1 className='font-bold text-5xl mb-5 xs:text-4xl'>Event</h1>
       </div>
         <div className='w-full flex justify-between items-center border-b'>
           <p className='mb-3 font-bold text-2xl xs:text-xl'>{dummyNotice.title}</p>
@@ -137,41 +137,16 @@ const GeneralDetail = () => {
             p-3
             sm:p-2 
             xs:p-1
-            bg-main-red 
+            bg-main-yellow 
             text-white 
             xs:text-sm
-            hover:bg-red-500 
+            hover:bg-yellow-500 
             transition 
             duration-300
             text-center'
             >
-            Delete
+            Entry
           </button>
-          <Link 
-            href={`/posts/edit/1`}
-            className='
-              w-[5%]
-              lg:w-[15%]
-              md:w-[15%]
-              sm:w-[25%]
-              xs:w-[30%] 
-              border 
-              rounded-2xl 
-              xs:rounded-lg
-              p-3
-              sm:p-2 
-              xs:p-1
-              bg-main-blue 
-              text-white 
-              xs:text-sm
-              hover:bg-blue-600 
-              transition 
-              duration-300
-              text-center'>
-            <button>
-              Edit
-            </button>
-          </Link>
           <Link href='/' 
             className='
             w-[5%]
@@ -202,4 +177,4 @@ const GeneralDetail = () => {
   )
 }
 
-export default GeneralDetail;
+export default EventDetail;
