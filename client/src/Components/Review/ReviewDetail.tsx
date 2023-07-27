@@ -9,7 +9,7 @@ import "slick-carousel/slick/slick-theme.css";
 import { AiOutlineDelete, AiOutlineHeart, AiFillHeart } from 'react-icons/ai'
 import { google_logo, insta_icon, insta_logo, meta_mask_logo } from '../Reference';
 
-const GeneralDetail = () => {
+const ReviewDetail = () => {
   const router = useRouter();
 
   const [comment, setComment] = useState('');
@@ -44,7 +44,7 @@ const GeneralDetail = () => {
   <>
     <div className='w-[90%] min-h-screen mx-auto mt-20 flex flex-col gap-12'>
       <div className='flex justify-center w-full'>
-        <h1 className='font-bold text-5xl mb-5 xs:text-4xl'>General</h1>
+        <h1 className='font-bold text-5xl mb-5 xs:text-4xl'>Review</h1>
       </div>
         <div className='w-full flex justify-between items-center border-b'>
           <p className='mb-3 font-bold text-2xl xs:text-xl'>{dummyNotice.title}</p>
@@ -202,4 +202,4 @@ const GeneralDetail = () => {
   )
 }
 
-export default GeneralDetail;
+export default ReviewDetail;

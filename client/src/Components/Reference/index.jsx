@@ -5,13 +5,15 @@ import NewNotice from '../Common/NewNotice';
 import Footer from '../Common/Footer';
 import Login from '../Users/Login';
 import SignUp from '../Users/SignUp';
+import MyPage from '../Users/MyPage';
 import Notice from '../Notice/Notice';
 import NoticeDetail from '../Notice/NoticeDetail';
 import General from '../General/General';
 import GeneralDetail from '../General/GeneralDetail';
 import Events from '../Events/Events';
+import EventDetail from '../Events/EventDetail';
 import Review from '../Review/Review';
-import MyPage from '../Users/MyPage';
+import ReviewDetail from '../Review/ReviewDetail';
 
 import Three from '../Three';
 import SearchInput from '../Common/SearchInput';
@@ -31,13 +33,15 @@ export {
   Footer,
   Login,
   SignUp,
+  MyPage,
   Notice,
   NoticeDetail,
   General,
   GeneralDetail,
   Events,
+  EventDetail,
   Review,
-  MyPage,
+  ReviewDetail,
   Three,
   SearchInput,
   logo,
