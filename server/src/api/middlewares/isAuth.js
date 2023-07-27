@@ -17,7 +17,7 @@ const verifyToken = async (req, res, next) => {
   if (!result.success) {
     return res.status(401).json({
       success: false,
-      message: '토큰이 일치하지 않습니다.',
+      message: `Access Token : ${result.message}`,
     });
   }
 

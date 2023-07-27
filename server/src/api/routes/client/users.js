@@ -3,16 +3,22 @@ const multer = require('multer');
 const jwt = require('jsonwebtoken');
 const jwtController = require('../../../services/jwtController');
 const isAuth = require('../../middlewares/isAuth');
+const upload = require('../../../loaders/s3');
 const {
   checkEmail,
   sendEmail,
   checkNickName,
   checkEmailAuthCode,
   saveUserData,
-  findUser,
+  findUserEmail,
+  findUserNickname,
   chgNickname,
+  findUserDnft,
+  findUserBadge,
+  findUserPost,
+  findUserEvent,
+  chgBanner,
 } = require('../../../services/client/usersController');
-const upload = multer({ dest: 'uploads/' });
 const route = Router();
 
 module.exports = (app) => {
@@ -102,6 +108,7 @@ module.exports = (app) => {
   });
 
   /**
+   * @todo 사용자 dnft 데이터 추가 필요
    * @route POST /users/signup
    * @group users - 사용자 관련
    * @summary 회원가입 (이메일 인증 코드 검증 포함)
@@ -139,7 +146,6 @@ module.exports = (app) => {
 
       // 사용자 정보 저장
       const saveDataResult = await saveUserData(userData);
-      console.log(saveDataResult);
       if (!saveDataResult.success) {
         return res.status(400).json({
           success: false,
@@ -176,7 +182,7 @@ module.exports = (app) => {
       }
 
       // 사용자 이메일로 정보 조회
-      const userResult = await findUser(email);
+      const userResult = await findUserEmail(email);
       if (!userResult.success) {
         return res.status(400).json({
           success: false,
@@ -197,22 +203,18 @@ module.exports = (app) => {
       const accessToken = jwtController.sign(email);
       const refreshToken = jwtController.refresh(email);
 
-      /**
-       * 리프레시 토큰만 http only secure 쿠키에 저장
-       * 액세스 토큰은 프로그램상 로컬변수에 담아 놓는것이 그나마 제일 안전
-       * 참고 : https://simsimjae.tistory.com/482
-       */
+      // 쿠키에 토큰 저장
       res.cookie('accessToken', accessToken, {
         httpOnly: false, // js에서 접근 가능
         secure: false, // HTTPS 연결에서만 쿠키를 전송 (설정 후 수정 필요)
-        sameSite: 'strict', // CSRF와 같은 공격을 방지
+        sameSite: 'strict', // CSRF와 같은 공격을 방지 (None, Lax, Strict)
         maxAge: 1000 * 60 * 15, // 15분 (밀리초 단위)
       });
 
       res.cookie('refreshToken', refreshToken, {
         httpOnly: true, // js에서 접근 불가능
         secure: false, // HTTPS 연결에서만 쿠키를 전송 (설정 후 수정 필요)
-        sameSite: 'strict', // CSRF와 같은 공격을 방지
+        sameSite: 'strict', // CSRF와 같은 공격을 방지 (None, Lax, Strict)
         maxAge: 1000 * 60 * 60 * 24 * 14, // 14일 (밀리초 단위)
       });
 
@@ -258,67 +260,42 @@ module.exports = (app) => {
    * @group users - 사용자 관련
    * @summary 토큰 갱신
    */
-  route.post('/refresh', isAuth, (req, res) => {
+  route.post('/refresh', (req, res) => {
     try {
-      // access token과 refresh token 존재 확인
-      if (!req.cookies.accessToken && !req.cookies.refreshToken) {
-        return res.status(400).json({
-          success: false,
-          message: 'Access Token과 Refresh Token이 필요합니다.',
-        });
-      }
-
-      // 액세스 토큰과 리프레시 토큰을 쿠키에서 추출
-      const authToken = req.cookies.accessToken;
       const refreshToken = req.cookies.refreshToken;
-
-      // access token 검증 (만료여부 확인)
-      const authResult = jwtController.verify(authToken);
-
-      // access token 디코딩하여 user의 정보를 가져옵니다.
-      const decoded = jwt.decode(authToken);
-      if (!decoded) {
-        return res.status(401).send({
-          success: false,
-          message: '권한이 없습니다!',
-        });
-      }
-
-      // access token이 만료된 경우
-      if (!authResult.success && authResult.message === 'jwt expired') {
-        // refresh token 검증 (만료여부 확인)
-        const refreshResult = jwtController.refreshVerify(
-          refreshToken,
-          decoded.email
-        );
-        // refresh token이 만료된 경우
-        if (!refreshResult.success) {
-          return res.status(401).send({
-            success: false,
-            message: '다시 로그인해야 합니다.',
-          });
-        }
-
-        // refresh token이 만료되지 않은 경우
-        const newAccessToken = jwtController.sign(decoded.email);
-        res.cookie('accessToken', newAccessToken, {
-          httpOnly: false, // js에서 접근 가능
-          secure: false, // HTTPS 연결에서만 쿠키를 전송 (설정 후 수정 필요)
-          sameSite: 'strict', // CSRF와 같은 공격을 방지
-          maxAge: 1000 * 60 * 15, // 15분 (밀리초 단위)
-        });
-
-        return res.status(200).json({
-          success: true,
-          message: '토큰이 갱신되었습니다.',
-        });
-      } else {
-        // access token이 만료되지 않은 경우
+      if (!refreshToken) {
         return res.status(401).json({
-          success: true,
-          message: '토큰이 유효합니다.',
+          success: false,
+          message: '로그인이 필요합니다.',
         });
       }
+
+      // 토큰 검증
+      const decoded = jwt.decode(refreshToken);
+      const refreshTokenAuth = jwtController.refreshVerify(
+        refreshToken,
+        decoded
+      );
+      if (!refreshTokenAuth) {
+        return res.status(401).json({
+          success: false,
+          message: 'Refresh Token 검증에 실패했습니다.',
+        });
+      }
+
+      // 토큰이 유효한 경우
+      const newAccessToken = jwtController.sign(decoded.email);
+      res.cookie('accessToken', newAccessToken, {
+        httpOnly: false, // js에서 접근 가능
+        secure: false, // HTTPS 연결에서만 쿠키를 전송 (설정 후 수정 필요)
+        sameSite: 'strict', // CSRF와 같은 공격을 방지
+        maxAge: 1000 * 60 * 15, // 15분 (밀리초 단위)
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: 'Access Token 갱신에 성공했습니다.',
+      });
     } catch (err) {
       console.error('Error:', err);
       return res.status(500).json({
@@ -329,13 +306,64 @@ module.exports = (app) => {
   });
 
   /**
+   * @todo 사용자 배지, dnft 정보 조회 수정 필요
    * @route GET /users/profile/:nickname
    * @group users - 사용자 관련
    * @summary 사용자 프로필 조회
    */
-  route.get('/profile/:nickname', isAuth, (req, res) => {
+  route.get('/profile/:nickname', isAuth, async (req, res) => {
     try {
-      const email = req.decoded.sub;
+      const email = req.decoded.email;
+      const nickname = req.params.nickname;
+      if (!nickname) {
+        return res.status(400).json({
+          success: false,
+          message: '닉네임을 입력해주세요.',
+        });
+      }
+
+      // 닉네임으로 사용자 정보 조회
+      const findUserData = await findUserNickname(nickname);
+      if (!findUserData.success) {
+        return res.status(400).json({
+          success: false,
+          message: '존재하지 않는 사용자입니다.',
+        });
+      }
+
+      // 반환 결과 데이터
+      let resultData = {
+        user: findUserData.data,
+      };
+
+      // dnft 정보 조회
+      // await findUserDnft(findUserData.data._id).then((result) => {
+      //  resultData.Dnft = result.data;
+      // });
+
+      // 뱃지 정보 조회
+      // await findUserBadge(findUser.data._id).then((result) => {
+      //  resultData.Badge = result.data;
+      // });
+
+      // 본인 프로필 조회
+      if (findUserData.data.email == email) {
+        // 참여한 이벤트 리스트 조회
+        await findUserEvent(findUserData.data._id).then((result) => {
+          resultData.EventList = result.data;
+        });
+
+        // 작성한 게시글 리스트 조회
+        await findUserPost(findUserData.data._id).then((result) => {
+          resultData.PostList = result.data;
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: '사용자 프로필 조회에 성공했습니다.',
+        data: resultData,
+      });
     } catch (err) {
       console.error('Error:', err);
       return res.status(500).json({
@@ -352,7 +380,7 @@ module.exports = (app) => {
    */
   route.post('/change-nickname', upload.none(), isAuth, async (req, res) => {
     try {
-      const email = req.decoded.sub;
+      const email = req.decoded.email;
       const nickname = req.body.nickname;
       if (!nickname) {
         return res.status(400).json({
@@ -394,9 +422,57 @@ module.exports = (app) => {
   });
 
   /**
+   * @todo cloudFront 설정 추가할수도 있음
    * @route POST /users/change-password
    * @group users - 사용자 관련
    * @summary 사용자 배너 이미지 변경
    */
-  route.post('/change-banner', isAuth, (req, res) => {});
+  route.post(
+    '/change-banner',
+    upload.single('imgFile'),
+    isAuth,
+    async (req, res) => {
+      try {
+        const email = req.decoded.email;
+
+        // S3 이미지 업로드
+        const imageUrl = req.file.location;
+        if (!imageUrl) {
+          return res.status(400).json({
+            success: false,
+            message: '이미지 업로드에 실패하였습니다.',
+          });
+        }
+
+        // 사용자 배너 이미지 변경
+        const chgBannerResult = await chgBanner(email, imageUrl);
+        if (!chgBannerResult.success) {
+          return res.status(400).json({
+            success: false,
+            message: '배너 이미지 변경에 실패했습니다.',
+          });
+        }
+
+        return res.status(200).json({
+          success: true,
+          message: '배너 이미지 변경에 성공했습니다.',
+          imageUrl: chgBannerResult.data,
+        });
+      } catch (err) {
+        console.error('Error:', err);
+        return res.status(500).json({
+          success: false,
+          message: '서버 오류',
+        });
+      }
+    }
+  );
 };
+
+/**
+ * @todo DNFT 업그레이드
+ * @route POST /users/upgrade-dnft
+ * @group users - 사용자 관련
+ * @summary DNFT 업그레이드
+ */
+route.post('/upgrade-dnft', isAuth, (req, res) => {});

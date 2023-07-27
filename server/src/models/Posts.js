@@ -42,7 +42,7 @@ const postSchema = new mongoose.Schema({
     viewers: {
       // 조회자
       type: Map,
-      of: boolean,
+      of: Boolean,
     },
   },
   created_at: {

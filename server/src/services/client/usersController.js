@@ -3,9 +3,13 @@ const smtpTransport = require('../../loaders/email');
 const config = require('../../config/index');
 const MailModel = require('../../models/Mails');
 const UserModel = require('../../models/Users');
+const DNFTModel = require('../../models/DNFTs');
+const BadgeModel = require('../../models/Badges');
+const PostModel = require('../../models/Posts');
+const EventModel = require('../../models/Events');
 
 /**
- * 랜덤 인증코드 생성 함수 (min ~ max)
+ * 랜덤 인증코드 생성 (min ~ max)
  * @param {number} min
  * @param {number} max
  * @returns {number} 인증코드(6자리)
@@ -16,7 +20,7 @@ const generateRandomCode = (min, max) => {
 };
 
 /**
- * 이메일 인증 데이터 저장 함수
+ * 이메일 인증 데이터 저장
  * @param {string} email
  * @param {number} authCode
  * @returns 성공여부
@@ -37,7 +41,7 @@ const saveAuthCode = async (email, authCode) => {
 };
 
 /**
- * 인증 이메일 전송 함수
+ * 인증 이메일 전송
  * @param {string} email
  * @returns 성공여부
  */
@@ -73,7 +77,7 @@ const sendEmail = async (email) => {
 };
 
 /**
- * 이메일 중복 체크 함수
+ * 이메일 중복 체크
  * @param {string} email
  * @returns 중복 여부 확인
  */
@@ -92,7 +96,7 @@ const checkEmail = async (email) => {
 };
 
 /**
- * 닉네임 중복 체크 함수
+ * 닉네임 중복 체크
  * @param {string} nickname
  * @returns 중복 여부
  */
@@ -111,7 +115,7 @@ const checkNickName = async (nickname) => {
 };
 
 /**
- * 이메일 인증 코드 확인 함수
+ * 이메일 인증 코드 확인
  * @param {string} email
  * @param {*} code
  * @returns 일치 여부
@@ -120,6 +124,7 @@ const checkEmailAuthCode = async (email, code) => {
   try {
     const emailData = await MailModel.findOne({ email: email });
     if (
+      emailData &&
       Number(emailData.code) === Number(code) &&
       emailData.expiry >= Date.now()
     ) {
@@ -135,13 +140,12 @@ const checkEmailAuthCode = async (email, code) => {
 };
 
 /**
- * 사용자 정보 저장 함수
+ * 사용자 정보 저장
  * @param {*} userData
  * @returns 저장 여부
  */
 const saveUserData = async (userData) => {
   try {
-    console.log(userData);
     const saveUserData = new UserModel({
       email: userData.email,
       name: userData.name,
@@ -166,11 +170,11 @@ const saveUserData = async (userData) => {
 };
 
 /**
- * 이메일을 이용한 사용자 정보 조회 함수
+ * 이메일을 이용한 사용자 정보 조회
  * @param {string} email
  * @returns 조회 결과
  */
-const findUser = async (email) => {
+const findUserEmail = async (email) => {
   try {
     const result = await UserModel.findOne({ email: email });
     if (!result) {
@@ -185,7 +189,100 @@ const findUser = async (email) => {
 };
 
 /**
- * 사용자 닉네임 변경 함수
+ * 닉네임을 이용한 사용자 정보 조회
+ * @param {*} nickname
+ * @returns
+ */
+const findUserNickname = async (nickname) => {
+  try {
+    const result = await UserModel.findOne({ nickname: nickname });
+    if (!result) {
+      return { success: false };
+    } else {
+      return { success: true, data: result };
+    }
+  } catch (err) {
+    console.error('Error:', err);
+    throw Error(err);
+  }
+};
+
+/**
+ * 사용자 DNFT 정보 조회
+ * @param {*} userId
+ * @returns 조회 결과
+ */
+const findUserDnft = async (userId) => {
+  try {
+    const result = await DNFTModel.find({ user_id: userId });
+    if (!result) {
+      return { success: false };
+    } else {
+      return { success: true, data: result };
+    }
+  } catch (err) {
+    console.error('Error:', err);
+    throw Error(err);
+  }
+};
+
+/**
+ * @todo 컨트랙트 개발 후 수정 필요
+ * 사용자 뱃지 정보 조회
+ * @param {*} userId
+ * @returns 조회 결과
+ */
+const findUserBadge = async (userId) => {
+  try {
+    // 뱃지 정보 조회
+  } catch (err) {
+    console.error('Error:', err);
+    throw Error(err);
+  }
+};
+
+/**
+ * 사용자 게시글 조회
+ * @param {*} userId
+ * @returns 조회 결과 (array)
+ */
+const findUserPost = async (userId) => {
+  try {
+    const result = await PostModel.find({ user_id: userId });
+    if (result.length === 0) {
+      return { success: false };
+    } else {
+      return { success: true, data: result };
+    }
+  } catch (err) {
+    console.error('Error:', err);
+    throw Error(err);
+  }
+};
+
+/**
+ * 사용자 참여 이벤트 조회
+ * @param {*} userId
+ * @returns 조회 결과 (array)
+ */
+const findUserEvent = async (userId) => {
+  try {
+    const result = await EventModel.find({
+      [`users.${userId}`]: { $exists: true },
+    });
+    if (result.length === 0) {
+      return { success: false };
+    } else {
+      return { success: true, data: result };
+    }
+  } catch (err) {
+    console.error('Error:', err);
+    throw Error(err);
+  }
+};
+
+/**
+ * 사용자 닉네임 변경
  * @param {string} email
  * @param {string} nickname
  * @returns 성공여부
@@ -206,12 +303,44 @@ const chgNickname = async (email, nickname) => {
   }
 };
 
+/**
+ * 사용자 배너 이미지 변경
+ * @param {*} email
+ * @param {*} bannerUrl
+ * @returns 성공여부
+ */
+const chgBanner = async (email, bannerUrl) => {
+  try {
+    const userData = await UserModel.findOne({ email: email });
+    if (!userData) {
+      return { success: false, message: '사용자를 찾을 수 없습니다.' };
+    }
+
+    userData.banner_img_url = bannerUrl;
+    const result = await userData.save();
+    if (!result) {
+      return { success: false };
+    } else {
+      return { success: true, data: result.banner_img_url };
+    }
+  } catch (err) {
+    console.error('Error:', err);
+    throw Error(err);
+  }
+};
+
 module.exports = {
   checkEmail,
   sendEmail,
   checkNickName,
   checkEmailAuthCode,
   saveUserData,
-  findUser,
+  findUserEmail,
+  findUserNickname,
   chgNickname,
+  findUserDnft,
+  findUserBadge,
+  findUserPost,
+  findUserEvent,
+  chgBanner,
 };

@@ -8,20 +8,19 @@ module.exports = {
    * @returns Access token
    */
   sign: (email) => {
-    /**
-     * @todo  수정 필요
-     * Access 토큰에 들어갈 페이로드
-     */
+    // Access 토큰에 들어갈 페이로드
     const payload = {
-      iss: 'cleanMile', // 토큰 발급자
-      sub: email, // 사용자 식별
-      exp: Math.floor(Date.now() / 1000) + 60 * 15, // 토큰의 만료 시간 (UNIX 타임스탬프 형식)
-      iat: Math.floor(Date.now() / 1000), // 토큰 발급 시간 (UNIX 타임스탬프 형식)
+      email: email, // custom claims
+      isAdmin: false, // custom claims
     };
 
     // 시크릿 키로 서명된 Access 토큰 발급 후 반환
     return jwt.sign(payload, config.jwtSecret, {
+      expiresIn: '1m', // 만료 시간
       algorithm: 'HS256', // 암호화 알고리즘
+      issuer: 'cleanMileServer', // 발행자
+      audience: 'http://127.0.0.1/', // 발행 대상
+      subject: 'userInfo', // 토큰 발행 목적
     });
   },
 
@@ -52,18 +51,16 @@ module.exports = {
    * @returns Refresh token
    */
   refresh: (email) => {
-    /**
-     * @todo  수정 필요
-     * Refresh 토큰에 들어갈 페이로드
-     */
+    // Refresh 토큰에 들어갈 페이로드
     const payload = {
-      iss: 'cleanMile', // 토큰 발급자
-      sub: email, // 사용자 식별
-      exp: Math.floor(Date.now() / 1000) + 60 * 24 * 14, // 토큰의 만료 시간 (UNIX 타임스탬프 형식)
-      iat: Math.floor(Date.now() / 1000), // 토큰 발급 시간 (UNIX 타임스탬프 형식)
+      email: email, // custom claims
     };
     return jwt.sign(payload, config.jwtSecret, {
       algorithm: 'HS256', // 암호화 알고리즘
+      expiresIn: '14d', // 만료 시간
+      issuer: 'cleanMileServer', // 발행자
+      audience: 'http://127.0.0.1/', // 발행 대상
+      subject: 'auth', // 토큰 발행 목적
     });
   },
 
@@ -73,10 +70,13 @@ module.exports = {
    * @param {string} email
    * @returns 검증 결과
    */
-  refreshVerify: (token, email) => {
+  refreshVerify: (token, decodeData) => {
     try {
       const decoded = jwt.verify(token, config.jwtSecret);
-      return decoded.email === email;
+      return (
+        decoded.email === decodeData.email &&
+        decoded.issuer === decodeData.issuer
+      );
     } catch (err) {
       console.error('Error:', err);
       return {
