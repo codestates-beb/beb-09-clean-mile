@@ -7,7 +7,6 @@ const provider = new ethers.providers.JsonRpcProvider(config.RPC_URL);
 const signer = provider.getSigner(config.SENDER);
 const dnftContract = new ethers.Contract(config.DNFT_ADDRESS, dnftABI, signer);
 //Badge 등록
-const setBadge = await dnftContract.connect(signer).setBadge(config.BADGE_ADDRESS);
 
 
 /**
@@ -17,6 +16,17 @@ const setBadge = await dnftContract.connect(signer).setBadge(config.BADGE_ADDRES
  * @returns 성공여부
  */
 //address -> email
+
+const setBadge = async () => {
+  try {
+    const transaction = await dnftContract.connect(signer).setBadge(config.BADGE_ADDRESS);
+    await transaction.wait(); // 트랜잭션 마이닝까지 기다림;
+  } catch (err) {
+    console.error("Error:", err);
+    throw new Error(err);
+  }
+};
+
 const createDNFT = async (email, userType) => {
   try { 
     const user = await UserModel.findOne({ email : email });
@@ -68,8 +78,9 @@ const updateName = async (email, newName) => {
     const user = await UserModel.findOne({email: email});
     let owner = provider.getSigner(user.wallet.address);
     const dnft = await DnftModel.findOne({user_id: user._id});
-    const reqUpdateName = await dnftContract.connect(owner).updateName(dnft.token_id, newName);
-    if (reqUpdateName){
+    const transaction = await dnftContract.connect(owner).updateName(dnft.token_id, newName);
+    await transaction.wait();
+    if (transaction){
       dnft.name = newName;
       const result = await dnft.save();
       if (!result) return { success: false };
@@ -96,8 +107,9 @@ const updateDescription = async (email,newDescription) => {
     const user = await UserModel.findOne({email: email});
     let owner = provider.getSigner(user.wallet.address);
     const dnft = await DnftModel.findOne({user_id: user._id});
-    const reqUpdateName = await dnftContract.connect(owner).updateName(dnft.token_id, newDescription);
-    if (reqUpdateName){
+    const transaction = await dnftContract.connect(owner).updateName(dnft.token_id, newDescription);
+    await transaction.wait();
+    if (transaction){
       dnft.description = newDescription;
       const result = await dnft.save();
       if (!result) return { success: false };
@@ -146,9 +158,9 @@ const upgradeDnft = async (email) => {
     let owner = provider.getSigner(user.wallet.address);
     const dnft = await DnftModel.findOne({user_id: user._id});
     const tokenId = dnft.token_id;
-    const reqUpgradeDnft = await dnftContract.connect(owner).upgradeDnft(tokenId);
-
-    if (reqUpgradeDnft) {
+    const transaction = await dnftContract.connect(owner).upgradeDnft(tokenId);
+    await transaction.wait();
+    if (transaction) {
       const dnftLevel = await dnftContract.dnftData(tokenId);
       dnft.dnft_level = dnftLevel;
       const result = dnft.save();
