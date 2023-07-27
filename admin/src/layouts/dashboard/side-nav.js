@@ -1,19 +1,6 @@
-import NextLink from "next/link";
 import { usePathname } from "next/navigation";
 import PropTypes from "prop-types";
-import ArrowTopRightOnSquareIcon from "@heroicons/react/24/solid/ArrowTopRightOnSquareIcon";
-import ChevronUpDownIcon from "@heroicons/react/24/solid/ChevronUpDownIcon";
-import {
-  Box,
-  Button,
-  Divider,
-  Drawer,
-  Stack,
-  SvgIcon,
-  Typography,
-  useMediaQuery,
-} from "@mui/material";
-import { Logo } from "src/components/logo";
+import { Box, Divider, Drawer, Stack, Typography, useMediaQuery } from "@mui/material";
 import { Scrollbar } from "src/components/scrollbar";
 import { items } from "./config";
 import { SideNavItem } from "./side-nav-item";
@@ -43,17 +30,6 @@ export const SideNav = (props) => {
         }}
       >
         <Box sx={{ p: 3 }}>
-          <Box
-            component={NextLink}
-            href="/"
-            sx={{
-              display: "inline-flex",
-              height: 32,
-              width: 32,
-            }}
-          >
-            <Logo />
-          </Box>
           <Box
             sx={{
               alignItems: "center",

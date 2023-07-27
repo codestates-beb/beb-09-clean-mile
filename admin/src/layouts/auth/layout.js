@@ -16,28 +16,6 @@ export const Layout = (props) => {
         flex: "1 1 auto",
       }}
     >
-      <Box
-        component="header"
-        sx={{
-          left: 0,
-          p: 3,
-          position: "fixed",
-          top: 0,
-          width: "100%",
-        }}
-      >
-        <Box
-          component={NextLink}
-          href="/"
-          sx={{
-            display: "inline-flex",
-            height: 32,
-            width: 32,
-          }}
-        >
-          <Logo />
-        </Box>
-      </Box>
       {children}
     </Box>
   );
