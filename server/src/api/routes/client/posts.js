@@ -8,6 +8,7 @@ const {
   deletePost,
   findDetailPost,
   postViews,
+  noticesLatestPost,
 } = require('../../../services/client/postsController');
 const route = Router();
 
@@ -201,6 +202,35 @@ module.exports = (app) => {
         success: true,
         message: '게시글 상세 조회에 성공했습니다.',
         data: result.data,
+      });
+    } catch (err) {
+      console.error('Error:', err);
+      return res.status(500).json({
+        success: false,
+        message: '서버 오류',
+      });
+    }
+  });
+
+  /**
+   * @router GET /posts/notices_latest
+   * @group Posts
+   * @Summary 최신 공지사항 조회 (1개)
+   */
+  route.get('/notices_latest', async (req, res) => {
+    try {
+      const result = await noticesLatestPost();
+      if (!result.success) {
+        return res.status(400).json({
+          success: false,
+          message: '존재하지 않는 게시글입니다.',
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: '최신 공지사항 조회에 성공했습니다.',
+        data: result.data[0],
       });
     } catch (err) {
       console.error('Error:', err);

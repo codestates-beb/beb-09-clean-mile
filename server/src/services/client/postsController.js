@@ -142,6 +142,11 @@ const findDetailPost = async (postId) => {
   }
 };
 
+/**
+ * 게시글 조회수 증가
+ * @param {*} req
+ * @param {*} postId
+ */
 const postViews = async (req, postId) => {
   try {
     // 클라이언트 IP 조회
@@ -163,6 +168,26 @@ const postViews = async (req, postId) => {
   }
 };
 
+/**
+ * 최신 공지사항 게시글 조회 (1개)
+ * @returns 조회 결과
+ */
+const noticesLatestPost = async () => {
+  try {
+    const result = await PostModel.find({ category: 'Notice' })
+      .sort({ created_at: -1 })
+      .limit(1);
+    if (!result) {
+      return { success: false };
+    } else {
+      return { success: true, data: result };
+    }
+  } catch (err) {
+    console.error('Error:', err);
+    throw Error(err);
+  }
+};
+
 module.exports = {
   savePost,
   editPostTitle,
@@ -170,4 +195,5 @@ module.exports = {
   deletePost,
   findDetailPost,
   postViews,
+  noticesLatestPost,
 };
