@@ -8,9 +8,9 @@ async function main() {
   const Token = await ethers.getContractFactory('CleanMileToken');
 
   // Step 2: Fetch contract source code
-  const dnftContract = await DNFT.deploy('user DNFT', 'dnft');
+  const dnftContract = await DNFT.deploy('Clean Mile DNFT', 'CMD');
   const badgeContract = await Badge.deploy();
-  const tokenContract = await Token.deploy('ECO Token', 'EM');
+  const tokenContract = await Token.deploy('Clean Mile Token', 'CMT');
 
   console.log('DNFT contract address:', dnftContract.target);
   console.log('badge contract address:', badgeContract.target);
