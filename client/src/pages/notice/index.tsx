@@ -1,5 +1,5 @@
 import React from 'react';
-import { Header, Notice, NewNotice, Footer } from '../Components/Reference'
+import { Header, Notice, NewNotice, Footer } from '../../Components/Reference'
 
 const NoticePage = () => {
   return (
