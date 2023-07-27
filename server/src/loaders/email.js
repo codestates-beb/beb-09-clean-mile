@@ -1,5 +1,5 @@
-const nodeMailer = require("nodemailer");
-const config = require("../config/index.js");
+const nodeMailer = require('nodemailer');
+const config = require('../config/index.js');
 
 const smtpTransport = nodeMailer.createTransport({
   service: config.mail.serviceName,

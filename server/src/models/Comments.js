@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 /**
  * Comments Collection Schema
@@ -41,14 +41,14 @@ const commentSchema = new mongoose.Schema({
   user: {
     // users collection의 _id를 참조
     type: mongoose.Schema.Types.ObjectId,
-    ref: "user",
+    ref: 'user',
   },
   post: {
     // posts collection의 _id를 참조
     type: mongoose.Schema.Types.ObjectId,
-    ref: "post",
+    ref: 'post',
   },
 });
 
-const Comment = mongoose.model("comment", commentSchema);
+const Comment = mongoose.model('comment', commentSchema);
 module.exports = Comment;
