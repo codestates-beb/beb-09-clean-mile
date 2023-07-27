@@ -111,9 +111,9 @@ module.exports = (app) => {
         !userData.phone_number ||
         !userData.password ||
         !userData.nickname ||
-        !userData.walle_address ||
+        !userData.wallet_address ||
         !userData.social_provider ||
-        !userData.email_verificatio_code
+        !userData.email_verification_code
       ) {
         return res.status(400).json({
           success: false,
@@ -124,7 +124,7 @@ module.exports = (app) => {
       // 이메일 인증 코드 검증
       const chkMailAuthCode = await checkEmailAuthCode(
         userData.email,
-        userData.email_verificatio_code
+        userData.email_verification_code
       );
       if (!chkMailAuthCode.success) {
         return res.status(400).json({

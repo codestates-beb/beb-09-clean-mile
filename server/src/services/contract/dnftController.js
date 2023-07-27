@@ -1,13 +1,28 @@
 const { ethers } = require("ethers");
-const config = require("../../config");
-const dnftABI = require("../../../../contract/artifacts/contracts/CleanMileDNFT.sol/CleanMileDNFT.json").abi;
+const config = require("../../config/config.json");
+const dnftABI = require("../../contracts/CleanMileDNFT.sol/CleanMileDNFT.json").abi;
 const DnftModel = require("../../models/DNFTs");
 const UserModel = require("../../models/Users");
 const provider = new ethers.providers.JsonRpcProvider(config.RPC_URL);
 const signer = provider.getSigner(config.SENDER);
 const dnftContract = new ethers.Contract(config.DNFT_ADDRESS, dnftABI, signer);
-//Badge 등록
 
+
+/**
+ * 뱃지 컨트랙트 등록, 한번만 실행하면 된다.
+ * @returns 성공여부
+ */
+const setBadge = async () => {
+  try {
+    const transaction = await dnftContract.connect(signer).setBadge(config.BADGE_ADDRESS);
+    await transaction.wait(); // 트랜잭션 마이닝까지 기다림;
+    if (transaction) return {success: true};
+    else return {success: false};
+  } catch (err) {
+    console.error("Error:", err);
+    throw new Error(err);
+  }
+};
 
 /**
  * 회원가입 시 DNFT 생성
@@ -15,18 +30,6 @@ const dnftContract = new ethers.Contract(config.DNFT_ADDRESS, dnftABI, signer);
  * @param {number} userType
  * @returns 성공여부
  */
-//address -> email
-
-const setBadge = async () => {
-  try {
-    const transaction = await dnftContract.connect(signer).setBadge(config.BADGE_ADDRESS);
-    await transaction.wait(); // 트랜잭션 마이닝까지 기다림;
-  } catch (err) {
-    console.error("Error:", err);
-    throw new Error(err);
-  }
-};
-
 const createDNFT = async (email, userType) => {
   try { 
     const user = await UserModel.findOne({ email : email });
@@ -42,6 +45,8 @@ const createDNFT = async (email, userType) => {
       const transaction = await dnftContract.connect(signer).mintDNFT(user.wallet.address, user.name, "Administrator", userType);
       await transaction.wait();
       description = "Administrator";
+    } else {
+      return {success: false};
     }
 
     const tokenId = transaction.events[0].args.tokenId.toString();

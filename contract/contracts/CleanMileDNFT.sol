@@ -101,8 +101,6 @@ contract CleanMileDNFT is ERC721, ICleanMileDNFT, Ownable {
             description: _description,
             level: _level
         });
-
-        return tokenId;
     }
 
     function _setTokenURI(

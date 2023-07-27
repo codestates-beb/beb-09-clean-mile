@@ -10,5 +10,6 @@
   "DNFT_ADRESS": "",
   "BADGE_ADDRESS": "",
   "Token_ADDRESS": "",
-  "SENDER": ""
+  "SENDER": "",
+  "NFT_STORAGE_API_KEY": ""
 }

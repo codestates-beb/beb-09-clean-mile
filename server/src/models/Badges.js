@@ -1,6 +1,10 @@
 const mongoose = require("mongoose");
 
 const badgeSchema = new mongoose.Schema({
+  badge_id: {
+    //뱃지 ID(TokenID)
+    type: String,
+  },
   name: {
     // 뱃지 이름
     type: String,
@@ -12,10 +16,6 @@ const badgeSchema = new mongoose.Schema({
   type: {
     // 뱃지 타입
     // 0, 1, 2
-    type: Number,
-  },
-  score: {
-    // 뱃지 점수
     type: Number,
   },
   image_url: {
