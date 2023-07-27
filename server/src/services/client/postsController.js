@@ -1,5 +1,17 @@
+const mongoose = require('mongoose');
 const PostModel = require('../../models/Posts');
+const CommentModel = require('../../models/Comments');
 const { findUserEmail } = require('./usersController');
+
+/**
+ * 클라이언트 IP 조회
+ * @param {*} req
+ * @returns ip
+ */
+const getClientIP = (req) => {
+  // expressjs의 req.ip 사용
+  return req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+};
 
 /**
  * 자유 게시글 저장
@@ -100,4 +112,62 @@ const deletePost = async (postId) => {
   }
 };
 
-module.exports = { savePost, editPostTitle, editPostContent, deletePost };
+/**
+ * 게시글 상세 정보, 댓글 조회
+ * @param {*} postId
+ * @returns 조회 결과
+ */
+const findDetailPost = async (postId) => {
+  try {
+    // 게시글 상세 정보 조회
+    const postResult = await PostModel.findById(postId).populate('user_id', [
+      'nickname',
+    ]);
+    if (!postResult) {
+      return { success: false };
+    }
+
+    // 게시글에 달린 댓글 조회
+    const commentResult = await CommentModel.find({
+      post_id: postId,
+    }).populate('user_id', ['nickname']);
+
+    return {
+      success: true,
+      data: { post: postResult, comment: commentResult },
+    };
+  } catch (err) {
+    console.error('Error:', err);
+    throw Error(err);
+  }
+};
+
+const postViews = async (req, postId) => {
+  try {
+    // 클라이언트 IP 조회
+    const ipAddr = getClientIP(req);
+
+    // 게시글 조회
+    const postResult = await PostModel.findById(postId);
+
+    // 조회자 목록에 현재 IP가 없는 경우 조회수 증가
+    if (!postResult.view.viewers.includes(ipAddr)) {
+      console.log('조회수 증가');
+      postResult.view.count += 1;
+      postResult.view.viewers.push(ipAddr);
+      await postResult.save();
+    }
+  } catch (err) {
+    console.error('Error:', err);
+    throw Error(err);
+  }
+};
+
+module.exports = {
+  savePost,
+  editPostTitle,
+  editPostContent,
+  deletePost,
+  findDetailPost,
+  postViews,
+};

@@ -6,6 +6,8 @@ const {
   editPostTitle,
   editPostContent,
   deletePost,
+  findDetailPost,
+  postViews,
 } = require('../../../services/client/postsController');
 const route = Router();
 
@@ -173,5 +175,39 @@ module.exports = (app) => {
    * @group Posts
    * @Summary 게시글 상세 조회
    */
-  route.get('/detail/:post_id', async (req, res) => {});
+  route.get('/detail/:post_id', async (req, res) => {
+    try {
+      const post_id = req.params.post_id;
+      if (!post_id) {
+        return res.status(400).json({
+          success: false,
+          message: '필수 입력값이 없습니다.',
+        });
+      }
+
+      // 게시글 상세 조회
+      const result = await findDetailPost(post_id);
+      if (!result.success) {
+        return res.status(400).json({
+          success: false,
+          message: '존재하지 않는 게시글입니다.',
+        });
+      }
+
+      // 조회수 증가
+      const viewResult = await postViews(req, post_id);
+
+      return res.status(200).json({
+        success: true,
+        message: '게시글 상세 조회에 성공했습니다.',
+        data: result.data,
+      });
+    } catch (err) {
+      console.error('Error:', err);
+      return res.status(500).json({
+        success: false,
+        message: '서버 오류',
+      });
+    }
+  });
 };

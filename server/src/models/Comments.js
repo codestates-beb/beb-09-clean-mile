@@ -5,12 +5,14 @@ const mongoose = require('mongoose');
  */
 const commentSchema = new mongoose.Schema({
   user_id: {
-    // 사용자 ID
-    type: String,
+    // users collection의 _id를 참조
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'user',
   },
   post_id: {
-    // 게시글 ID
-    type: String,
+    // posts collection의 _id를 참조
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'post',
   },
   content: {
     // 댓글 내용
@@ -37,16 +39,6 @@ const commentSchema = new mongoose.Schema({
     // 댓글 수정일
     type: Date,
     default: Date.now,
-  },
-  user: {
-    // users collection의 _id를 참조
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'user',
-  },
-  post: {
-    // posts collection의 _id를 참조
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'post',
   },
 });
 

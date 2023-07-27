@@ -78,21 +78,6 @@ const userSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-  post: {
-    // posts collection의 _id를 참조
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'post',
-  },
-  comment: {
-    // comments collection의 _id를 참조
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'comment',
-  },
-  dnft: {
-    // dnfts collection의 _id를 참조
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'dnft',
-  },
 });
 
 /**

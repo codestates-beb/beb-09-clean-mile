@@ -5,15 +5,18 @@ const mongoose = require('mongoose');
  */
 const postSchema = new mongoose.Schema({
   user_id: {
-    type: String,
+    // users collection의 _id를 참조
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'user',
   },
   category: {
     // 게시글 카테고리
     type: String,
   },
   event_id: {
-    // 이벤트 ID
-    type: String,
+    // events collection의 _id를 참조
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'event',
   },
   title: {
     // 게시글 제목
@@ -42,8 +45,7 @@ const postSchema = new mongoose.Schema({
     },
     viewers: {
       // 조회자
-      type: Map,
-      of: Boolean,
+      type: Array,
     },
   },
   created_at: {
@@ -55,21 +57,6 @@ const postSchema = new mongoose.Schema({
     // 게시글 수정일
     type: Date,
     default: Date.now,
-  },
-  user: {
-    // users collection의 _id를 참조
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'user',
-  },
-  event: {
-    // events collection의 _id를 참조
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'event',
-  },
-  comment: {
-    // comments collection의 _id를 참조
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'comment',
   },
 });
 

@@ -445,8 +445,9 @@ module.exports = (app) => {
         const email = req.decoded.email;
 
         // S3 이미지 업로드
-        const imageUrl = req.file.location;
-        if (!imageUrl) {
+        const imageData = req.file;
+        console.log(imageData);
+        if (!imageData) {
           return res.status(400).json({
             success: false,
             message: '이미지 업로드에 실패하였습니다.',
@@ -454,7 +455,7 @@ module.exports = (app) => {
         }
 
         // 사용자 배너 이미지 변경
-        const chgBannerResult = await chgBanner(email, imageUrl);
+        const chgBannerResult = await chgBanner(email, imageData.location);
         if (!chgBannerResult.success) {
           return res.status(400).json({
             success: false,
