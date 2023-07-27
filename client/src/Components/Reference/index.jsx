@@ -5,8 +5,10 @@ import NewNotice from '../Common/NewNotice';
 import Footer from '../Common/Footer';
 import Login from '../Users/Login';
 import SignUp from '../Users/SignUp';
-import Notice from '../Notice';
+import Notice from '../Notice/Notice';
+import NoticeDetail from '../Notice/NoticeDetail';
 import General from '../General/General';
+import GeneralDetail from '../General/GeneralDetail';
 import Events from '../Events/Events';
 import Review from '../Review/Review';
 import MyPage from '../Users/MyPage';
@@ -30,7 +32,9 @@ export {
   Login,
   SignUp,
   Notice,
+  NoticeDetail,
   General,
+  GeneralDetail,
   Events,
   Review,
   MyPage,

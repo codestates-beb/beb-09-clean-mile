@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-import { SearchInput } from './Reference';
+import { SearchInput } from '../Reference';
 
 const Notice = () => {
   const router = useRouter();
@@ -97,7 +97,7 @@ const Notice = () => {
                       duration-300 
                       cursor-pointer"
                       key={post.id}
-                      onClick={() => router.push(`/posts/${post.id}`)}>
+                      onClick={() => router.push(`/notice/${post.id}`)}>
                       <td className="border-b p-6 sm:p-3 xs:p-2">
                         <p className="text-xl sm:text-sm xs:text-xs font-semibold">{post.id}</p>
                       </td>
