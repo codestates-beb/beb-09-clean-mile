@@ -12,23 +12,24 @@ const setBadge = await dnftContract.connect(signer).setBadge(config.BADGE_ADDRES
 
 /**
  * 회원가입 시 DNFT 생성
- * @param {string} address
+ * @param {string} email
  * @param {number} userType
  * @returns 성공여부
  */
-const createDNFT = async (address, userType) => {
+//address -> email
+const createDNFT = async (email, userType) => {
   try { 
-    const user = await UserModel.findOne({ 'wallet.address': address });
+    const user = await UserModel.findOne({ email : email });
     let description;
     
     if (userType == 0) {
       // 일반 사용자
-      const transaction = await dnftContract.connect(signer).mintDNFT(address, user.name, "", userType);
+      const transaction = await dnftContract.connect(signer).mintDNFT(user.wallet.address, user.name, "", userType);
       await transaction.wait();
       description = "";
     } else if (userType == 1) {
       // 관리자
-      const transaction = await dnftContract.connect(signer).mintDNFT(address, user.name, "Administrator", userType);
+      const transaction = await dnftContract.connect(signer).mintDNFT(user.wallet.address, user.name, "Administrator", userType);
       await transaction.wait();
       description = "Administrator";
     }
@@ -46,11 +47,8 @@ const createDNFT = async (address, userType) => {
       dnft_level: dnftLevel,
     });
     const result = await dnftData.save();
-    if (!result) {
-      return { success: false };
-    } else {
-      return { success: true };
-    }
+    if (!result) return { success: false };
+    else return { success: true };
   } catch (err) {
     console.error("Error:", err);
     throw new Error(err);
@@ -59,26 +57,23 @@ const createDNFT = async (address, userType) => {
 
 /**
  * DNFT name 변경 요청
- * @param {string} address
+ * @param {string} email
  * @param {string} newName
  * @returns 성공여부
  */
-const updateName = async (address, newName) => {
+const updateName = async (email, newName) => {
   try{
     //업데이트는 token owner만 가능하다
-    let owner = provider.getSigner(address);
-    const userId = await UserModel.findOne({'wallet.address': address })._id;
-    const dnft = await DnftModel.findOne({user_id: userId});
-    const tokenId = dnft.token_id;
-    const reqUpdateName = await dnftContract.connect(owner).updateName(tokenId, newName);
+    
+    const user = await UserModel.findOne({email: email});
+    let owner = provider.getSigner(user.wallet.address);
+    const dnft = await DnftModel.findOne({user_id: user._id});
+    const reqUpdateName = await dnftContract.connect(owner).updateName(dnft.token_id, newName);
     if (reqUpdateName){
       dnft.name = newName;
       const result = await dnft.save();
-      if (!result) {
-        return { success: false };
-      } else {
-        return { success: true };
-      }
+      if (!result) return { success: false };
+      else return { success: true };
     }else{
       return {success: false};
     }
@@ -91,26 +86,22 @@ const updateName = async (address, newName) => {
 
 /**
  * DNFT description 변경 요청(새로운 뱃지를 얻었을 때 불러서 사용!!!)
- * @param {string} address
+ * @param {string} email
  * @param {string} newDescription
  * @returns 성공여부
  */
-const updateDescription = async (address,newDescription) => {
+const updateDescription = async (email,newDescription) => {
   try{
     //업데이트는 token owner만 가능하다
-    let owner = provider.getSigner(address);
-    const userId = await UserModel.findOne({'wallet.address': address })._id;
-    const dnft = await DnftModel.findOne({user_id: userId});
-    const tokenId = dnft.token_id;
-    const reqUpdateName = await dnftContract.connect(owner).updateName(tokenId, newDescription);
+    const user = await UserModel.findOne({email: email});
+    let owner = provider.getSigner(user.wallet.address);
+    const dnft = await DnftModel.findOne({user_id: user._id});
+    const reqUpdateName = await dnftContract.connect(owner).updateName(dnft.token_id, newDescription);
     if (reqUpdateName){
       dnft.description = newDescription;
       const result = await dnft.save();
-      if (!result) {
-        return { success: false };
-      } else {
-        return { success: true };
-      }
+      if (!result) return { success: false };
+      else return { success: true };
     }else{
       return {success: false};
     }
@@ -122,17 +113,16 @@ const updateDescription = async (address,newDescription) => {
 
 /**
  * DNFT Data 요청
- * @param {string} address
+ * @param {string} email
  * @returns 사용자 DNFT 데이터
  */
-const userDnftData = async (address) => {
+const userDnftData = async (email) => {
   try{
-    const userId = await UserModel.findOne({'wallet.address': address })._id;
-    const userName = await UserModel.findOne({'wallet.address': address}).nickname;
-    const dnft = await DnftModel.findOne({user_id: userId});
+    const user = await UserModel.findOne({email: email });
+    const dnft = await DnftModel.findOne({user_id: user._id});
     
     return {
-      owner: userName,
+      owner: user.nickname,
       tokenId: dnft.token_id,
       name: dnft.name,
       imageUrl: dnft.token_uri,
@@ -146,14 +136,29 @@ const userDnftData = async (address) => {
 
 /**
  * DNFT 업그레이드 요청
- * @param {string} address
- * @returns 사용자 DNFT 데이터
+ * @param {string} email
+ * @returns 성공여부
  */
-const upgradeDnft = async () => {
+const upgradeDnft = async (email) => {
   try{
+    
+    const user = await UserModel.findOne({ email: email });
+    let owner = provider.getSigner(user.wallet.address);
+    const dnft = await DnftModel.findOne({user_id: user._id});
+    const tokenId = dnft.token_id;
+    const reqUpgradeDnft = await dnftContract.connect(owner).upgradeDnft(tokenId);
 
+    if (reqUpgradeDnft) {
+      const dnftLevel = await dnftContract.dnftData(tokenId);
+      dnft.dnft_level = dnftLevel;
+      const result = dnft.save();
+      if (!result) return {success: false};
+      else return {success: true};
+    }else{
+      return {success: false};
+    }
   }catch(err){
-    onsole.error("Error:", err);
+    console.error("Error:", err);
     throw new Error(err);
   }
 }
@@ -163,5 +168,6 @@ module.exports = {
   createDNFT,
   updateName,
   updateDescription,
-  userDnftData
+  userDnftData,
+  upgradeDnft
 }
