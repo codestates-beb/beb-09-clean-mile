@@ -7,8 +7,8 @@ import PlusIcon from "@heroicons/react/24/solid/PlusIcon";
 import { Box, Button, Container, Stack, SvgIcon, Typography } from "@mui/material";
 import { useSelection } from "src/hooks/use-selection";
 import { Layout as DashboardLayout } from "src/layouts/dashboard/layout";
-import { UsersTable } from "src/sections/user/users-table";
-import { UsersSearch } from "src/sections/user/users-search";
+import { UsersTable } from "src/components/users/users-table";
+import { UsersSearch } from "src/components/users/users-search";
 import { applyPagination } from "src/utils/apply-pagination";
 
 const now = new Date();
