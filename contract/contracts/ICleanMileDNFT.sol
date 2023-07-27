@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.19;
 
 interface ICleanMileDNFT {
     //level 1~5는 일반 사용자 level_6은 관리자

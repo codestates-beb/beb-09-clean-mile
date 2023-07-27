@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.19;
 
 interface ICleanMileBadge {
     // 각 뱃지의 ID를 정의합니다. 0은 브론즈, 1은 실버, 2는 골드 뱃지입니다.
