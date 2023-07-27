@@ -5,5 +5,10 @@
   "NAVER_MAIL_ID": "",
   "NAVER_MAIL_PW": "",
   "ADMIN_EMAIL": "clean_mile@naver.com",
-  "SECRET_CODE": ""
+  "SECRET_CODE": "",
+  "RPC_URL": "http://localhost:8545",
+  "DNFT_ADRESS": "",
+  "BADGE_ADDRESS": "",
+  "Token_ADDRESS": "",
+  "SENDER": ""
 }
