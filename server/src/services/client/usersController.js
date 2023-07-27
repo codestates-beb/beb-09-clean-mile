@@ -256,9 +256,13 @@ const findOtherUserData = async (userId) => {
     // 뱃지 정보 조회
     // const badgeResult = await BadgeModel.find({ user_id: userId });
 
+    // 작성한 게시글 정보 조회
+    const postResult = await PostModel.find({ user_id: userId });
+
     const result = {
       // dnft: dnftResult,
       // badge: badgeResult,
+      post: postResult,
     };
     return { success: true, data: result };
   } catch (err) {

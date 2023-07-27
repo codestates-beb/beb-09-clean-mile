@@ -363,6 +363,7 @@ module.exports = (app) => {
             ...resultData,
             // dnft: otherUserData.data.dnft,
             // badge: otherUserData.data.badge,
+            post: otherUserData.data.post,
           };
         }
       }
@@ -479,6 +480,7 @@ module.exports = (app) => {
 };
 
 /**
+ * @todo 사용자 배지, dnft 정보 조회 수정 필요
  * @route GET /users/userInfo
  * @group users - 사용자 관련
  * @summary 사용자 정보 조회

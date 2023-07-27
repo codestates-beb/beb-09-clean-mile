@@ -24,7 +24,7 @@ const savePost = async (email, postData, media) => {
   try {
     const userData = await findUserEmail(email);
     const saveData = {
-      user_id: userData._id,
+      user_id: userData.data._id,
       category: postData.category,
       title: postData.title,
       content: postData.content,
