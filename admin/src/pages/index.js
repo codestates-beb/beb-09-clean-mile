@@ -13,10 +13,10 @@ import {
   Unstable_Grid2 as Grid,
 } from "@mui/material";
 import { Layout as DashboardLayout } from "src/layouts/dashboard/layout";
-import { CompanyCard } from "src/components/companies/company-card";
-import { CompaniesSearch } from "src/components/companies/companies-search";
+import { EventCard } from "src/components/events/event-card";
+import { EventsSearch } from "src/components/events/events-search";
 
-const companies = [
+const users = [
   {
     id: "2569ce0d517a7f06d3ea1f24",
     createdAt: "27/03/2019",
@@ -74,7 +74,7 @@ const companies = [
 const Page = () => (
   <>
     <Head>
-      <title>Companies | Devias Kit</title>
+      <title>Users | Devias Kit</title>
     </Head>
     <Box
       component="main"
@@ -87,7 +87,7 @@ const Page = () => (
         <Stack spacing={3}>
           <Stack direction="row" justifyContent="space-between" spacing={4}>
             <Stack spacing={1}>
-              <Typography variant="h4">Companies</Typography>
+              <Typography variant="h4">Users</Typography>
               <Stack alignItems="center" direction="row" spacing={1}>
                 <Button
                   color="inherit"
@@ -124,11 +124,11 @@ const Page = () => (
               </Button>
             </div>
           </Stack>
-          <CompaniesSearch />
+          <EventsSearch />
           <Grid container spacing={3}>
-            {companies.map((company) => (
+            {users.map((company) => (
               <Grid xs={12} md={6} lg={4} key={company.id}>
-                <CompanyCard company={company} />
+                <EventCard company={company} />
               </Grid>
             ))}
           </Grid>
