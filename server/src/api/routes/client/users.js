@@ -260,7 +260,7 @@ module.exports = (app) => {
    * @group users - 사용자 관련
    * @summary 토큰 갱신
    */
-  route.post('/refresh', (req, res) => {
+  route.post('/refresh', async (req, res) => {
     try {
       const refreshToken = req.cookies.refreshToken;
       if (!refreshToken) {
@@ -271,7 +271,7 @@ module.exports = (app) => {
       }
 
       // 토큰 검증
-      const refreshTokenAuth = jwtController.refreshVerify(refreshToken);
+      const refreshTokenAuth = await jwtController.refreshVerify(refreshToken);
       if (!refreshTokenAuth.success) {
         return res.status(401).json({
           success: false,
