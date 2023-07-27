@@ -49,7 +49,7 @@ const ReviewDetail = () => {
         <div className='w-full flex justify-between items-center border-b'>
           <p className='mb-3 font-bold text-2xl xs:text-xl'>{dummyNotice.title}</p>
           <div className='flex items-center gap-6 xs:gap-6 font-semibold text-xl xs:text-sm mb-3 xs:mb-1'>
-            <p className='cursor-pointer hover:underline'>
+            <p className='cursor-pointer hover:underline' onClick={() => router.push(`/user/profile`)}>
               {dummyNotice.writer}
             </p>
             <p>{dummyNotice.date}</p>
@@ -148,7 +148,7 @@ const ReviewDetail = () => {
             Delete
           </button>
           <Link 
-            href={`/posts/edit/1`}
+            href={`/posts/review/edit/1`}
             className='
               w-[5%]
               lg:w-[15%]
