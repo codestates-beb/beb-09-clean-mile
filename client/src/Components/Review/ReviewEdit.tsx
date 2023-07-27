@@ -2,11 +2,12 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/router';
 import axios from 'axios';
 
-const GeneralCreate = () => {
+const ReviewEdit = () => {
   const router = useRouter();
 
+  const [selectCategory, setSelectCategory] = useState('');
   const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
+  const [content, setContent ] = useState('');
   const [images, setImages] = useState<File[]>([]);
   const [videos, setVideos] = useState<File[]>([]);
   const [selectedFile, setSelectedFile] = useState<File[] | null>([]);
@@ -28,16 +29,16 @@ const GeneralCreate = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const files = Array.from(e.target.files)
-
+  
       files.forEach((file) => {
         // file.name이 정의되어 있는지 확인
         if (file && file.name) {
           const extension = file.name.split('.').pop().toLowerCase();
-
+    
           if (extension === 'jpg' || extension === 'jpeg' || extension === 'png') {
             setImages((prevImages) => [...prevImages, file]);
           } else if (extension === 'mp4' || extension === 'avi' || extension === 'mov') {
-            setVideos((prevVideos) => [...prevVideos, file]);
+            setVideos((prevVideos) => [...prevVideos,   file]);
           }
         }
       });
@@ -49,7 +50,28 @@ const GeneralCreate = () => {
     <>
       <div className='w-[90%] min-h-screen mx-auto py-20 sm:py-10 xs:py-10 flex flex-col gap-12'>
         <div>
-          <p className='font-bold text-4xl sm:text-2xl xs:text-2xl'>Create General Posts</p>
+          <p className='font-bold text-4xl sm:text-2xl xs:text-2xl'>Edit Review Posts</p>
+        </div>
+        <div className='w-1/5 lg:w-[50%] md:w-[50%] sm:w-[50%] xs:w-[50%]'>
+          <select className="
+            border-b 
+            outline-none 
+            focus:border-black 
+            transition 
+            duration-300 
+            py-2 
+            px-4 
+            w-full
+            sm:text-sm
+            xs:text-sm"
+            value={selectCategory}
+            onChange={(e) => setSelectCategory(e.target.value)}
+            required>
+            <option className="text-sm" value="" disabled>카테고리를 선택해 주세요.</option>
+            <option className="text-sm" value="eventinfo">행사 정보</option>
+            <option className="text-sm" value="courseinfo">코스 정보</option>
+            <option className="text-sm" value="review">참여 후기</option>
+          </select>
         </div>
         <div className='w-2/5 sm:w-full xs:w-full'>
           <input
@@ -120,4 +142,4 @@ const GeneralCreate = () => {
   )
 }
 
-export default GeneralCreate;
+export default ReviewEdit;
