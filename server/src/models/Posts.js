@@ -38,6 +38,7 @@ const postSchema = new mongoose.Schema({
     count: {
       // 조회수
       type: Number,
+      default: 0,
     },
     viewers: {
       // 조회자

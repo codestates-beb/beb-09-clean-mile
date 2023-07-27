@@ -1,5 +1,4 @@
 const Router = require('express');
-const multer = require('multer');
 const jwt = require('jsonwebtoken');
 const jwtController = require('../../../services/jwtController');
 const isAuth = require('../../middlewares/isAuth');
@@ -218,9 +217,12 @@ module.exports = (app) => {
         maxAge: 1000 * 60 * 60 * 24 * 14, // 14일 (밀리초 단위)
       });
 
+      userResult.data.hashed_pw = '';
+
       return res.status(200).json({
         success: true,
         message: '로그인에 성공했습니다.',
+        data: userResult,
       });
     } catch (err) {
       console.error('Error:', err);
@@ -338,6 +340,7 @@ module.exports = (app) => {
       }
 
       // 반환 결과 데이터
+      findUserData.data.hashed_pw = '';
       let resultData = {
         user: findUserData.data,
       };

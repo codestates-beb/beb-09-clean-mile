@@ -1,4 +1,3 @@
-const { findOne } = require('../../models/Badges');
 const smtpTransport = require('../../loaders/email');
 const config = require('../../config/index');
 const MailModel = require('../../models/Mails');
