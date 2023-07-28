@@ -1,6 +1,7 @@
 import PropTypes from "prop-types";
 import { format } from "date-fns";
 import {
+  Avatar,
   Box,
   Card,
   Stack,
@@ -8,20 +9,22 @@ import {
   TableBody,
   TableCell,
   TableHead,
+  TablePagination,
   TableRow,
   Typography,
 } from "@mui/material";
 import { Scrollbar } from "src/components/scrollbar";
-import { useRouter } from "next/router";
+import { getInitials } from "src/utils/get-initials";
 
-export const UsersTable = (props) => {
-  const { items = [] } = props;
-
-  const router = useRouter();
-
-  const handleUserSelected = (userId) => {
-    router.push(`/users/${userId}`);
-  };
+export const EventsTable = (props) => {
+  const {
+    count = 0,
+    items = [],
+    onPageChange = () => {},
+    onRowsPerPageChange,
+    page = 0,
+    rowsPerPage = 0,
+  } = props;
 
   return (
     <Card>
@@ -32,29 +35,28 @@ export const UsersTable = (props) => {
               <TableRow>
                 <TableCell>Name</TableCell>
                 <TableCell>Email</TableCell>
-                <TableCell>Wallet Address</TableCell>
-                <TableCell>Social Type</TableCell>
+                <TableCell>Location</TableCell>
+                <TableCell>Phone</TableCell>
                 <TableCell>Signed Up</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {items.map((user) => {
-                const createdAt = user.createdAt ? format(user.createdAt, "dd/MM/yyyy") : "N/A";
+                const createdAt = format(user.createdAt, "dd/MM/yyyy");
 
                 return (
-                  <TableRow hover key={user.id} onClick={() => handleUserSelected(user.id)}>
+                  <TableRow hover key={user.id}>
                     <TableCell>
                       <Stack alignItems="center" direction="row" spacing={2}>
+                        <Avatar src={user.avatar}>{getInitials(user.name)}</Avatar>
                         <Typography variant="subtitle2">{user.name}</Typography>
                       </Stack>
                     </TableCell>
                     <TableCell>{user.email}</TableCell>
                     <TableCell>
-                      {user.wallet_address
-                        ? user.wallet_address.slice(0, 6) + "..." + user.wallet_address.slice(-4)
-                        : "N/A"}
+                      {user.address.city}, {user.address.state}, {user.address.country}
                     </TableCell>
-                    <TableCell>{user.social_type ? user.social_type : "N/A"}</TableCell>
+                    <TableCell>{user.phone}</TableCell>
                     <TableCell>{createdAt}</TableCell>
                   </TableRow>
                 );
@@ -63,10 +65,24 @@ export const UsersTable = (props) => {
           </Table>
         </Box>
       </Scrollbar>
+      <TablePagination
+        component="div"
+        count={count}
+        onPageChange={onPageChange}
+        onRowsPerPageChange={onRowsPerPageChange}
+        page={page}
+        rowsPerPage={rowsPerPage}
+        rowsPerPageOptions={[5, 10, 25]}
+      />
     </Card>
   );
 };
 
-UsersTable.propTypes = {
+EventsTable.propTypes = {
+  count: PropTypes.number,
   items: PropTypes.array,
+  onPageChange: PropTypes.func,
+  onRowsPerPageChange: PropTypes.func,
+  page: PropTypes.number,
+  rowsPerPage: PropTypes.number,
 };

@@ -1,22 +1,19 @@
 import Head from "next/head";
-import ArrowUpOnSquareIcon from "@heroicons/react/24/solid/ArrowUpOnSquareIcon";
-import ArrowDownOnSquareIcon from "@heroicons/react/24/solid/ArrowDownOnSquareIcon";
 import PlusIcon from "@heroicons/react/24/solid/PlusIcon";
 import {
   Box,
   Button,
   Container,
-  Pagination,
   Stack,
   SvgIcon,
   Typography,
   Unstable_Grid2 as Grid,
 } from "@mui/material";
 import { Layout as DashboardLayout } from "src/layouts/dashboard/layout";
-import { EventCard } from "src/components/events/event-card";
 import { EventsSearch } from "src/components/events/events-search";
+import { EventsTable } from "src/components/events/events-table";
 
-const users = [
+const events = [
   {
     id: "2569ce0d517a7f06d3ea1f24",
     createdAt: "27/03/2019",
@@ -74,7 +71,7 @@ const users = [
 const Page = () => (
   <>
     <Head>
-      <title>Users | Devias Kit</title>
+      <title>Events</title>
     </Head>
     <Box
       component="main"
@@ -87,29 +84,7 @@ const Page = () => (
         <Stack spacing={3}>
           <Stack direction="row" justifyContent="space-between" spacing={4}>
             <Stack spacing={1}>
-              <Typography variant="h4">Users</Typography>
-              <Stack alignItems="center" direction="row" spacing={1}>
-                <Button
-                  color="inherit"
-                  startIcon={
-                    <SvgIcon fontSize="small">
-                      <ArrowUpOnSquareIcon />
-                    </SvgIcon>
-                  }
-                >
-                  Import
-                </Button>
-                <Button
-                  color="inherit"
-                  startIcon={
-                    <SvgIcon fontSize="small">
-                      <ArrowDownOnSquareIcon />
-                    </SvgIcon>
-                  }
-                >
-                  Export
-                </Button>
-              </Stack>
+              <Typography variant="h4">Events</Typography>
             </Stack>
             <div>
               <Button
@@ -125,21 +100,7 @@ const Page = () => (
             </div>
           </Stack>
           <EventsSearch />
-          <Grid container spacing={3}>
-            {users.map((company) => (
-              <Grid xs={12} md={6} lg={4} key={company.id}>
-                <EventCard company={company} />
-              </Grid>
-            ))}
-          </Grid>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "center",
-            }}
-          >
-            <Pagination count={3} size="small" />
-          </Box>
+          <EventsTable />
         </Stack>
       </Container>
     </Box>

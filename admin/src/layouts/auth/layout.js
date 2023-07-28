@@ -1,7 +1,5 @@
 import PropTypes from "prop-types";
-import NextLink from "next/link";
 import { Box } from "@mui/material";
-import { Logo } from "src/components/logo";
 
 // TODO: Change subtitle text
 
