@@ -1,7 +1,7 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Head from "next/head";
 import { subDays, subHours } from "date-fns";
-import { Box, Button, Container, Stack, Pagination, Typography } from "@mui/material";
+import { Box, Container, Stack, Pagination, Typography, Select, MenuItem } from "@mui/material";
 
 import { Layout as DashboardLayout } from "src/layouts/dashboard/layout";
 import { UsersTable } from "src/components/users/users-table";
@@ -92,16 +92,30 @@ const data = [
   },
 ];
 
+const socialTypes = ["all", "none", "google", "kakao"];
+
 const Page = () => {
   const [page, setPage] = useState(1);
+  const [users, setUsers] = useState(data);
+  const [socialType, setSocialType] = useState(socialTypes[0]);
 
   const handlePageChange = useCallback((event, value) => {
     setPage(value);
   }, []);
 
+  const handleSocialTypeChange = useCallback((event) => {
+    setSocialType(event.target.value);
+  }, []);
+
   const handleSearchUsers = useCallback((filter, searchTerm) => {
     console.log(filter, searchTerm);
   }, []);
+
+  useEffect(() => {
+    const filteredUsers =
+      socialType === "all" ? data : data.filter((u) => u.social_type === socialType);
+    setUsers(filteredUsers);
+  }, [socialType]);
 
   return (
     <>
@@ -122,8 +136,18 @@ const Page = () => {
                 <Typography variant="h4">Users</Typography>
               </Stack>
             </Stack>
-            <UsersSearch handleSearchUsers={handleSearchUsers} />
-            <UsersTable items={data} />
+            <Stack direction="row" justifyContent="right" spacing={4}>
+              <Stack spacing={1}>
+                <Select value={socialType} onChange={handleSocialTypeChange}>
+                  {socialTypes.map((socialType) => (
+                    <MenuItem key={socialType} value={socialType}>
+                      {socialType}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </Stack>
+            </Stack>
+            <UsersTable items={users} />
             <Box
               sx={{
                 display: "flex",
@@ -138,6 +162,7 @@ const Page = () => {
                 size={"medium"}
               />
             </Box>
+            <UsersSearch handleSearchUsers={handleSearchUsers} />
           </Stack>
         </Container>
       </Box>
