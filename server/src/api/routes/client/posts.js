@@ -9,6 +9,8 @@ const {
   findDetailPost,
   postViews,
   noticesLatestPost,
+  findPost,
+  paginationPostList,
 } = require('../../../services/client/postsController');
 const route = Router();
 
@@ -169,8 +171,42 @@ module.exports = (app) => {
    * @group Posts
    * @Summary 게시글 목록 조회
    */
-  route.get('/lists', async (req, res) => {
+  route.get('/lists/:category', upload.none(), async (req, res) => {
     try {
+      const category = req.params.category;
+      const {
+        page = 1,
+        limit = 10,
+        last_id = null,
+        order = 'desc',
+      } = req.query;
+      const { title = null, content = null } = req.body;
+
+      //데이터 조회
+      const result = await findPost(
+        category,
+        limit,
+        last_id,
+        order,
+        title,
+        content
+      );
+
+      // 결과 반환
+      const resultData = {
+        success: true,
+        message: '게시글 리스트 조회에 성공했습니다.',
+        data: result.data,
+        last_id: result.last_id,
+      };
+
+      // list일 경우 페이지 계산
+      if (category === 'Notice' || category === 'General') {
+        const pageResult = await paginationPostList(category, limit, page);
+        resultData.pagination = pageResult.pagination;
+      }
+
+      return res.status(200).json(resultData);
     } catch (err) {
       console.error('Error:', err);
       return res.status(500).json({

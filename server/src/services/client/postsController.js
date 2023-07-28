@@ -188,6 +188,100 @@ const noticesLatestPost = async () => {
   }
 };
 
+/**
+ * 게시글 목록 조회
+ * @param {*} category
+ * @param {*} page_size
+ * @param {*} last_id
+ * @returns 조회결과
+ */
+const findPost = async (category, limit, last_id, order, title, content) => {
+  try {
+    let cursor;
+    const query = { category: category };
+
+    // last_id가 존재하면, 마지막 id 이후의 문서 조회
+    if (last_id) {
+      query._id = { $gt: last_id };
+    }
+
+    // title이 존재하면 정규 표현식으로 검색에 추가 (대소문자 구분 없이 검색)
+    if (title) {
+      query.title = { $regex: new RegExp(title, 'i') };
+    }
+
+    // content가 존재하면 정규 표현식으로 검색에 추가 (대소문자 구분 없이 검색)
+    if (content) {
+      query.content = { $regex: new RegExp(content, 'i') };
+    }
+
+    // 데이터 조회 실행
+    cursor = PostModel.find(query).limit(limit);
+
+    // 정렬
+    if (order === 'desc') {
+      cursor = cursor.sort({ created_at: -1 });
+    }
+
+    // 배열 형태로 데이터 가져오기
+    const result = await cursor.exec();
+
+    // 더 이상 문서가 없는 경우
+    if (!result.length) {
+      return { data: null, last_id: null };
+    }
+
+    // 마지막 문서의 ID를 가져옴
+    const lastDoc = result[result.length - 1];
+    last_id = lastDoc._id.toString();
+
+    // 데이터와 다음 페이지를 위한 마지막 ID 반환
+    return { data: result, last_id };
+  } catch (err) {
+    console.error('Error:', err);
+    throw Error(err);
+  }
+};
+
+const paginationPostList = async (category, limit, page) => {
+  try {
+    // 전체 게시물 수 조회
+    const totalPosts = await PostModel.countDocuments({ category: category });
+
+    // 전체 페이지 수 계산
+    const totalPages = Math.ceil(totalPosts / limit);
+
+    // 현재 페이지
+    const currentPage = parseInt(page);
+
+    // 페이징 시작 숫자 계산
+    //  페이징 UI를 구성 -> 현재 페이지를 중심으로 좌우로 5개의 페이지 링크
+    const startPage = Math.max(1, currentPage - 5);
+
+    // 페이징 끝 숫자 계산
+    const endPage = Math.min(startPage + 9, totalPages);
+
+    // 이전 페이지 및 다음 페이지 계산
+    const prevPage = currentPage > 1 ? currentPage - 1 : null;
+    const nextPage = currentPage < totalPages ? currentPage + 1 : null;
+
+    return {
+      pagination: {
+        totalPosts,
+        totalPages,
+        currentPage,
+        startPage,
+        endPage,
+        prevPage,
+        nextPage,
+      },
+    };
+  } catch (err) {
+    console.error('Error:', err);
+    throw Error(err);
+  }
+};
+
 module.exports = {
   savePost,
   editPostTitle,
@@ -196,4 +290,6 @@ module.exports = {
   findDetailPost,
   postViews,
   noticesLatestPost,
+  findPost,
+  paginationPostList,
 };
