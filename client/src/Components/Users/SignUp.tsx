@@ -9,9 +9,11 @@ import { FcGoogle } from 'react-icons/fc';
 import { IoEyeSharp, IoEyeOffSharp } from 'react-icons/io5';
 import Web3 from 'web3';
 import { useMutation, useQueryClient, useQuery } from 'react-query';
+// import { signIn, signOut, useSession } from 'next-auth/client';
 import { Three, logo, meta_mask_logo } from '../Reference';
-import { showAlert } from '../../Redux/store';
+import { showAlert } from '../Redux/store';
 import { AlertState } from '../Interfaces';
+import { ApiCaller } from '../Utils/ApiCaller';
 
 declare global {
   interface Window {
@@ -45,6 +47,8 @@ const SignUp = () => {
   const [pwConfirmMessage, setPwConfirmMessage] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [pwConfirmError, setPwConfirmError] = useState('');
+  const [nicknameCheck, setNicknameCheck] = useState(false);
+  const [emailCheck, setEmailCheck] = useState(false);
 
   /**
    * 비밀번호 가시성 상태를 전환하는 함수
@@ -68,10 +72,13 @@ const SignUp = () => {
   const validateNickname = () => {
     if (nickname.length < 2) {
       setErrorMessage('닉네임은 최소 2자 이상이어야 합니다.');
+      setNicknameCheck(false);
     } else if (nickname.length > 8) {
       setErrorMessage('닉네임은 최대 8자 입니다.');
+      setNicknameCheck(false);
     } else {
       setErrorMessage('');
+      setNicknameCheck(true);
     }
   };
 
@@ -132,8 +139,10 @@ const SignUp = () => {
     const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!re.test(email)) {
       setEmailError('이메일 형식에 맞지 않습니다.');
+      setEmailCheck(false);
     } else {
       setEmailError('');
+      setEmailCheck(true);
     }
   }
 
@@ -147,11 +156,13 @@ const SignUp = () => {
     formData.append('email', email);
 
     try {
-      const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/check-email`, formData, {
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
+      const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/check-email`;
+      const dataBody = formData;
+      const headers = {
+        'Content-Type': 'application/json',
+      }
+
+      const res = await ApiCaller.post(URL, dataBody, headers);
       if (res.status === 200) {
         dispatch(showAlert({
           title: 'Success!',
@@ -220,13 +231,14 @@ const SignUp = () => {
     formData.append('email_verification_code', verifyCode);
 
     try {
-      const res = await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/verify-emailCode`, formData, {
-        headers: {
-          'Content-Type': 'application/json'
-        }
+
+      const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/verify-emailCode`;
+      const dataBody = formData;
+      const headers = {
+        'Content-Type': 'application/json',
       }
-      );
+
+      const res = await ApiCaller.post(URL, dataBody, headers);
 
       if (res.status === 200) {
         dispatch(showAlert({
@@ -255,6 +267,72 @@ const SignUp = () => {
         confirmButtonText: 'OK',
         confirmButtonColor: '#6BCB77'
       }));
+    }
+  }
+
+  const checkNickname = async () => {
+    const formData = new FormData();
+
+    formData.append('nickname', nickname);
+
+    try {
+
+      const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/validate-nickname`;
+      const dataBody = formData;
+      const headers = {
+        'Content-Type': 'application/json',
+      }
+
+      const res = await ApiCaller.post(URL, dataBody, headers);
+
+      if (res.status === 200) {
+        dispatch(showAlert({
+          title: 'Success!',
+          text: res.data.message,
+          icon: 'success',
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#6BCB77'
+        }));
+
+        Swal.fire({
+          title,
+          text,
+          icon,
+          confirmButtonText,
+          confirmButtonColor,
+        }).then(() => {
+          setNicknameCheck(false)
+        });
+
+      } else {
+        dispatch(showAlert({
+          title: 'Error',
+          text: res.data.message,
+          icon: 'error',
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#6BCB77'
+        }));
+      }
+    } catch (error) {
+      const err = error as AxiosError;
+
+      dispatch(showAlert({
+        title: 'Error',
+        text: err?.response?.data.message,
+        icon: 'error',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#6BCB77'
+      }));
+
+      if (title && text && icon && confirmButtonText && confirmButtonColor) {
+        Swal.fire({
+          title,
+          text,
+          icon,
+          confirmButtonText,
+          confirmButtonColor,
+        });
+      }
     }
   }
 
@@ -322,12 +400,23 @@ const SignUp = () => {
     }
     formData.append('social_provider', 'none');
 
+    try {
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/signup`, formData, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      console.log(res);
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   return (
     <div className='w-full min-h-screen grid grid-cols-2'>
       <Three />
-      <div className='flex flex-col items-center justify-center gap-48 lg:gap-24 sm:gap-20 xs:gap-12 lg:py-6'>
+      <div className='flex flex-col items-center justify-center gap-48 lg:gap-24 sm:gap-20 xs:gap-12 py-6 lg:py-6'>
         <div className='flex flex-col items-center justify-center gap-6'>
           <Image src={logo} className='cursor-pointer md:w-1/2 sm:w-1/3 xs:w-1/2' width={150} height={100} alt='clean mile logo' onClick={() => router.push('/')} />
           <h1 className='text-6xl lg:text-4xl md:text-4xl sm:text-3xl xs:text-3xl font-bold'>SignUp</h1>
@@ -339,43 +428,66 @@ const SignUp = () => {
                 <div className='w-full flex flex-col sm:gap-4 xs:gap-2 justify-center items-center -mb-[1rem]'>
                   <label className='w-full sm:w-full xs:w-full font-semibold text-md lg:text-md md:text-md sm:text-base xs:text-sm' htmlFor='email'>E-Mail</label>
                   <div className="w-full flex gap-4 sm:gap-2 xs:gap-2">
-                    <input className="w-full border border-gray-500 rounded-lg px-2 py-3 lg:py-2 md:py-2 sm:py-2 xs:py-1"
-                      type='email'
-                      id='email'
-                      placeholder='e-mail'
-                      value={email}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)} />
-                    <button className='
+                    <div className='w-full flex flex-col'>
+                      <input className="w-full border border-gray-500 rounded-lg px-2 py-3 lg:py-2 md:py-2 sm:py-2 xs:py-1"
+                        type='email'
+                        id='email'
+                        placeholder='e-mail'
+                        value={email}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)} />
+                    </div>
+                    <button className={`
+                      ${!emailCheck ? 'bg-blue-300' : 'bg-main-blue hover:bg-blue-600'}
                       border 
                       rounded-xl 
-                      p-3 
+                      p-2
+                      pb-2 
                       sm:p-2 
                       xs:p-2 
                       sm:text-sm 
                       xs:text-sm 
-                      bg-main-blue 
                       text-white 
-                      hover:bg-blue-600 
                       transition 
-                      duration-300'
-                      onClick={checkEmail}>
+                      duration-300
+                      `}
+                      onClick={checkNickname}
+                      disabled={!emailCheck}>
                       Confirm
                     </button>
                   </div>
-                  <p className='font-normal text-xs text-red-500' style={{ minHeight: '1rem' }}>{email.length > 0 && emailError}</p>
+                  <p className='w-full text-left font-normal text-xs text-red-500' style={{ minHeight: '1rem' }}>{email.length > 0 && emailError}</p>
                 </div>
                 <div className='w-full flex flex-col sm:gap-4 xs:gap-2 justify-center items-center -mb-[1rem]'>
                   <label className='w-full sm:w-full xs:w-full font-semibold text-md lg:text-md md:text-md sm:text-base xs:text-sm' htmlFor='nickname'>Nickname</label>
                   <div className='w-full flex gap-4 sm:gap-2 xs:gap-2'>
-                    <input className="w-full border border-gray-500 rounded-lg px-2 py-3 lg:py-2 md:py-2 sm:py-2 xs:py-1"
-                      type='text'
-                      id='nickname'
-                      placeholder='nickname'
-                      value={nickname}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNickname(e.target.value)} />
-                    <button className='border rounded-xl p-3 sm:p-2 xs:p-2 sm:text-sm xs:text-sm bg-main-blue text-white hover:bg-blue-600 transition duration-300'>Confirm</button>
+                    <div className='w-full flex flex-col'>
+                      <input className="w-full border border-gray-500 rounded-lg px-2 py-3 lg:py-2 md:py-2 sm:py-2 xs:py-1"
+                        type='text'
+                        id='nickname'
+                        placeholder='nickname'
+                        value={nickname}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNickname(e.target.value)} />
+                    </div>
+                    <button className={`
+                      ${!nicknameCheck ? 'bg-blue-300' : 'bg-main-blue hover:bg-blue-600'}
+                      border 
+                      rounded-xl 
+                      p-2
+                      pb-2 
+                      sm:p-2 
+                      xs:p-2 
+                      sm:text-sm 
+                      xs:text-sm 
+                      text-white 
+                      transition 
+                      duration-300
+                      `}
+                      onClick={checkNickname}
+                      disabled={!nicknameCheck}>
+                      Confirm
+                    </button>
                   </div>
-                  <p className='font-normal text-xs text-red-500' style={{ minHeight: '1rem' }}>{nickname.length > 0 && errorMessage}</p>
+                  <p className='w-full text-left font-normal text-xs text-red-500' style={{ minHeight: '1rem' }}>{nickname.length > 0 && errorMessage}</p>
                 </div>
                 <div className='w-full flex flex-col sm:gap-4 xs:gap-2 justify-center items-center'>
                   <label className='w-full sm:w-full xs:w-full font-semibold text-md lg:text-md md:text-md sm:text-base xs:text-sm' htmlFor='name'>Name</label>
@@ -493,11 +605,45 @@ const SignUp = () => {
               )}
             </div>
             <div className='w-full flex flex-col justify-center items-center gap-5 mt-12'>
-              <button className='w-[80%] lg:w-[70%] md:w-full sm:w-full xs:w-full bg-main-green hover:bg-green-600 px-7 py-2 rounded-xl text-white text-lg md:text-base sm:text-base xs:text-base font-semibold transition duration-300'>
+              <button className={`
+                ${!email || !name || !phone_number || !password || !nickname || !userAddressQuery.data ? 'bg-green-300' : 'bg-main-green hover:bg-green-600'}
+                w-[80%] 
+                lg:w-[70%] 
+                md:w-full 
+                sm:w-full 
+                xs:w-full 
+                px-7 
+                py-2 
+                rounded-xl 
+                text-white 
+                text-lg 
+                md:text-base 
+                sm:text-base 
+                xs:text-base 
+                font-semibold 
+                transition 
+                duration-300`}
+                disabled={!email || !name || !phone_number || !password || !nickname || !userAddressQuery.data}>
                 SignUp
               </button>
               <div className='w-[80%] lg:w-[70%] md:w-full sm:w-full xs:w-full flex sm:flex-col xs:flex-col sm:items-center xs:items-center gap-6'>
-                <button className='w-[80%] sm:w-full xs:w-full flex items-center justify-center bg-main-yellow hover:bg-yellow-500 px-7 py-2 rounded-xl text-white text-lg font-semibold transition duration-300'>
+                <button className='
+                  w-[80%] 
+                  sm:w-full 
+                  xs:w-full 
+                  flex 
+                  items-center 
+                  justify-center 
+                  bg-main-yellow 
+                  hover:bg-yellow-500 
+                  px-7 
+                  py-2 
+                  rounded-xl 
+                  text-white 
+                  text-lg 
+                  font-semibold 
+                  transition 
+                  duration-300'>
                   <RiKakaoTalkFill size={25} className='w-[30%]' />
                   <span className='text-center w-[90%] md:text-sm sm:text-sm xs:text-sm'>KaKao</span>
                 </button>

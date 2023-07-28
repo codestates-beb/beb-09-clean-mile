@@ -5,7 +5,7 @@ import { Provider } from 'react-redux';
 import { createWrapper } from 'next-redux-wrapper';
 import { QueryClient, QueryClientProvider } from 'react-query'; 
 import type { AppProps } from 'next/app'
-import { store, AlertActionTypes } from '../Redux/store'
+import { store, AlertActionTypes } from '../Components/Redux/store'
 import { AlertState } from '../Components/Interfaces';
 import HeadMeta from '../Components/Common/HeadMeta'
 
