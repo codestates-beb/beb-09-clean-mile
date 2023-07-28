@@ -51,42 +51,24 @@ const savePost = async (email, postData, media) => {
 };
 
 /**
- * 게시글 제목 수정
- * @param {*} postId
- * @param {*} title
- * @returns 성공여부
+ * 게시글의 제목 또는 내용을 수정
+ * @param {*} post_id 게시글 ID
+ * @param {*} updateFields 수정할 필드와 값을 담은 객체
+ * @returns 성공 여부에 따라 객체 반환
  */
-const editPostTitle = async (postId, title) => {
+const editPostField = async (post_id, updateFields) => {
   try {
-    const result = await PostModel.updateOne({ _id: postId }, { title: title });
-    if (!result) {
-      return { success: false };
-    } else {
-      return { success: true };
-    }
-  } catch (err) {
-    console.error('Error:', err);
-    throw Error(err);
-  }
-};
-
-/**
- * 게시글 내용 수정
- * @param {*} postId
- * @param {*} content
- * @returns 성공여부
- */
-const editPostContent = async (postId, content) => {
-  try {
-    const result = await PostModel.updateOne(
-      { _id: postId },
-      { content: content }
+    const result = await PostModel.findByIdAndUpdate(
+      post_id,
+      { $set: updateFields },
+      { new: true }
     );
+
     if (!result) {
       return { success: false };
-    } else {
-      return { success: true };
     }
+
+    return { success: true, data: result };
   } catch (err) {
     console.error('Error:', err);
     throw Error(err);
@@ -154,6 +136,9 @@ const postViews = async (req, postId) => {
 
     // 게시글 조회
     const postResult = await PostModel.findById(postId);
+    if (!postResult) {
+      return { success: false };
+    }
 
     // 조회자 목록에 현재 IP가 없는 경우 조회수 증가
     if (!postResult.view.viewers.includes(ipAddr)) {
@@ -161,6 +146,10 @@ const postViews = async (req, postId) => {
       postResult.view.viewers.push(ipAddr);
       await postResult.save();
     }
+
+    // 게시글 조회
+    const result = await findDetailPost(postId);
+    return { success: true, data: result.data };
   } catch (err) {
     console.error('Error:', err);
     throw Error(err);
@@ -244,60 +233,11 @@ const findPost = async (category, limit, last_id, order, title, content) => {
   }
 };
 
-/**
- * 페이징 처리를 위한 계산
- * @param {*} category
- * @param {*} limit
- * @param {*} page
- * @returns 계산 결과
- */
-const paginationPostList = async (category, limit, page) => {
-  try {
-    // 전체 게시물 수 조회
-    const totalPosts = await PostModel.countDocuments({ category: category });
-
-    // 전체 페이지 수 계산
-    const totalPages = Math.ceil(totalPosts / limit);
-
-    // 현재 페이지
-    const currentPage = parseInt(page);
-
-    // 페이징 시작 숫자 계산
-    //  페이징 UI를 구성 -> 현재 페이지를 중심으로 좌우로 5개의 페이지 링크
-    const startPage = Math.max(1, currentPage - 5);
-
-    // 페이징 끝 숫자 계산
-    const endPage = Math.min(startPage + 9, totalPages);
-
-    // 이전 페이지 및 다음 페이지 계산
-    const prevPage = currentPage > 1 ? currentPage - 1 : null;
-    const nextPage = currentPage < totalPages ? currentPage + 1 : null;
-
-    return {
-      pagination: {
-        totalPosts,
-        totalPages,
-        currentPage,
-        startPage,
-        endPage,
-        prevPage,
-        nextPage,
-      },
-    };
-  } catch (err) {
-    console.error('Error:', err);
-    throw Error(err);
-  }
-};
-
 module.exports = {
   savePost,
-  editPostTitle,
-  editPostContent,
+  editPostField,
   deletePost,
-  findDetailPost,
   postViews,
   noticesLatestPost,
   findPost,
-  paginationPostList,
 };
