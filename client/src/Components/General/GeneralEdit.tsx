@@ -2,11 +2,11 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/router';
 import axios from 'axios';
 
-const GeneralCreate = () => {
+const GeneralEdit = () => {
   const router = useRouter();
 
   const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
+  const [content, setContent ] = useState('');
   const [images, setImages] = useState<File[]>([]);
   const [videos, setVideos] = useState<File[]>([]);
   const [selectedFile, setSelectedFile] = useState<File[] | null>([]);
@@ -28,16 +28,16 @@ const GeneralCreate = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const files = Array.from(e.target.files)
-
+  
       files.forEach((file) => {
         // file.name이 정의되어 있는지 확인
         if (file && file.name) {
           const extension = file.name.split('.').pop().toLowerCase();
-
+    
           if (extension === 'jpg' || extension === 'jpeg' || extension === 'png') {
             setImages((prevImages) => [...prevImages, file]);
           } else if (extension === 'mp4' || extension === 'avi' || extension === 'mov') {
-            setVideos((prevVideos) => [...prevVideos, file]);
+            setVideos((prevVideos) => [...prevVideos,   file]);
           }
         }
       });
@@ -49,15 +49,15 @@ const GeneralCreate = () => {
     <>
       <div className='w-[90%] min-h-screen mx-auto py-20 sm:py-10 xs:py-10 flex flex-col gap-12'>
         <div>
-          <p className='font-bold text-4xl sm:text-2xl xs:text-2xl'>Create General Posts</p>
+          <p className='font-bold text-4xl sm:text-2xl xs:text-2xl'>Edit General Posts</p>
         </div>
         <div className='w-2/5 sm:w-full xs:w-full'>
-          <input
-            className='w-full sm:w-[50%] xs:w-[50%] border-b focus:border-black transition duration-300 py-2 px-3'
-            type="text"
-            name=""
+          <input 
+            className='w-full sm:w-[50%] xs:w-[50%] border-b focus:border-black transition duration-300 py-2 px-3' 
+            type="text" 
+            name="" 
             placeholder='제목을 입력해 주세요'
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)} />
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)}/>
         </div>
         <div className='w-full h-[45rem]'>
           <input
@@ -66,7 +66,7 @@ const GeneralCreate = () => {
             className='w-full hidden'
             onChange={handleFileChange}
             multiple
-          />
+            />
           <div className='flex w-[30%] lg:w-[50%] md:w-[70%] sm:w-full xs:w-full justify-between mb-5'>
             <p className='border-b w-[60%] xs:text-sm m-0'>
               {selectedFile?.length > 0 ? (
@@ -75,7 +75,7 @@ const GeneralCreate = () => {
                 '파일을 선택해 주세요.'
               )}
             </p>
-            <button
+            <button 
               className='border rounded-lg p-2 bg-main-blue text-white hover:bg-blue-600 transition duration-300 xs:text-sm'
               onClick={handleFileSelect}>
               파일 선택
@@ -111,8 +111,8 @@ const GeneralCreate = () => {
             hover:bg-green-600
             transition 
             duration-300'
-          >
-            Create
+            >
+            Edit
           </button>
         </div>
       </div>
@@ -120,4 +120,4 @@ const GeneralCreate = () => {
   )
 }
 
-export default GeneralCreate;
+export default GeneralEdit;

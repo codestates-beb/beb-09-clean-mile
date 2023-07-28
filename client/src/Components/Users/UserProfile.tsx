@@ -12,7 +12,7 @@ const EXTENSIONS = [
   { type: 'mp4' },
 ];
 
-const MyPage = () => {
+const UserProfile = () => {
   const router = useRouter()
   const [fileUrl, setFileUrl] = useState<string | null>(null);
   const [fileType, setFileType] = useState<string | null>(null);
@@ -85,10 +85,6 @@ const MyPage = () => {
   // 기존 dummyNotice를 sortedPosts로 교체
   const currentPosts = dummyNotice.slice((currentPage - 1) * postsPerPage, currentPage * postsPerPage);
 
-  const nicknameEdit = () => {
-    setIsEditing(true);
-  };
-
   /**
    * 닉네임을 유효성 검사하는 함수
    * 입력한 닉네임이 유효한지 확인하고, 유효하지 않은 경우 에러 메시지를 설정 
@@ -111,7 +107,7 @@ const MyPage = () => {
     setNickname(nickname);
     setIsEditing(false);
   }
-
+  
   /**
    * 클립보드에 작성자의 지갑 주소를 복사하는 함수
    * 복사가 성공하면 성공 메시지를, 실패하면 에러 메시지를 모달로 표시
@@ -142,32 +138,21 @@ const MyPage = () => {
   return (
     <div className="w-full min-h-screen">
       <div className="w-full h-[30rem] md:h-[25rem] sm:h-[20rem] xs:h-[15rem] border-2 border-dashed rounded-xl">
-        <label className="
+        <div className="
+          w-full 
           h-full 
           text-gray-400 
           flex 
           items-center 
-          justify-center 
-          cursor-pointer
-          hover:bg-gray-300
-          transition
-          duration-300"
-          htmlFor="nft-file">
-          {fileUrl ? (
+          justify-center">
+          {fileUrl ? (  
             <div className="w-full h-full">
               <img src={fileUrl} className="w-full h-full object-contain" alt="NFT" />
             </div>
           ) : (
             <BsFillImageFill size={80} />
-          )}
-          <input
-            className="hidden"
-            id="nft-file"
-            type="file"
-            accept="image/*,video/*"
-            onChange={fileUpload}
-            required />
-        </label>
+          )}        
+        </div>
       </div>
       <div className='
         w-[15rem] 
@@ -199,62 +184,9 @@ const MyPage = () => {
       <div className='w-full h-full flex flex-col sm:items-center xs:items-center justify-center gap-6 px-12 sm:px-2 xs:px-2'>
         <div className='w-[10%] md:w-[80%] sm:w-full xs:w-full flex flex-col items-start sm:items-center xs:items-center gap-3 ml-[14%] lg:ml-[18%] md:ml-[20%] sm:ml-0 xs:ml-0 my-2 mt-5 sm:mt-24 xs:mt-20'>
           <div className='flex gap-12 sm:gap-4 xs:gap-2'>
-            {isEditing ? (
-              <input
-                type="text"
-                value={nickname}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNickname(e.target.value)}
-                className="border rounded-xl px-2 py-1 w-32"
-              />
-            ) : (
-              <>
-                <p className='font-bold text-3xl lg:text-2xl md:text-xl sm:text-lg xs:text-lg'>
-                  {nickname}
-                </p>
-              </>
-            )}
-            {isEditing ? (
-              <button className='
-                text-white 
-                font-semibold 
-                bg-main-yellow 
-                hover:bg-yellow-400 
-                px-8 
-                lg:px-6
-                xs:px-4
-                xs:text-sm
-                py-1 
-                rounded-lg 
-                transition 
-                duration-300
-                cursor-pointer'
-                type="button"
-                onClick={changeNickname}
-                disabled={errorMessage !== ''}
-              >
-                Save
-              </button>
-            ) : (
-              <button className='
-                  text-white 
-                  font-semibold 
-                  bg-main-yellow 
-                  hover:bg-yellow-400 
-                  px-8 
-                  lg:px-6
-                  xs:px-4
-                  xs:text-sm
-                  py-1 
-                  rounded-lg 
-                  transition 
-                  duration-300
-                  cursor-pointer'
-                type="button"
-                onClick={nicknameEdit}
-              >
-                Edit
-              </button>
-            )}
+            <p className='font-bold text-3xl lg:text-2xl md:text-xl sm:text-lg xs:text-lg'>
+              {nickname}
+            </p>
           </div>
           <p className='font-normal text-xs text-red-500'>{errorMessage}</p>
           <p className='font-semibold sm:text-sm xs:text-xs' onClick={copyAddr} title="Click to copy the address">
@@ -279,77 +211,6 @@ const MyPage = () => {
           </div>
           <div className='w-[10rem] lg:w-[8rem] md:w-[6rem] sm:w-[6rem] xs:w-[5rem] h-[10rem] lg:h-[8rem] md:h-[6rem] sm:h-[6rem] xs:h-[5rem] border rounded-full overflow-hidden relative'>
             <Image src={hero_img} layout='fill' objectFit='cover' alt='profile image' />
-          </div>
-        </div>
-        <div className='w-full h-2/3 flex flex-col gap-4 px-6 py-6 sm:px-2 xs:px-0'>
-          <h2 className='text-3xl sm:text-2xl xs:text-xl font-bold border-b border-black pb-2'>Participated Events</h2>
-          <table className="w-full text-center border-collapse ">
-            <thead className='border-b sm:text-sm'>
-              <tr>
-                <th className="p-4 sm:p-2 xs:p-2">No.</th>
-                <th className="p-4 sm:p-2 xs:p-2">Title</th>
-                <th className="p-4 sm:p-2 xs:p-2">Content</th>
-                <th className="p-4 sm:p-2 xs:p-2">Writer</th>
-                <th className="p-4 sm:p-2 xs:p-2">Date</th>
-                <th className="p-4 sm:p-2 xs:p-2">View</th>
-              </tr>
-            </thead>
-            <tbody>
-              {currentPosts.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="p-6 text-center">작성한 게시글이 없습니다.</td>
-                </tr>
-              ) : (
-                currentPosts.map((post) => (
-                  <tr className="
-                    hover:bg-gray-200 
-                    transition-all 
-                    duration-300 
-                    cursor-pointer
-                    sm:text-sm"
-                    key={post.id}
-                    onClick={() => router.push(`/posts/${post.id}`)}>
-                    <td className="border-b p-6 sm:p-2 xs:p-2">
-                      <p className="text-xl sm:text-sm xs:text-xs font-semibold">{post.id}</p>
-                    </td>
-                    <td className="border-b p-6 sm:p-2 xs:p-2">
-                      <p className="text-gray-600 sm:text-sm xs:text-xs"> {post.title}</p>
-                    </td>
-                    <td className="border-b p-6 sm:p-2 xs:p-2">
-                      <p className="text-gray-600 sm:text-sm xs:text-xs"> {post.content}</p>
-                    </td>
-                    <td className="border-b p-6 sm:p-2 xs:p-2">
-                      <p className="text-gray-600 sm:text-sm xs:text-xs">
-                        {post.writer}
-                      </p>
-                    </td>
-                    <td className="border-b p-6 sm:p-2 xs:p-2">
-                      <p className="text-gray-600 sm:text-sm xs:text-xs">
-                        {post.date}
-                      </p>
-                    </td>
-                    <td className="border-b p-6 sm:p-3 xs:p-2">
-                      <p className="text-gray-600">
-                        {post.views}
-                      </p>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-          <div className='w-full mt-6 sm:mt-10 xs:mt-5 mb-5 flex justify-center'>
-            <div className='flex items-center'>
-              {Array.from({ length: totalPages }, (_, i) => (
-                <button
-                  key={i + 1}
-                  className={`px-2 py-2 mx-1 xs:text-sm ${currentPage === i + 1 ? 'font-bold' : ''}`}
-                  onClick={() => handlePageChange(i + 1)}
-                >
-                  {i + 1}
-                </button>
-              ))}
-            </div>
           </div>
         </div>
         <div className='w-full h-2/3 flex flex-col gap-4 px-6 py-6 sm:px-2 xs:px-0'>
@@ -427,4 +288,4 @@ const MyPage = () => {
   )
 }
 
-export default MyPage;
+export default UserProfile;

@@ -49,7 +49,7 @@ const GeneralDetail = () => {
         <div className='w-full flex justify-between items-center border-b'>
           <p className='mb-3 font-bold text-2xl xs:text-xl'>{dummyNotice.title}</p>
           <div className='flex items-center gap-6 xs:gap-6 font-semibold text-xl xs:text-sm mb-3 xs:mb-1'>
-            <p className='cursor-pointer hover:underline'>
+            <p className='cursor-pointer hover:underline' onClick={() => router.push(`/user/profile`)}>
               {dummyNotice.writer}
             </p>
             <p>{dummyNotice.date}</p>
@@ -81,7 +81,7 @@ const GeneralDetail = () => {
             </div>
             <div className='text-right flex justify-end gap-6 sm:gap-2 xs:gap-2'>
               <div>
-                <p className='font-bold text-lg sm:text-sm xs:text-xs'>nickname</p>
+                <p className='font-bold text-lg sm:text-sm xs:text-xs cursor-pointer hover:underline' onClick={() => router.push(`/user/profile`)}>nickname</p>
                 <div>
                   <p className='text-sm sm:text-xs xs:text-xs'>comment date</p>
                 </div>
@@ -148,7 +148,7 @@ const GeneralDetail = () => {
             Delete
           </button>
           <Link 
-            href={`/posts/edit/1`}
+            href={`/posts/general/edit/1`}
             className='
               w-[5%]
               lg:w-[15%]
