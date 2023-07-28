@@ -23,11 +23,11 @@ const commentSchema = new mongoose.Schema({
     count: {
       // 좋아요 수
       type: Number,
+      default: 0,
     },
     likers: {
       // 좋아요 누른 사용자
-      type: Map,
-      of: Boolean,
+      type: Array,
     },
   },
   created_at: {
