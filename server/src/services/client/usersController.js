@@ -121,7 +121,9 @@ const checkNickName = async (nickname) => {
  */
 const checkEmailAuthCode = async (email, code) => {
   try {
-    const emailData = await MailModel.findOne({ email: email });
+    const emailData = await MailModel.findOne({ email: email }).sort({
+      created_at: -1,
+    });
     if (
       emailData &&
       Number(emailData.code) === Number(code) &&
