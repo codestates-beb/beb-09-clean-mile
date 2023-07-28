@@ -1,5 +1,4 @@
 const Router = require('express');
-const multer = require('multer');
 const jwt = require('jsonwebtoken');
 const jwtController = require('../../../services/jwtController');
 const isAuth = require('../../middlewares/isAuth');
@@ -13,10 +12,8 @@ const {
   findUserEmail,
   findUserNickname,
   chgNickname,
-  findUserDnft,
-  findUserBadge,
-  findUserPost,
-  findUserEvent,
+  findMyUserData,
+  findOtherUserData,
   chgBanner,
 } = require('../../../services/client/usersController');
 const route = Router();
@@ -132,18 +129,6 @@ module.exports = (app) => {
         });
       }
 
-      // 이메일 인증 코드 검증
-      const chkMailAuthCode = await checkEmailAuthCode(
-        userData.email,
-        userData.email_verification_code
-      );
-      if (!chkMailAuthCode.success) {
-        return res.status(400).json({
-          success: false,
-          message: '이메일 인증에 실패했습니다.',
-        });
-      }
-
       // 사용자 정보 저장
       const saveDataResult = await saveUserData(userData);
       if (!saveDataResult.success) {
@@ -156,6 +141,46 @@ module.exports = (app) => {
       return res.status(200).json({
         success: true,
         message: '회원가입에 성공했습니다.',
+      });
+    } catch (err) {
+      console.error('Error:', err);
+      return res.status(500).json({
+        success: false,
+        message: '서버 오류',
+      });
+    }
+  });
+
+  /**
+   * @route POST /users/verify-emailCode
+   * @group users - 사용자 관련
+   * @summary 이메일 인증 코드 확인
+   */
+  route.post('/verify-emailCode', upload.none(), async (req, res) => {
+    try {
+      const { email, email_verification_code } = req.body;
+      if (!email || !email_verification_code) {
+        return res.status(400).json({
+          success: false,
+          message: '필수 입력값이 없습니다.',
+        });
+      }
+
+      // 이메일 인증 코드 검증
+      const chkMailAuthCode = await checkEmailAuthCode(
+        email,
+        email_verification_code
+      );
+      if (!chkMailAuthCode.success) {
+        return res.status(400).json({
+          success: false,
+          message: '이메일 인증에 실패했습니다.',
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: '이메일 인증에 성공했습니다.',
       });
     } catch (err) {
       console.error('Error:', err);
@@ -218,9 +243,12 @@ module.exports = (app) => {
         maxAge: 1000 * 60 * 60 * 24 * 14, // 14일 (밀리초 단위)
       });
 
+      userResult.data.hashed_pw = '';
+
       return res.status(200).json({
         success: true,
         message: '로그인에 성공했습니다.',
+        data: userResult,
       });
     } catch (err) {
       console.error('Error:', err);
@@ -283,7 +311,7 @@ module.exports = (app) => {
       const newAccessToken = jwtController.sign(refreshTokenAuth.decoded.email);
       res.cookie('accessToken', newAccessToken, {
         httpOnly: true, // js에서 접근 가능
-        secure: false, // HTTPS 연결에서만 쿠키를 전송 (설정 후 수정 필요)
+        secure: true, // HTTPS 연결에서만 쿠키를 전송 (설정 후 수정 필요)
         sameSite: 'strict', // CSRF와 같은 공격을 방지
         maxAge: 1000 * 60 * 15, // 15분 (밀리초 단위)
       });
@@ -293,7 +321,7 @@ module.exports = (app) => {
       );
       res.cookie('refreshToken', newRefreshToken, {
         httpOnly: true, // js에서 접근 불가능
-        secure: false, // HTTPS 연결에서만 쿠키를 전송 (설정 후 수정 필요)
+        secure: true, // HTTPS 연결에서만 쿠키를 전송 (설정 후 수정 필요)
         sameSite: 'strict', // CSRF와 같은 공격을 방지
         maxAge: 1000 * 60 * 60 * 24 * 14, // 14일 (밀리초 단위)
       });
@@ -319,6 +347,13 @@ module.exports = (app) => {
    */
   route.get('/profile/:nickname', isAuth, async (req, res) => {
     try {
+      const {
+        post_page = 1,
+        post_last_id = null,
+        event_page = 1,
+        event_last_id = null,
+        limit = 5,
+      } = req.query;
       const email = req.decoded.email;
       const nickname = req.params.nickname;
       if (!nickname) {
@@ -338,31 +373,48 @@ module.exports = (app) => {
       }
 
       // 반환 결과 데이터
+      findUserData.data.hashed_pw = '';
       let resultData = {
         user: findUserData.data,
       };
 
-      // dnft 정보 조회
-      // await findUserDnft(findUserData.data._id).then((result) => {
-      //  resultData.Dnft = result.data;
-      // });
-
-      // 뱃지 정보 조회
-      // await findUserBadge(findUser.data._id).then((result) => {
-      //  resultData.Badge = result.data;
-      // });
-
       // 본인 프로필 조회
       if (findUserData.data.email == email) {
-        // 참여한 이벤트 리스트 조회
-        await findUserEvent(findUserData.data._id).then((result) => {
-          resultData.EventList = result.data;
-        });
-
-        // 작성한 게시글 리스트 조회
-        await findUserPost(findUserData.data._id).then((result) => {
-          resultData.PostList = result.data;
-        });
+        const myUserData = await findMyUserData(
+          findUserData.data._id,
+          post_page,
+          post_last_id,
+          event_page,
+          event_last_id,
+          limit
+        );
+        if (myUserData.success) {
+          resultData = {
+            ...resultData,
+            // dnft: myUserData.data.dnft,
+            // badge: myUserData.data.badge,
+            post: myUserData.data.post,
+            event: myUserData.data.event,
+          };
+        }
+      } else {
+        // 타인 프로필 조회
+        const otherUserData = await findOtherUserData(
+          findUserData.data._id,
+          post_page,
+          post_last_id,
+          event_page,
+          event_last_id,
+          limit
+        );
+        if (otherUserData.success) {
+          resultData = {
+            ...resultData,
+            // dnft: otherUserData.data.dnft,
+            // badge: otherUserData.data.badge,
+            post: otherUserData.data.post,
+          };
+        }
       }
 
       return res.status(200).json({
@@ -442,8 +494,8 @@ module.exports = (app) => {
         const email = req.decoded.email;
 
         // S3 이미지 업로드
-        const imageUrl = req.file.location;
-        if (!imageUrl) {
+        const imageData = req.file;
+        if (!imageData) {
           return res.status(400).json({
             success: false,
             message: '이미지 업로드에 실패하였습니다.',
@@ -451,7 +503,7 @@ module.exports = (app) => {
         }
 
         // 사용자 배너 이미지 변경
-        const chgBannerResult = await chgBanner(email, imageUrl);
+        const chgBannerResult = await chgBanner(email, imageData.location);
         if (!chgBannerResult.success) {
           return res.status(400).json({
             success: false,
@@ -474,6 +526,57 @@ module.exports = (app) => {
     }
   );
 };
+
+/**
+ * @todo 사용자 배지, dnft 정보 조회 수정 필요
+ * @route GET /users/userInfo
+ * @group users - 사용자 관련
+ * @summary 사용자 정보 조회
+ */
+route.get('/userInfo', isAuth, async (req, res) => {
+  try {
+    const email = req.decoded.email;
+
+    // 사용자 이메일로 정보 조회
+    const userResult = await findUserEmail(email);
+    if (!userResult.success) {
+      return res.status(400).json({
+        success: false,
+        message: '가입되지 않은 이메일입니다.',
+      });
+    }
+
+    // 반환 결과 데이터
+    userResult.data.hashed_pw = '';
+    let resultData = {
+      user: userResult.data,
+    };
+
+    // 사용자 나머지 정보 조회
+    const myUserData = await findMyUserData(userResult.data._id);
+    if (myUserData.success) {
+      resultData = {
+        ...resultData,
+        // dnft: myUserData.data.dnft,
+        // badge: myUserData.data.badge,
+        post: myUserData.data.post,
+        event: myUserData.data.event,
+      };
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: '사용자 정보 조회에 성공했습니다.',
+      data: resultData,
+    });
+  } catch (err) {
+    console.error('Error:', err);
+    return res.status(500).json({
+      success: false,
+      message: '서버 오류',
+    });
+  }
+});
 
 /**
  * @todo DNFT 업그레이드
