@@ -4,7 +4,7 @@ const dnftABI = require("../../contracts/CleanMileDNFT.sol/CleanMileDNFT.json").
 const DnftModel = require("../../models/DNFTs");
 const UserModel = require("../../models/Users");
 const provider = new ethers.providers.JsonRpcProvider(config.RPC_URL);
-const signer = provider.getSigner(config.SENDER);
+const signer = new ethers.Wallet(config.SENDER_PRIVATE_KEY, provider);
 const dnftContract = new ethers.Contract(config.DNFT_ADDRESS, dnftABI, signer);
 
 
@@ -34,11 +34,14 @@ const createDNFT = async (email, userType) => {
   try { 
     const user = await UserModel.findOne({ email : email });
     let description;
-    
+    let tokenId;
+    const dnftLen = await DnftModel.find();
+    tokenId = dnftLen.length;
     if (userType == 0) {
       // 일반 사용자
       const transaction = await dnftContract.connect(signer).mintDNFT(user.wallet.address, user.name, "", userType);
       await transaction.wait();
+      console.log(transaction);
       description = "";
     } else if (userType == 1) {
       // 관리자
@@ -49,12 +52,14 @@ const createDNFT = async (email, userType) => {
       return {success: false};
     }
 
-    const tokenId = transaction.events[0].args.tokenId.toString();
+    // const tokenId = 
     const tokenUri = await dnftContract.connect(signer).tokenURI(tokenId);
     const dnftLevel = await dnftContract.connect(signer).dnftLevel(tokenId);
+    const dnftLength = await DnftModel.find();
+    const dnftId = dnftLength.length;
 
     const dnftData = new DnftModel({
-      token_id: tokenId,
+      token_id: dnftId,
       user_id: user._id,
       name: user.nickname,
       description: description,
@@ -81,7 +86,8 @@ const updateName = async (email, newName) => {
     //업데이트는 token owner만 가능하다
     
     const user = await UserModel.findOne({email: email});
-    let owner = provider.getSigner(user.wallet.address);
+    const ownerPK = user.wallet.private_key;
+    let owner =  new ethers.Wallet(ownerPK, provider);
     const dnft = await DnftModel.findOne({user_id: user._id});
     const transaction = await dnftContract.connect(owner).updateName(dnft.token_id, newName);
     await transaction.wait();
@@ -110,7 +116,8 @@ const updateDescription = async (email,newDescription) => {
   try{
     //업데이트는 token owner만 가능하다
     const user = await UserModel.findOne({email: email});
-    let owner = provider.getSigner(user.wallet.address);
+    const ownerPK = user.wallet.private_key;
+    let owner =  new ethers.Wallet(ownerPK, provider);
     const dnft = await DnftModel.findOne({user_id: user._id});
     const transaction = await dnftContract.connect(owner).updateName(dnft.token_id, newDescription);
     await transaction.wait();
@@ -129,7 +136,7 @@ const updateDescription = async (email,newDescription) => {
 }
 
 /**
- * DNFT Data 요청
+ * DNFT Data 요청(굳이 필요한가?)
  * @param {string} email
  * @returns 사용자 DNFT 데이터
  */
@@ -158,17 +165,22 @@ const userDnftData = async (email) => {
  */
 const upgradeDnft = async (email) => {
   try{
-    
     const user = await UserModel.findOne({ email: email });
-    let owner = provider.getSigner(user.wallet.address);
+    const ownerPK = user.wallet.private_key;
+    let owner = new ethers.Wallet(ownerPK, provider);
     const dnft = await DnftModel.findOne({user_id: user._id});
     const tokenId = dnft.token_id;
-    const transaction = await dnftContract.connect(owner).upgradeDnft(tokenId);
+    const gasPrice = ethers.utils.parseUnits('50', 'gwei');
+    const gasLimit = 1000000;
+    const transaction = await dnftContract.connect(owner).upgradeDNFT(tokenId,{ gasPrice,gasLimit});
     await transaction.wait();
+
     if (transaction) {
-      const dnftLevel = await dnftContract.dnftData(tokenId);
+      const dnftURI = await dnftContract.tokenURI(tokenId);
+      dnft.token_uri = dnftURI;
+      const dnftLevel = await dnftContract.dnftLevel(tokenId);
       dnft.dnft_level = dnftLevel;
-      const result = dnft.save();
+      const result = await dnft.save();
       if (!result) return {success: false};
       else return {success: true};
     }else{
@@ -182,6 +194,7 @@ const upgradeDnft = async (email) => {
 
 
 module.exports = {
+  setBadge,
   createDNFT,
   updateName,
   updateDescription,
