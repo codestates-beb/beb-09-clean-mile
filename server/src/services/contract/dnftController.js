@@ -39,24 +39,20 @@ const createDNFT = async (email, userType) => {
     tokenId = dnftLen.length;
     if (userType == 0) {
       // 일반 사용자
-      const transaction = await dnftContract.connect(signer).mintDNFT(user.wallet.address, user.name, "", userType);
-      await transaction.wait();
       console.log(transaction);
       description = "";
     } else if (userType == 1) {
       // 관리자
-      const transaction = await dnftContract.connect(signer).mintDNFT(user.wallet.address, user.name, "Administrator", userType);
-      await transaction.wait();
       description = "Administrator";
     } else {
       return {success: false};
     }
+    const transaction = await dnftContract.connect(signer).mintDNFT(user.wallet.address, user.name, description, userType);
+    await transaction.wait();
 
-    // const tokenId = 
     const tokenUri = await dnftContract.connect(signer).tokenURI(tokenId);
     const dnftLevel = await dnftContract.connect(signer).dnftLevel(tokenId);
-    const dnftLength = await DnftModel.find();
-    const dnftId = dnftLength.length;
+    const dnftId = await DnftModel.countDocuments();
 
     const dnftData = new DnftModel({
       token_id: dnftId,

@@ -59,8 +59,7 @@ const createBadge = async ( name, description, imageUrl, badgeType, amount, even
     console.log(eventId);
 
     if (transaction && eventId){
-      const badgeLength = await BadgeModel.find();
-      const badgeId = badgeLength.length;
+      const badgeId = await BadgeModel.countDocuments();
       const badgeData = new BadgeModel({
         badge_id: badgeId,
         name: name,
@@ -91,6 +90,12 @@ const createBadge = async ( name, description, imageUrl, badgeType, amount, even
 // users의 is_nft_issued를 true로 바꿔준다.
 // user의 wallet에 있는 뱃지 수량을 1씩 더해준다.
 // user의 wallet에 있는 총 뱃지 수량도 뱃지 점수 만큼 더 해준다. (체인에서는 컨트랙트에 따라 알아서 저장)
+/**
+ * 한번에 여러사람에 동일한 수량의 동일한 토큰 전송
+ * @param {string []} recipients 
+ * @param {string} eventTitle 
+ * @returns 성공여부
+ */
 const transferBadges = async (recipients, eventTitle) => {
   try{
   const amount = 1;
@@ -143,6 +148,12 @@ const transferBadges = async (recipients, eventTitle) => {
   }
 }
 
+/**
+ * 한번에 한사람에게 하나의 토큰 전송
+ * @param {string} recipient 
+ * @param {string} eventTitle 
+ * @returns 성공여부
+ */
 const transferBadge = async (recipient, eventTitle) => {
   try{
     const sender = config.SENDER;
