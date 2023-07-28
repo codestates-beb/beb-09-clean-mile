@@ -129,18 +129,6 @@ module.exports = (app) => {
         });
       }
 
-      // 이메일 인증 코드 검증
-      const chkMailAuthCode = await checkEmailAuthCode(
-        userData.email,
-        userData.email_verification_code
-      );
-      if (!chkMailAuthCode.success) {
-        return res.status(400).json({
-          success: false,
-          message: '이메일 인증에 실패했습니다.',
-        });
-      }
-
       // 사용자 정보 저장
       const saveDataResult = await saveUserData(userData);
       if (!saveDataResult.success) {
@@ -153,6 +141,46 @@ module.exports = (app) => {
       return res.status(200).json({
         success: true,
         message: '회원가입에 성공했습니다.',
+      });
+    } catch (err) {
+      console.error('Error:', err);
+      return res.status(500).json({
+        success: false,
+        message: '서버 오류',
+      });
+    }
+  });
+
+  /**
+   * @route POST /users/verify-emailCode
+   * @group users - 사용자 관련
+   * @summary 이메일 인증 코드 확인
+   */
+  route.post('/verify-emailCode', upload.none(), async (req, res) => {
+    try {
+      const { email, email_verification_code } = req.body;
+      if (!email || !email_verification_code) {
+        return res.status(400).json({
+          success: false,
+          message: '필수 입력값이 없습니다.',
+        });
+      }
+
+      // 이메일 인증 코드 검증
+      const chkMailAuthCode = await checkEmailAuthCode(
+        email,
+        email_verification_code
+      );
+      if (!chkMailAuthCode.success) {
+        return res.status(400).json({
+          success: false,
+          message: '이메일 인증에 실패했습니다.',
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: '이메일 인증에 성공했습니다.',
       });
     } catch (err) {
       console.error('Error:', err);
@@ -467,7 +495,6 @@ module.exports = (app) => {
 
         // S3 이미지 업로드
         const imageData = req.file;
-        console.log(imageData);
         if (!imageData) {
           return res.status(400).json({
             success: false,

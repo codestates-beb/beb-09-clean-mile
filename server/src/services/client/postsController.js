@@ -157,7 +157,6 @@ const postViews = async (req, postId) => {
 
     // 조회자 목록에 현재 IP가 없는 경우 조회수 증가
     if (!postResult.view.viewers.includes(ipAddr)) {
-      console.log('조회수 증가');
       postResult.view.count += 1;
       postResult.view.viewers.push(ipAddr);
       await postResult.save();

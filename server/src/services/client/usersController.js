@@ -268,9 +268,7 @@ const findUserPost = async (userId, page, last_id, limit) => {
 
     // 전체 데이터 수
     const total = await PostModel.countDocuments({ user_id: userId });
-    console.log('total: ', total);
     const paginationResult = await pagination(total, page, limit);
-    console.log('paginationResult: ', paginationResult);
 
     return {
       data: result,
