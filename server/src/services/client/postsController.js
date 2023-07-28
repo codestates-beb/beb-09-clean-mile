@@ -216,7 +216,9 @@ const findPost = async (category, limit, last_id, order, title, content) => {
     }
 
     // 데이터 조회 실행
-    cursor = PostModel.find(query).limit(limit);
+    cursor = PostModel.find(query)
+      .populate('user_id', ['nickname'])
+      .limit(limit);
 
     // 정렬
     if (order === 'desc') {
