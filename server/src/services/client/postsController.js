@@ -245,6 +245,13 @@ const findPost = async (category, limit, last_id, order, title, content) => {
   }
 };
 
+/**
+ * 페이징 처리를 위한 계산
+ * @param {*} category
+ * @param {*} limit
+ * @param {*} page
+ * @returns 계산 결과
+ */
 const paginationPostList = async (category, limit, page) => {
   try {
     // 전체 게시물 수 조회

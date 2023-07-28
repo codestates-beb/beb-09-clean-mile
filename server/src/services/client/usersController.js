@@ -207,12 +207,135 @@ const findUserNickname = async (nickname) => {
 };
 
 /**
+ * 페이지네이션 계산
+ * @param {*} total
+ * @param {*} page
+ * @param {*} limit
+ * @returns 계산 결과
+ */
+const pagination = (total, page, limit) => {
+  // 전체 페이지 수
+  const totalPage = Math.ceil(total / limit);
+
+  // 현재 페이지
+  const currentPage = parseInt(page);
+
+  // 페이징 시작 숫자 계산
+  const startPage = Math.max(1, currentPage - 5);
+
+  // 페이징 끝 숫자 계산
+  const endPage = Math.min(startPage + 9, totalPage);
+
+  // 이전 페이지 및 다음 페이지 계산
+  const prevPage = currentPage > 1 ? currentPage - 1 : null;
+  const nextPage = currentPage < totalPage ? currentPage + 1 : null;
+
+  return {
+    total,
+    totalPage,
+    currentPage,
+    startPage,
+    endPage,
+    prevPage,
+    nextPage,
+  };
+};
+
+const findUserPost = async (userId, page, last_id, limit) => {
+  try {
+    const query = { user_id: userId };
+
+    // last_id가 존재하면, 마지막 id 이후의 문서 조회
+    if (last_id) {
+      query._id = { $gt: last_id };
+    }
+
+    // 데이터 조회 실행
+    const cursor = PostModel.find(query).limit(limit);
+
+    // 배열 형태로 데이터 가져오기
+    const result = await cursor.exec();
+
+    // 더이상 결과가 없는 경우
+    if (!result.length) {
+      return { data: null, last_id: null };
+    }
+
+    // 마지막 문서의 ID를 가져옴
+    const lastId = result[result.length - 1]._id.toString();
+
+    // 페이지네이션을 위한 데이터 계산
+
+    // 전체 데이터 수
+    const total = await PostModel.countDocuments({ user_id: userId });
+    console.log('total: ', total);
+    const paginationResult = await pagination(total, page, limit);
+    console.log('paginationResult: ', paginationResult);
+
+    return {
+      data: result,
+      last_id: lastId,
+      pagination: paginationResult,
+    };
+  } catch (err) {
+    console.error('Error:', err);
+    throw Error(err);
+  }
+};
+
+const findUserEvent = async (userId, page, last_id, limit) => {
+  try {
+    const query = { [`users.${userId}`]: { $exists: true } };
+
+    // last_id가 존재하면, 마지막 id 이후의 문서 조회
+    if (last_id) {
+      query._id = { $gt: last_id };
+    }
+
+    // 데이터 조회 실행
+    const cursor = EventModel.find(query).limit(limit);
+
+    // 배열 형태로 데이터 가져오기
+    const result = await cursor.exec();
+
+    // 더이상 결과가 없는 경우
+    if (!result.length) {
+      return { data: null, last_id: null };
+    }
+
+    // 마지막 문서의 ID를 가져옴
+    const lastId = result[result.length - 1]._id.toString();
+
+    // 페이지네이션을 위한 데이터 계산
+
+    // 전체 데이터 수
+    const total = await EventModel.countDocuments({
+      [`users.${userId}`]: { $exists: true },
+    });
+
+    const paginationResult = await pagination(total, page, limit);
+
+    return { data: result, last_id: lastId, pagination: paginationResult };
+  } catch (err) {
+    console.error('Error:', err);
+    throw Error(err);
+  }
+};
+
+/**
  * @todo 컨트랙트 부분 수정 필요
  * 본인 프로필 조회
  * @param {*} userId
  * @returns 조회 결과
  */
-const findMyUserData = async (userId) => {
+const findMyUserData = async (
+  userId,
+  post_page,
+  post_last_id,
+  event_page,
+  event_last_id,
+  limit
+) => {
   try {
     // dnft 정보 조회
     // const dnftResult = await DNFTModel.find({ user_id: userId });
@@ -221,12 +344,20 @@ const findMyUserData = async (userId) => {
     // const badgeResult = await BadgeModel.find({ user_id: userId });
 
     // 게시글 정보 조회
-    const postResult = await PostModel.find({ user_id: userId });
+    const postResult = await findUserPost(
+      userId,
+      post_page,
+      post_last_id,
+      limit
+    );
 
     // 참여 이벤트 정보 조회
-    const eventResult = await EventModel.find({
-      [`users.${userId}`]: { $exists: true },
-    });
+    const eventResult = await findUserEvent(
+      userId,
+      event_page,
+      event_last_id,
+      limit
+    );
 
     const result = {
       // dnft: dnftResult,
@@ -248,7 +379,14 @@ const findMyUserData = async (userId) => {
  * @param {*} userId
  * @returns 조회 결과
  */
-const findOtherUserData = async (userId) => {
+const findOtherUserData = async (
+  userId,
+  post_page,
+  post_last_id,
+  event_page,
+  event_last_id,
+  limit
+) => {
   try {
     // dnft 정보 조회
     // const dnftResult = await DNFTModel.find({ user_id: userId });
@@ -257,7 +395,12 @@ const findOtherUserData = async (userId) => {
     // const badgeResult = await BadgeModel.find({ user_id: userId });
 
     // 작성한 게시글 정보 조회
-    const postResult = await PostModel.find({ user_id: userId });
+    const postResult = await findUserPost(
+      userId,
+      post_page,
+      post_last_id,
+      limit
+    );
 
     const result = {
       // dnft: dnftResult,

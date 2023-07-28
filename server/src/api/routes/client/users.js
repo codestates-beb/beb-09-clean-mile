@@ -319,6 +319,13 @@ module.exports = (app) => {
    */
   route.get('/profile/:nickname', isAuth, async (req, res) => {
     try {
+      const {
+        post_page = 1,
+        post_last_id = null,
+        event_page = 1,
+        event_last_id = null,
+        limit = 5,
+      } = req.query;
       const email = req.decoded.email;
       const nickname = req.params.nickname;
       if (!nickname) {
@@ -345,7 +352,14 @@ module.exports = (app) => {
 
       // 본인 프로필 조회
       if (findUserData.data.email == email) {
-        const myUserData = await findMyUserData(findUserData.data._id);
+        const myUserData = await findMyUserData(
+          findUserData.data._id,
+          post_page,
+          post_last_id,
+          event_page,
+          event_last_id,
+          limit
+        );
         if (myUserData.success) {
           resultData = {
             ...resultData,
@@ -357,7 +371,14 @@ module.exports = (app) => {
         }
       } else {
         // 타인 프로필 조회
-        const otherUserData = await findOtherUserData(findUserData.data._id);
+        const otherUserData = await findOtherUserData(
+          findUserData.data._id,
+          post_page,
+          post_last_id,
+          event_page,
+          event_last_id,
+          limit
+        );
         if (otherUserData.success) {
           resultData = {
             ...resultData,
