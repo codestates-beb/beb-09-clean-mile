@@ -6,7 +6,7 @@ const mongoose = require('mongoose');
 const dnftSchema = new mongoose.Schema({
   token_id: {
     // 토큰 ID
-    type: String,
+    type: Number,
   },
   user_id: {
     // 사용자 ID

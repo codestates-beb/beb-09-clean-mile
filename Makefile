@@ -2,6 +2,10 @@ deploy_contract:
 	@echo "Deploying contract..."
 	cd contract && npx hardhat run scripts/deploy.js --network $(network)
 
+setBadge:
+	@echo "Setting Badge..."
+	cd server && npm run setBadge
+
 restart:
 	@echo "Restarting docker compose..."
 	docker compose restart
