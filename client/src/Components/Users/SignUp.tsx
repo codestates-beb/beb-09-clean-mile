@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import axios, { AxiosError } from 'axios';
+import { AxiosError } from 'axios';
 import Swal from 'sweetalert2';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
@@ -166,6 +166,13 @@ const SignUp = () => {
     passwordConfirm();
   }, [pwConfirm]);
 
+  /**
+   * 사용자가 입력한 이메일을 검증하고 인증 코드를 발송하는 역할
+   *
+   * @async
+   * @function checkEmail
+   * @returns {Promise<void>} 아무것도 반환하지 않음
+   */
   const checkEmail = async () => {
     const formData = new FormData();
 
@@ -196,8 +203,9 @@ const SignUp = () => {
           text,
           icon,
           confirmButtonText,
-          confirmButtonColor,
+          confirmButtonColor
         }).then(() => {
+
           Swal.fire({
             title: 'Enter your verification code',
             input: 'text',
@@ -206,11 +214,30 @@ const SignUp = () => {
             showCancelButton: true
           }).then((result) => {
             if (result.isConfirmed) {
-              verifyEmailCode(result.value);  // 사용자가 입력한 코드를 검증하는 함수를 호출
+              verifyEmailCode(result.value).then(() => {
+                Swal.close();  // Close the previous Swal instance
+                // Fire a new Swal instance
+                Swal.fire({
+                  title: 'Success!',
+                  text: '이메일이 성공적으로 인증되었습니다.',
+                  icon: 'success',
+                  confirmButtonText: 'OK',
+                  confirmButtonColor: '#6BCB77'
+                });
+              }).catch((error) => {
+                Swal.close();  // Close the previous Swal instance
+                // Fire a new Swal instance
+                Swal.fire({
+                  title: 'Error',
+                  text: error?.response?.data.message || 'An unexpected error occurred',
+                  icon: 'error',
+                  confirmButtonText: 'OK',
+                  confirmButtonColor: '#6BCB77'
+                });
+              });
             }
           });
-        });
-
+        })
       } else {
         dispatch(showAlert({
           title: 'Error',
@@ -219,29 +246,49 @@ const SignUp = () => {
           confirmButtonText: 'OK',
           confirmButtonColor: '#6BCB77'
         }));
-      }
-    } catch (error) {
-      const err = error as AxiosError;
 
-      dispatch(showAlert({
-        title: 'Error',
-        text: err?.response?.data.message,
-        icon: 'error',
-        confirmButtonText: 'OK',
-        confirmButtonColor: '#6BCB77'
-      }));
-
-      if (title && text && icon && confirmButtonText && confirmButtonColor) {
         Swal.fire({
           title,
           text,
           icon,
           confirmButtonText,
           confirmButtonColor,
+        }).then(() => {
+          Swal.close();
         });
       }
+    } catch (error) {
+      const err = error as AxiosError;
+      const data = err.response?.data as { message: string };
+
+      dispatch(showAlert({
+        title: 'Error',
+        text: data?.message,
+        icon: 'error',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#6BCB77'
+      }));
+
+      Swal.fire({
+        title,
+        text,
+        icon,
+        confirmButtonText,
+        confirmButtonColor,
+      }).then(() => {
+        Swal.close();
+      });
     }
   }
+
+  /**
+   * 사용자가 입력한 이메일 인증 코드를 검증하는 함수
+   * 
+   * @async
+   * @function verifyEmailCode
+   * @param {string} verifyCode 사용자가 입력한 이메일 인증 코드
+   * @returns {Promise<void>} 아무것도 반환하지 않음
+   */
 
   const verifyEmailCode = async (verifyCode: string) => {
     const formData = new FormData();
@@ -269,6 +316,16 @@ const SignUp = () => {
           confirmButtonText: 'OK',
           confirmButtonColor: '#6BCB77'
         }));
+
+        Swal.fire({
+          title,
+          text,
+          icon,
+          confirmButtonText,
+          confirmButtonColor,
+        }).then(() => {
+          Swal.close();
+        });
       } else {
         dispatch(showAlert({
           title: 'Error',
@@ -277,7 +334,29 @@ const SignUp = () => {
           confirmButtonText: 'OK',
           confirmButtonColor: '#6BCB77'
         }));
+
+        Swal.fire({
+          title,
+          text,
+          icon,
+          confirmButtonText,
+          confirmButtonColor,
+        }).then(() => {
+          Swal.close();
+        });
       }
+
+    } catch (error) {
+      const err = error as AxiosError;
+      const data = err.response?.data as { message: string };
+
+      dispatch(showAlert({
+        title: 'Error',
+        text: data?.message,
+        icon: 'error',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#6BCB77'
+      }));
 
       Swal.fire({
         title,
@@ -285,20 +364,19 @@ const SignUp = () => {
         icon,
         confirmButtonText,
         confirmButtonColor,
-      })
-    } catch (error) {
-      const err = error as AxiosError;
-
-      dispatch(showAlert({
-        title: 'Error',
-        text: err?.response?.data?.message,
-        icon: 'error',
-        confirmButtonText: 'OK',
-        confirmButtonColor: '#6BCB77'
-      }));
+      }).then(() => {
+        Swal.close();
+      });
     }
   }
 
+  /**
+   * 유저가 입력하 닉네임을 중복 체크하는 함수
+   * 
+   * @async
+   * @function checkNicname
+   * @returns {Promise<void>} 아무것도 반환하지 않음
+   */
   const checkNickname = async () => {
     const formData = new FormData();
 
@@ -312,8 +390,9 @@ const SignUp = () => {
         'Content-Type': 'application/form-data',
         'Accept': 'application/json'
       }
+      const isJSON = true;
 
-      const res = await ApiCaller.post(URL, dataBody, headers);
+      const res = await ApiCaller.post(URL, dataBody, isJSON, headers);
 
       if (res.status === 200) {
         dispatch(showAlert({
@@ -332,7 +411,9 @@ const SignUp = () => {
           confirmButtonColor,
         }).then(() => {
           setNicknameCheck(false)
+          Swal.close();
         });
+
 
       } else {
         dispatch(showAlert({
@@ -342,31 +423,50 @@ const SignUp = () => {
           confirmButtonText: 'OK',
           confirmButtonColor: '#6BCB77'
         }));
-      }
-    } catch (error) {
-      const err = error as AxiosError;
 
-      dispatch(showAlert({
-        title: 'Error',
-        text: err?.response?.data.message,
-        icon: 'error',
-        confirmButtonText: 'OK',
-        confirmButtonColor: '#6BCB77'
-      }));
-
-      if (title && text && icon && confirmButtonText && confirmButtonColor) {
         Swal.fire({
           title,
           text,
           icon,
           confirmButtonText,
           confirmButtonColor,
+        }).then(() => {
+          Swal.close();
         });
+
       }
+    } catch (error) {
+      const err = error as AxiosError;
+      const data = err.response?.data as { message: string };
+
+      dispatch(showAlert({
+        title: 'Error',
+        text: data?.message,
+        icon: 'error',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#6BCB77'
+      }));
+
+      Swal.fire({
+        title,
+        text,
+        icon,
+        confirmButtonText,
+        confirmButtonColor,
+      }).then(() => {
+        Swal.close();
+      });
     }
   }
 
-
+  /**
+   * 유저의 지갑 주소를 이용해 로그인 메시지를 로컬 스토리지에 저장하는 함수
+   * 
+   * @function getSigning
+   * @callback useCallback
+   * @param {null}
+   * @returns {void} 아무것도 반환하지 않음
+   */
   const getSigning = useCallback(() => {
     if (userAddressQuery.data) {
       localStorage.setItem('Sign',
@@ -376,15 +476,27 @@ const SignUp = () => {
   }, [userAddressQuery.data]);
 
   useEffect(() => {
-    getSigning(); // Call getSigning when user.account changes
+    getSigning(); 
   }, [getSigning]);
 
+  /**
+   * 유저의 Ethereum 계정 주소를 가져오는 함수
+   * 
+   * @returns {Promise<string>} 첫 번째 Ethereum 계정 주소를 반환
+   */
   const getUserAccount = async () => {
     let accounts = await web3.eth.getAccounts();;
     return accounts[0];
   }
 
-  /* 유저 account fetching */
+  /**
+   * 유저의 계정 정보를 가져오는 뮤테이션을 실행하는 함수
+   * 'getUserAccount' 뮤테이션을 실행하고, 성공 시 'userAddress' 쿼리 데이터를 업데이트
+   * 
+   * @function fetchAccountInfo
+   * @callback useMutation
+   * @returns {void} 아무것도 반환하지 않음
+   */
   const fetchAccountInfo = useMutation(getUserAccount, {
     onSuccess: (data) => {
       queryClient.setQueryData('userAddress', data);
@@ -394,7 +506,13 @@ const SignUp = () => {
     }
   })
 
-  // 메타마스크 연결
+  /**
+   * 유저의 메타마스크 지갑을 로그인하는 함수
+   * 
+   * @async
+   * @function loginWallet
+   * @returns {Promise<void>} 아무것도 반환하지 않음
+   */
   const loginWallet = async () => {
 
     // 유저 브라우저 확인
@@ -418,28 +536,28 @@ const SignUp = () => {
     getSigning();
   };
 
+  /**
+   * 유저의 회원가입 정보를 서버에 전송하는 함수
+   * 
+   * 요청이 성공적으로 처리되면, alert를 통해 성공 메시지를 보여주고 로그인 페이지로 이동
+   * 요청이 실패하면, alert를 통해 오류 메시지를 보여줌
+   * 
+   * @async
+   * @function signUp
+   * @returns {Promise<void>} 아무것도 반환하지 않음
+   */
   const signUp = async () => {
     const formData = new FormData();
 
     formData.append('email', email);
     formData.append('name', name);
-    formData.append('phone_number', name);
+    formData.append('phone_number', phoneNumber);
     formData.append('password', password);
     formData.append('nickname', nickname);
     if (userAddressQuery.data) {
       formData.append('wallet_address', String(userAddressQuery.data));
     }
     formData.append('social_provider', 'none');
-
-    console.log('email', email);
-    console.log('name', name);
-    console.log('phone_number', name);
-    console.log('password', password);
-    console.log('nickname', nickname);
-    if (userAddressQuery.data) {
-      console.log('wallet_address', String(userAddressQuery.data));
-    }
-    console.log('social_provider', 'none');
 
     try {
       const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/signup`;
@@ -452,9 +570,49 @@ const SignUp = () => {
 
       const res = await ApiCaller.post(URL, dataBody, isJSON, headers);
 
-      console.log(res);
+      if (res.status === 200) {
+        dispatch(showAlert({
+          title: 'Success!',
+          text: res.data.message,
+          icon: 'success',
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#6BCB77'
+        }));
+
+        Swal.fire({
+          title,
+          text,
+          icon,
+          confirmButtonText,
+          confirmButtonColor,
+        }).then(() => {
+          Swal.close();
+          router.push('/login');
+        });
+
+      }
+
     } catch (error) {
-      console.log(error);
+      const err = error as AxiosError;
+      const data = err.response?.data as { message: string };
+
+      dispatch(showAlert({
+        title: 'Error',
+        text: data?.message,
+        icon: 'error',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#6BCB77'
+      }));
+
+      Swal.fire({
+        title,
+        text,
+        icon,
+        confirmButtonText,
+        confirmButtonColor,
+      }).then(() => {
+        Swal.close();
+      });
     }
   }
 
@@ -673,7 +831,8 @@ const SignUp = () => {
                 font-semibold 
                 transition 
                 duration-300`}
-                disabled={!email && !name && !phoneNumber && !password && !nickname && !userAddressQuery.data}>
+                disabled={!email && !name && !phoneNumber && !password && !nickname && !userAddressQuery.data}
+                onClick={signUp}>
                 SignUp
               </button>
               <div className='w-[80%] lg:w-[70%] md:w-full sm:w-full xs:w-full flex sm:flex-col xs:flex-col sm:items-center xs:items-center gap-6'>
