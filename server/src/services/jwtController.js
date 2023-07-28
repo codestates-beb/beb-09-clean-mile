@@ -8,10 +8,11 @@ module.exports = {
    * @param {string} email
    * @returns Access token
    */
-  sign: (email) => {
+  sign: (email, user_id) => {
     // Access 토큰에 들어갈 페이로드
     const payload = {
       email: email, // custom claims
+      user_id: user_id, // custom claims
       isAdmin: false, // custom claims
     };
 
@@ -51,10 +52,11 @@ module.exports = {
    * Refresh 토큰 발급
    * @returns Refresh token
    */
-  refresh: (email) => {
+  refresh: (email, user_id) => {
     // Refresh 토큰에 들어갈 페이로드
     const payload = {
       email: email, // custom claims
+      user_id: user_id, // custom claims
     };
     return jwt.sign(payload, config.jwt.jwtSecret, {
       algorithm: 'HS256', // 암호화 알고리즘

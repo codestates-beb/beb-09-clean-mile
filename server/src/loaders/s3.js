@@ -22,6 +22,8 @@ upload = multer({
       cb(null, Date.now().toString()); // 파일 이름을 고유하게 설정할 수 있습니다.
     },
   }),
+  // 업로드 파일 용량 제한 (5MB)
+  limits: { fileSize: 5 * 1024 * 1024 },
 });
 
 module.exports = upload;
