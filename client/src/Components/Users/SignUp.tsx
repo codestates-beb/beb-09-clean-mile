@@ -50,6 +50,42 @@ const SignUp = () => {
   const [nicknameCheck, setNicknameCheck] = useState(false);
   const [emailCheck, setEmailCheck] = useState(false);
 
+   /**
+   * 이메일을 검증하는 함수
+   * 이메일은 특정 형식에 맞아야 함
+   * 만약 이메일이 이 형식에 맞지 않을 경우, `emailError` 상태를 오류 메시지로 업데이트
+   */
+   const validateEmail = () => {
+    const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!re.test(email)) {
+      setEmailError('이메일 형식에 맞지 않습니다.');
+      setEmailCheck(false);
+    } else {
+      setEmailError('');
+      setEmailCheck(true);
+    }
+  }
+
+  useEffect(() => {
+    validateEmail();
+  }, [email]);
+
+  const phoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const regex = /^[0-9\b -]{0,13}$/;
+    if (regex.test(e.target.value)) {
+      phoneNumber(e.target.value);
+    }
+  }
+
+  useEffect(() => {
+    if (phoneNumber.length === 10) {
+      setPhoneNumber(phoneNumber.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3'));
+    }
+    if (phoneNumber.length === 13) {
+      setPhoneNumber(phoneNumber.replace(/-/g, '').replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3'));
+    }
+  }, [phoneNumber]);
+
   /**
    * 비밀번호 가시성 상태를 전환하는 함수
    */
@@ -130,26 +166,6 @@ const SignUp = () => {
     passwordConfirm();
   }, [pwConfirm]);
 
-  /**
-   * 이메일을 검증하는 함수
-   * 이메일은 특정 형식에 맞아야 함
-   * 만약 이메일이 이 형식에 맞지 않을 경우, `emailError` 상태를 오류 메시지로 업데이트
-   */
-  const validateEmail = () => {
-    const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    if (!re.test(email)) {
-      setEmailError('이메일 형식에 맞지 않습니다.');
-      setEmailCheck(false);
-    } else {
-      setEmailError('');
-      setEmailCheck(true);
-    }
-  }
-
-  useEffect(() => {
-    validateEmail();
-  }, [email]);
-
   const checkEmail = async () => {
     const formData = new FormData();
 
@@ -159,10 +175,13 @@ const SignUp = () => {
       const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/check-email`;
       const dataBody = formData;
       const headers = {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/form-data',
+        'Accept': 'application/json'
       }
 
-      const res = await ApiCaller.post(URL, dataBody, headers);
+      const isJSON = true;
+
+      const res = await ApiCaller.post(URL, dataBody, isJSON, headers);
       if (res.status === 200) {
         dispatch(showAlert({
           title: 'Success!',
@@ -235,10 +254,12 @@ const SignUp = () => {
       const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/verify-emailCode`;
       const dataBody = formData;
       const headers = {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/form-data',
+        'Accept': 'application/json'
       }
+      const isJSON = true;
 
-      const res = await ApiCaller.post(URL, dataBody, headers);
+      const res = await ApiCaller.post(URL, dataBody, isJSON, headers);
 
       if (res.status === 200) {
         dispatch(showAlert({
@@ -257,6 +278,14 @@ const SignUp = () => {
           confirmButtonColor: '#6BCB77'
         }));
       }
+
+      Swal.fire({
+        title,
+        text,
+        icon,
+        confirmButtonText,
+        confirmButtonColor,
+      })
     } catch (error) {
       const err = error as AxiosError;
 
@@ -280,7 +309,8 @@ const SignUp = () => {
       const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/validate-nickname`;
       const dataBody = formData;
       const headers = {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/form-data',
+        'Accept': 'application/json'
       }
 
       const res = await ApiCaller.post(URL, dataBody, headers);
@@ -335,6 +365,7 @@ const SignUp = () => {
       }
     }
   }
+
 
   const getSigning = useCallback(() => {
     if (userAddressQuery.data) {
@@ -400,12 +431,26 @@ const SignUp = () => {
     }
     formData.append('social_provider', 'none');
 
+    console.log('email', email);
+    console.log('name', name);
+    console.log('phone_number', name);
+    console.log('password', password);
+    console.log('nickname', nickname);
+    if (userAddressQuery.data) {
+      console.log('wallet_address', String(userAddressQuery.data));
+    }
+    console.log('social_provider', 'none');
+
     try {
-      const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/signup`, formData, {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
+      const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/signup`;
+      const dataBody = formData;
+      const headers = {
+        'Content-Type': 'application/form-data',
+        'Accept': 'application/json'
+      }
+      const isJSON = true;
+
+      const res = await ApiCaller.post(URL, dataBody, isJSON, headers);
 
       console.log(res);
     } catch (error) {
@@ -450,7 +495,7 @@ const SignUp = () => {
                       transition 
                       duration-300
                       `}
-                      onClick={checkNickname}
+                      onClick={checkEmail}
                       disabled={!emailCheck}>
                       Confirm
                     </button>
@@ -510,22 +555,27 @@ const SignUp = () => {
                 </div>
               </div>
               <div className='w-full flex flex-col gap-12 sm:gap-6 xs:gap-2 items-center justify-center'>
-                <div className='w-full flex flex-col gap-2 sm:gap-4 xs:gap-2 justify-center items-center'>
+                <div className='w-full flex flex-col gap-2 sm:gap-4 xs:gap-2 justify-center items-center -mb-[1rem]'>
                   <label className='w-full sm:w-full xs:w-full font-semibold text-md lg:text-md md:text-md sm:text-base xs:text-sm' htmlFor='phoneNumber'>Phone Number</label>
-                  <input className="
-                    w-full border 
-                    border-gray-500 
-                    rounded-lg 
-                    px-2 
-                    py-3 
-                    lg:py-2 
-                    md:py-2 
-                    sm:py-2 
-                    xs:py-1"
-                    type='number'
-                    id='phoneNumber'
-                    value={phoneNumber}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPhoneNumber(e.target.value)} />
+                  <div className="w-full flex gap-4 sm:gap-2 xs:gap-2">
+                    <input className="
+                      w-full border 
+                      border-gray-500 
+                      rounded-lg 
+                      px-2 
+                      py-3 
+                      lg:py-2 
+                      md:py-2 
+                      sm:py-2 
+                      xs:py-1"
+                      type='text'
+                      id='phoneNumber'
+                      value={phoneNumber}
+                      onChange={phoneNumberChange} 
+                      maxLength={13}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPhoneNumber(e.target.value)} />
+                  </div>
+                  <p className='w-full text-left font-normal text-xs' style={{ minHeight: '1rem' }}>'-'없이 번호만 입력해주세요.</p>
                 </div>
                 <div className='w-full flex flex-col sm:gap-4 xs:gap-2 justify-center items-center relative -mb-[1rem]'>
                   <label className='w-full sm:w-full xs:w-full font-semibold text-md lg:text-md md:text-md sm:text-base xs:text-sm' htmlFor='password'>Password</label>
@@ -606,7 +656,7 @@ const SignUp = () => {
             </div>
             <div className='w-full flex flex-col justify-center items-center gap-5 mt-12'>
               <button className={`
-                ${!email || !name || !phone_number || !password || !nickname || !userAddressQuery.data ? 'bg-green-300' : 'bg-main-green hover:bg-green-600'}
+                ${!email && !name && !phoneNumber && !password && !nickname && !userAddressQuery.data ? 'bg-green-300' : 'bg-main-green hover:bg-green-600'}
                 w-[80%] 
                 lg:w-[70%] 
                 md:w-full 
@@ -623,7 +673,7 @@ const SignUp = () => {
                 font-semibold 
                 transition 
                 duration-300`}
-                disabled={!email || !name || !phone_number || !password || !nickname || !userAddressQuery.data}>
+                disabled={!email && !name && !phoneNumber && !password && !nickname && !userAddressQuery.data}>
                 SignUp
               </button>
               <div className='w-[80%] lg:w-[70%] md:w-full sm:w-full xs:w-full flex sm:flex-col xs:flex-col sm:items-center xs:items-center gap-6'>
