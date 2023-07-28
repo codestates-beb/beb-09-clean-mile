@@ -5,11 +5,20 @@ import NewNotice from '../Common/NewNotice';
 import Footer from '../Common/Footer';
 import Login from '../Users/Login';
 import SignUp from '../Users/SignUp';
-import Notice from '../Notice';
-import General from '../General/General';
-import Events from '../Events/Events';
-import Review from '../Review/Review';
 import MyPage from '../Users/MyPage';
+import UserProfile from '../Users/UserProfile';
+import Notice from '../Notice/Notice';
+import NoticeDetail from '../Notice/NoticeDetail';
+import General from '../General/General';
+import GeneralDetail from '../General/GeneralDetail';
+import GeneralCreate from '../General/GeneralCreate';
+import GeneralEdit from '../General/GeneralEdit';
+import Events from '../Events/Events';
+import EventDetail from '../Events/EventDetail';
+import Review from '../Review/Review';
+import ReviewDetail from '../Review/ReviewDetail';
+import ReviewCreate from '../Review/ReviewCreate';
+import ReviewEdit from '../Review/ReviewEdit';
 
 import Three from '../Three';
 import SearchInput from '../Common/SearchInput';
@@ -29,11 +38,20 @@ export {
   Footer,
   Login,
   SignUp,
-  Notice,
-  General,
-  Events,
-  Review,
   MyPage,
+  UserProfile,
+  Notice,
+  NoticeDetail,
+  General,
+  GeneralDetail,
+  GeneralCreate,
+  GeneralEdit,
+  Events,
+  EventDetail,
+  Review,
+  ReviewDetail,
+  ReviewCreate,
+  ReviewEdit,
   Three,
   SearchInput,
   logo,

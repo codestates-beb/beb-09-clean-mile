@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 /**
  * DNFTs Collection Schema
@@ -41,9 +41,9 @@ const dnftSchema = new mongoose.Schema({
   user: {
     // users collection의 _id를 참조
     type: mongoose.Schema.Types.ObjectId,
-    ref: "user",
+    ref: 'user',
   },
 });
 
-const DNFT = mongoose.model("dnft", dnftSchema);
+const DNFT = mongoose.model('dnft', dnftSchema);
 module.exports = DNFT;

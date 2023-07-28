@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 /**
  * Mails Collection Schema
@@ -28,5 +28,5 @@ const mailSchema = new mongoose.Schema({
   },
 });
 
-const Mails = mongoose.model("mail", mailSchema);
+const Mails = mongoose.model('mail', mailSchema);
 module.exports = Mails;

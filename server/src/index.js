@@ -1,6 +1,6 @@
-const express = require("express");
-const expressApp = require("./loaders/index.js");
-const config = require("./config/index.js");
+const express = require('express');
+const expressApp = require('./loaders/index.js');
+const config = require('./config/index.js');
 
 //테스트 부분
 const createDNFT  = require("./services/contract/dnftController.js").createDNFT; 
@@ -40,7 +40,7 @@ async function startServer() {
     ################################################
   `);
     })
-    .on("error", (err) => {
+    .on('error', (err) => {
       console.log(err);
       process.exit(1);
     });

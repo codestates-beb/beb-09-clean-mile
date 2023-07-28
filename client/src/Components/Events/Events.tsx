@@ -83,10 +83,10 @@ const Events = () => {
     setIsLoading(false);
   };
 
-   /**
-   * Intersection Observer를 설정하고, 
-   * lastPostElementRef가 변화할 때마다 observer를 재설정하는 effect.
-   */
+  /**
+  * Intersection Observer를 설정하고, 
+  * lastPostElementRef가 변화할 때마다 observer를 재설정하는 effect.
+  */
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -97,11 +97,11 @@ const Events = () => {
       },
       { threshold: 1 }  // 1.0은 대상 요소가 보이는 비율을 의미
     );
-  
+
     if (lastPostElementRef.current) {
       observer.observe(lastPostElementRef.current);
     }
-  
+
     return () => {
       if (lastPostElementRef.current) {
         observer.unobserve(lastPostElementRef.current);
@@ -160,7 +160,8 @@ const Events = () => {
                   duration-300 
                   hover:-translate-y-2 
                   cursor-pointer"
-                  key={i}>
+                  key={item.id}
+                  onClick={() => router.push(`/posts/events/${item.id}`)}>
                   <div className='border-b-2 relative pb-[65%] sm:pb-[90%] xs:pb-[90%]'>
                     <Image
                       className='rounded-t-3xl'
@@ -175,7 +176,43 @@ const Events = () => {
                       <h2 className="text-xl font-bold hover:underline sm:text-lg xs:text-sm">{item.insta_id}</h2>
                     </div>
                     <p className="text-gray-700 font-semibold lg:text-sm sm:text-xs xs:text-xs overflow-ellipsis overflow-hidden h-[20px] whitespace-nowrap">{item.insta_content}</p>
-                    <button className='w-3/5 lg:w-full md:w-full sm:w-full xs:w-full flex items-center justify-around gap-6 lg:gap-4 md:gap-4 sm:gap-2 xs:gap-2 bg-main-blue hover:bg-blue-600 rounded-xl lg:rounded-lg px-3 lg:px-2 md:px-2 sm:px-2 xs:px-1 py-2 lg:py-1 md:py-1 sm:py-1 xs:py-1 text-white lg:text-sm md:text-sm sm:text-xs xs:text-xs font-semibold transition duration-300'>
+                    <button className='
+                      w-3/5 
+                      lg:w-full 
+                      md:w-full 
+                      sm:w-full 
+                      xs:w-full 
+                      flex 
+                      items-center 
+                      justify-around 
+                      gap-6 
+                      lg:gap-4 
+                      md:gap-4 
+                      sm:gap-2 
+                      xs:gap-2 
+                      bg-main-blue 
+                      hover:bg-blue-600 
+                      rounded-xl 
+                      lg:rounded-lg 
+                      px-3 
+                      lg:px-2 
+                      md:px-2 
+                      sm:px-2 
+                      xs:px-1 
+                      py-2 
+                      lg:py-1 
+                      md:py-1 
+                      sm:py-1 
+                      xs:py-1 
+                      text-white 
+                      lg:text-sm 
+                      md:text-sm 
+                      sm:text-xs 
+                      xs:text-xs 
+                      font-semibold 
+                      transition 
+                      duration-300'
+                      onClick={() => router.push(`/posts/events/${item.id}`)}>
                       Read more
                       <MdOutlineArrowForwardIos size={20} className='rounded-xl w-[10%]' />
                     </button>
@@ -198,7 +235,8 @@ const Events = () => {
                   duration-300 
                   hover:-translate-y-2 
                   cursor-pointer"
-                  key={i}>
+                  key={item.id}
+                  onClick={() => router.push(`/posts/events/${item.id}`)}>
                   <div className='border-b-2 relative pb-[65%] sm:pb-[90%] xs:pb-[90%]'>
                     <Image
                       className='rounded-t-3xl'
@@ -213,7 +251,43 @@ const Events = () => {
                       <h2 className="text-xl font-bold hover:underline sm:text-lg xs:text-sm">{item.insta_id}</h2>
                     </div>
                     <p className="text-gray-700 font-semibold lg:text-sm sm:text-xs xs:text-xs overflow-ellipsis overflow-hidden h-[20px] whitespace-nowrap">{item.insta_content}</p>
-                    <button className='w-3/5 lg:w-full md:w-full sm:w-full xs:w-full flex items-center justify-around gap-6 lg:gap-4 md:gap-4 sm:gap-2 xs:gap-2 bg-main-blue hover:bg-blue-600 rounded-xl lg:rounded-lg px-3 lg:px-2 md:px-2 sm:px-2 xs:px-1 py-2 lg:py-1 md:py-1 sm:py-1 xs:py-1 text-white lg:text-sm md:text-sm sm:text-xs xs:text-xs font-semibold transition duration-300'>
+                    <button className='
+                      w-3/5 
+                      lg:w-full 
+                      md:w-full 
+                      sm:w-full 
+                      xs:w-full 
+                      flex 
+                      items-center 
+                      justify-around 
+                      gap-6 
+                      lg:gap-4 
+                      md:gap-4 
+                      sm:gap-2 
+                      xs:gap-2 
+                      bg-main-blue 
+                      hover:bg-blue-600 
+                      rounded-xl 
+                      lg:rounded-lg 
+                      px-3 
+                      lg:px-2 
+                      md:px-2 
+                      sm:px-2 
+                      xs:px-1 
+                      py-2 
+                      lg:py-1 
+                      md:py-1 
+                      sm:py-1 
+                      xs:py-1 
+                      text-white 
+                      lg:text-sm 
+                      md:text-sm 
+                      sm:text-xs 
+                      xs:text-xs 
+                      font-semibold 
+                      transition 
+                      duration-300'
+                      onClick={() => router.push(`/posts/events/${item.id}`)}>
                       Read more
                       <MdOutlineArrowForwardIos size={20} className='rounded-xl w-[10%]' />
                     </button>

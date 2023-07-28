@@ -66,11 +66,29 @@ const General = () => {
       </h1>
       <div className={`flex justify-center items-center w-full`}>
         <div className={`w-full ${currentPosts.length === 0 && 'min-h-screen items-center justify-around'}`}>
-          <div className='flex justify-end mb-3'>
+          <div className='flex justify-end mb-3 gap-3'>
             <select className="border border-black py-2 px-4 pr-7 rounded-md text-sm" onChange={handleFilterChange}>
               <option className="text-sm xs:text-xs" value="newest">최신 순</option>
               <option className="text-sm xs:text-xs" value="oldest">오래된 순</option>
             </select>
+            <Link className='
+              border 
+              rounded-xl 
+              py-2 
+              px-10
+              bg-main-blue
+              text-white 
+              font-semibold 
+              hover:bg-blue-600
+              transition-all 
+              duration-300 
+              text-md
+              text-center' 
+              href='/posts/general/create'>
+              <button type="button">
+                Write
+              </button>
+            </Link>
           </div>
           <div className='w-full'>
             <table className="w-full text-center border-collapse sm:text-sm xs:text-xs overflow-x-scroll">
@@ -97,7 +115,7 @@ const General = () => {
                       duration-300 
                       cursor-pointer"
                       key={post.id}
-                      onClick={() => router.push(`/posts/${post.id}`)}>
+                      onClick={() => router.push(`/posts/general/${post.id}`)}>
                       <td className="border-b p-6 sm:p-3 xs:p-2">
                         <p className="text-xl sm:text-sm xs:text-xs font-semibold">{post.id}</p>
                       </td>

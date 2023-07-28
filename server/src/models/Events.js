@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 /**
  * Events Collection Schema
@@ -100,14 +100,14 @@ const eventSchema = new mongoose.Schema({
   post: {
     // posts collection의 _id를 참조
     type: mongoose.Schema.Types.ObjectId,
-    ref: "post",
+    ref: 'post',
   },
   badge: {
     // badges collection의 _id를 참조
     type: mongoose.Schema.Types.ObjectId,
-    ref: "badge",
+    ref: 'badge',
   },
 });
 
-const Events = mongoose.model("event", eventSchema);
+const Events = mongoose.model('event', eventSchema);
 module.exports = Events;

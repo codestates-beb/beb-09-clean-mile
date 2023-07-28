@@ -1,8 +1,9 @@
 interface Post {
   id: number;
   image: string | StaticImageData; // <- change here
-  insta_id: string;
-  insta_content: string;
+  review_writer: string;
+  review_title: string;
+  review_content: string;
   date: string;
 }
 
