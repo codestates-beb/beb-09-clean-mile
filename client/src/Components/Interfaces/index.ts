@@ -1,3 +1,5 @@
+type SweetAlertIcon = undefined | "success" | "error" | "warning" | "info" | "question";
+
 interface Post {
   id: number;
   image: string | StaticImageData; // <- change here
@@ -7,5 +9,18 @@ interface Post {
   date: string;
 }
 
+interface Alert {
+  title: string,
+  text: string,
+  icon: SweetAlertIcon,
+  confirmButtonText: string
+  confirmButtonColor: string,
+}
 
-export { Post }
+interface AlertState {
+  visible: boolean;
+  alert: Alert;
+}
+
+
+export type { Post, Alert, AlertState }
