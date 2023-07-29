@@ -2,11 +2,11 @@ import Head from "next/head";
 import PlusIcon from "@heroicons/react/24/solid/PlusIcon";
 import { Box, Button, Container, Stack, SvgIcon, Typography, Pagination } from "@mui/material";
 import { Layout as DashboardLayout } from "src/layouts/dashboard/layout";
-import { EventsSearch } from "src/components/events/events-search";
 import { EventsTable } from "src/components/events/events-table";
 import { useCallback, useState } from "react";
+import { SearchBar } from "src/components/common/search-bar";
 
-const events = [
+const data = [
   {
     id: "2569ce0d517a7f06d3ea1f24",
     createdAt: "27/03/2019",
@@ -60,13 +60,36 @@ const events = [
     downloads: "835",
   },
 ];
+const filters = ["all", "title", "content", "organization"];
 
 const Page = () => {
   const [page, setPage] = useState(1);
+  const [events, setEvents] = useState(data);
+  const [filter, setFilter] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
 
   const handlePageChange = useCallback((event, value) => {
     setPage(value);
   }, []);
+
+  const handleFilterChange = useCallback((event) => {
+    setFilter(event.target.value);
+  }, []);
+
+  const handleSearchTermChange = useCallback((event) => {
+    setSearchTerm(event.target.value);
+  }, []);
+
+  const handleSearchTermSubmit = useCallback(
+    (event) => {
+      event.preventDefault();
+
+      if (!searchTerm) return;
+
+      console.log(filter, searchTerm);
+    },
+    [filter, searchTerm]
+  );
 
   return (
     <>
@@ -112,7 +135,14 @@ const Page = () => {
                 size={"medium"}
               />
             </Box>
-            <EventsSearch />
+            <SearchBar
+              filters={filters}
+              filter={filter}
+              handleFilterChange={handleFilterChange}
+              searchTerm={searchTerm}
+              handleSearchTermChange={handleSearchTermChange}
+              handleSearchTermSubmit={handleSearchTermSubmit}
+            />
           </Stack>
         </Container>
       </Box>
