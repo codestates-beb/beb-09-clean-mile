@@ -131,8 +131,10 @@ const Page = () => {
       >
         <Container maxWidth="lg">
           <Stack spacing={3}>
-            <Typography variant="h4">Users</Typography>
-            <Stack direction="row" justifyContent="right" spacing={4}>
+            <Stack direction="row" justifyContent="space-between" spacing={4}>
+              <Stack spacing={1}>
+                <Typography variant="h4">Users</Typography>
+              </Stack>
               <Select value={socialType} onChange={handleSocialTypeChange}>
                 {socialTypes.map((socialType) => (
                   <MenuItem key={socialType} value={socialType}>
