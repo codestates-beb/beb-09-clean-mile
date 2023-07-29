@@ -1,6 +1,36 @@
 const CommentModel = require('../../models/Comments');
 
 /**
+ * 좋아요 여부 확인 및 수정
+ * @param {*} post_id
+ * @param {*} user_id
+ * @returns
+ */
+const updateCommentLikes = async (post_id, user_id = null) => {
+  const commentResult = await CommentModel.find({
+    post_id: post_id,
+  }).populate('user_id', ['nickname']);
+
+  // 로그인 -> 댓글 좋아요 여부 확인 및 수정
+  let updatedComments = commentResult.map((comment) => {
+    // 좋아요 여부 확인
+    const isLiked =
+      (user_id && comment.likes.likers.includes(user_id.toString())) || false;
+
+    // 댓글 정보에서 likes 객체를 분리하여 새로운 객체 생성
+    const { likes, ...commentData } = comment.toObject();
+
+    // likes 객체에 is_liked 필드 추가하여 좋아요 여부 저장
+    const updatedLikes = { ...likes, is_liked: isLiked };
+    delete updatedLikes.likers; // likers 필드는 필요 없으므로 삭제
+
+    return { ...commentData, likes: updatedLikes };
+  });
+
+  return updatedComments;
+};
+
+/**
  * 댓글 저장
  * @param {*} user_id
  * @param {*} post_id
@@ -55,7 +85,7 @@ const editComment = async (commentId, content) => {
   try {
     const result = await CommentModel.findByIdAndUpdate(
       { _id: commentId },
-      { $set: { content: content } }
+      { $set: { content: content, updated_at: new Date() } }
     );
     if (!result) {
       return { success: false };
@@ -116,6 +146,7 @@ const likeComment = async (commentData, user_id) => {
 };
 
 module.exports = {
+  updateCommentLikes,
   saveComment,
   findComment,
   editComment,

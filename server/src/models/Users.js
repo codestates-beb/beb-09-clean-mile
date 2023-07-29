@@ -24,9 +24,8 @@ const userSchema = new mongoose.Schema({
   },
   user_type: {
     // 사용자 권한
-    // 0:일반 사용자, 1:관리자
-    type: Number,
-    default: 0,
+    type: String,
+    enum: ['user', 'admin'],
   },
   hashed_pw: {
     // 사용자 비밀번호 (해시)
@@ -39,8 +38,8 @@ const userSchema = new mongoose.Schema({
   },
   social_provider: {
     // 소셜 로그인
-    // noen:없음, kakao:카카오, google:구글
     type: String,
+    enum: ['none', 'kakao', 'google'],
   },
   banner_img_url: {
     // 배너 이미지 URL

@@ -1,7 +1,8 @@
-const mongoose = require('mongoose');
 const PostModel = require('../../models/Posts');
 const CommentModel = require('../../models/Comments');
+const EventModel = require('../../models/Events');
 const { findUserEmail } = require('./usersController');
+const { updateCommentLikes } = require('./commentsController');
 
 /**
  * 클라이언트 IP 조회
@@ -58,6 +59,7 @@ const savePost = async (email, postData, media) => {
  */
 const editPostField = async (post_id, updateFields) => {
   try {
+    updateFields.updated_at = new Date();
     const result = await PostModel.findByIdAndUpdate(
       post_id,
       { $set: updateFields },
@@ -99,7 +101,7 @@ const deletePost = async (postId) => {
  * @param {*} postId
  * @returns 조회 결과
  */
-const findDetailPost = async (postId) => {
+const findDetailPost = async (req, postId, user_id) => {
   try {
     // 게시글 상세 정보 조회
     const postResult = await PostModel.findById(postId).populate('user_id', [
@@ -109,14 +111,15 @@ const findDetailPost = async (postId) => {
       return { success: false };
     }
 
-    // 게시글에 달린 댓글 조회
-    const commentResult = await CommentModel.find({
-      post_id: postId,
-    }).populate('user_id', ['nickname']);
+    // 조회 수 증가
+    const viewResult = await postViews(req, postResult);
+
+    // 게시글에 달린 댓글 정보 조회
+    const updatedComments = await updateCommentLikes(postId, user_id);
 
     return {
       success: true,
-      data: { post: postResult, comment: commentResult },
+      data: { post: viewResult, comment: updatedComments },
     };
   } catch (err) {
     console.error('Error:', err);
@@ -125,31 +128,26 @@ const findDetailPost = async (postId) => {
 };
 
 /**
- * 게시글 조회수 증가
+ * 조회수 증가
  * @param {*} req
  * @param {*} postId
  */
-const postViews = async (req, postId) => {
+const postViews = async (req, postResult) => {
   try {
     // 클라이언트 IP 조회
     const ipAddr = getClientIP(req);
 
-    // 게시글 조회
-    const postResult = await PostModel.findById(postId);
-    if (!postResult) {
-      return { success: false };
-    }
-
+    let result;
     // 조회자 목록에 현재 IP가 없는 경우 조회수 증가
     if (!postResult.view.viewers.includes(ipAddr)) {
       postResult.view.count += 1;
       postResult.view.viewers.push(ipAddr);
-      await postResult.save();
+      result = await postResult.save();
+    } else {
+      result = postResult;
     }
 
-    // 게시글 조회
-    const result = await findDetailPost(postId);
-    return { success: true, data: result.data };
+    return { success: true, data: result };
   } catch (err) {
     console.error('Error:', err);
     throw Error(err);
@@ -185,7 +183,6 @@ const noticesLatestPost = async () => {
  */
 const findPost = async (category, limit, last_id, order, title, content) => {
   try {
-    let cursor;
     const query = { category: category };
 
     // last_id가 존재하면, 마지막 id 이후의 문서 조회
@@ -204,9 +201,18 @@ const findPost = async (category, limit, last_id, order, title, content) => {
     }
 
     // 데이터 조회 실행
-    cursor = PostModel.find(query)
-      .populate('user_id', ['nickname'])
-      .limit(limit);
+    let cursor;
+    if (category === 'Event') {
+      delete query.category;
+      cursor = EventModel.find(query)
+        .populate('host_id', ['name', 'organization'])
+        .limit(limit);
+      console.log(cursor);
+    } else {
+      cursor = PostModel.find(query)
+        .populate('user_id', ['nickname'])
+        .limit(limit);
+    }
 
     // 정렬
     if (order === 'desc') {
@@ -238,6 +244,7 @@ module.exports = {
   editPostField,
   deletePost,
   postViews,
+  findDetailPost,
   noticesLatestPost,
   findPost,
 };

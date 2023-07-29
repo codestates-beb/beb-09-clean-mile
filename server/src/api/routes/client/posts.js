@@ -3,6 +3,7 @@ const upload = require('../../../loaders/s3');
 const PostModel = require('../../../models/Posts');
 const isAuth = require('../../middlewares/isAuth');
 const calcPagination = require('../../../utils/calcPagination');
+const jwtController = require('../../../services/jwtController');
 const {
   checkImageFileSize,
   checkVideoFileSize,
@@ -11,7 +12,7 @@ const {
   savePost,
   editPostField,
   deletePost,
-  postViews,
+  findDetailPost,
   noticesLatestPost,
   findPost,
 } = require('../../../services/client/postsController');
@@ -269,15 +270,22 @@ module.exports = (app) => {
   route.get('/detail/:post_id', async (req, res) => {
     try {
       const post_id = req.params.post_id;
-      if (!post_id) {
-        return res.status(400).json({
-          success: false,
-          message: '필수 입력값이 없습니다.',
-        });
+      let user_id = null;
+
+      if (req.cookies.accessToken) {
+        const decoded = jwtController.verify(req.cookies.accessToken);
+        if (!decoded.success) {
+          return res.status(401).json({
+            success: false,
+            message: `Access Token : ${result.message}`,
+          });
+        }
+        user_id = decoded.decoded.user_id;
       }
-      // 조회수 증가
-      const viewResult = await postViews(req, post_id);
-      if (!viewResult.success) {
+
+      // 게시글 상세 조회
+      const postDetailResult = await findDetailPost(req, post_id, user_id);
+      if (!postDetailResult.success) {
         return res.status(400).json({
           success: false,
           message: '존재하지 않는 게시글입니다.',
@@ -287,7 +295,7 @@ module.exports = (app) => {
       return res.status(200).json({
         success: true,
         message: '게시글 상세 조회에 성공했습니다.',
-        data: viewResult.data,
+        data: postDetailResult.data,
       });
     } catch (err) {
       console.error('Error:', err);
