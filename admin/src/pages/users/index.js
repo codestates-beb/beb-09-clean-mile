@@ -129,23 +129,17 @@ const Page = () => {
           py: 8,
         }}
       >
-        <Container maxWidth="xl">
+        <Container maxWidth="lg">
           <Stack spacing={3}>
-            <Stack direction="row" justifyContent="space-between" spacing={4}>
-              <Stack spacing={1}>
-                <Typography variant="h4">Users</Typography>
-              </Stack>
-            </Stack>
+            <Typography variant="h4">Users</Typography>
             <Stack direction="row" justifyContent="right" spacing={4}>
-              <Stack spacing={1}>
-                <Select value={socialType} onChange={handleSocialTypeChange}>
-                  {socialTypes.map((socialType) => (
-                    <MenuItem key={socialType} value={socialType}>
-                      {socialType}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </Stack>
+              <Select value={socialType} onChange={handleSocialTypeChange}>
+                {socialTypes.map((socialType) => (
+                  <MenuItem key={socialType} value={socialType}>
+                    {socialType}
+                  </MenuItem>
+                ))}
+              </Select>
             </Stack>
             <UsersTable items={users} />
             <Box
