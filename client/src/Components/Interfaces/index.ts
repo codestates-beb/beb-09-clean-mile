@@ -1,5 +1,3 @@
-type SweetAlertIcon = undefined | "success" | "error" | "warning" | "info" | "question";
-
 interface Post {
   id: number;
   image: string | StaticImageData; // <- change here
@@ -9,18 +7,27 @@ interface Post {
   date: string;
 }
 
-interface Alert {
-  title: string,
-  text: string,
-  icon: SweetAlertIcon,
-  confirmButtonText: string
-  confirmButtonColor: string,
+interface LoginAPIInput {
+  email: string;
+  password: string;
 }
 
-interface AlertState {
-  visible: boolean;
-  alert: Alert;
+interface Wallet {
+  address: string;
+}
+
+interface LoginAPIOutput {
+  wallet: Wallet;
+  _id: string;
+  name: string;
+  email: string;
+  phone_number: string;
+  user_type: number;
+  nickname: string;
+  social_type: string;
+  created_at: string;
+  updated_at: string;
 }
 
 
-export type { Post, Alert, AlertState }
+export type { Post, LoginAPIInput, LoginAPIOutput }
