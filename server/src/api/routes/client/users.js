@@ -649,6 +649,12 @@ route.get('/userInfo', isAuth, async (req, res) => {
     // 사용자 나머지 정보 조회
     const myUserData = await findMyUserData(userResult.data._id);
     if (myUserData.success) {
+      // 필요 없는 데이터 삭제
+      delete myUserData.data.post.pagination;
+      delete myUserData.data.event.pagination;
+      delete myUserData.data.post.last_id;
+      delete myUserData.data.event.last_id;
+
       resultData = {
         ...resultData,
         // dnft: myUserData.data.dnft,
