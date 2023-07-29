@@ -1,9 +1,0 @@
-branchName: "${issue.number}"
-defaultBranch: "dev"
-branches:
-  - label: bug
-    prefix: fix/
-  - label: "*"
-    prefix: feat/
-autoCloseIssue: true
-commentMessage: "Branch ${branchName} created for issue: ${issue.title}"

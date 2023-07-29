@@ -1,18 +1,52 @@
 import React, { useState, useEffect } from 'react';
+import { AxiosError } from 'axios';
+import Swal from 'sweetalert2';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
+import { useDispatch, useSelector } from 'react-redux';
+import { useMutation, useQueryClient, useQuery } from 'react-query';
 import { RiKakaoTalkFill } from 'react-icons/ri';
 import { FcGoogle } from 'react-icons/fc';
 import { IoEyeSharp, IoEyeOffSharp } from 'react-icons/io5';
 import { Three, logo } from '../Reference';
+import { showAlert } from '../Redux/store';
+import { AlertState } from '../Interfaces';
+import { ApiCaller } from '../Utils/ApiCaller';
+
+interface LoginAPIInput {
+  email: string;
+  password: string;
+}
+
+interface Wallet {
+  address: string;
+}
+
+interface LoginAPIOutput {
+    wallet: Wallet;
+    _id: string;
+    name: string;
+    email: string;
+    phone_number: string;
+    user_type: number;
+    nickname: string;
+    social_type: string;
+    created_at: string;
+    updated_at: string;
+}
+
 
 const Login = () => {
   const router = useRouter();
+  const dispatch = useDispatch();
+  const queryClient = useQueryClient();
   const [isPwdVisible, setPwVisible] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
+
+  const { title, text, icon, confirmButtonText, confirmButtonColor } = useSelector((state: AlertState) => state.alert);
 
   /**
    * 비밀번호 가시성 상태를 전환하는 함수
@@ -59,7 +93,117 @@ const Login = () => {
     validateEmail();
   }, [email]);
 
+  /**
+   * loginAPI 함수는 사용자의 이메일과 비밀번호를 이용해 로그인을 수행
+   *
+   * @param {LoginAPIInput} { email, password } 로그인을 수행할 때 필요한 사용자의 이메일과 비밀번호
+   * @returns {Promise<LoginAPIOutput>} 로그인 수행 후 서버로부터 받는 응답
+   * @throws {AxiosError} 네트워크 에러 또는 서버에서 보내는 에러 응답
+   */
+  const loginAPI  = async ({ email, password }: LoginAPIInput): Promise<LoginAPIOutput> => {
+    const formData = new FormData();
 
+    formData.append('email', email);
+    formData.append('password', password);
+    try {
+      const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/login`;
+      const dataBody = formData;
+      const headers = {
+        'Content-Type': 'application/form-data',
+        'Accept': 'application/json'
+      }
+
+      const isJSON = true;
+
+      const res = await ApiCaller.post(URL, dataBody, isJSON, headers);
+      if (res.status === 200) {
+        dispatch(showAlert({
+          title: 'Success!',
+          text: res.data.message,
+          icon: 'success',
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#6BCB77'
+        }));
+
+        Swal.fire({
+          title,
+          text,
+          icon,
+          confirmButtonText,
+          confirmButtonColor
+        }).then(() => {
+          Swal.close();
+          router.push('/');
+        });
+
+      } else {
+        dispatch(showAlert({
+          title: 'Error',
+          text: res.data.message,
+          icon: 'error',
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#6BCB77'
+        }));
+
+        Swal.fire({
+          title,
+          text,
+          icon,
+          confirmButtonText,
+          confirmButtonColor,
+        }).then(() => {
+          Swal.close();
+        });
+      }
+      return res.data;
+    } catch (error) {
+      const err = error as AxiosError;
+
+      const data = err.response?.data as { message: string };
+
+      dispatch(showAlert({
+        title: 'Error',
+        text: data?.message,
+        icon: 'error',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#6BCB77'
+      }));
+
+      Swal.fire({
+        title,
+        text,
+        icon,
+        confirmButtonText,
+        confirmButtonColor,
+      }).then(() => {
+        Swal.close();
+      });
+
+      throw err;
+    }
+  }
+  
+  /**
+   * loginMutation 함수는 useMutation hook을 사용하여 loginAPI를 호출하고, 요청의 결과에 따라 적절한 동작을 수행
+   * 
+   * @returns {UseMutationResult} 리액트 쿼리의 useMutation hook으로부터 반환되는 결과 객체
+   */
+  const loginMutation = useMutation<LoginAPIOutput, unknown, LoginAPIInput>(loginAPI , {
+    onSuccess: (data: LoginAPIOutput) => {
+      queryClient.invalidateQueries('user');
+      queryClient.setQueryData('user', data);
+    },
+    onError: (error) => {
+      console.log('Mutation Error: ', error);
+    }
+  });
+
+  /**
+ * login 함수는 loginMutation을 호출하여 사용자 로그인을 수행
+ */
+  const login = () => {
+    loginMutation.mutate({ email, password });
+  }
 
   return (
     <div className='w-full min-h-screen grid grid-cols-2'>
@@ -99,7 +243,22 @@ const Login = () => {
               </button>
             </div>
             <div className='w-full flex flex-col justify-center items-center gap-5'>
-              <button className='w-[90%] bg-main-green hover:bg-green-600 px-7 py-2 rounded-xl text-white text-lg md:text-base sm:text-base xs:text-base font-semibold transition duration-300'>
+              <button className='
+                w-[90%] 
+                bg-main-green 
+                hover:bg-green-600 
+                px-7 
+                py-2 
+                rounded-xl 
+                text-white 
+                text-lg 
+                md:text-base 
+                sm:text-base 
+                xs:text-base 
+                font-semibold 
+                transition 
+                duration-300'
+                onClick={login}>
                 Login
               </button>
               <div className='w-[90%] flex sm:flex-col xs:flex-col sm:items-center xs:items-center gap-6'>
