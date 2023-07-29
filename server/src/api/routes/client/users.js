@@ -123,8 +123,7 @@ module.exports = (app) => {
         !userData.password ||
         !userData.nickname ||
         !userData.wallet_address ||
-        !userData.social_provider ||
-        !userData.email_verification_code
+        !userData.social_provider
       ) {
         return res.status(400).json({
           success: false,
