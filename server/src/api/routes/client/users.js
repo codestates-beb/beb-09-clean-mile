@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const jwtController = require('../../../services/jwtController');
 const isAuth = require('../../middlewares/isAuth');
 const PostModel = require('../../../models/Posts');
-const EventModel = require('../../../models/Events');
+const EventEntryModel = require('../../../models/EventEntries');
 const upload = require('../../../loaders/s3');
 const {
   checkEmail,
@@ -503,7 +503,7 @@ module.exports = (app) => {
 
       // 참여한 이벤트 목록 조회
       const eventResult = await findUserContent(
-        EventModel,
+        EventEntryModel,
         userResult.data._id,
         page,
         last_id,

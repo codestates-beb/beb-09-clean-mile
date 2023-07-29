@@ -7,6 +7,7 @@ const DNFTModel = require('../../models/DNFTs');
 const BadgeModel = require('../../models/Badges');
 const PostModel = require('../../models/Posts');
 const EventModel = require('../../models/Events');
+const EventEntryModel = require('../../models/EventEntries');
 
 /**
  * 랜덤 인증코드 생성 (min ~ max)
@@ -232,12 +233,7 @@ const findUserNickname = async (nickname) => {
  */
 const findUserContent = async (model, userId, page, last_id, limit) => {
   try {
-    let query = {};
-    if (model === PostModel) {
-      query = { user_id: userId };
-    } else if (model === EventModel) {
-      query = { [`users.${userId}`]: { $exists: true } };
-    }
+    let query = { user_id: userId };
 
     const total = await model.countDocuments(query);
 
@@ -246,7 +242,17 @@ const findUserContent = async (model, userId, page, last_id, limit) => {
       query._id = { $gt: last_id };
     }
 
-    const cursor = model.find(query).sort({ created_at: -1 }).limit(limit);
+    let cursor;
+    if (model === PostModel) {
+      cursor = model.find(query).sort({ created_at: -1 }).limit(limit);
+    } else if (model === EventEntryModel) {
+      cursor = model
+        .find(query)
+        .populate('event_id')
+        .sort({ created_at: -1 })
+        .limit(limit);
+    }
+
     const result = await cursor.exec();
     if (!result.length) {
       // 더이상 결과가 없는 경우
@@ -294,7 +300,7 @@ const findMyUserData = async (
     );
     // 참여한 이벤트 목록 조회
     const eventResult = await findUserContent(
-      EventModel,
+      EventEntryModel,
       userId,
       event_page,
       event_last_id,
@@ -356,6 +362,7 @@ const chgNickname = async (email, nickname) => {
       return { success: false };
     } else {
       userData.nickname = nickname;
+      userData.updated_at = Date.now();
       const result = await userData.save();
       return { success: true, data: result.nickname };
     }
@@ -379,6 +386,7 @@ const chgBanner = async (email, bannerUrl) => {
     }
 
     userData.banner_img_url = bannerUrl;
+    userData.updated_at = Date.now();
     const result = await userData.save();
     if (!result) {
       return { success: false };

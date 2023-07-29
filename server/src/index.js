@@ -3,7 +3,7 @@ const expressApp = require('./loaders/index.js');
 const config = require('./config/index.js');
 
 //테스트 부분
-// const createDNFT  = require("./services/contract/dnftController.js").createDNFT;
+//const createDNFT  = require("./services/contract/dnftController.js").createDNFT;
 
 async function startServer() {
   const app = express();
@@ -21,9 +21,13 @@ async function startServer() {
 
       // 요청 결과에 따라 응답을 처리합니다.
       if (result.success) {
-        res.status(200).json({ success: true, message: 'DNFT 생성에 성공했습니다.' });
+        res
+          .status(200)
+          .json({ success: true, message: 'DNFT 생성에 성공했습니다.' });
       } else {
-        res.status(500).json({ success: false, message: 'DNFT 생성에 실패했습니다.' });
+        res
+          .status(500)
+          .json({ success: false, message: 'DNFT 생성에 실패했습니다.' });
       }
     } catch (err) {
       console.error('Error:', err);
