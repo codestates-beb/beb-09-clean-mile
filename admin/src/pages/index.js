@@ -1,17 +1,10 @@
 import Head from "next/head";
 import PlusIcon from "@heroicons/react/24/solid/PlusIcon";
-import {
-  Box,
-  Button,
-  Container,
-  Stack,
-  SvgIcon,
-  Typography,
-  Unstable_Grid2 as Grid,
-} from "@mui/material";
+import { Box, Button, Container, Stack, SvgIcon, Typography, Pagination } from "@mui/material";
 import { Layout as DashboardLayout } from "src/layouts/dashboard/layout";
 import { EventsSearch } from "src/components/events/events-search";
 import { EventsTable } from "src/components/events/events-table";
+import { useCallback, useState } from "react";
 
 const events = [
   {
@@ -68,25 +61,31 @@ const events = [
   },
 ];
 
-const Page = () => (
-  <>
-    <Head>
-      <title>Events</title>
-    </Head>
-    <Box
-      component="main"
-      sx={{
-        flexGrow: 1,
-        py: 8,
-      }}
-    >
-      <Container maxWidth="xl">
-        <Stack spacing={3}>
-          <Stack direction="row" justifyContent="space-between" spacing={4}>
-            <Stack spacing={1}>
-              <Typography variant="h4">Events</Typography>
-            </Stack>
-            <div>
+const Page = () => {
+  const [page, setPage] = useState(1);
+
+  const handlePageChange = useCallback((event, value) => {
+    setPage(value);
+  }, []);
+
+  return (
+    <>
+      <Head>
+        <title>Events</title>
+      </Head>
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          py: 8,
+        }}
+      >
+        <Container maxWidth="lg">
+          <Stack spacing={3}>
+            <Stack direction="row" justifyContent="space-between" spacing={4}>
+              <Stack spacing={1}>
+                <Typography variant="h4">Events</Typography>
+              </Stack>
               <Button
                 startIcon={
                   <SvgIcon fontSize="small">
@@ -97,15 +96,29 @@ const Page = () => (
               >
                 Add
               </Button>
-            </div>
+            </Stack>
+            <EventsTable />
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+              }}
+            >
+              <Pagination
+                color="primary"
+                count={5}
+                page={page}
+                onChange={handlePageChange}
+                size={"medium"}
+              />
+            </Box>
+            <EventsSearch />
           </Stack>
-          <EventsSearch />
-          <EventsTable />
-        </Stack>
-      </Container>
-    </Box>
-  </>
-);
+        </Container>
+      </Box>
+    </>
+  );
+};
 
 Page.getLayout = (page) => <DashboardLayout>{page}</DashboardLayout>;
 

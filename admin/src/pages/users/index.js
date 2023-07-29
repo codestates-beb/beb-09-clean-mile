@@ -2,10 +2,9 @@ import { useCallback, useEffect, useState } from "react";
 import Head from "next/head";
 import { subDays, subHours } from "date-fns";
 import { Box, Container, Stack, Pagination, Typography, Select, MenuItem } from "@mui/material";
-
 import { Layout as DashboardLayout } from "src/layouts/dashboard/layout";
 import { UsersTable } from "src/components/users/users-table";
-import { UsersSearch } from "src/components/users/users-search";
+import { SearchBar } from "src/components/common/search-bar";
 
 const now = new Date();
 
@@ -92,12 +91,15 @@ const data = [
   },
 ];
 
+const filters = ["all", "name", "email", "wallet_address"];
 const socialTypes = ["all", "none", "google", "kakao"];
 
 const Page = () => {
   const [page, setPage] = useState(1);
   const [users, setUsers] = useState(data);
   const [socialType, setSocialType] = useState(socialTypes[0]);
+  const [filter, setFilter] = useState(filters[0]);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const handlePageChange = useCallback((event, value) => {
     setPage(value);
@@ -107,9 +109,24 @@ const Page = () => {
     setSocialType(event.target.value);
   }, []);
 
-  const handleSearchUsers = useCallback((filter, searchTerm) => {
-    console.log(filter, searchTerm);
+  const handleFilterChange = useCallback((event) => {
+    setFilter(event.target.value);
   }, []);
+
+  const handleSearchTermChange = useCallback((event) => {
+    setSearchTerm(event.target.value);
+  }, []);
+
+  const handleSearchTermSubmit = useCallback(
+    (event) => {
+      event.preventDefault();
+
+      if (!searchTerm) return;
+
+      console.log(filter, searchTerm);
+    },
+    [filter, searchTerm]
+  );
 
   useEffect(() => {
     const filteredUsers =
@@ -158,7 +175,15 @@ const Page = () => {
                 size={"medium"}
               />
             </Box>
-            <UsersSearch handleSearchUsers={handleSearchUsers} />
+            <SearchBar
+              filters={filters}
+              filter={filter}
+              handleFilterChange={handleFilterChange}
+              searchTerm={searchTerm}
+              handleSearchTermChange={handleSearchTermChange}
+              handleSearchTermSubmit={handleSearchTermSubmit}
+              placeholder="Search user"
+            />
           </Stack>
         </Container>
       </Box>
