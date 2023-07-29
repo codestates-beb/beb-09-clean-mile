@@ -1,12 +1,23 @@
 {
   "PORT": 8080,
-  "DATABASE_URL": "",
-  "SERVICE_NAME": "Naver",
-  "MAIL_ID": "",
-  "MAIL_PW": "",
-  "ADMIN_EMAIL": "clean_mile@naver.com",
-  "SECRET_CODE": "",
-  "S3_ACCESS_KEY": "",
-  "S3_SECRET_KEY": "",
-  "S3_BUCKET_NAME": ""
+  "DATABASE_URL": 
+  "SERVICE_NAME": 
+  "MAIL_ID": 
+  "MAIL_PW": 
+  "ADMIN_EMAIL":
+  "SECRET_CODE":
+  "S3_ACCESS_KEY": 
+  "S3_SECRET_KEY": 
+  "S3_BUCKET_NAME": 
+  "ISSUER": 
+  "AUDIENCE": 
+  "RPC_URL": 
+  "DNFT_ADDRESS": 
+  "BADGE_ADDRESS": 
+  "Token_ADDRESS": 
+  "SENDER": 
+  "SENDER_PRIVATE_KEY":
+  "PINATA_API": 
+  "PINATA_SECRET":
 }
+  

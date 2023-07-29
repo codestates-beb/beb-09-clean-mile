@@ -1,15 +1,43 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { AxiosError } from 'axios';
+import Swal from 'sweetalert2';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
+import { useDispatch, useSelector } from 'react-redux';
 import { RiKakaoTalkFill } from 'react-icons/ri';
 import { FcGoogle } from 'react-icons/fc';
 import { IoEyeSharp, IoEyeOffSharp } from 'react-icons/io5';
+import Web3 from 'web3';
+import { useMutation, useQueryClient, useQuery } from 'react-query';
+// import { signIn, signOut, useSession } from 'next-auth/client';
 import { Three, logo, meta_mask_logo } from '../Reference';
+import { showAlert } from '../Redux/store';
+import { AlertState } from '../Interfaces';
+import { ApiCaller } from '../Utils/ApiCaller';
+
+declare global {
+  interface Window {
+    ethereum: any;
+  }
+}
 
 const SignUp = () => {
   const router = useRouter();
+  const dispatch = useDispatch();
+  const queryClient = useQueryClient();
+  const userAddressQuery = useQuery('userAddress');
+  let web3: Web3;
+
+  if (typeof window !== 'undefined' && window.ethereum) {
+    web3 = new Web3(window.ethereum);
+  }
+
+  const { title, text, icon, confirmButtonText, confirmButtonColor } = useSelector((state: AlertState) => state.alert);
+
   const [isPwdVisible, setPwVisible] = useState(false);
   const [isPwConfirmVisible, setPwConfirmVisible] = useState(false);
+  const [name, setName] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [nickname, setNickname] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -19,8 +47,44 @@ const SignUp = () => {
   const [pwConfirmMessage, setPwConfirmMessage] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [pwConfirmError, setPwConfirmError] = useState('');
+  const [nicknameCheck, setNicknameCheck] = useState(false);
+  const [emailCheck, setEmailCheck] = useState(false);
 
-  console.log(nickname);
+   /**
+   * 이메일을 검증하는 함수
+   * 이메일은 특정 형식에 맞아야 함
+   * 만약 이메일이 이 형식에 맞지 않을 경우, `emailError` 상태를 오류 메시지로 업데이트
+   */
+   const validateEmail = () => {
+    const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!re.test(email)) {
+      setEmailError('이메일 형식에 맞지 않습니다.');
+      setEmailCheck(false);
+    } else {
+      setEmailError('');
+      setEmailCheck(true);
+    }
+  }
+
+  useEffect(() => {
+    validateEmail();
+  }, [email]);
+
+  const phoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const regex = /^[0-9\b -]{0,13}$/;
+    if (regex.test(e.target.value)) {
+      phoneNumber(e.target.value);
+    }
+  }
+
+  useEffect(() => {
+    if (phoneNumber.length === 10) {
+      setPhoneNumber(phoneNumber.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3'));
+    }
+    if (phoneNumber.length === 13) {
+      setPhoneNumber(phoneNumber.replace(/-/g, '').replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3'));
+    }
+  }, [phoneNumber]);
 
   /**
    * 비밀번호 가시성 상태를 전환하는 함수
@@ -43,11 +107,14 @@ const SignUp = () => {
    */
   const validateNickname = () => {
     if (nickname.length < 2) {
-        setErrorMessage('닉네임은 최소 2자 이상이어야 합니다.');
+      setErrorMessage('닉네임은 최소 2자 이상이어야 합니다.');
+      setNicknameCheck(false);
     } else if (nickname.length > 8) {
-        setErrorMessage('닉네임은 최대 8자 입니다.');
-    } else {  
-        setErrorMessage('');
+      setErrorMessage('닉네임은 최대 8자 입니다.');
+      setNicknameCheck(false);
+    } else {
+      setErrorMessage('');
+      setNicknameCheck(true);
     }
   };
 
@@ -78,7 +145,7 @@ const SignUp = () => {
    * 유효하지 않은 경우 관련된 오류 메시지를 설정
    */
   const passwordConfirm = () => {
-    if (password.length <= 0 && pwConfirm.length <= 0 ) {
+    if (password.length <= 0 && pwConfirm.length <= 0) {
       setPwConfirmError('');
       setPwConfirmMessage('');
     } else if (password === pwConfirm) {
@@ -92,37 +159,467 @@ const SignUp = () => {
   }
 
   useEffect(() => {
-      validatePassword();
+    validatePassword();
   }, [password]);
 
   useEffect(() => {
-      passwordConfirm();
+    passwordConfirm();
   }, [pwConfirm]);
 
   /**
-   * 이메일을 검증하는 함수
-   * 이메일은 특정 형식에 맞아야 함
-   * 만약 이메일이 이 형식에 맞지 않을 경우, `emailError` 상태를 오류 메시지로 업데이트
+   * 사용자가 입력한 이메일을 검증하고 인증 코드를 발송하는 역할
+   *
+   * @async
+   * @function checkEmail
+   * @returns {Promise<void>} 아무것도 반환하지 않음
    */
-  const validateEmail = () => {
-    const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    if (!re.test(email)) {
-      setEmailError('이메일 형식에 맞지 않습니다.');
-    } else {
-      setEmailError('');
+  const checkEmail = async () => {
+    const formData = new FormData();
+
+    formData.append('email', email);
+
+    try {
+      const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/check-email`;
+      const dataBody = formData;
+      const headers = {
+        'Content-Type': 'application/form-data',
+        'Accept': 'application/json'
+      }
+
+      const isJSON = true;
+
+      const res = await ApiCaller.post(URL, dataBody, isJSON, headers);
+      if (res.status === 200) {
+        dispatch(showAlert({
+          title: 'Success!',
+          text: '이메일 인증 코드가 발송되었습니다.',
+          icon: 'success',
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#6BCB77'
+        }));
+
+        Swal.fire({
+          title,
+          text,
+          icon,
+          confirmButtonText,
+          confirmButtonColor
+        }).then(() => {
+
+          Swal.fire({
+            title: 'Enter your verification code',
+            input: 'text',
+            inputPlaceholder: 'Enter your code here',
+            confirmButtonText: 'Verify',
+            showCancelButton: true
+          }).then((result) => {
+            if (result.isConfirmed) {
+              verifyEmailCode(result.value).then(() => {
+                Swal.close();  // Close the previous Swal instance
+                // Fire a new Swal instance
+                Swal.fire({
+                  title: 'Success!',
+                  text: '이메일이 성공적으로 인증되었습니다.',
+                  icon: 'success',
+                  confirmButtonText: 'OK',
+                  confirmButtonColor: '#6BCB77'
+                });
+              }).catch((error) => {
+                Swal.close();  // Close the previous Swal instance
+                // Fire a new Swal instance
+                Swal.fire({
+                  title: 'Error',
+                  text: error?.response?.data.message || 'An unexpected error occurred',
+                  icon: 'error',
+                  confirmButtonText: 'OK',
+                  confirmButtonColor: '#6BCB77'
+                });
+              });
+            }
+          });
+        })
+      } else {
+        dispatch(showAlert({
+          title: 'Error',
+          text: res.data.message,
+          icon: 'error',
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#6BCB77'
+        }));
+
+        Swal.fire({
+          title,
+          text,
+          icon,
+          confirmButtonText,
+          confirmButtonColor,
+        }).then(() => {
+          Swal.close();
+        });
+      }
+    } catch (error) {
+      const err = error as AxiosError;
+      const data = err.response?.data as { message: string };
+
+      dispatch(showAlert({
+        title: 'Error',
+        text: data?.message,
+        icon: 'error',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#6BCB77'
+      }));
+
+      Swal.fire({
+        title,
+        text,
+        icon,
+        confirmButtonText,
+        confirmButtonColor,
+      }).then(() => {
+        Swal.close();
+      });
     }
-  } 
-  
+  }
+
+  /**
+   * 사용자가 입력한 이메일 인증 코드를 검증하는 함수
+   * 
+   * @async
+   * @function verifyEmailCode
+   * @param {string} verifyCode 사용자가 입력한 이메일 인증 코드
+   * @returns {Promise<void>} 아무것도 반환하지 않음
+   */
+
+  const verifyEmailCode = async (verifyCode: string) => {
+    const formData = new FormData();
+
+    formData.append('email', email);
+    formData.append('email_verification_code', verifyCode);
+
+    try {
+
+      const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/verify-emailCode`;
+      const dataBody = formData;
+      const headers = {
+        'Content-Type': 'application/form-data',
+        'Accept': 'application/json'
+      }
+      const isJSON = true;
+
+      const res = await ApiCaller.post(URL, dataBody, isJSON, headers);
+
+      if (res.status === 200) {
+        dispatch(showAlert({
+          title: 'Success!',
+          text: '이메일이 성공적으로 인증되었습니다.',
+          icon: 'success',
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#6BCB77'
+        }));
+
+        Swal.fire({
+          title,
+          text,
+          icon,
+          confirmButtonText,
+          confirmButtonColor,
+        }).then(() => {
+          Swal.close();
+        });
+      } else {
+        dispatch(showAlert({
+          title: 'Error',
+          text: res.data.message,
+          icon: 'error',
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#6BCB77'
+        }));
+
+        Swal.fire({
+          title,
+          text,
+          icon,
+          confirmButtonText,
+          confirmButtonColor,
+        }).then(() => {
+          Swal.close();
+        });
+      }
+
+    } catch (error) {
+      const err = error as AxiosError;
+      const data = err.response?.data as { message: string };
+
+      dispatch(showAlert({
+        title: 'Error',
+        text: data?.message,
+        icon: 'error',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#6BCB77'
+      }));
+
+      Swal.fire({
+        title,
+        text,
+        icon,
+        confirmButtonText,
+        confirmButtonColor,
+      }).then(() => {
+        Swal.close();
+      });
+    }
+  }
+
+  /**
+   * 유저가 입력하 닉네임을 중복 체크하는 함수
+   * 
+   * @async
+   * @function checkNicname
+   * @returns {Promise<void>} 아무것도 반환하지 않음
+   */
+  const checkNickname = async () => {
+    const formData = new FormData();
+
+    formData.append('nickname', nickname);
+
+    try {
+
+      const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/validate-nickname`;
+      const dataBody = formData;
+      const headers = {
+        'Content-Type': 'application/form-data',
+        'Accept': 'application/json'
+      }
+      const isJSON = true;
+
+      const res = await ApiCaller.post(URL, dataBody, isJSON, headers);
+
+      if (res.status === 200) {
+        dispatch(showAlert({
+          title: 'Success!',
+          text: res.data.message,
+          icon: 'success',
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#6BCB77'
+        }));
+
+        Swal.fire({
+          title,
+          text,
+          icon,
+          confirmButtonText,
+          confirmButtonColor,
+        }).then(() => {
+          setNicknameCheck(false)
+          Swal.close();
+        });
+
+
+      } else {
+        dispatch(showAlert({
+          title: 'Error',
+          text: res.data.message,
+          icon: 'error',
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#6BCB77'
+        }));
+
+        Swal.fire({
+          title,
+          text,
+          icon,
+          confirmButtonText,
+          confirmButtonColor,
+        }).then(() => {
+          Swal.close();
+        });
+
+      }
+    } catch (error) {
+      const err = error as AxiosError;
+      const data = err.response?.data as { message: string };
+
+      dispatch(showAlert({
+        title: 'Error',
+        text: data?.message,
+        icon: 'error',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#6BCB77'
+      }));
+
+      Swal.fire({
+        title,
+        text,
+        icon,
+        confirmButtonText,
+        confirmButtonColor,
+      }).then(() => {
+        Swal.close();
+      });
+    }
+  }
+
+  /**
+   * 유저의 지갑 주소를 이용해 로그인 메시지를 로컬 스토리지에 저장하는 함수
+   * 
+   * @function getSigning
+   * @callback useCallback
+   * @param {null}
+   * @returns {void} 아무것도 반환하지 않음
+   */
+  const getSigning = useCallback(() => {
+    if (userAddressQuery.data) {
+      localStorage.setItem('Sign',
+        `Welcome to Clean Mile! Click \"Sign\" to sign in. No password needed! I accept the MetaWis Terms of Service: Wallet address:${userAddressQuery.data ? userAddressQuery.data.toLowerCase() : ''}`,
+      );
+    }
+  }, [userAddressQuery.data]);
+
   useEffect(() => {
-    validateEmail();
-  }, [email]);
+    getSigning(); 
+  }, [getSigning]);
 
+  /**
+   * 유저의 Ethereum 계정 주소를 가져오는 함수
+   * 
+   * @returns {Promise<string>} 첫 번째 Ethereum 계정 주소를 반환
+   */
+  const getUserAccount = async () => {
+    let accounts = await web3.eth.getAccounts();;
+    return accounts[0];
+  }
 
+  /**
+   * 유저의 계정 정보를 가져오는 뮤테이션을 실행하는 함수
+   * 'getUserAccount' 뮤테이션을 실행하고, 성공 시 'userAddress' 쿼리 데이터를 업데이트
+   * 
+   * @function fetchAccountInfo
+   * @callback useMutation
+   * @returns {void} 아무것도 반환하지 않음
+   */
+  const fetchAccountInfo = useMutation(getUserAccount, {
+    onSuccess: (data) => {
+      queryClient.setQueryData('userAddress', data);
+    },
+    onError: (error) => {
+      console.log('Error: ', error);
+    }
+  })
+
+  /**
+   * 유저의 메타마스크 지갑을 로그인하는 함수
+   * 
+   * @async
+   * @function loginWallet
+   * @returns {Promise<void>} 아무것도 반환하지 않음
+   */
+  const loginWallet = async () => {
+
+    // 유저 브라우저 확인
+    let agent = navigator.userAgent.toLowerCase();
+
+    try {
+      await window.ethereum.request({ method: 'eth_requestAccounts' });
+    } catch (error) {
+      console.log(error);
+      if (!window.ethereum) {
+        // 메타마스크 설치가 안되어 있을 경우 설치 페이지로 이동
+        if (agent.indexOf('chrome') != -1 || agent.indexOf('msie') != -1) {         // 크롬일 경우
+          window.open(`${process.env.NEXT_PUBLIC_INSTALL_META_CHROME}`, '_blank');
+        } else if (agent.indexOf('firefox') != -1) {                                // firefox일 경우
+          window.open(`${process.env.NEXT_PUBLIC_INSTALL_META_FIREFOX}`, '_blank');
+        }
+      }
+    }
+
+    fetchAccountInfo.mutate();
+    getSigning();
+  };
+
+  /**
+   * 유저의 회원가입 정보를 서버에 전송하는 함수
+   * 
+   * 요청이 성공적으로 처리되면, alert를 통해 성공 메시지를 보여주고 로그인 페이지로 이동
+   * 요청이 실패하면, alert를 통해 오류 메시지를 보여줌
+   * 
+   * @async
+   * @function signUp
+   * @returns {Promise<void>} 아무것도 반환하지 않음
+   */
+  const signUp = async () => {
+    const formData = new FormData();
+
+    formData.append('email', email);
+    formData.append('name', name);
+    formData.append('phone_number', phoneNumber);
+    formData.append('password', password);
+    formData.append('nickname', nickname);
+    if (userAddressQuery.data) {
+      formData.append('wallet_address', String(userAddressQuery.data));
+    }
+    formData.append('social_provider', 'none');
+
+    try {
+      const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/signup`;
+      const dataBody = formData;
+      const headers = {
+        'Content-Type': 'application/form-data',
+        'Accept': 'application/json'
+      }
+      const isJSON = true;
+
+      const res = await ApiCaller.post(URL, dataBody, isJSON, headers);
+
+      if (res.status === 200) {
+        dispatch(showAlert({
+          title: 'Success!',
+          text: res.data.message,
+          icon: 'success',
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#6BCB77'
+        }));
+
+        Swal.fire({
+          title,
+          text,
+          icon,
+          confirmButtonText,
+          confirmButtonColor,
+        }).then(() => {
+          Swal.close();
+          router.push('/login');
+        });
+
+      }
+
+    } catch (error) {
+      const err = error as AxiosError;
+      const data = err.response?.data as { message: string };
+
+      dispatch(showAlert({
+        title: 'Error',
+        text: data?.message,
+        icon: 'error',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#6BCB77'
+      }));
+
+      Swal.fire({
+        title,
+        text,
+        icon,
+        confirmButtonText,
+        confirmButtonColor,
+      }).then(() => {
+        Swal.close();
+      });
+    }
+  }
 
   return (
     <div className='w-full min-h-screen grid grid-cols-2'>
       <Three />
-      <div className='flex flex-col items-center justify-center gap-48 lg:gap-24 sm:gap-20 xs:gap-12 lg:py-6'>
+      <div className='flex flex-col items-center justify-center gap-48 lg:gap-24 sm:gap-20 xs:gap-12 py-6 lg:py-6'>
         <div className='flex flex-col items-center justify-center gap-6'>
           <Image src={logo} className='cursor-pointer md:w-1/2 sm:w-1/3 xs:w-1/2' width={150} height={100} alt='clean mile logo' onClick={() => router.push('/')} />
           <h1 className='text-6xl lg:text-4xl md:text-4xl sm:text-3xl xs:text-3xl font-bold'>SignUp</h1>
@@ -134,49 +631,120 @@ const SignUp = () => {
                 <div className='w-full flex flex-col sm:gap-4 xs:gap-2 justify-center items-center -mb-[1rem]'>
                   <label className='w-full sm:w-full xs:w-full font-semibold text-md lg:text-md md:text-md sm:text-base xs:text-sm' htmlFor='email'>E-Mail</label>
                   <div className="w-full flex gap-4 sm:gap-2 xs:gap-2">
-                    <input className="w-full border border-gray-500 rounded-lg px-2 py-3 lg:py-2 md:py-2 sm:py-2 xs:py-1" 
-                      type='email' 
-                      id='email' 
-                      placeholder='e-mail'
-                      value={email}
-                      onChange={(e:React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)} />
-                    <button className='border rounded-xl p-3 sm:p-2 xs:p-2 sm:text-sm xs:text-sm bg-main-blue text-white hover:bg-blue-600 transition duration-300'>Confirm</button>
+                    <div className='w-full flex flex-col'>
+                      <input className="w-full border border-gray-500 rounded-lg px-2 py-3 lg:py-2 md:py-2 sm:py-2 xs:py-1"
+                        type='email'
+                        id='email'
+                        placeholder='e-mail'
+                        value={email}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)} />
+                    </div>
+                    <button className={`
+                      ${!emailCheck ? 'bg-blue-300' : 'bg-main-blue hover:bg-blue-600'}
+                      border 
+                      rounded-xl 
+                      p-2
+                      pb-2 
+                      sm:p-2 
+                      xs:p-2 
+                      sm:text-sm 
+                      xs:text-sm 
+                      text-white 
+                      transition 
+                      duration-300
+                      `}
+                      onClick={checkEmail}
+                      disabled={!emailCheck}>
+                      Confirm
+                    </button>
                   </div>
-                    <p className='font-normal text-xs text-red-500' style={{ minHeight: '1rem' }}>{email.length > 0 && emailError}</p>
-                </div>  
+                  <p className='w-full text-left font-normal text-xs text-red-500' style={{ minHeight: '1rem' }}>{email.length > 0 && emailError}</p>
+                </div>
                 <div className='w-full flex flex-col sm:gap-4 xs:gap-2 justify-center items-center -mb-[1rem]'>
                   <label className='w-full sm:w-full xs:w-full font-semibold text-md lg:text-md md:text-md sm:text-base xs:text-sm' htmlFor='nickname'>Nickname</label>
                   <div className='w-full flex gap-4 sm:gap-2 xs:gap-2'>
-                    <input className="w-full border border-gray-500 rounded-lg px-2 py-3 lg:py-2 md:py-2 sm:py-2 xs:py-1" 
-                      type='text' 
-                      id='nickname' 
-                      placeholder='nickname'
-                      value={nickname}
-                      onChange={(e:React.ChangeEvent<HTMLInputElement>) => setNickname(e.target.value)} />
-                    <button className='border rounded-xl p-3 sm:p-2 xs:p-2 sm:text-sm xs:text-sm bg-main-blue text-white hover:bg-blue-600 transition duration-300'>Confirm</button>
+                    <div className='w-full flex flex-col'>
+                      <input className="w-full border border-gray-500 rounded-lg px-2 py-3 lg:py-2 md:py-2 sm:py-2 xs:py-1"
+                        type='text'
+                        id='nickname'
+                        placeholder='nickname'
+                        value={nickname}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNickname(e.target.value)} />
+                    </div>
+                    <button className={`
+                      ${!nicknameCheck ? 'bg-blue-300' : 'bg-main-blue hover:bg-blue-600'}
+                      border 
+                      rounded-xl 
+                      p-2
+                      pb-2 
+                      sm:p-2 
+                      xs:p-2 
+                      sm:text-sm 
+                      xs:text-sm 
+                      text-white 
+                      transition 
+                      duration-300
+                      `}
+                      onClick={checkNickname}
+                      disabled={!nicknameCheck}>
+                      Confirm
+                    </button>
                   </div>
-                  <p className='font-normal text-xs text-red-500' style={{ minHeight: '1rem' }}>{nickname.length > 0 && errorMessage}</p>
+                  <p className='w-full text-left font-normal text-xs text-red-500' style={{ minHeight: '1rem' }}>{nickname.length > 0 && errorMessage}</p>
                 </div>
                 <div className='w-full flex flex-col sm:gap-4 xs:gap-2 justify-center items-center'>
                   <label className='w-full sm:w-full xs:w-full font-semibold text-md lg:text-md md:text-md sm:text-base xs:text-sm' htmlFor='name'>Name</label>
-                  <input className="w-full border border-gray-500 rounded-lg px-2 py-3 pr-10 lg:py-2 md:py-2 sm:py-2 xs:py-1" type='text' id='name' placeholder='name' />
+                  <input className="
+                    w-full 
+                    border 
+                    border-gray-500 
+                    rounded-lg 
+                    px-2 
+                    py-3 
+                    pr-10 
+                    lg:py-2 
+                    md:py-2 
+                    sm:py-2 
+                    xs:py-1"
+                    type='text'
+                    id='name'
+                    value={name}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)} />
                 </div>
               </div>
               <div className='w-full flex flex-col gap-12 sm:gap-6 xs:gap-2 items-center justify-center'>
-                <div className='w-full flex flex-col gap-2 sm:gap-4 xs:gap-2 justify-center items-center'>
+                <div className='w-full flex flex-col gap-2 sm:gap-4 xs:gap-2 justify-center items-center -mb-[1rem]'>
                   <label className='w-full sm:w-full xs:w-full font-semibold text-md lg:text-md md:text-md sm:text-base xs:text-sm' htmlFor='phoneNumber'>Phone Number</label>
-                  <input className="w-full border border-gray-500 rounded-lg px-2 py-3 lg:py-2 md:py-2 sm:py-2 xs:py-1" type='number' id='phoneNumber' />
+                  <div className="w-full flex gap-4 sm:gap-2 xs:gap-2">
+                    <input className="
+                      w-full border 
+                      border-gray-500 
+                      rounded-lg 
+                      px-2 
+                      py-3 
+                      lg:py-2 
+                      md:py-2 
+                      sm:py-2 
+                      xs:py-1"
+                      type='text'
+                      id='phoneNumber'
+                      value={phoneNumber}
+                      onChange={phoneNumberChange} 
+                      maxLength={13}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPhoneNumber(e.target.value)} />
+                  </div>
+                  <p className='w-full text-left font-normal text-xs' style={{ minHeight: '1rem' }}>'-'없이 번호만 입력해주세요.</p>
                 </div>
                 <div className='w-full flex flex-col sm:gap-4 xs:gap-2 justify-center items-center relative -mb-[1rem]'>
                   <label className='w-full sm:w-full xs:w-full font-semibold text-md lg:text-md md:text-md sm:text-base xs:text-sm' htmlFor='password'>Password</label>
                   <div className='w-full flex flex-col'>
-                    <input className="w-full border border-gray-500 rounded-lg px-2 py-3 pr-10 lg:py-2 md:py-2 sm:py-2 xs:py-1" 
-                      type={isPwdVisible ? 'text' : 'password'}   
-                      id='password' 
+                    <input className="w-full border border-gray-500 rounded-lg px-2 py-3 pr-10 lg:py-2 md:py-2 sm:py-2 xs:py-1"
+                      type={isPwdVisible ? 'text' : 'password'}
+                      id='password'
                       value={password}
-                      onChange={(e:React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)} 
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
                       placeholder='password' />
-                  <p className='font-normal text-xs text-red-500' style={{ minHeight: '1rem' }}>{password.length > 0 && passwordError}</p>
+                    <p className='font-normal text-xs text-red-500' style={{ minHeight: '1rem' }}>{password.length > 0 && passwordError}</p>
                   </div>
                   <button type="button" onClick={passwordVisibility} className="absolute right-3 top-1/2 md:top-[55%] sm:top-[60%] xs:top-[50%] transform -translate-y-1/2">
                     {isPwdVisible ? <IoEyeOffSharp size={20} /> : <IoEyeSharp size={20} />}
@@ -185,13 +753,13 @@ const SignUp = () => {
                 <div className='w-full flex flex-col sm:gap-4 xs:gap-2 justify-center items-center relative -mb-[1rem]'>
                   <label className='w-full sm:w-full xs:w-full font-semibold text-md lg:text-md md:text-md sm:text-base xs:text-sm' htmlFor='passwordConfirm'>Password Confirm</label>
                   <div className='w-full flex flex-col'>
-                    <input className="w-full border border-gray-500 rounded-lg px-2 py-3 pr-10 lg:py-2 md:py-2 sm:py-2 xs:py-1" 
-                      type={isPwConfirmVisible ? 'text' : 'password'} 
-                      id='passwordConfirm' 
+                    <input className="w-full border border-gray-500 rounded-lg px-2 py-3 pr-10 lg:py-2 md:py-2 sm:py-2 xs:py-1"
+                      type={isPwConfirmVisible ? 'text' : 'password'}
+                      id='passwordConfirm'
                       placeholder='password confirm'
                       value={pwConfirm}
-                      onChange={(e:React.ChangeEvent<HTMLInputElement>) => setPwConfirm(e.target.value)}  />
-                  <p className={`w-full text-left ${pwConfirmError.length > 0 ? 'text-red-600' : 'text-blue-600'} text-xs`} style={{ minHeight: '1rem'}}>{pwConfirmError.length > 0 ? pwConfirmError : pwConfirmMessage}</p>
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPwConfirm(e.target.value)} />
+                    <p className={`w-full text-left ${pwConfirmError.length > 0 ? 'text-red-600' : 'text-blue-600'} text-xs`} style={{ minHeight: '1rem' }}>{pwConfirmError.length > 0 ? pwConfirmError : pwConfirmMessage}</p>
                   </div>
                   <button type="button" onClick={pwConfirmVisibility} className="absolute right-3 top-1/2 md:top-[55%] sm:top-[60%] xs:top-[50%] transform -translate-y-1/2">
                     {isPwConfirmVisible ? <IoEyeOffSharp size={20} /> : <IoEyeSharp size={20} />}
@@ -200,17 +768,91 @@ const SignUp = () => {
               </div>
             </div>
             <div className='w-full flex flex-col justify-center items-center'>
-              <button className='w-[50%] lg:w-[60%] md:w-[70%] sm:w-full xs:w-full sm:w-full xs:w-full flex items-center justify-center font-semibold text-white text-lg text-md lg:text-md md:text-md sm:text-base xs:text-sm bg-[#F3AA60] hover:bg-[#FF8551] rounded-xl px-12 lg:px-6 md:px-4 sm:px-2 xs:px-2 py-3 lg:py-2 md:py-3 sm:py-3 xs:py-2 transition duration-300'>
-                <Image src={meta_mask_logo} width={100} height={100} alt='meta mask logo' className='w-[10%] lg:w-[15%] sm:w-[15%] xs:w-[15%]' />
-                <span className='text-center w-[90%] lg:w-[80%] md:text-sm sm:text-xs xs:text-xs'>MetaMask Connect</span>
-              </button>
+              {userAddressQuery.data ? (
+                <p className='w-full flex justify-center items-center lg:items-start md:items-start sm:items-start xs:items-start flex-wrap lg:flex-col md:flex-col sm:flex-col xs:flex-col md:text-sm sm:text-sm xs:text-xs font-semibold'>
+                  MetaMask Address:
+                  <span className='lg:w-full md:w-full sm:w-full xs:w-full text-center lg:text-left md:text-left sm:text-left xs:text-left font-normal ml-1 break-words'>{userAddressQuery.data || 'Loading...'}</span>
+                </p>
+              ) : (
+                <button className='
+                  w-[50%] 
+                  lg:w-[60%] 
+                  md:w-[70%] 
+                  sm:w-full 
+                  xs:w-full 
+                  flex 
+                  items-center 
+                  justify-center 
+                  font-semibold 
+                  text-white 
+                  text-lg 
+                  text-md 
+                  lg:text-md 
+                  md:text-md 
+                  sm:text-base 
+                  xs:text-sm 
+                  bg-[#F3AA60] 
+                  hover:bg-[#FF8551] 
+                  rounded-xl 
+                  px-12 
+                  lg:px-6 
+                  md:px-4 
+                  sm:px-2 
+                  xs:px-2 
+                  py-3 
+                  lg:py-2 
+                  md:py-3 
+                  sm:py-3 
+                  xs:py-2 
+                  transition 
+                  duration-300'
+                  onClick={loginWallet}>
+                  <Image src={meta_mask_logo} width={100} height={100} alt='meta mask logo' className='w-[10%] lg:w-[15%] sm:w-[15%] xs:w-[15%]' />
+                  <span className='text-center w-[90%] lg:w-[80%] md:text-sm sm:text-xs xs:text-xs'>MetaMask Connect</span>
+                </button>
+              )}
             </div>
             <div className='w-full flex flex-col justify-center items-center gap-5 mt-12'>
-              <button className='w-[80%] lg:w-[70%] md:w-full sm:w-full xs:w-full bg-main-green hover:bg-green-600 px-7 py-2 rounded-xl text-white text-lg md:text-base sm:text-base xs:text-base font-semibold transition duration-300'>
+              <button className={`
+                ${!email && !name && !phoneNumber && !password && !nickname && !userAddressQuery.data ? 'bg-green-300' : 'bg-main-green hover:bg-green-600'}
+                w-[80%] 
+                lg:w-[70%] 
+                md:w-full 
+                sm:w-full 
+                xs:w-full 
+                px-7 
+                py-2 
+                rounded-xl 
+                text-white 
+                text-lg 
+                md:text-base 
+                sm:text-base 
+                xs:text-base 
+                font-semibold 
+                transition 
+                duration-300`}
+                disabled={!email && !name && !phoneNumber && !password && !nickname && !userAddressQuery.data}
+                onClick={signUp}>
                 SignUp
               </button>
               <div className='w-[80%] lg:w-[70%] md:w-full sm:w-full xs:w-full flex sm:flex-col xs:flex-col sm:items-center xs:items-center gap-6'>
-                <button className='w-[80%] sm:w-full xs:w-full flex items-center justify-center bg-main-yellow hover:bg-yellow-500 px-7 py-2 rounded-xl text-white text-lg font-semibold transition duration-300'>
+                <button className='
+                  w-[80%] 
+                  sm:w-full 
+                  xs:w-full 
+                  flex 
+                  items-center 
+                  justify-center 
+                  bg-main-yellow 
+                  hover:bg-yellow-500 
+                  px-7 
+                  py-2 
+                  rounded-xl 
+                  text-white 
+                  text-lg 
+                  font-semibold 
+                  transition 
+                  duration-300'>
                   <RiKakaoTalkFill size={25} className='w-[30%]' />
                   <span className='text-center w-[90%] md:text-sm sm:text-sm xs:text-sm'>KaKao</span>
                 </button>
