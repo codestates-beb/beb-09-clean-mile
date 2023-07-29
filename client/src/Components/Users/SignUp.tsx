@@ -11,8 +11,6 @@ import Web3 from 'web3';
 import { useMutation, useQueryClient, useQuery } from 'react-query';
 // import { signIn, signOut, useSession } from 'next-auth/client';
 import { Three, logo, meta_mask_logo } from '../Reference';
-import { showAlert } from '../Redux/store';
-import { AlertState } from '../Interfaces';
 import { ApiCaller } from '../Utils/ApiCaller';
 
 declare global {
@@ -23,7 +21,6 @@ declare global {
 
 const SignUp = () => {
   const router = useRouter();
-  const dispatch = useDispatch();
   const queryClient = useQueryClient();
   const userAddressQuery = useQuery('userAddress');
   let web3: Web3;
@@ -31,8 +28,6 @@ const SignUp = () => {
   if (typeof window !== 'undefined' && window.ethereum) {
     web3 = new Web3(window.ethereum);
   }
-
-  const { title, text, icon, confirmButtonText, confirmButtonColor } = useSelector((state: AlertState) => state.alert);
 
   const [isPwdVisible, setPwVisible] = useState(false);
   const [isPwConfirmVisible, setPwConfirmVisible] = useState(false);
@@ -73,7 +68,7 @@ const SignUp = () => {
   const phoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const regex = /^[0-9\b -]{0,13}$/;
     if (regex.test(e.target.value)) {
-      phoneNumber(e.target.value);
+      setPhoneNumber(e.target.value);
     }
   }
 
@@ -190,22 +185,14 @@ const SignUp = () => {
 
       const res = await ApiCaller.post(URL, dataBody, isJSON, headers);
       if (res.status === 200) {
-        dispatch(showAlert({
-          title: 'Success!',
-          text: '이메일 인증 코드가 발송되었습니다.',
-          icon: 'success',
-          confirmButtonText: 'OK',
-          confirmButtonColor: '#6BCB77'
-        }));
 
         Swal.fire({
-          title,
-          text,
-          icon,
-          confirmButtonText,
-          confirmButtonColor
+          title: 'Success!',
+          text: '이메일 인증 코드가 발송되었습니다.',
+          icon: 'success' as const,
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#6BCB77'
         }).then(() => {
-
           Swal.fire({
             title: 'Enter your verification code',
             input: 'text',
@@ -215,8 +202,7 @@ const SignUp = () => {
           }).then((result) => {
             if (result.isConfirmed) {
               verifyEmailCode(result.value).then(() => {
-                Swal.close();  // Close the previous Swal instance
-                // Fire a new Swal instance
+                Swal.close();  
                 Swal.fire({
                   title: 'Success!',
                   text: '이메일이 성공적으로 인증되었습니다.',
@@ -225,8 +211,6 @@ const SignUp = () => {
                   confirmButtonColor: '#6BCB77'
                 });
               }).catch((error) => {
-                Swal.close();  // Close the previous Swal instance
-                // Fire a new Swal instance
                 Swal.fire({
                   title: 'Error',
                   text: error?.response?.data.message || 'An unexpected error occurred',
@@ -234,25 +218,19 @@ const SignUp = () => {
                   confirmButtonText: 'OK',
                   confirmButtonColor: '#6BCB77'
                 });
+                Swal.close();  
               });
             }
           });
         })
-      } else {
-        dispatch(showAlert({
+      } else if (res.status === 400) {
+
+        Swal.fire({
           title: 'Error',
           text: res.data.message,
           icon: 'error',
           confirmButtonText: 'OK',
           confirmButtonColor: '#6BCB77'
-        }));
-
-        Swal.fire({
-          title,
-          text,
-          icon,
-          confirmButtonText,
-          confirmButtonColor,
         }).then(() => {
           Swal.close();
         });
@@ -261,22 +239,16 @@ const SignUp = () => {
       const err = error as AxiosError;
       const data = err.response?.data as { message: string };
 
-      dispatch(showAlert({
+
+      Swal.fire({
         title: 'Error',
         text: data?.message,
         icon: 'error',
         confirmButtonText: 'OK',
         confirmButtonColor: '#6BCB77'
-      }));
-
-      Swal.fire({
-        title,
-        text,
-        icon,
-        confirmButtonText,
-        confirmButtonColor,
       }).then(() => {
         Swal.close();
+
       });
     }
   }
@@ -309,40 +281,26 @@ const SignUp = () => {
       const res = await ApiCaller.post(URL, dataBody, isJSON, headers);
 
       if (res.status === 200) {
-        dispatch(showAlert({
+        Swal.fire({
           title: 'Success!',
           text: '이메일이 성공적으로 인증되었습니다.',
           icon: 'success',
           confirmButtonText: 'OK',
           confirmButtonColor: '#6BCB77'
-        }));
-
-        Swal.fire({
-          title,
-          text,
-          icon,
-          confirmButtonText,
-          confirmButtonColor,
         }).then(() => {
           Swal.close();
+
         });
       } else {
-        dispatch(showAlert({
+        Swal.fire({
           title: 'Error',
           text: res.data.message,
           icon: 'error',
           confirmButtonText: 'OK',
           confirmButtonColor: '#6BCB77'
-        }));
-
-        Swal.fire({
-          title,
-          text,
-          icon,
-          confirmButtonText,
-          confirmButtonColor,
         }).then(() => {
           Swal.close();
+
         });
       }
 
@@ -350,20 +308,12 @@ const SignUp = () => {
       const err = error as AxiosError;
       const data = err.response?.data as { message: string };
 
-      dispatch(showAlert({
+      Swal.fire({
         title: 'Error',
         text: data?.message,
         icon: 'error',
         confirmButtonText: 'OK',
         confirmButtonColor: '#6BCB77'
-      }));
-
-      Swal.fire({
-        title,
-        text,
-        icon,
-        confirmButtonText,
-        confirmButtonColor,
       }).then(() => {
         Swal.close();
       });
@@ -395,43 +345,29 @@ const SignUp = () => {
       const res = await ApiCaller.post(URL, dataBody, isJSON, headers);
 
       if (res.status === 200) {
-        dispatch(showAlert({
+        Swal.fire({
           title: 'Success!',
           text: res.data.message,
           icon: 'success',
           confirmButtonText: 'OK',
           confirmButtonColor: '#6BCB77'
-        }));
-
-        Swal.fire({
-          title,
-          text,
-          icon,
-          confirmButtonText,
-          confirmButtonColor,
         }).then(() => {
           setNicknameCheck(false)
           Swal.close();
+
         });
 
 
       } else {
-        dispatch(showAlert({
+        Swal.fire({
           title: 'Error',
           text: res.data.message,
           icon: 'error',
           confirmButtonText: 'OK',
           confirmButtonColor: '#6BCB77'
-        }));
-
-        Swal.fire({
-          title,
-          text,
-          icon,
-          confirmButtonText,
-          confirmButtonColor,
         }).then(() => {
           Swal.close();
+
         });
 
       }
@@ -439,20 +375,12 @@ const SignUp = () => {
       const err = error as AxiosError;
       const data = err.response?.data as { message: string };
 
-      dispatch(showAlert({
+      Swal.fire({
         title: 'Error',
         text: data?.message,
         icon: 'error',
         confirmButtonText: 'OK',
         confirmButtonColor: '#6BCB77'
-      }));
-
-      Swal.fire({
-        title,
-        text,
-        icon,
-        confirmButtonText,
-        confirmButtonColor,
       }).then(() => {
         Swal.close();
       });
@@ -571,20 +499,12 @@ const SignUp = () => {
       const res = await ApiCaller.post(URL, dataBody, isJSON, headers);
 
       if (res.status === 200) {
-        dispatch(showAlert({
+        Swal.fire({
           title: 'Success!',
           text: res.data.message,
           icon: 'success',
           confirmButtonText: 'OK',
           confirmButtonColor: '#6BCB77'
-        }));
-
-        Swal.fire({
-          title,
-          text,
-          icon,
-          confirmButtonText,
-          confirmButtonColor,
         }).then(() => {
           Swal.close();
           router.push('/login');
@@ -596,22 +516,15 @@ const SignUp = () => {
       const err = error as AxiosError;
       const data = err.response?.data as { message: string };
 
-      dispatch(showAlert({
+      Swal.fire({
         title: 'Error',
         text: data?.message,
         icon: 'error',
         confirmButtonText: 'OK',
         confirmButtonColor: '#6BCB77'
-      }));
-
-      Swal.fire({
-        title,
-        text,
-        icon,
-        confirmButtonText,
-        confirmButtonColor,
       }).then(() => {
         Swal.close();
+
       });
     }
   }
@@ -814,7 +727,7 @@ const SignUp = () => {
             </div>
             <div className='w-full flex flex-col justify-center items-center gap-5 mt-12'>
               <button className={`
-                ${!email && !name && !phoneNumber && !password && !nickname && !userAddressQuery.data ? 'bg-green-300' : 'bg-main-green hover:bg-green-600'}
+                ${email.length === 0 && name.length === 0 && phoneNumber.length === 0 && password.length === 0 && nickname.length === 0 && !userAddressQuery.data ? 'bg-main-green hover:bg-green-600' : 'bg-green-300'}
                 w-[80%] 
                 lg:w-[70%] 
                 md:w-full 
@@ -831,8 +744,7 @@ const SignUp = () => {
                 font-semibold 
                 transition 
                 duration-300`}
-                disabled={!email && !name && !phoneNumber && !password && !nickname && !userAddressQuery.data}
-                onClick={signUp}>
+                disabled={!(email.length > 0 && name.length > 0 && phoneNumber.length > 0 && password.length > 0 && nickname.length > 0 && userAddressQuery.data)}                onClick={signUp}>
                 SignUp
               </button>
               <div className='w-[80%] lg:w-[70%] md:w-full sm:w-full xs:w-full flex sm:flex-col xs:flex-col sm:items-center xs:items-center gap-6'>

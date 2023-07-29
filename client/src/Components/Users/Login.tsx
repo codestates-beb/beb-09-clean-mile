@@ -3,50 +3,23 @@ import { AxiosError } from 'axios';
 import Swal from 'sweetalert2';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
-import { useDispatch, useSelector } from 'react-redux';
-import { useMutation, useQueryClient, useQuery } from 'react-query';
+import { useMutation, useQueryClient, dehydrate } from 'react-query';
 import { RiKakaoTalkFill } from 'react-icons/ri';
 import { FcGoogle } from 'react-icons/fc';
 import { IoEyeSharp, IoEyeOffSharp } from 'react-icons/io5';
 import { Three, logo } from '../Reference';
-import { showAlert } from '../Redux/store';
-import { AlertState } from '../Interfaces';
 import { ApiCaller } from '../Utils/ApiCaller';
-
-interface LoginAPIInput {
-  email: string;
-  password: string;
-}
-
-interface Wallet {
-  address: string;
-}
-
-interface LoginAPIOutput {
-    wallet: Wallet;
-    _id: string;
-    name: string;
-    email: string;
-    phone_number: string;
-    user_type: number;
-    nickname: string;
-    social_type: string;
-    created_at: string;
-    updated_at: string;
-}
+import { LoginAPIInput, LoginAPIOutput } from '../Interfaces';
 
 
 const Login = () => {
   const router = useRouter();
-  const dispatch = useDispatch();
   const queryClient = useQueryClient();
   const [isPwdVisible, setPwVisible] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
-
-  const { title, text, icon, confirmButtonText, confirmButtonColor } = useSelector((state: AlertState) => state.alert);
 
   /**
    * 비밀번호 가시성 상태를 전환하는 함수
@@ -110,71 +83,47 @@ const Login = () => {
       const dataBody = formData;
       const headers = {
         'Content-Type': 'application/form-data',
-        'Accept': 'application/json'
+        'Accept': 'application/json',
       }
-
       const isJSON = true;
+      const isCookie = true;
 
-      const res = await ApiCaller.post(URL, dataBody, isJSON, headers);
+      const res = await ApiCaller.post(URL, dataBody, isJSON, headers, isCookie);
       if (res.status === 200) {
-        dispatch(showAlert({
+        Swal.fire({
           title: 'Success!',
           text: res.data.message,
           icon: 'success',
           confirmButtonText: 'OK',
           confirmButtonColor: '#6BCB77'
-        }));
-
-        Swal.fire({
-          title,
-          text,
-          icon,
-          confirmButtonText,
-          confirmButtonColor
         }).then(() => {
           Swal.close();
           router.push('/');
         });
 
       } else {
-        dispatch(showAlert({
+        Swal.fire({
           title: 'Error',
           text: res.data.message,
           icon: 'error',
           confirmButtonText: 'OK',
           confirmButtonColor: '#6BCB77'
-        }));
-
-        Swal.fire({
-          title,
-          text,
-          icon,
-          confirmButtonText,
-          confirmButtonColor,
         }).then(() => {
           Swal.close();
         });
       }
-      return res.data;
+      return res.data.data
     } catch (error) {
       const err = error as AxiosError;
 
       const data = err.response?.data as { message: string };
 
-      dispatch(showAlert({
+      Swal.fire({
         title: 'Error',
         text: data?.message,
         icon: 'error',
         confirmButtonText: 'OK',
         confirmButtonColor: '#6BCB77'
-      }));
-
-      Swal.fire({
-        title,
-        text,
-        icon,
-        confirmButtonText,
-        confirmButtonColor,
       }).then(() => {
         Swal.close();
       });
@@ -192,6 +141,9 @@ const Login = () => {
     onSuccess: (data: LoginAPIOutput) => {
       queryClient.invalidateQueries('user');
       queryClient.setQueryData('user', data);
+
+      const dehydratedState = dehydrate(queryClient);
+      localStorage.setItem('user', JSON.stringify(dehydratedState));
     },
     onError: (error) => {
       console.log('Mutation Error: ', error);
