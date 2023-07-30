@@ -99,6 +99,7 @@ const Page = () => {
               page={page}
               pageCount={pageCount}
               handlePageChange={handlePageChange}
+              path="/notice"
             />
           </Stack>
         </Container>

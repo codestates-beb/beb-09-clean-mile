@@ -14,11 +14,11 @@ import {
 import { Scrollbar } from "src/components/scrollbar";
 import { useRouter } from "next/router";
 
-export const PostsTable = ({ items = [], pageCount, page, handlePageChange }) => {
+export const PostsTable = ({ items = [], pageCount, page, handlePageChange, path }) => {
   const router = useRouter();
 
   const handlePostSelected = (postId) => {
-    router.push(`/posts/${postId}`);
+    router.push(`${path}/${postId}`);
   };
 
   return (
@@ -84,4 +84,5 @@ PostsTable.propTypes = {
   pageCount: PropTypes.number,
   page: PropTypes.number,
   handlePageChange: PropTypes.func,
+  path: PropTypes.string,
 };

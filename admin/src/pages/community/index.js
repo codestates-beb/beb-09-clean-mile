@@ -3,7 +3,7 @@ import { Box, Container, Stack, Select, MenuItem, Typography } from "@mui/materi
 import { Layout as DashboardLayout } from "src/layouts/dashboard/layout";
 import { useCallback, useEffect, useState } from "react";
 import { SearchBar } from "src/components/search-bar";
-import { CommunityTable } from "src/components/community/community-table";
+import { PostsTable } from 'src/components/posts/posts-table';
 
 const data = [
   {
@@ -114,11 +114,12 @@ const Page = () => {
                 </Select>
               </Stack>
             </Stack>
-            <CommunityTable
+            <PostsTable
               items={posts}
               page={page}
               pageCount={pageCount}
               handlePageChange={handlePageChange}
+              path={"/community"}
             />
             <SearchBar
               filters={filters}
