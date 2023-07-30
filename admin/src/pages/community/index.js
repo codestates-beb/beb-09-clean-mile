@@ -1,19 +1,9 @@
 import Head from "next/head";
-import PlusIcon from "@heroicons/react/24/solid/PlusIcon";
-import {
-  Box,
-  Button,
-  Container,
-  Stack,
-  Select,
-  MenuItem,
-  SvgIcon,
-  Typography,
-} from "@mui/material";
+import { Box, Container, Stack, Select, MenuItem, Typography } from "@mui/material";
 import { Layout as DashboardLayout } from "src/layouts/dashboard/layout";
-import { PostsTable } from "src/components/posts/posts-table";
 import { useCallback, useEffect, useState } from "react";
 import { SearchBar } from "src/components/search-bar";
+import { CommunityTable } from "src/components/community/community-table";
 
 const data = [
   {
@@ -124,7 +114,7 @@ const Page = () => {
                 </Select>
               </Stack>
             </Stack>
-            <PostsTable
+            <CommunityTable
               items={posts}
               page={page}
               pageCount={pageCount}
