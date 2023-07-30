@@ -14,11 +14,11 @@ import {
 import { Scrollbar } from "src/components/scrollbar";
 import { useRouter } from "next/router";
 
-export const EventsTable = ({ items = [], pageCount, page, handlePageChange }) => {
+export const PostsTable = ({ items = [], pageCount, page, handlePageChange }) => {
   const router = useRouter();
 
-  const handleEventSelected = (eventId) => {
-    router.push(`/${eventId}`);
+  const handlePostSelected = (postId) => {
+    router.push(`/posts/${postId}`);
   };
 
   return (
@@ -30,29 +30,29 @@ export const EventsTable = ({ items = [], pageCount, page, handlePageChange }) =
               <TableHead>
                 <TableRow>
                   <TableCell>Title</TableCell>
-                  <TableCell>Type</TableCell>
-                  <TableCell>Location</TableCell>
-                  <TableCell>Organization</TableCell>
-                  <TableCell>Status</TableCell>
+                  <TableCell>Content</TableCell>
+                  <TableCell>Writer</TableCell>
+                  <TableCell>Category</TableCell>
+                  <TableCell>View</TableCell>
                   <TableCell>Created At</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {items.map((event) => {
-                  const createdAt = event.createdAt ? event.createdAt : "N/A";
-
+                {items.map((post) => {
                   return (
-                    <TableRow hover key={event.id} onClick={() => handleEventSelected(event.id)}>
+                    <TableRow hover key={post.id} onClick={() => handlePostSelected(post.id)}>
                       <TableCell>
                         <Stack alignItems="center" direction="row" spacing={2}>
-                          <Typography variant="subtitle2">{event.title}</Typography>
+                          <Typography variant="subtitle2">{post.title}</Typography>
                         </Stack>
                       </TableCell>
-                      <TableCell>{event.type}</TableCell>
-                      <TableCell>{event.location}</TableCell>
-                      <TableCell>{event.organization}</TableCell>
-                      <TableCell>{event.status}</TableCell>
-                      <TableCell>{createdAt}</TableCell>
+                      <TableCell>
+                        {post.content ? `${post.content.slice(0, 20)}...` : "N/A"}
+                      </TableCell>
+                      <TableCell>{post.writer}</TableCell>
+                      <TableCell>{post.category}</TableCell>
+                      <TableCell>{post.view}</TableCell>
+                      <TableCell>{post.createdAt}</TableCell>
                     </TableRow>
                   );
                 })}
@@ -79,6 +79,9 @@ export const EventsTable = ({ items = [], pageCount, page, handlePageChange }) =
   );
 };
 
-EventsTable.propTypes = {
+PostsTable.propTypes = {
   items: PropTypes.array,
+  pageCount: PropTypes.number,
+  page: PropTypes.number,
+  handlePageChange: PropTypes.func,
 };

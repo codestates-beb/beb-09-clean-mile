@@ -27,7 +27,7 @@ const Page = () => {
               <Button variant="contained" color="warning">
                 Delete
               </Button>
-              <Button variant="contained" onClick={() => router.push("/users")}>
+              <Button variant="contained" onClick={() => router.back()}>
                 Back
               </Button>
             </Stack>

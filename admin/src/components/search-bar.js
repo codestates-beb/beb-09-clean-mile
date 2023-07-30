@@ -1,30 +1,15 @@
 import MagnifyingGlassIcon from "@heroicons/react/24/solid/MagnifyingGlassIcon";
 import { Box, IconButton, MenuItem, OutlinedInput, Select, SvgIcon } from "@mui/material";
-import { useState } from "react";
 
-const filters = ["all", "name", "email", "wallet_address"];
-
-export const UsersSearch = ({ handleSearchUsers }) => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filter, setFilter] = useState("all");
-
-  const handleFilterChange = (event) => {
-    setFilter(event.target.value);
-  };
-
-  const handleSearchTermChange = (event) => {
-    setSearchTerm(event.target.value);
-  };
-
-  const onSearchUsers = (e) => {
-    e.preventDefault();
-
-    if (!searchTerm) return;
-
-    handleSearchUsers(filter, searchTerm);
-    setSearchTerm("");
-  };
-
+export const SearchBar = ({
+  filters,
+  filter,
+  handleFilterChange,
+  searchTerm,
+  handleSearchTermChange,
+  handleSearchTermSubmit,
+  placeholder,
+}) => {
   return (
     <Box
       sx={{
@@ -32,7 +17,7 @@ export const UsersSearch = ({ handleSearchUsers }) => {
         justifyContent: "center",
       }}
       component="form"
-      onSubmit={onSearchUsers}
+      onSubmit={handleSearchTermSubmit}
       color={"primary"}
     >
       <Select
@@ -52,7 +37,7 @@ export const UsersSearch = ({ handleSearchUsers }) => {
         value={searchTerm}
         onChange={handleSearchTermChange}
         fullWidth
-        placeholder="Search user"
+        placeholder={placeholder}
         sx={{ maxWidth: 500 }}
       />
       <IconButton type="submit" sx={{ p: "12px", marginLeft: "12px" }}>
