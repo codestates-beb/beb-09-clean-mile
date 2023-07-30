@@ -9,7 +9,6 @@ import {
   MenuItem,
   SvgIcon,
   Typography,
-  Pagination,
 } from "@mui/material";
 import { Layout as DashboardLayout } from "src/layouts/dashboard/layout";
 import { EventsTable } from "src/components/events/events-table";
@@ -64,10 +63,11 @@ const data = [
   },
 ];
 const filters = ["all", "title", "content", "organization"];
-const statuses = ["all", "created", "recruiting", "progressing", "finished"];
+const statuses = ["all", "created", "recruiting", "progressing", "finished", "canceled"];
 
 const Page = () => {
   const [page, setPage] = useState(1);
+  const [pageCount, setPageCount] = useState(5);
   const [events, setEvents] = useState(data);
   const [status, setStatus] = useState(statuses[0]);
   const [filter, setFilter] = useState(filters[0]);
@@ -144,21 +144,12 @@ const Page = () => {
                 </Select>
               </Stack>
             </Stack>
-            <EventsTable items={events} />
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "center",
-              }}
-            >
-              <Pagination
-                color="primary"
-                count={5}
-                page={page}
-                onChange={handlePageChange}
-                size={"medium"}
-              />
-            </Box>
+            <EventsTable
+              items={events}
+              page={page}
+              pageCount={pageCount}
+              handlePageChange={handlePageChange}
+            />
             <SearchBar
               filters={filters}
               filter={filter}

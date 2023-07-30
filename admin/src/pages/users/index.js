@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Head from "next/head";
 import { subDays, subHours } from "date-fns";
-import { Box, Container, Stack, Pagination, Typography, Select, MenuItem } from "@mui/material";
+import { Box, Container, Stack, Typography, Select, MenuItem } from "@mui/material";
 import { Layout as DashboardLayout } from "src/layouts/dashboard/layout";
 import { UsersTable } from "src/components/users/users-table";
 import { SearchBar } from "src/components/search-bar";
@@ -96,6 +96,7 @@ const socialTypes = ["all", "none", "google", "kakao"];
 
 const Page = () => {
   const [page, setPage] = useState(1);
+  const [pageCount, setPageCount] = useState(5);
   const [users, setUsers] = useState(data);
   const [socialType, setSocialType] = useState(socialTypes[0]);
   const [filter, setFilter] = useState(filters[0]);
@@ -160,21 +161,12 @@ const Page = () => {
                 ))}
               </Select>
             </Stack>
-            <UsersTable items={users} />
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "center",
-              }}
-            >
-              <Pagination
-                color="primary"
-                count={5}
-                page={page}
-                onChange={handlePageChange}
-                size={"medium"}
-              />
-            </Box>
+            <UsersTable
+              items={users}
+              pageCount={pageCount}
+              page={page}
+              handlePageChange={handlePageChange}
+            />
             <SearchBar
               filters={filters}
               filter={filter}
