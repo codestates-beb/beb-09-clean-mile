@@ -4,7 +4,7 @@ import { subDays, subHours } from "date-fns";
 import { Box, Container, Stack, Pagination, Typography, Select, MenuItem } from "@mui/material";
 import { Layout as DashboardLayout } from "src/layouts/dashboard/layout";
 import { UsersTable } from "src/components/users/users-table";
-import { SearchBar } from "src/components/common/search-bar";
+import { SearchBar } from "src/components/search-bar";
 
 const now = new Date();
 

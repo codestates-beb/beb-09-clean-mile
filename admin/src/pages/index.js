@@ -14,7 +14,7 @@ import {
 import { Layout as DashboardLayout } from "src/layouts/dashboard/layout";
 import { EventsTable } from "src/components/events/events-table";
 import { useCallback, useEffect, useState } from "react";
-import { SearchBar } from "src/components/common/search-bar";
+import { SearchBar } from "src/components/search-bar";
 
 const data = [
   {
