@@ -494,7 +494,7 @@ const SignUp = () => {
         'Content-Type': 'application/form-data',
         'Accept': 'application/json'
       }
-      const isJSON = true;
+      const isJSON = false;
 
       const res = await ApiCaller.post(URL, dataBody, isJSON, headers);
 

@@ -85,7 +85,7 @@ const Login = () => {
         'Content-Type': 'application/form-data',
         'Accept': 'application/json',
       }
-      const isJSON = true;
+      const isJSON = false;
       const isCookie = true;
 
       const res = await ApiCaller.post(URL, dataBody, isJSON, headers, isCookie);

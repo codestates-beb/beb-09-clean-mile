@@ -1,24 +1,26 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, ChangeEvent } from 'react';
 import { useRouter } from 'next/router';
-import axios from 'axios';
+import Swal from 'sweetalert2';
+import { ApiCaller } from './Utils/ApiCaller';
 
-const ReviewCreate = () => {
+interface IFile extends File {
+  preview?: string;
+}
+
+const Create = () => {
   const router = useRouter();
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalTitle, setModalTitle] = useState('');
-  const [modalBody, setModalBody] = useState('');
   const [selectCategory, setSelectCategory] = useState('');
   const [title, setTitle] = useState('');
   const [content, setContent ] = useState('');
-  const [images, setImages] = useState([]);
-  const [videos, setVideos] = useState([]);
-  const [selectedFile, setSelectedFile] = useState([]);
+  const [images, setImages] = useState<IFile[]>([]);
+  const [videos, setVideos] = useState<IFile[]>([]);
+  const [selectedFile, setSelectedFile] = useState<IFile[]>([]);
 
-  const fileInputRef = useRef(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = () => {
-    fileInputRef.current.click();
+    fileInputRef.current?.click();
   };
 
   /**
@@ -28,25 +30,90 @@ const ReviewCreate = () => {
    * @param {Event} e - 파일 입력 이벤트 객체
    */
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files)
+    const files: IFile[] = Array.from(e.target.files!) as IFile[];
 
     files.forEach((file) => {
-      const extension = file.name.split('.').pop().toLowerCase();
+      const extension = file.name.split('.').pop()?.toLowerCase();
   
-      if (extension === 'jpg' || extension === 'jpeg' || extension === 'png') {
-          setImages((prevImages) => [...prevImages, file]);
-      } else if (extension === 'mp4' || extension === 'avi' || extension === 'mov') {
-          setVideos((prevVideos) => [...prevVideos, file]);
+      if (['jpg', 'jpeg', 'png'].includes(extension || '')) {
+        setImages((prevImages) => [...prevImages, file]);
+      } else if (['mp4', 'avi', 'mov'].includes(extension || '')) {
+        setVideos((prevVideos) => [...prevVideos, file]);
       }
     });
     setSelectedFile(files)
   };
 
+  const createPost = async () => {
+    const formData = new FormData();
+
+    formData.append('category', selectCategory);
+    formData.append('title', title);
+    formData.append('content', content);
+
+    images.forEach((image) => {
+      formData.append('images', image);
+  });
+
+  videos.forEach((video) => {
+      formData.append('videos', video);
+  });
+    
+
+    try {
+      const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/posts/create`;
+      const dataBody = formData;
+      const isJSON = false;
+      const headers = {};
+      const isCookie = true;
+
+      const res = await ApiCaller.post(URL, dataBody, isJSON, headers, isCookie);
+      if (res.status === 200) {
+        Swal.fire({
+          title: 'Success!',
+          text: res.data.message,
+          icon: 'success',
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#6BCB77'
+        }).then(() => {
+          Swal.close();
+          setIsEditing(false);
+          router.replace(`/users/mypage?nickname=${res.data.chgNickname}`);
+        });
+
+      } else {
+        Swal.fire({
+          title: 'Error',
+          text: res.data.message,
+          icon: 'error',
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#6BCB77'
+        }).then(() => {
+          Swal.close();
+        });
+      }
+    } catch (error) {
+      const err = error as AxiosError;
+
+      const data = err.response?.data as { message: string };
+
+      Swal.fire({
+        title: 'Error',
+        text: data?.message,
+        icon: 'error',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#6BCB77'
+      }).then(() => {
+        Swal.close();
+      });
+    }
+  }
+
   return (
     <>
       <div className='w-[90%] min-h-screen mx-auto py-20 sm:py-10 xs:py-10 flex flex-col gap-12'>
         <div>
-          <p className='font-bold text-4xl sm:text-2xl xs:text-2xl'>Create Review Posts</p>
+          <p className='font-bold text-4xl sm:text-2xl xs:text-2xl'>Create Posts</p>
         </div>
         <div className='w-1/5 lg:w-[50%] md:w-[50%] sm:w-[50%] xs:w-[50%]'>
           <select className="
@@ -63,18 +130,17 @@ const ReviewCreate = () => {
             value={selectCategory}
             onChange={(e) => setSelectCategory(e.target.value)}
             required>
-            <option className="text-sm" value="" disabled>카테고리를 선택해 주세요.</option>
-            <option className="text-sm" value="eventinfo">행사 정보</option>
-            <option className="text-sm" value="courseinfo">코스 정보</option>
-            <option className="text-sm" value="review">참여 후기</option>
+            <option className="text-sm" value="" disabled>Please select a category.</option>
+            <option className="text-sm" value="general">General</option>
+            <option className="text-sm" value="review">Review</option>
           </select>
         </div>
         <div className='w-2/5 sm:w-full xs:w-full'>
           <input 
             className='w-full sm:w-[50%] xs:w-[50%] border-b focus:border-black transition duration-300 py-2 px-3' 
             type="text" 
-            name="" 
             placeholder='제목을 입력해 주세요'
+            value={title}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)}/>
         </div>
         <div className='w-full h-[45rem]'>
@@ -99,7 +165,7 @@ const ReviewCreate = () => {
               파일 선택
             </button>
           </div>
-          <textarea className="border border-gray-300 rounded-lg w-full h-full p-3 outline-none" onChange={(e) => setContent(e.target.value)} />
+          <textarea className="border border-gray-300 rounded-lg w-full h-full p-3 outline-none" value={content} onChange={(e) => setContent(e.target.value)} />
         </div>
         <div className='w-full flex gap-3 justify-end mt-16'>
           <button className='
@@ -129,7 +195,7 @@ const ReviewCreate = () => {
             hover:bg-green-600
             transition 
             duration-300'
-            >
+            onClick={createPost}>
             Create
           </button>
         </div>
@@ -138,4 +204,4 @@ const ReviewCreate = () => {
   )
 }
 
-export default ReviewCreate;
+export default Create;

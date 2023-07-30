@@ -63,7 +63,7 @@ const Header = () => {
           }
           const isJSON = true;
           const isCookie = true;
-    
+
           const res = await ApiCaller.post(URL, dataBody, isJSON, headers, isCookie);
           if (res.status === 200) {
             Swal.fire({
@@ -75,13 +75,12 @@ const Header = () => {
             }).then(() => {
               Swal.close();
               router.reload();
-    
+
               if (typeof window !== "undefined") {
                 localStorage.removeItem('user');
               }
               queryClient.removeQueries('user');
             });
-    
           } else {
             Swal.fire({
               title: 'Error',
@@ -96,9 +95,9 @@ const Header = () => {
           return res.data.data
         } catch (error) {
           const err = error as AxiosError;
-    
+
           const data = err.response?.data as { message: string };
-    
+
           Swal.fire({
             title: 'Error',
             text: data?.message,
@@ -108,7 +107,7 @@ const Header = () => {
           }).then(() => {
             Swal.close();
           });
-    
+
           throw err;
         }
       } else if (result.isDismissed) {
@@ -131,7 +130,7 @@ const Header = () => {
       setUserInfo(userCache.queries[0].state.data.data)
     }
   }, []);
-  
+
 
   return (
     <>
@@ -251,7 +250,7 @@ const Header = () => {
                         <GiToken size={20} />
                         50 CM
                       </li>
-                      <Link href='/users/mypage'>
+                      <Link href={{ pathname: '/users/mypage', query: { nickname: userInfo?.nickname } }}>
                         <li className="
                           flex 
                           justify-center 

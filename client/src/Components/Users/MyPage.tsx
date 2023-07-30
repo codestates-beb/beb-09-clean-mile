@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
+import Swal from 'sweetalert2';
+import { AxiosError } from 'axios';
 import { BsFillImageFill } from 'react-icons/bs';
 import { hero_img } from '../Reference';
+import { UserInfo } from '../Interfaces';
+import { ApiCaller } from '../Utils/ApiCaller';
 
 const EXTENSIONS = [
   { type: 'gif' },
@@ -12,15 +16,17 @@ const EXTENSIONS = [
   { type: 'mp4' },
 ];
 
-const MyPage = () => {
+const MyPage = ({ userInfo }: { userInfo: UserInfo }) => {
   const router = useRouter()
   const [fileUrl, setFileUrl] = useState<string | null>(null);
   const [fileType, setFileType] = useState<string | null>(null);
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [isEditing, setIsEditing] = useState(false);
-  const [nickname, setNickname] = useState('admin');
+  const [nickname, setNickname] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+
+  console.log(userInfo)
 
   /**
    * 파일 업로드 이벤트를 처리
@@ -107,9 +113,65 @@ const MyPage = () => {
     validateNickname();
   }, [nickname]);
 
-  const changeNickname = () => {
-    setNickname(nickname);
-    setIsEditing(false);
+  const changeNickname = async () => {
+    const formData = new FormData();
+
+    formData.append('nickname', nickname);
+
+    try {
+      const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/change-nickname`;
+      const dataBody = formData;
+      const isJSON = true;
+      const headers= {
+        'Content-Type': 'application/form-data',
+        'Accept': 'application/json',
+      }
+      const isCookie = true;
+
+      const res = await ApiCaller.post(URL, dataBody, isJSON, headers, isCookie);
+
+      console.log(res.data.chgNickname);
+
+      if (res.status === 200) {
+        Swal.fire({
+          title: 'Success!',
+          text: res.data.message,
+          icon: 'success',
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#6BCB77'
+        }).then(() => {
+          Swal.close();
+          setIsEditing(false);
+          router.replace(`/users/mypage?nickname=${res.data.chgNickname}`);
+        });
+
+      } else {
+        Swal.fire({
+          title: 'Error',
+          text: res.data.message,
+          icon: 'error',
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#6BCB77'
+        }).then(() => {
+          Swal.close();
+        });
+      }
+    } catch (error) {
+      const err = error as AxiosError;
+
+      const data = err.response?.data as { message: string };
+
+      Swal.fire({
+        title: 'Error',
+        text: data?.message,
+        icon: 'error',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#6BCB77'
+      }).then(() => {
+        Swal.close();
+      });
+
+    }
   }
 
   /**
@@ -118,24 +180,28 @@ const MyPage = () => {
    */
   const copyAddr = async () => {
     try {
-      // await navigator.clipboard.writeText(postDetail.post_info.author.address);
-      // setIsModalOpen(true);
-      // setModalTitle('Success');
-      // setModalBody('지갑주소가 복사되었습니다.');
-      alert('지갑주소가 복사되었습니다.');
+      console.log(userInfo.user.wallet.address);
+      await navigator.clipboard.writeText(userInfo.user.wallet.address);
+      Swal.fire({
+        title: 'Success!',
+        text: '지갑주소가 복사되었습니다.',
+        icon: 'success',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#6BCB77',
+      }).then(() => {
+        Swal.close();
+      });
 
-      // setTimeout(() => {
-      //   setIsModalOpen(false);
-      // }, 3000);
     } catch (err) {
-      //   setIsModalOpen(true);
-      // setModalTitle('Error');
-      // setModalBody('지갑주소 복사가 실패되었습니다.');
-      alert('지갑주소 복사가 실패되었습니다.');
-
-      // setTimeout(() => {
-      //   setIsModalOpen(false);
-      // }, 3000);
+      Swal.fire({
+        title: 'Error',
+        text: '지갑주소 복사가 실패되었습니다.',
+        icon: 'error',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#6BCB77',
+      }).then(() => {
+        Swal.close();
+      });
     }
   }
 
@@ -209,7 +275,7 @@ const MyPage = () => {
             ) : (
               <>
                 <p className='font-bold text-3xl lg:text-2xl md:text-xl sm:text-lg xs:text-lg'>
-                  {nickname}
+                  {userInfo?.user?.nickname}
                 </p>
               </>
             )}
@@ -257,8 +323,8 @@ const MyPage = () => {
             )}
           </div>
           <p className='font-normal text-xs text-red-500'>{errorMessage}</p>
-          <p className='font-semibold sm:text-sm xs:text-xs' onClick={copyAddr} title="Click to copy the address">
-            0x3557db220dbfdBbB8Cf5489495Bf02AAC9A889ED
+          <p className='font-semibold sm:text-sm xs:text-xs cursor-pointer' onClick={copyAddr} title="Click to copy the address">
+            {userInfo?.user?.wallet?.address}
           </p>
           <div>
             <button className='px-3 py-2 sm:px-2 md:text-sm sm:text-sm xs:text-sm bg-[#FBA1B7] hover:bg-main-insta rounded-xl transition duration-300 text-white font-bold'>instagram connect</button>
