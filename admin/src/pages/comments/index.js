@@ -11,9 +11,9 @@ import {
   Typography,
 } from "@mui/material";
 import { Layout as DashboardLayout } from "src/layouts/dashboard/layout";
-import { PostsTable } from "src/components/posts/posts-table";
 import { useCallback, useEffect, useState } from "react";
 import { SearchBar } from "src/components/search-bar";
+import { CommentsTable } from "src/components/comments/comments-table";
 
 const data = [
   {
@@ -21,7 +21,7 @@ const data = [
     title: "hic-modi-officia",
     content: "Doloribus voluptatem voluptatem.",
     writer: "Beatty",
-    view: 12,
+    likes: 12,
     createdAt: "27/03/2019",
     category: "notice",
   },
@@ -30,7 +30,7 @@ const data = [
     title: "hic-modi-officia",
     content: "Doloribus voluptatem voluptatem.",
     writer: "Beatty",
-    view: 12,
+    likes: 12,
     createdAt: "27/03/2019",
     category: "review",
   },
@@ -39,7 +39,7 @@ const data = [
     title: "hic-modi-officia",
     content: "Doloribus voluptatem voluptatem.",
     writer: "Beatty",
-    view: 12,
+    likes: 12,
     createdAt: "27/03/2019",
     category: "general",
   },
@@ -48,7 +48,7 @@ const data = [
     title: "hic-modi-officia",
     content: "Doloribus voluptatem voluptatem.",
     writer: "Beatty",
-    view: 12,
+    likes: 12,
     createdAt: "27/03/2019",
     category: "notice",
   },
@@ -59,7 +59,7 @@ const filters = ["all", "title", "content", "writer"];
 const Page = () => {
   const [page, setPage] = useState(1);
   const [pageCount, setPageCount] = useState(5);
-  const [posts, setPosts] = useState(data);
+  const [comments, setComments] = useState(data);
   const [category, setCategory] = useState(categories[0]);
   const [filter, setFilter] = useState(filters[0]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -92,14 +92,15 @@ const Page = () => {
   );
 
   useEffect(() => {
-    const filteredPosts = category === "all" ? data : data.filter((e) => e.category === category);
-    setPosts(filteredPosts);
+    const filteredComments =
+      category === "all" ? data : data.filter((e) => e.category === category);
+    setComments(filteredComments);
   }, [category]);
 
   return (
     <>
       <Head>
-        <title>Events</title>
+        <title>Comments</title>
       </Head>
       <Box
         component="main"
@@ -112,30 +113,18 @@ const Page = () => {
           <Stack spacing={3}>
             <Stack direction="row" justifyContent="space-between" spacing={4}>
               <Stack spacing={1}>
-                <Typography variant="h4">Posts</Typography>
+                <Typography variant="h4">Comments</Typography>
               </Stack>
-              <Stack direction="row" spacing={1}>
-                <Button
-                  startIcon={
-                    <SvgIcon fontSize="small">
-                      <PlusIcon />
-                    </SvgIcon>
-                  }
-                  variant="contained"
-                >
-                  Add
-                </Button>
-                <Select value={category} onChange={handleCategoryChange}>
-                  {categories.map((category) => (
-                    <MenuItem key={category} value={category}>
-                      {category}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </Stack>
+              <Select value={category} onChange={handleCategoryChange}>
+                {categories.map((category) => (
+                  <MenuItem key={category} value={category}>
+                    {category}
+                  </MenuItem>
+                ))}
+              </Select>
             </Stack>
-            <PostsTable
-              items={posts}
+            <CommentsTable
+              items={comments}
               page={page}
               pageCount={pageCount}
               handlePageChange={handlePageChange}

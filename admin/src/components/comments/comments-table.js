@@ -14,11 +14,11 @@ import {
 import { Scrollbar } from "src/components/scrollbar";
 import { useRouter } from "next/router";
 
-export const PostsTable = ({ items = [], pageCount, page, handlePageChange }) => {
+export const CommentsTable = ({ items = [], pageCount, page, handlePageChange }) => {
   const router = useRouter();
 
-  const handlePostSelected = (postId) => {
-    router.push(`/posts/${postId}`);
+  const handleCommentSelected = (commentId) => {
+    router.push(`/comments/${commentId}`);
   };
 
   return (
@@ -29,30 +29,33 @@ export const PostsTable = ({ items = [], pageCount, page, handlePageChange }) =>
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>Title</TableCell>
+                  <TableCell>Post Title</TableCell>
+                  <TableCell>Post Category</TableCell>
                   <TableCell>Content</TableCell>
                   <TableCell>Writer</TableCell>
-                  <TableCell>Category</TableCell>
-                  <TableCell>View</TableCell>
+                  <TableCell>Likes</TableCell>
                   <TableCell>Created At</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {items.map((post) => {
+                {items.map((comment) => {
                   return (
-                    <TableRow hover key={post.id} onClick={() => handlePostSelected(post.id)}>
+                    <TableRow
+                      hover
+                      key={comment.id}
+                      onClick={() => handleCommentSelected(comment.id)}
+                    >
                       <TableCell>
                         <Stack alignItems="center" direction="row" spacing={2}>
-                          <Typography variant="subtitle2">{post.title}</Typography>
+                          <Typography variant="subtitle2">{comment.title}</Typography>
                         </Stack>
                       </TableCell>
-                      <TableCell>
-                        {post.content ? `${post.content.slice(0, 20)}...` : "N/A"}
-                      </TableCell>
-                      <TableCell>{post.writer}</TableCell>
-                      <TableCell>{post.category}</TableCell>
-                      <TableCell>{post.view}</TableCell>
-                      <TableCell>{post.createdAt}</TableCell>
+                      <TableCell>{comment.category}</TableCell>
+                      <TableCell>{comment.content ? `${comment.content.slice(0, 20)}...` : "N/A"}</TableCell>
+                      <TableCell>{comment.writer}</TableCell>
+                   
+                      <TableCell>{comment.likes}</TableCell>
+                      <TableCell>{comment.createdAt}</TableCell>
                     </TableRow>
                   );
                 })}
@@ -79,7 +82,7 @@ export const PostsTable = ({ items = [], pageCount, page, handlePageChange }) =>
   );
 };
 
-PostsTable.propTypes = {
+CommentsTable.propTypes = {
   items: PropTypes.array,
   pageCount: PropTypes.number,
   page: PropTypes.number,
