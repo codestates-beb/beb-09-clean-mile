@@ -2,6 +2,7 @@ import ChartBarIcon from "@heroicons/react/24/solid/ChartBarIcon";
 import TicketIcon from "@heroicons/react/24/solid/TicketIcon";
 import UsersIcon from "@heroicons/react/24/solid/UsersIcon";
 import UserIcon from "@heroicons/react/24/solid/UserIcon";
+import MegaphoneIcon from "@heroicons/react/24/solid/MegaphoneIcon";
 import ChatBubbleBottomCenterIcon from "@heroicons/react/24/solid/ChatBubbleBottomCenterIcon";
 
 import { SvgIcon } from "@mui/material";
@@ -26,8 +27,17 @@ export const items = [
     ),
   },
   {
-    title: "Posts",
-    path: "/posts",
+    title: "Notice",
+    path: "/notice",
+    icon: (
+      <SvgIcon fontSize="small">
+        <MegaphoneIcon />
+      </SvgIcon>
+    ),
+  },
+  {
+    title: "Community",
+    path: "/community",
     icon: (
       <SvgIcon fontSize="small">
         <UsersIcon />

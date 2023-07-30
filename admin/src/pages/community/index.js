@@ -23,7 +23,7 @@ const data = [
     writer: "Beatty",
     view: 12,
     createdAt: "27/03/2019",
-    category: "notice",
+    category: "general",
   },
   {
     id: "2569ce0d517a7f06d3ea1f24",
@@ -50,10 +50,10 @@ const data = [
     writer: "Beatty",
     view: 12,
     createdAt: "27/03/2019",
-    category: "notice",
+    category: "general",
   },
 ];
-const categories = ["all", "notice", "general", "review"];
+const categories = ["all", "general", "review"];
 const filters = ["all", "title", "content", "writer"];
 
 const Page = () => {
@@ -99,7 +99,7 @@ const Page = () => {
   return (
     <>
       <Head>
-        <title>Events</title>
+        <title>Community</title>
       </Head>
       <Box
         component="main"
@@ -112,19 +112,9 @@ const Page = () => {
           <Stack spacing={3}>
             <Stack direction="row" justifyContent="space-between" spacing={4}>
               <Stack spacing={1}>
-                <Typography variant="h4">Posts</Typography>
+                <Typography variant="h4">Community</Typography>
               </Stack>
               <Stack direction="row" spacing={1}>
-                <Button
-                  startIcon={
-                    <SvgIcon fontSize="small">
-                      <PlusIcon />
-                    </SvgIcon>
-                  }
-                  variant="contained"
-                >
-                  Add
-                </Button>
                 <Select value={category} onChange={handleCategoryChange}>
                   {categories.map((category) => (
                     <MenuItem key={category} value={category}>
