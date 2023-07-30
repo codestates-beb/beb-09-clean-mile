@@ -14,11 +14,11 @@ import {
 import { Scrollbar } from "src/components/scrollbar";
 import { useRouter } from "next/router";
 
-export const EventsTable = ({ items = [], pageCount, page, handlePageChange }) => {
+export const CommentsTable = ({ items = [], pageCount, page, handlePageChange }) => {
   const router = useRouter();
 
-  const handleEventSelected = (eventId) => {
-    router.push(`/${eventId}`);
+  const handleCommentSelected = (commentId) => {
+    router.push(`/comments/${commentId}`);
   };
 
   return (
@@ -29,30 +29,33 @@ export const EventsTable = ({ items = [], pageCount, page, handlePageChange }) =
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>Title</TableCell>
-                  <TableCell>Type</TableCell>
-                  <TableCell>Location</TableCell>
-                  <TableCell>Organization</TableCell>
-                  <TableCell>Status</TableCell>
+                  <TableCell>Post Title</TableCell>
+                  <TableCell>Post Category</TableCell>
+                  <TableCell>Content</TableCell>
+                  <TableCell>Writer</TableCell>
+                  <TableCell>Likes</TableCell>
                   <TableCell>Created At</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {items.map((event) => {
-                  const createdAt = event.createdAt ? event.createdAt : "N/A";
-
+                {items.map((comment) => {
                   return (
-                    <TableRow hover key={event.id} onClick={() => handleEventSelected(event.id)}>
+                    <TableRow
+                      hover
+                      key={comment.id}
+                      onClick={() => handleCommentSelected(comment.id)}
+                    >
                       <TableCell>
                         <Stack alignItems="center" direction="row" spacing={2}>
-                          <Typography variant="subtitle2">{event.title}</Typography>
+                          <Typography variant="subtitle2">{comment.title}</Typography>
                         </Stack>
                       </TableCell>
-                      <TableCell>{event.type}</TableCell>
-                      <TableCell>{event.location}</TableCell>
-                      <TableCell>{event.organization}</TableCell>
-                      <TableCell>{event.status}</TableCell>
-                      <TableCell>{createdAt}</TableCell>
+                      <TableCell>{comment.category}</TableCell>
+                      <TableCell>{comment.content ? `${comment.content.slice(0, 20)}...` : "N/A"}</TableCell>
+                      <TableCell>{comment.writer}</TableCell>
+                   
+                      <TableCell>{comment.likes}</TableCell>
+                      <TableCell>{comment.createdAt}</TableCell>
                     </TableRow>
                   );
                 })}
@@ -79,6 +82,9 @@ export const EventsTable = ({ items = [], pageCount, page, handlePageChange }) =
   );
 };
 
-EventsTable.propTypes = {
+CommentsTable.propTypes = {
   items: PropTypes.array,
+  pageCount: PropTypes.number,
+  page: PropTypes.number,
+  handlePageChange: PropTypes.func,
 };
