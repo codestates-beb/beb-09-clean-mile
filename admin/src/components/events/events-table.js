@@ -1,7 +1,5 @@
 import PropTypes from "prop-types";
-import { format } from "date-fns";
 import {
-  Avatar,
   Box,
   Card,
   Stack,
@@ -9,22 +7,20 @@ import {
   TableBody,
   TableCell,
   TableHead,
-  TablePagination,
   TableRow,
   Typography,
 } from "@mui/material";
 import { Scrollbar } from "src/components/scrollbar";
-import { getInitials } from "src/utils/get-initials";
+import { useRouter } from "next/router";
 
 export const EventsTable = (props) => {
-  const {
-    count = 0,
-    items = [],
-    onPageChange = () => {},
-    onRowsPerPageChange,
-    page = 0,
-    rowsPerPage = 0,
-  } = props;
+  const { items = [] } = props;
+
+  const router = useRouter();
+
+  const handleEventSelected = (eventId) => {
+    router.push(`/${eventId}`);
+  };
 
   return (
     <Card>
@@ -33,30 +29,29 @@ export const EventsTable = (props) => {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>Name</TableCell>
-                <TableCell>Email</TableCell>
+                <TableCell>Title</TableCell>
+                <TableCell>Type</TableCell>
                 <TableCell>Location</TableCell>
-                <TableCell>Phone</TableCell>
-                <TableCell>Signed Up</TableCell>
+                <TableCell>Organization</TableCell>
+                <TableCell>Status</TableCell>
+                <TableCell>Created At</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {items.map((user) => {
-                const createdAt = format(user.createdAt, "dd/MM/yyyy");
+              {items.map((event) => {
+                const createdAt = event.createdAt ? event.createdAt : "N/A";
 
                 return (
-                  <TableRow hover key={user.id}>
+                  <TableRow hover key={event.id} onClick={() => handleEventSelected(event.id)}>
                     <TableCell>
                       <Stack alignItems="center" direction="row" spacing={2}>
-                        <Avatar src={user.avatar}>{getInitials(user.name)}</Avatar>
-                        <Typography variant="subtitle2">{user.name}</Typography>
+                        <Typography variant="subtitle2">{event.title}</Typography>
                       </Stack>
                     </TableCell>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell>
-                      {user.address.city}, {user.address.state}, {user.address.country}
-                    </TableCell>
-                    <TableCell>{user.phone}</TableCell>
+                    <TableCell>{event.type}</TableCell>
+                    <TableCell>{event.location}</TableCell>
+                    <TableCell>{event.organization}</TableCell>
+                    <TableCell>{event.status}</TableCell>
                     <TableCell>{createdAt}</TableCell>
                   </TableRow>
                 );
@@ -65,24 +60,10 @@ export const EventsTable = (props) => {
           </Table>
         </Box>
       </Scrollbar>
-      <TablePagination
-        component="div"
-        count={count}
-        onPageChange={onPageChange}
-        onRowsPerPageChange={onRowsPerPageChange}
-        page={page}
-        rowsPerPage={rowsPerPage}
-        rowsPerPageOptions={[5, 10, 25]}
-      />
     </Card>
   );
 };
 
 EventsTable.propTypes = {
-  count: PropTypes.number,
   items: PropTypes.array,
-  onPageChange: PropTypes.func,
-  onRowsPerPageChange: PropTypes.func,
-  page: PropTypes.number,
-  rowsPerPage: PropTypes.number,
 };

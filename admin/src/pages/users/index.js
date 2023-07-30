@@ -91,7 +91,7 @@ const data = [
   },
 ];
 
-const filters = ["all", "name", "email", "wallet_address"];
+const filters = ["all", "name", "email", "wallet address"];
 const socialTypes = ["all", "none", "google", "kakao"];
 
 const Page = () => {
