@@ -1,6 +1,6 @@
 const Router = require('express');
 const jwt = require('jsonwebtoken');
-const jwtController = require('../../../services/jwtController');
+const jwtUtil = require('../../../utils/jwtUtil');
 const isAuth = require('../../middlewares/isAuth');
 const PostModel = require('../../../models/Posts');
 const EventEntryModel = require('../../../models/EventEntries');
@@ -228,8 +228,8 @@ module.exports = (app) => {
       }
 
       // 토큰 생성
-      const accessToken = jwtController.sign(email, userResult.data._id);
-      const refreshToken = jwtController.refresh(email, userResult.data._id);
+      const accessToken = jwtUtil.sign(email, userResult.data._id);
+      const refreshToken = jwtUtil.refresh(email, userResult.data._id);
 
       // 쿠키에 토큰 저장
       setTokenCookie(res, accessToken, refreshToken);
@@ -290,7 +290,7 @@ module.exports = (app) => {
       }
 
       // 토큰 검증
-      const refreshTokenAuth = await jwtController.refreshVerify(refreshToken);
+      const refreshTokenAuth = await jwtUtil.refreshVerify(refreshToken);
       if (!refreshTokenAuth.success) {
         return res.status(401).json({
           success: false,
@@ -302,8 +302,8 @@ module.exports = (app) => {
       const user_id = refreshTokenAuth.decoded.user_id;
 
       // 토큰이 유효한 경우
-      const newAccessToken = jwtController.sign(email, user_id);
-      const newRefreshToken = jwtController.refresh(email, user_id);
+      const newAccessToken = jwtUtil.sign(email, user_id);
+      const newRefreshToken = jwtUtil.refresh(email, user_id);
 
       // 쿠키에 토큰 저장
       setTokenCookie(res, newAccessToken, newRefreshToken);
@@ -357,7 +357,7 @@ module.exports = (app) => {
       const accessToken = req.cookies.accessToken;
       if (accessToken) {
         // 토큰 검증
-        const verifyResult = jwtController.verify(accessToken);
+        const verifyResult = jwtUtil.verify(accessToken);
         if (!verifyResult.success) {
           return res.status(401).json({
             success: false,

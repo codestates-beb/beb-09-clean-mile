@@ -3,7 +3,7 @@ const upload = require('../../../loaders/s3');
 const PostModel = require('../../../models/Posts');
 const isAuth = require('../../middlewares/isAuth');
 const calcPagination = require('../../../utils/calcPagination');
-const jwtController = require('../../../services/jwtController');
+const jwtUtil = require('../../../utils/jwtUtil');
 const {
   checkImageFileSize,
   checkVideoFileSize,
@@ -277,7 +277,7 @@ module.exports = (app) => {
       let user_id = null;
 
       if (req.cookies.accessToken) {
-        const decoded = jwtController.verify(req.cookies.accessToken);
+        const decoded = jwtUtil.verify(req.cookies.accessToken);
         if (!decoded.success) {
           return res.status(401).json({
             success: false,
