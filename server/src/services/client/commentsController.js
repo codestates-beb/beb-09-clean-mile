@@ -17,7 +17,7 @@ const updateCommentLikes = async (post_id, user_id = null) => {
     const isLiked =
       (user_id && comment.likes.likers.includes(user_id.toString())) || false;
 
-    // 댓글 정보에서 likes 객체를 분리하여 새로운 객체 생성
+    // comment 객체에서 likes 객체를 분리하여 새로운 객체 생성 (해체 할당)
     const { likes, ...commentData } = comment.toObject();
 
     // likes 객체에 is_liked 필드 추가하여 좋아요 여부 저장

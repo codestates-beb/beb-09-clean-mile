@@ -399,6 +399,30 @@ const chgBanner = async (email, bannerUrl) => {
   }
 };
 
+/**
+ * 토큰을 쿠키에 저장
+ * @param {*} res
+ * @param {*} accessToken
+ * @param {*} refreshToken
+ */
+const setTokenCookie = async (res, accessToken, refreshToken) => {
+  // access token을 쿠키에 저장
+  res.cookie('accessToken', accessToken, {
+    httpOnly: true, // js에서 접근 가능
+    secure: true, // HTTPS 연결에서만 쿠키를 전송 (설정 후 수정 필요)
+    sameSite: 'strict', // CSRF와 같은 공격을 방지
+    maxAge: 1000 * 60 * 15, // 15분 (밀리초 단위)
+  });
+
+  // refresh token을 쿠키에 저장
+  res.cookie('refreshToken', refreshToken, {
+    httpOnly: true, // js에서 접근 불가능
+    secure: true, // HTTPS 연결에서만 쿠키를 전송 (설정 후 수정 필요)
+    sameSite: 'strict', // CSRF와 같은 공격을 방지
+    maxAge: 1000 * 60 * 60 * 24 * 14, // 14일 (밀리초 단위)
+  });
+};
+
 module.exports = {
   checkEmail,
   sendEmail,
@@ -412,4 +436,5 @@ module.exports = {
   findOtherUserData,
   chgBanner,
   findUserContent,
+  setTokenCookie,
 };

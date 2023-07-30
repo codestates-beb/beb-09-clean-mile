@@ -27,6 +27,30 @@ module.exports = {
   },
 
   /**
+   * 관리자 Access 토큰 발급
+   * @param {*} email
+   * @param {*} user_id
+   * @returns
+   */
+  adminSign: (email, user_id) => {
+    // admin Access 토큰에 들어갈 페이로드
+    const payload = {
+      email: email, // custom claims
+      user_id: user_id, // custom claims
+      isAdmin: true, // custom claims
+    };
+
+    // 시크릿 키로 서명된 Access 토큰 발급 후 반환
+    return jwt.sign(payload, config.jwt.jwtSecret, {
+      expiresIn: '15m', // 만료 시간
+      algorithm: 'HS256', // 암호화 알고리즘
+      issuer: config.jwt.isu, // 발행자
+      audience: config.jwt.isu, // 발행 대상
+      subject: 'admin', // 토큰 발행 목적
+    });
+  },
+
+  /**
    * Access 토큰 검증
    * @param {string} token
    * @returns 검증 결과

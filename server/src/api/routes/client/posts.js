@@ -233,6 +233,7 @@ module.exports = (app) => {
         title,
         content
       );
+      console.log(result);
 
       // 결과 반환
       const resultData = {
@@ -244,12 +245,15 @@ module.exports = (app) => {
 
       // list일 경우 페이지 계산
       if (category === 'Notice' || category === 'General') {
-        const pageResult = await calcPagination(
-          result.data.length,
-          limit,
-          page
-        );
-        resultData.pagination = pageResult.pagination;
+        if (result.data) {
+          // result.data가 null이 아닌 경우에만 페이징 계산 수행
+          const pageResult = await calcPagination(
+            result.data.length,
+            limit,
+            page
+          );
+          resultData.pagination = pageResult.pagination;
+        }
       }
 
       return res.status(200).json(resultData);

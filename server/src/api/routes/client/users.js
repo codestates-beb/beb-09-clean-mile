@@ -18,6 +18,7 @@ const {
   findOtherUserData,
   chgBanner,
   findUserContent,
+  setTokenCookie,
 } = require('../../../services/client/usersController');
 const route = Router();
 
@@ -231,19 +232,7 @@ module.exports = (app) => {
       const refreshToken = jwtController.refresh(email, userResult.data._id);
 
       // 쿠키에 토큰 저장
-      res.cookie('accessToken', accessToken, {
-        httpOnly: true, // js에서 접근 가능
-        secure: true, // HTTPS 연결에서만 쿠키를 전송 (설정 후 수정 필요)
-        sameSite: 'strict', // CSRF와 같은 공격을 방지 (None, Lax, Strict)
-        maxAge: 1000 * 60 * 15, // 15분 (밀리초 단위)
-      });
-
-      res.cookie('refreshToken', refreshToken, {
-        httpOnly: true, // js에서 접근 불가능
-        secure: true, // HTTPS 연결에서만 쿠키를 전송 (설정 후 수정 필요)
-        sameSite: 'strict', // CSRF와 같은 공격을 방지 (None, Lax, Strict)
-        maxAge: 1000 * 60 * 60 * 24 * 14, // 14일 (밀리초 단위)
-      });
+      setTokenCookie(res, accessToken, refreshToken);
 
       userResult.data.hashed_pw = '';
 
@@ -309,28 +298,15 @@ module.exports = (app) => {
         });
       }
 
-      // 토큰이 유효한 경우
-      const newAccessToken = jwtController.sign(
-        refreshTokenAuth.decoded.email,
-        refreshTokenAuth.decoded.user_id
-      );
-      res.cookie('accessToken', newAccessToken, {
-        httpOnly: true, // js에서 접근 가능
-        secure: true, // HTTPS 연결에서만 쿠키를 전송 (설정 후 수정 필요)
-        sameSite: 'strict', // CSRF와 같은 공격을 방지
-        maxAge: 1000 * 60 * 15, // 15분 (밀리초 단위)
-      });
+      const email = refreshTokenAuth.decoded.email;
+      const user_id = refreshTokenAuth.decoded.user_id;
 
-      const newRefreshToken = jwtController.refresh(
-        refreshTokenAuth.decoded.email,
-        refreshTokenAuth.decoded.user_id
-      );
-      res.cookie('refreshToken', newRefreshToken, {
-        httpOnly: true, // js에서 접근 불가능
-        secure: true, // HTTPS 연결에서만 쿠키를 전송 (설정 후 수정 필요)
-        sameSite: 'strict', // CSRF와 같은 공격을 방지
-        maxAge: 1000 * 60 * 60 * 24 * 14, // 14일 (밀리초 단위)
-      });
+      // 토큰이 유효한 경우
+      const newAccessToken = jwtController.sign(email, user_id);
+      const newRefreshToken = jwtController.refresh(email, user_id);
+
+      // 쿠키에 토큰 저장
+      setTokenCookie(res, newAccessToken, newRefreshToken);
 
       return res.status(200).json({
         success: true,
