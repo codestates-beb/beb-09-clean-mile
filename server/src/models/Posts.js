@@ -12,7 +12,7 @@ const postSchema = new mongoose.Schema({
   category: {
     // 게시글 카테고리
     type: String,
-    enum: ['Notice', 'General', 'Review'],
+    enum: ['notice', 'general', 'review'],
   },
   event_id: {
     // events collection의 _id를 참조

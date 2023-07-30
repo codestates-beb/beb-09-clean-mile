@@ -5,6 +5,7 @@ const comments = require('./routes/client/comments');
 const events = require('./routes/client/events');
 const adminAuth = require('./routes/admin/adminAuth');
 const adminUsers = require('./routes/admin/users');
+const adminEvents = require('./routes/admin/events');
 
 module.exports = () => {
   const app = Router();
@@ -26,6 +27,9 @@ module.exports = () => {
 
   // admin/users 관련 라우터
   adminUsers(app);
+
+  // admin/events 관련 라우터
+  adminEvents(app);
 
   return app;
 };

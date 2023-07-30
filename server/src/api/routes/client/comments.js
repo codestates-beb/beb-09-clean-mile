@@ -1,7 +1,6 @@
 const Router = require('express');
 const isAuth = require('../../middlewares/isAuth');
 const commentsController = require('../../../services/client/commentsController');
-const CommentModel = require('../../../models/Users');
 const upload = require('../../../loaders/s3');
 const route = Router();
 

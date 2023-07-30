@@ -9,7 +9,9 @@ const CommentModel = require('../../models/Comments');
 const updateCommentLikes = async (post_id, user_id = null) => {
   const commentResult = await CommentModel.find({
     post_id: post_id,
-  }).populate('user_id', ['nickname']);
+  })
+    .populate('user_id', ['nickname'])
+    .select('-__v');
 
   // 로그인 -> 댓글 좋아요 여부 확인 및 수정
   let updatedComments = commentResult.map((comment) => {

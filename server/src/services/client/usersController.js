@@ -3,8 +3,6 @@ const config = require('../../config/index');
 const calcPagination = require('../../utils/calcPagination');
 const MailModel = require('../../models/Mails');
 const UserModel = require('../../models/Users');
-const DNFTModel = require('../../models/DNFTs');
-const BadgeModel = require('../../models/Badges');
 const PostModel = require('../../models/Posts');
 const EventModel = require('../../models/Events');
 const EventEntryModel = require('../../models/EventEntries');
@@ -24,7 +22,7 @@ const generateRandomCode = (min, max) => {
  * 이메일 인증 데이터 저장
  * @param {string} email
  * @param {number} authCode
- * @returns 성공여부
+ * @returns 저장된 이메일 인증 데이터의 _id
  */
 const saveAuthCode = async (email, authCode) => {
   try {
@@ -58,7 +56,7 @@ const saveAuthCode = async (email, authCode) => {
 /**
  * 인증 이메일 전송
  * @param {string} email
- * @returns 성공여부
+ * @returns
  */
 const sendEmail = async (email) => {
   try {
@@ -66,20 +64,23 @@ const sendEmail = async (email) => {
     const mailOptions = {
       from: config.mail.adminEmail,
       to: email,
-      subject: '[Clean Mile]인증 관련 이메일 입니다',
+      subject: '[Clean Mile]인증 이메일 입니다.',
       text: `오른쪽 숫자 6자리를 입력해주세요 : ${authCode}`,
     };
 
     const mailSaveId = await saveAuthCode(email, authCode); // 인증코드 DB에 저장
+
     // 메일 전송
     await smtpTransport
       .sendMail(mailOptions)
       .then(() => {
-        smtpTransport.close(); // 메일 전송 종료
+        // 메일 전송 종료
+        smtpTransport.close();
       })
       .catch(async (err) => {
         // 메일 전송 실패시 DB에 저장된 인증코드 삭제
         await MailModel.deleteOne({ _id: mailSaveId });
+
         console.error('Error:', err);
         throw Error(err);
       });
@@ -94,7 +95,7 @@ const sendEmail = async (email) => {
 /**
  * 이메일 중복 체크
  * @param {string} email
- * @returns 중복 여부 확인
+ * @returns 중복 여부 (boolean)
  */
 const checkEmail = async (email) => {
   try {
@@ -113,7 +114,7 @@ const checkEmail = async (email) => {
 /**
  * 닉네임 중복 체크
  * @param {string} nickname
- * @returns 중복 여부
+ * @returns 중복 여부 (boolean)
  */
 const checkNickName = async (nickname) => {
   try {
@@ -133,7 +134,7 @@ const checkNickName = async (nickname) => {
  * 이메일 인증 코드 확인
  * @param {string} email
  * @param {*} code
- * @returns 일치 여부
+ * @returns 일치 여부 (boolean)
  */
 const checkEmailAuthCode = async (email, code) => {
   try {
@@ -157,7 +158,7 @@ const checkEmailAuthCode = async (email, code) => {
 /**
  * 사용자 정보 저장
  * @param {*} userData
- * @returns 저장 여부
+ * @returns 저장 여부 (boolean)
  */
 const saveUserData = async (userData) => {
   try {
@@ -172,6 +173,7 @@ const saveUserData = async (userData) => {
         address: userData.wallet_address,
       },
     });
+
     const result = await saveUserData.save();
     if (!result) {
       return { success: false };
@@ -204,18 +206,18 @@ const findUserEmail = async (email) => {
 };
 
 /**
- * 닉네임을 이용한 사용자 정보 조회
+ * pw를 제거한 사용자 정보 조회
  * @param {*} nickname
- * @returns
+ * @returns 성공 여부 (boolean), 조회 결과
  */
-const findUserNickname = async (nickname) => {
+const getUser = async (user_id) => {
   try {
-    const result = await UserModel.findOne({ nickname: nickname });
-    if (!result) {
+    const user = await UserModel.findById(user_id).select('-__v -hashed_pw');
+    if (!user) {
       return { success: false };
-    } else {
-      return { success: true, data: result };
     }
+
+    return { success: true, data: user };
   } catch (err) {
     console.error('Error:', err);
     throw Error(err);
@@ -223,57 +225,36 @@ const findUserNickname = async (nickname) => {
 };
 
 /**
- * 커서 기반 리스트 데이터 조회
- * @param {*} model
+ * General, Review Posts List 조회
  * @param {*} userId
  * @param {*} page
- * @param {*} last_id
  * @param {*} limit
- * @returns
+ * @returns Review or General Posts List
  */
-const findUserContent = async (model, userId, page, last_id, limit) => {
+const getPosts = async (userId, page, limit) => {
   try {
+    // 페이지 번호와 페이지당 아이템 수로 스킵하는 개수 계산
+    const skip = (page - 1) * limit;
+
     let query = { user_id: userId };
+    // 게시글 리스트 조회 (Notice, General)
+    const posts = await PostModel.find(query)
+      .populate('user_id', 'nickname')
+      .select('-__v -view.viewers') // 필요없는 필드 제외
+      .sort({ created_at: -1 })
+      .skip(skip) // 스킵
+      .limit(limit);
 
-    // last_id가 존재하면, 마지막 id 이후의 문서 조회
-    if (last_id) {
-      query._id = { $lt: last_id };
+    // 결과가 없는 경우
+    if (posts.length === 0) {
+      return { data: null, pagination: null };
     }
 
-    let cursor;
-    if (model === PostModel) {
-      cursor = await model
-        .find(query)
-        .select('-__v -view.viewers')
-        .sort({ created_at: -1 })
-        .limit(limit);
-    } else if (model === EventEntryModel) {
-      const eventEntries = await model.find(query);
-
-      // 조회한 이벤트의 ID들을 배열로 추출
-      const eventIds = eventEntries.map((entry) => entry.event_id);
-
-      // 이벤트 ID들을 이용하여 event 컬렉션에서 해당 이벤트들을 조회
-      cursor = await EventModel.find({ _id: { $in: eventIds } })
-        .select('-__v')
-        .sort({ created_at: -1 })
-        .limit(limit);
-    }
-
-    if (!cursor.length) {
-      // 더이상 결과가 없는 경우
-      return { data: null, last_id: null };
-    }
-
-    // 마지막 문서의 ID를 가져옴
-    const lastId = cursor[cursor.length - 1]._id.toString();
-
-    // 전체 문서 개수 조회 후 페이징 계산
-    delete query._id;
-    const total = await model.countDocuments(query);
+    // 페이지네이션 정보 계산
+    const total = await PostModel.countDocuments(query);
     const paginationResult = await calcPagination(total, limit, page);
 
-    return { data: cursor, last_id: lastId, pagination: paginationResult };
+    return { data: posts, pagination: paginationResult };
   } catch (err) {
     console.error('Error:', err);
     throw Error(err);
@@ -281,77 +262,41 @@ const findUserContent = async (model, userId, page, last_id, limit) => {
 };
 
 /**
- * 본인 프로필 조회
+ * 이벤트 참여 목록 조회
  * @param {*} userId
- * @param {*} post_page
- * @param {*} post_last_id
- * @param {*} event_page
- * @param {*} event_last_id
  * @param {*} limit
- * @returns
+ * @param {*} last_id
+ * @returns 조회 결과, last_id
  */
-const findMyUserData = async (
-  userId,
-  post_page,
-  post_last_id,
-  event_page,
-  event_last_id,
-  limit
-) => {
+const getEvents = async (userId, page, limit) => {
   try {
-    // 게시글 목록 조회
-    const postResult = await findUserContent(
-      PostModel,
-      userId,
-      post_page,
-      post_last_id,
-      limit
-    );
-    // 참여한 이벤트 목록 조회
-    const eventResult = await findUserContent(
-      EventEntryModel,
-      userId,
-      event_page,
-      event_last_id,
-      limit
-    );
+    // 페이지 번호와 페이지당 아이템 수로 스킵하는 개수 계산
+    const skip = (page - 1) * limit;
 
-    const result = {
-      post: postResult,
-      event: eventResult,
-    };
+    // 사용자별 참여한 이벤트 목록 조회
+    const eventEntries = await EventEntryModel.find({ user_id: userId });
 
-    return { success: true, data: result };
-  } catch (err) {
-    console.error('Error:', err);
-    throw Error(err);
-  }
-};
+    // 조회한 이벤트의 ID들을 배열로 추출
+    const eventIds = eventEntries.map((entry) => entry.event_id);
 
-/**
- * 다른 사람의 프로필 조회
- * @param {*} userId
- * @param {*} post_page
- * @param {*} post_last_id
- * @param {*} event_page
- * @param {*} event_last_id
- * @param {*} limit
- * @returns
- */
-const findOtherUserData = async (userId, post_page, post_last_id, limit) => {
-  try {
-    const postResult = await findUserContent(
-      PostModel,
-      userId,
-      post_page,
-      post_last_id,
-      limit
-    );
+    // 이벤트 ID들을 이용하여 event 컬렉션에서 해당 이벤트들을 조회
+    const events = await EventModel.find({ _id: { $in: eventIds } })
+      .populate('host_id', ['name', 'organization'])
+      .select('-__v -view.viewers')
+      .sort({ created_at: -1 })
+      .skip(skip) // 스킵
+      .limit(limit);
 
-    const result = {
-      post: postResult,
-    };
-    return { success: true, data: result };
+    // 결과가 없는 경우
+    if (events.length === 0) {
+      return { data: null, pagination: null };
+    }
+
+    // 페이지네이션 정보 계산
+    const total = await EventModel.countDocuments({ _id: { $in: eventIds } });
+    const paginationResult = await calcPagination(total, limit, page);
+
+    return { data: events, pagination: paginationResult };
   } catch (err) {
     console.error('Error:', err);
     throw Error(err);
@@ -364,7 +309,7 @@ const findOtherUserData = async (userId, post_page, post_last_id, limit) => {
  * @param {string} nickname
  * @returns 성공여부
  */
-const chgNickname = async (email, nickname) => {
+const changeNickname = async (email, nickname) => {
   try {
     const userData = await UserModel.findOne({ email: email });
     if (!userData) {
@@ -387,7 +332,7 @@ const chgNickname = async (email, nickname) => {
  * @param {*} bannerUrl
  * @returns 성공여부
  */
-const chgBanner = async (email, bannerUrl) => {
+const changeBanner = async (email, bannerUrl) => {
   try {
     const userData = await UserModel.findOne({ email: email });
     if (!userData) {
@@ -439,11 +384,10 @@ module.exports = {
   checkEmailAuthCode,
   saveUserData,
   findUserEmail,
-  findUserNickname,
-  chgNickname,
-  findMyUserData,
-  findOtherUserData,
-  chgBanner,
-  findUserContent,
+  getUser,
+  changeNickname,
+  getPosts,
+  getEvents,
+  changeBanner,
   setTokenCookie,
 };

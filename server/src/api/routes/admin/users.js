@@ -1,7 +1,7 @@
 const Router = require('express');
 const upload = require('../../../loaders/s3');
 const isAdminAuth = require('../../middlewares/isAdminAuth');
-const usersController = require('../../../services/client/usersController');
+const clientUsersController = require('../../../services/client/usersController');
 const adminUsersController = require('../../../services/admin/usersController');
 const EventEntryModel = require('../../../models/EventEntries');
 const PostModel = require('../../../models/Posts');
@@ -29,7 +29,7 @@ module.exports = (app) => {
       } = req.query;
 
       // 사용자 정보 조회
-      const result = await usersController.findUsers(
+      const result = await adminUsersController.findUsers(
         page,
         limit,
         social_provider,
@@ -71,7 +71,7 @@ module.exports = (app) => {
       const { id } = req.params;
 
       // 사용자 상세 정보 조회
-      const result = await adminUsersController.findUserDetail(id);
+      const result = await adminUsersController.getUserDetail(id);
       if (!result) {
         return res.status(400).json({
           success: false,
@@ -104,13 +104,7 @@ module.exports = (app) => {
       const { page = 1, limit = 5, last_id = null } = req.query;
 
       // 사용자가 참가한 이벤트 리스트 조회
-      const result = await usersController.findUserContent(
-        EventEntryModel,
-        id,
-        page,
-        last_id,
-        limit
-      );
+      const result = await clientUsersController.getEvents(id, page, limit);
 
       return res.status(200).json({
         success: true,
@@ -137,13 +131,7 @@ module.exports = (app) => {
       const { page = 1, limit = 5, last_id = null } = req.query;
 
       // 사용자가 작성한 게시글 리스트 조회
-      const result = await usersController.findUserContent(
-        PostModel,
-        id,
-        page,
-        last_id,
-        limit
-      );
+      const result = await clientUsersController.getPosts(id, page, limit);
 
       return res.status(200).json({
         success: true,
@@ -173,12 +161,7 @@ module.exports = (app) => {
         const { page = 1, limit = 5, last_id = null } = req.query;
 
         // 사용자가 작성한 댓글 리스트 조회
-        const result = await adminUsersController.findComments(
-          id,
-          page,
-          limit,
-          last_id
-        );
+        const result = await adminUsersController.getComments(id, page, limit);
 
         return res.status(200).json({
           success: true,

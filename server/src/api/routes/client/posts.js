@@ -1,21 +1,10 @@
 const Router = require('express');
 const upload = require('../../../loaders/s3');
-const PostModel = require('../../../models/Posts');
 const isAuth = require('../../middlewares/isAuth');
-const calcPagination = require('../../../utils/calcPagination');
 const jwtUtil = require('../../../utils/jwtUtil');
-const {
-  checkImageFileSize,
-  checkVideoFileSize,
-} = require('../../middlewares/fileSizeCheck');
-const {
-  savePost,
-  editPostField,
-  deletePost,
-  findDetailPost,
-  noticesLatestPost,
-  findPost,
-} = require('../../../services/client/postsController');
+const PostModel = require('../../../models/Posts');
+const postsController = require('../../../services/client/postsController');
+
 const route = Router();
 
 module.exports = (app) => {
@@ -29,8 +18,6 @@ module.exports = (app) => {
   route.post(
     '/create',
     isAuth,
-    checkImageFileSize,
-    checkVideoFileSize,
     upload.fields([{ name: 'image' }, { name: 'video' }]),
     async (req, res) => {
       try {
@@ -63,7 +50,11 @@ module.exports = (app) => {
         };
 
         // 게시글 저장
-        const result = await savePost(req.decoded.email, postData, media);
+        const result = await postsController.savePost(
+          req.decoded.email,
+          postData,
+          media
+        );
         if (!result.success) {
           return res.status(400).json({
             success: false,
@@ -124,11 +115,15 @@ module.exports = (app) => {
       let editContentResult = { success: true };
 
       if (title && title !== postData.title) {
-        editTitleResult = await editPostField(post_id, { title });
+        editTitleResult = await postsController.editPostField(post_id, {
+          title,
+        });
       }
 
       if (content && content !== postData.content) {
-        editContentResult = await editPostField(post_id, { content });
+        editContentResult = await postsController.editPostField(post_id, {
+          content,
+        });
       }
 
       if (!editTitleResult.success || !editContentResult.success) {
@@ -180,7 +175,7 @@ module.exports = (app) => {
         req.decoded.isAdmin
       ) {
         // 게시글 삭제
-        const deleteResult = await deletePost(post_id);
+        const deleteResult = await postsController.deletePost(post_id);
         if (!deleteResult.success) {
           return res.status(400).json({
             success: false,
@@ -224,39 +219,44 @@ module.exports = (app) => {
         content = null,
       } = req.query;
 
-      //데이터 조회
-      const result = await findPost(
-        category,
-        limit,
-        last_id,
-        order,
-        title,
-        content
-      );
-      console.log(result);
+      let result;
 
-      // 결과 반환
-      const resultData = {
-        success: true,
-        message: '게시글 리스트 조회에 성공했습니다.',
-        data: result.data,
-        last_id: result.last_id,
-      };
-
-      // list일 경우 페이지 계산
-      if (category === 'Notice' || category === 'General') {
-        if (result.data) {
-          // result.data가 null이 아닌 경우에만 페이징 계산 수행
-          const pageResult = await calcPagination(
-            result.data.length,
-            limit,
-            page
-          );
-          resultData.pagination = pageResult.pagination;
-        }
+      // Notice, General -> list
+      if (category === 'notice' || category === 'general') {
+        result = await postsController.getPosts(
+          page, // 조회할 페이지 번호
+          limit,
+          order, // 정렬 순서
+          category,
+          title,
+          content
+        );
       }
 
-      return res.status(200).json(resultData);
+      // Review -> infinite scroll
+      if (category === 'review') {
+        result = await postsController.getReviews(
+          last_id, // 마지막 게시글 id
+          limit,
+          title,
+          content
+        );
+      }
+
+      // Event -> infinite scroll
+      if (category === 'event') {
+        result = await postsController.getEvents(
+          last_id, // 마지막 게시글 id
+          limit,
+          title,
+          content
+        );
+      }
+
+      return res.status(200).json({
+        success: true,
+        data: result,
+      });
     } catch (err) {
       console.error('Error:', err);
       return res.status(500).json({
@@ -288,7 +288,11 @@ module.exports = (app) => {
       }
 
       // 게시글 상세 조회
-      const postDetailResult = await findDetailPost(req, post_id, user_id);
+      const postDetailResult = await postsController.findDetailPost(
+        req,
+        post_id,
+        user_id
+      );
       if (!postDetailResult.success) {
         return res.status(400).json({
           success: false,
@@ -317,7 +321,7 @@ module.exports = (app) => {
    */
   route.get('/notices_latest', async (req, res) => {
     try {
-      const result = await noticesLatestPost();
+      const result = await postsController.noticesLatestPost();
       if (!result.success) {
         return res.status(400).json({
           success: false,

@@ -12,13 +12,25 @@ const { postViews } = require('./postsController');
 const findEventDetail = async (req, event_id, user_id) => {
   try {
     // 이벤트 정보 조회
-    const eventResult = await EventModel.findById(event_id).populate('host_id');
+    const eventResult = await EventModel.findById(event_id)
+      .populate('host_id', [
+        'name',
+        'email',
+        'phone_number',
+        'wallet_address',
+        'organization',
+      ])
+      .select('-__v');
     if (!eventResult) {
       return { success: false };
     }
 
     // 조회 수 증가
     const viewResult = await postViews(req, eventResult);
+
+    // view.viewers 필드 제거
+    let objEvent = eventResult.toObject();
+    delete objEvent.view.viewers;
 
     // 로그인을 한 경우
     let is_Entry = false;
@@ -41,7 +53,7 @@ const findEventDetail = async (req, event_id, user_id) => {
     return {
       success: true,
       data: {
-        event: viewResult,
+        event: objEvent,
         comments: updatedComments,
         is_eventEntry: is_Entry,
       },

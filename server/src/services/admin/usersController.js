@@ -1,5 +1,5 @@
 const calcPagination = require('../../utils/calcPagination');
-const usersController = require('../client/usersController');
+const clientUsersController = require('../client/usersController');
 const commentsController = require('../client/commentsController');
 const UserModel = require('../../models/Users');
 const CommentModel = require('../../models/Comments');
@@ -36,7 +36,7 @@ const findUsers = async (
 
     // 사용자 정보 조회
     const usersResult = await UserModel.find(query)
-      .select('-password')
+      .select('-password -__v ')
       .sort({ _id: -1 })
       .limit(limit);
 
@@ -61,43 +61,37 @@ const findUsers = async (
 };
 
 /**
- * 사용자별 댓글 조회 (페이징)
+ * 사용자별 댓글 조회 (페이지네이션)
  * @param {*} user_id
  * @param {*} page
  * @param {*} limit
- * @param {*} last_id
  * @returns
  */
-const findComments = async (user_id, page, limit, last_id) => {
+const getComments = async (user_id, page, limit) => {
   try {
     let query = { user_id: user_id };
 
-    // last_id가 존재하면, 마지막 id 이후의 문서 조회
-    if (last_id) {
-      query._id = { $lt: last_id };
-    }
+    // 페이지 번호와 페이지당 아이템 수로 스킵하는 개수 계산
+    const skip = (page - 1) * limit;
 
     const commentsResult = await CommentModel.find(query)
       .populate('user_id', ['nickname'])
       .populate('post_id', ['title'])
       .select('-__v -likes.likers')
       .sort({ created_at: -1 })
+      .skip(skip) // 스킵
       .limit(limit);
 
     if (commentsResult.length === 0) {
       return { data: null, last_id: null };
     }
 
-    // 마지막 리스트 id
-    const lastId = commentsResult[commentsResult.length - 1]._id.toString();
-
     // 전체 데이터 수 조회 후 페이징 계산
-    const total = await CommentModel.countDocuments({ user_id: user_id });
+    const total = await CommentModel.countDocuments(query);
     const paginationResult = await calcPagination(total, limit, page);
 
     return {
       data: commentsResult,
-      last_id: lastId,
       pagination: paginationResult,
     };
   } catch (err) {
@@ -118,50 +112,29 @@ const findComments = async (user_id, page, limit, last_id) => {
  * @param {*} limit
  * @returns
  */
-const findUserDetail = async (
-  user_id,
-  post_page = 1,
-  post_last_id = null,
-  event_page = 1,
-  event_last_id = null,
-  comment_page = 1,
-  comment_last_id = null,
-  limit = 10
-) => {
+const getUserDetail = async (user_id, page = 1, limit = 5) => {
   try {
     // 사용자 정보 조회
-    const userResult = await UserModel.findById(user_id).select(
-      '-hashed_pw -__v'
-    );
-    if (!userResult) {
-      return {
-        success: false,
-      };
+    const user = await clientUsersController.getUser(user_id);
+    if (!user) {
+      return { success: false, message: '사용자 정보가 존재하지 않습니다.' };
     }
 
-    // 게시글 목록, 참여한 이벤트 목록 조회
-    const postsResult = await usersController.findMyUserData(
-      user_id,
-      post_page,
-      post_last_id,
-      event_page,
-      event_last_id,
-      limit
-    );
+    // 사용자가 작성한 게시글 목록 조회 (review, general)
+    const posts = await clientUsersController.getPosts(user_id, page, limit);
+
+    // 사용자가 참여한 이벤트 목록 조회
+    const events = await clientUsersController.getEvents(user_id, page, limit);
 
     // 작성한 댓글 목록 조회
-    const commentsResult = await findComments(
-      user_id,
-      comment_page,
-      limit,
-      comment_last_id
-    );
+    const commentsResult = await getComments(user_id, page, limit);
 
     return {
       success: true,
       data: {
-        user: userResult,
-        posts: postsResult.data,
+        user: user.data,
+        posts: posts,
+        events: events,
         comments: commentsResult,
       },
     };
@@ -196,4 +169,4 @@ const deleteUser = async (user_id) => {
   }
 };
 
-module.exports = { findUsers, findUserDetail, findComments, deleteUser };
+module.exports = { findUsers, getUserDetail, getComments, deleteUser };
