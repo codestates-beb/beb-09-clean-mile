@@ -1,8 +1,8 @@
 import ChartBarIcon from "@heroicons/react/24/solid/ChartBarIcon";
 import TicketIcon from "@heroicons/react/24/solid/TicketIcon";
 import UsersIcon from "@heroicons/react/24/solid/UsersIcon";
-import DocumentIcon from "@heroicons/react/24/solid/DocumentIcon";
-import PencilIcon from "@heroicons/react/24/solid/PencilIcon";
+import UserIcon from "@heroicons/react/24/solid/UserIcon";
+import ChatBubbleBottomCenterIcon from "@heroicons/react/24/solid/ChatBubbleBottomCenterIcon";
 
 import { SvgIcon } from "@mui/material";
 
@@ -21,7 +21,7 @@ export const items = [
     path: "/users",
     icon: (
       <SvgIcon fontSize="small">
-        <UsersIcon />
+        <UserIcon />
       </SvgIcon>
     ),
   },
@@ -30,7 +30,7 @@ export const items = [
     path: "/posts",
     icon: (
       <SvgIcon fontSize="small">
-        <DocumentIcon />
+        <UsersIcon />
       </SvgIcon>
     ),
   },
@@ -39,7 +39,7 @@ export const items = [
     path: "/comments",
     icon: (
       <SvgIcon fontSize="small">
-        <PencilIcon />
+        <ChatBubbleBottomCenterIcon />
       </SvgIcon>
     ),
   },
