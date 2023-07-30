@@ -1,5 +1,4 @@
 const Router = require('express');
-const jwt = require('jsonwebtoken');
 const jwtUtil = require('../../../utils/jwtUtil');
 const isAuth = require('../../middlewares/isAuth');
 const PostModel = require('../../../models/Posts');

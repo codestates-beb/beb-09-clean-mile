@@ -235,36 +235,45 @@ const findUserContent = async (model, userId, page, last_id, limit) => {
   try {
     let query = { user_id: userId };
 
-    const total = await model.countDocuments(query);
-
     // last_id가 존재하면, 마지막 id 이후의 문서 조회
     if (last_id) {
-      query._id = { $gt: last_id };
+      query._id = { $lt: last_id };
     }
 
     let cursor;
     if (model === PostModel) {
-      cursor = model.find(query).sort({ created_at: -1 }).limit(limit);
-    } else if (model === EventEntryModel) {
-      cursor = model
+      cursor = await model
         .find(query)
-        .populate('event_id')
+        .select('-__v -view.viewers')
+        .sort({ created_at: -1 })
+        .limit(limit);
+    } else if (model === EventEntryModel) {
+      const eventEntries = await model.find(query);
+
+      // 조회한 이벤트의 ID들을 배열로 추출
+      const eventIds = eventEntries.map((entry) => entry.event_id);
+
+      // 이벤트 ID들을 이용하여 event 컬렉션에서 해당 이벤트들을 조회
+      cursor = await EventModel.find({ _id: { $in: eventIds } })
+        .select('-__v')
         .sort({ created_at: -1 })
         .limit(limit);
     }
 
-    const result = await cursor.exec();
-    if (!result.length) {
+    if (!cursor.length) {
       // 더이상 결과가 없는 경우
       return { data: null, last_id: null };
     }
 
     // 마지막 문서의 ID를 가져옴
-    const lastId = result[result.length - 1]._id.toString();
+    const lastId = cursor[cursor.length - 1]._id.toString();
 
+    // 전체 문서 개수 조회 후 페이징 계산
+    delete query._id;
+    const total = await model.countDocuments(query);
     const paginationResult = await calcPagination(total, limit, page);
 
-    return { data: result, last_id: lastId, pagination: paginationResult };
+    return { data: cursor, last_id: lastId, pagination: paginationResult };
   } catch (err) {
     console.error('Error:', err);
     throw Error(err);
