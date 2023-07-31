@@ -26,10 +26,10 @@ const getComments = async (category, page, title, content, writer, limit) => {
       postIds = await PostModel.find({ category }).select('_id title');
     }
 
-    // 제목을 검색할 경우 정규표현식 사용 (대소문자 구분 없이 검색)
+    // 제목을 검색할 경우 (대소문자 구분 없이 검색)
     if (title) {
       const filterPosts = postIds.filter((postId) => {
-        if (postId.title.includes(title)) {
+        if (postId.title.toLowerCase().includes(title.toLowerCase())) {
           return postId._id;
         }
       });
