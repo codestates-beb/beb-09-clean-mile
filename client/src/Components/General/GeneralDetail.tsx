@@ -13,7 +13,7 @@ const GeneralDetail = ({ postDetail, comment }: { postDetail: PostDetail, commen
   const router = useRouter();
   const [createComment, setCreateComment] = useState('');
   const [isHeartFilled, setIsHeartFilled] = useState(false);
-    console.log(postDetail);
+    console.log(postDetail, comment);
 
   // function to toggle heart fill
   const toggleHeartFill = () => {
@@ -63,27 +63,33 @@ const GeneralDetail = ({ postDetail, comment }: { postDetail: PostDetail, commen
         </div>
         <div className='w-full flex flex-col gap-4'>
           <h2 className='text-xl font-bold xs:text-base'>Comment</h2>
-          <div className='w-full grid grid-cols-2 items-center border rounded-xl p-3 sm:p-2'>
-            <div>
-              <p className='text-lg sm:text-base xs:text-xs font-semibold'>comment content</p>
-            </div>
-            <div className='text-right flex justify-end gap-6 sm:gap-2 xs:gap-2'>
-              <div>
-                <p className='font-bold text-lg sm:text-sm xs:text-xs cursor-pointer hover:underline' onClick={() => router.push(`/user/profile`)}>nickname</p>
-                <div>
-                  <p className='text-sm sm:text-xs xs:text-xs'>comment date</p>
+            {comment ? (
+              <>
+                <div className='w-full grid grid-cols-2 items-center border rounded-xl p-3 sm:p-2'>
+                  <div>
+                    <p className='text-lg sm:text-base xs:text-xs font-semibold'>comment content</p>
+                  </div>
+                  <div className='text-right flex justify-end gap-6 sm:gap-2 xs:gap-2'>
+                    <div>
+                      <p className='font-bold text-lg sm:text-sm xs:text-xs cursor-pointer hover:underline' onClick={() => router.push(`/user/profile`)}>nickname</p>
+                      <div>
+                        <p className='text-sm sm:text-xs xs:text-xs'>comment date</p>
+                      </div>
+                    </div>
+                    <div className='flex justify-end items-center gap-4 sm:gap-2 xs:gap-2'>
+                      {
+                        isHeartFilled ?
+                        <AiFillHeart className='text-main-red cursor-pointer sm:w-[30%] xs:w-[30%]' size={26} onClick={toggleHeartFill} /> :
+                        <AiOutlineHeart className='text-main-red cursor-pointer sm:w-[30%] xs:w-[30%]' size={26} onClick={toggleHeartFill} />
+                      }
+                      <AiOutlineDelete className="text-red-500 cursor-pointer sm:w-[30%] xs:w-[30%]" size={26} />
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <div className='flex justify-end items-center gap-4 sm:gap-2 xs:gap-2'>
-                {
-                  isHeartFilled ?
-                  <AiFillHeart className='text-main-red cursor-pointer sm:w-[30%] xs:w-[30%]' size={26} onClick={toggleHeartFill} /> :
-                  <AiOutlineHeart className='text-main-red cursor-pointer sm:w-[30%] xs:w-[30%]' size={26} onClick={toggleHeartFill} />
-                }
-                <AiOutlineDelete className="text-red-500 cursor-pointer sm:w-[30%] xs:w-[30%]" size={26} />
-              </div>
-            </div>
-          </div>
+              </>
+            ) : (
+              null
+            )}
           <textarea
             className='border border-gray-300 rounded-lg p-2 w-full outline-none'
             rows={4}

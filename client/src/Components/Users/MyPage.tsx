@@ -204,7 +204,6 @@ const MyPage = ({ userInfo }: { userInfo: UserInfo }) => {
       });
     }
   }
-  console.log(userInfo)
 
   return (
     <div className="w-full min-h-screen">
@@ -433,12 +432,12 @@ const MyPage = ({ userInfo }: { userInfo: UserInfo }) => {
               </tr>
             </thead>
             <tbody>
-              {currentPosts.length === 0 ? (
+              {userInfo?.post?.data.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="p-6 text-center">작성한 게시글이 없습니다.</td>
                 </tr>
               ) : (
-                userInfo?.posts?.data.map((post, i) => (
+                userInfo?.post?.data.map((post, i) => (
                   <tr className="
                     hover:bg-gray-200 
                     transition-all 

@@ -106,6 +106,7 @@ const Header = () => {
             confirmButtonColor: '#6BCB77'
           }).then(() => {
             Swal.close();
+            router.push('/');
           });
 
           throw err;
