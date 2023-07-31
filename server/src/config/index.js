@@ -28,6 +28,7 @@ module.exports = {
     jwtAdminSecret: config.ADMIN_SECRET_CODE,
     jwtAdminRefreshSecret: config.ADMIN_REFRESH_SECRET_CODE,
     isu: config.ISSUER,
+    adminIsu: config.ADMIN_ISSUER,
     aud: config.AUDIENCE,
   },
 

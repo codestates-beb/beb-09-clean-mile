@@ -22,7 +22,7 @@ module.exports = {
       expiresIn: '15m', // 만료 시간
       algorithm: 'HS256', // 암호화 알고리즘
       issuer: config.jwt.isu, // 발행자
-      audience: config.jwt.isu, // 발행 대상
+      audience: config.jwt.adminIsu, // 발행 대상
       subject: 'admin', // 토큰 발행 목적
     });
   },
@@ -70,7 +70,7 @@ module.exports = {
       algorithm: 'HS256', // 암호화 알고리즘
       expiresIn: '14d', // 만료 시간
       issuer: config.jwt.isu, // 발행자
-      audience: config.jwt.aud, // 발행 대상
+      audience: config.jwt.adminIsu, // 발행 대상
       subject: 'auth', // 토큰 발행 목적
     });
   },
