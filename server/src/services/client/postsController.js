@@ -269,7 +269,6 @@ const getEvents = async (last_id, limit, title, content) => {
     if (content) {
       query.content = { $regex: new RegExp(content, 'i') };
     }
-
     // 이벤트 ID 배열을 이용해 이벤트 목록 조회
     const events = await EventModel.find(query)
       .populate('host_id', ['name', 'organization'])
@@ -374,7 +373,6 @@ const findPost = async (category, limit, last_id, order, title, content) => {
       cursor = EventModel.find(query)
         .populate('host_id', ['name', 'organization'])
         .limit(limit);
-      console.log(cursor);
     } else {
       cursor = PostModel.find(query)
         .populate('user_id', ['nickname'])
