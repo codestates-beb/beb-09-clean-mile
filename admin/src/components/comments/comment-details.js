@@ -8,30 +8,29 @@ import {
   Unstable_Grid2 as Grid,
 } from "@mui/material";
 
-export const AccountProfileDetails = () => {
+export const CommentDetails = () => {
   const [values, setValues] = useState({
-    name: "엄준식",
-    email: "um@cleanmile.com",
-    nickname: "엄마가 준비한 식사",
-    phone_number: "010-xxxx-xxxx",
-    social_provider: "kakao",
-    user_type: 0,
+    id: "1tACdzxeYHM5kNWLfLmKQjeTM",
+    post_id: "1tACdzxeYHM5kNWLfLmKQjeTM",
+    category: "한식",
+    title: "엄마가 준비한 식사",
+    likes: 50000000000000,
+    content: "엄마가 준비한 식사입니다. 맛있게 드세요.",
     created_at: "2021-10-01 00:00:00",
-    instagram_url: "",
   });
 
   return (
     <Card sx={{ p: 3 }}>
-      <CardHeader title="Profile" />
+      <CardHeader title="Detail" />
       <CardContent sx={{ pt: 0 }}>
         <Box sx={{ m: -1.5 }}>
           <Grid container spacing={3}>
             <Grid xs={12} md={6}>
               <TextField
                 fullWidth
-                label="Name"
-                name="name"
-                value={values.name}
+                label="ID"
+                name="id"
+                value={values.id}
                 InputProps={{
                   readOnly: true,
                 }}
@@ -40,9 +39,9 @@ export const AccountProfileDetails = () => {
             <Grid xs={12} md={6}>
               <TextField
                 fullWidth
-                label="Nickname"
-                name="nickname"
-                value={values.nickname}
+                label="Post ID"
+                name="post_id"
+                value={values.post_id}
                 InputProps={{
                   readOnly: true,
                 }}
@@ -51,9 +50,9 @@ export const AccountProfileDetails = () => {
             <Grid xs={12} md={6}>
               <TextField
                 fullWidth
-                label="Email"
-                name="email"
-                value={values.email}
+                label="Post Title"
+                name="post title"
+                value={values.title}
                 InputProps={{
                   readOnly: true,
                 }}
@@ -62,9 +61,9 @@ export const AccountProfileDetails = () => {
             <Grid xs={12} md={6}>
               <TextField
                 fullWidth
-                label="Phone Number"
-                name="phoneNumber"
-                value={values.phone_number}
+                label="Post Category"
+                name="post category"
+                value={values.category}
                 InputProps={{
                   readOnly: true,
                 }}
@@ -73,9 +72,9 @@ export const AccountProfileDetails = () => {
             <Grid xs={12} md={6}>
               <TextField
                 fullWidth
-                label="Social Provider"
-                name="socialProvider"
-                value={values.social_provider}
+                label="Likes"
+                name="likes"
+                value={values.likes}
                 InputProps={{
                   readOnly: true,
                 }}
@@ -84,31 +83,21 @@ export const AccountProfileDetails = () => {
             <Grid xs={12} md={6}>
               <TextField
                 fullWidth
-                label="User Type"
-                name="userType"
-                value={values.user_type === 0 ? "일반" : "관리자"}
-                InputProps={{
-                  readOnly: true,
-                }}
-              ></TextField>
-            </Grid>
-            <Grid xs={12} md={6}>
-              <TextField
-                fullWidth
-                label="Sign Up"
-                name="signUp"
+                label="Created At"
+                name="created_at"
                 value={values.created_at}
                 InputProps={{
                   readOnly: true,
                 }}
               ></TextField>
             </Grid>
-            <Grid xs={12} md={6}>
+            <Grid xs={12} md={12}>
               <TextField
                 fullWidth
-                label="Instagram"
-                name="instagram"
-                value={values.instagram_url ? values.instagram_url : "없음"}
+                multiline
+                label="Content"
+                name="content"
+                value={values.content}
                 InputProps={{
                   readOnly: true,
                 }}
