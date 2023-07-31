@@ -221,8 +221,8 @@ module.exports = (app) => {
 
       let result;
 
-      // Notice, General -> list
-      if (category === 'notice' || category === 'general') {
+      // General -> list
+      if (category === 'general') {
         result = await postsController.getPosts(
           page, // 조회할 페이지 번호
           limit,
@@ -243,15 +243,77 @@ module.exports = (app) => {
         );
       }
 
-      // Event -> infinite scroll
-      if (category === 'event') {
-        result = await postsController.getEvents(
-          last_id, // 마지막 게시글 id
-          limit,
-          title,
-          content
-        );
-      }
+      return res.status(200).json({
+        success: true,
+        data: result,
+      });
+    } catch (err) {
+      console.error('Error:', err);
+      return res.status(500).json({
+        success: false,
+        message: '서버 오류',
+      });
+    }
+  });
+
+  /**
+   * @router GET /posts/list/notice
+   * @group Posts
+   * @Summary 공지사항 목록 조회 (list)
+   */
+  route.get('/list/notice', async (req, res) => {
+    try {
+      const {
+        page = 1,
+        limit = 10,
+        order = 'desc',
+        title = null,
+        content = null,
+      } = req.query;
+
+      const category = 'notice';
+      const result = await postsController.getPosts(
+        page, // 조회할 페이지 번호
+        limit,
+        order, // 정렬 순서
+        category,
+        title,
+        content
+      );
+
+      return res.status(200).json({
+        success: true,
+        data: result,
+      });
+    } catch (err) {
+      console.error('Error:', err);
+      return res.status(500).json({
+        success: false,
+        message: '서버 오류',
+      });
+    }
+  });
+
+  /**
+   * @router GET /posts/list/general
+   * @group Posts
+   * @Summary 이벤트 게시글 목록 조회
+   */
+  route.get('/list/event', async (req, res) => {
+    try {
+      const {
+        last_id = null,
+        limit = 10,
+        title = null,
+        content = null,
+      } = req.query;
+
+      const result = await postsController.getEvents(
+        last_id, // 마지막 게시글 id
+        limit,
+        title,
+        content
+      );
 
       return res.status(200).json({
         success: true,

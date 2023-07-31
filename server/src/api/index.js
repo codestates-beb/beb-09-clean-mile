@@ -6,6 +6,8 @@ const events = require('./routes/client/events');
 const adminAuth = require('./routes/admin/adminAuth');
 const adminUsers = require('./routes/admin/users');
 const adminEvents = require('./routes/admin/events');
+const adminPosts = require('./routes/admin/posts');
+const adminComments = require('./routes/admin/comments');
 
 module.exports = () => {
   const app = Router();
@@ -30,6 +32,12 @@ module.exports = () => {
 
   // admin/events 관련 라우터
   adminEvents(app);
+
+  // admin/posts 관련 라우터
+  adminPosts(app);
+
+  // admin/comments 관련 라우터
+  adminComments(app);
 
   return app;
 };
