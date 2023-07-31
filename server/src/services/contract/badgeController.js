@@ -85,6 +85,24 @@ const createBadge = async ( name, description, imageUrl, badgeType, amount, even
   }
 }
 
+/**
+ * 한 이벤트에 대한 참여 인증 완료자들 반환
+ * @param {string} eventId
+ * @returns 성공여부, 참여 인증자들(Array)
+ */
+const isConfirmedUser = async (eventId) => {
+  try{
+    const confirmedUser = [];
+    const entryList = await EventEntryModel.find({event_id: eventId});
+    for (const entry of entryList){
+      if (entry.is_confirmed) confirmedUser.push(entry.user_id); 
+    }
+    return ({success: true, data: confirmedUser});
+  }catch(err){
+    console.error("Error:", err);
+    throw new Error(err);
+  }
+}
 
 // recipients를 인증완료한 user들의 _id를 배열로 받는다.
 // 참여자들에게 badge를 뿌려준다.
@@ -228,5 +246,6 @@ module.exports = {
   createBadge,
   transferBadge,
   transferBadges,
-  userBadges
+  userBadges,
+  isConfirmedUser
 }
