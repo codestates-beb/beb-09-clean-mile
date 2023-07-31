@@ -8,36 +8,48 @@ const adminUsers = require('./routes/admin/users');
 const adminEvents = require('./routes/admin/events');
 const adminPosts = require('./routes/admin/posts');
 const adminComments = require('./routes/admin/comments');
+const adminNotices = require('./routes/admin/notices');
 
 module.exports = () => {
   const app = Router();
 
-  // client/users 관련 라우터
+  /**
+   ******** Client API ********
+   */
+
+  // users 라우터
   users(app);
 
-  // client/posts 관련 라우터
+  // posts 라우터
   posts(app);
 
-  // client/comments 관련 라우터
+  // comments 라우터
   comments(app);
 
-  // client/events 관련 라우터
+  // events 라우터
   events(app);
 
-  // admin/adminAuth 관련 라우터
+  /**
+   ******** Admin API *******
+   */
+
+  // adminAuth 라우터
   adminAuth(app);
 
-  // admin/users 관련 라우터
+  // users 라우터
   adminUsers(app);
 
-  // admin/events 관련 라우터
+  // events 라우터
   adminEvents(app);
 
-  // admin/posts 관련 라우터
+  // posts 라우터
   adminPosts(app);
 
-  // admin/comments 관련 라우터
+  // comments 라우터
   adminComments(app);
+
+  // notices 라우터
+  adminNotices(app);
 
   return app;
 };

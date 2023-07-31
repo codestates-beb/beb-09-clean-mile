@@ -2,6 +2,7 @@ const aws = require('aws-sdk');
 const multer = require('multer');
 const multerS3 = require('multer-s3');
 const config = require('../config/index');
+const uuid = require('uuid'); // Universally Unique IDentifier 범용 고유 식별자
 
 // AWS S3 설정
 const s3 = new aws.S3({
@@ -19,7 +20,11 @@ upload = multer({
       cb(null, { fieldName: file.fieldname });
     },
     key: function (req, file, cb) {
-      cb(null, Date.now().toString()); // 파일 이름을 고유하게 설정할 수 있습니다.
+      // const uuid = uuid.v4().substring(0, 8);
+      const uniqueId = uuid.v4();
+      const fileName = `${uniqueId}_${file.originalname}`;
+      const fullPath = uniqueId + '/' + fileName;
+      cb(null, fullPath);
     },
   }),
   // 업로드 파일 용량 제한 (5MB)

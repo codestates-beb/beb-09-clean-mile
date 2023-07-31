@@ -68,4 +68,46 @@ const getPosts = async (category, page, title, content, writer, limit) => {
   }
 };
 
-module.exports = { getPosts };
+/**
+ * 게시글 아이디로 게시글 조회
+ * @param {*} post_id
+ * @returns
+ */
+const getPost = async (post_id) => {
+  try {
+    // 게시글 조회
+    const post = await PostModel.findById(post_id).select('-__v');
+
+    // 게시글이 없는 경우
+    if (!post) {
+      return { success: false };
+    }
+
+    return { success: true, data: post };
+  } catch (err) {
+    console.error('Error:', err);
+    throw Error(err);
+  }
+};
+
+/**
+ * 게시글 삭제
+ * @param {*} post_id
+ * @returns
+ */
+const deletePost = async (post_id) => {
+  try {
+    // 게시글 삭제
+    const result = await PostModel.deleteOne({ _id: post_id });
+    if (result.deletedCount === 0) {
+      return { success: false };
+    }
+
+    return { success: true };
+  } catch (err) {
+    console.error('Error:', err);
+    throw Error(err);
+  }
+};
+
+module.exports = { getPosts, getPost, deletePost };
