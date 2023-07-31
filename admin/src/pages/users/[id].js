@@ -15,6 +15,7 @@ import { AccountProfileDetails } from "src/components/account/account-profile-de
 import { useRouter } from "next/router";
 import { PostsTable } from "src/components/posts/posts-table";
 import { CommentsTable } from "src/components/comments/comments-table";
+import { EventsTable } from "src/components/events/events-table";
 
 const Page = () => {
   const router = useRouter();
@@ -53,7 +54,7 @@ const Page = () => {
               </Grid>
             </Grid>
             <AccountProfileDetails />
-
+            <EventsTable />
             <PostsTable />
             <CommentsTable />
           </Stack>

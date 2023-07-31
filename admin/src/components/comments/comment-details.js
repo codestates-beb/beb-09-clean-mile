@@ -8,7 +8,6 @@ import {
   Unstable_Grid2 as Grid,
 } from "@mui/material";
 
-
 export const CommentDetails = () => {
   const [values, setValues] = useState({
     id: "1tACdzxeYHM5kNWLfLmKQjeTM",
@@ -95,6 +94,7 @@ export const CommentDetails = () => {
             <Grid xs={12} md={12}>
               <TextField
                 fullWidth
+                multiline
                 label="Content"
                 name="content"
                 value={values.content}
