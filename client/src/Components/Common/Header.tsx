@@ -138,7 +138,7 @@ const Header = () => {
 
       const data = err.response?.data as { message: string };
 
-      console.log('User Info Error: ', data?.mesage);
+      console.log('User Info Error: ', data?.message);
       throw err;
     }
   }
@@ -169,7 +169,6 @@ const Header = () => {
     loginMutation.mutate();
   }, []);
 
-  console.log(userInfoDetail);
   return (
     <>
       <div className="w-full mx-auto sm:overflow-hidden h-20 flex items-center justify-between px-10 sm:px-3 xs:px-3 border-b bg-white md:gap-6 sm:gap-4 xs:gap-4 sticky top-0 z-50">
@@ -288,7 +287,7 @@ const Header = () => {
                         <GiToken size={20} />
                         50 CM
                       </li>
-                      <Link href={{ pathname: '/users/mypage', query: { id: userInfoDetail.user._id } }}>
+                      <Link href={{ pathname: '/users/mypage', query: { id: userInfoDetail?.user._id } }}>
                         <li className="
                           flex 
                           justify-center 

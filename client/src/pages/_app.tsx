@@ -4,7 +4,7 @@ import { Store } from 'redux';
 import { Provider } from 'react-redux';
 import { createWrapper } from 'next-redux-wrapper';
 import { QueryClient, QueryClientProvider } from 'react-query'; 
-import axios from 'axios';
+import { AxiosError } from 'axios';
 import type { AppProps } from 'next/app'
 import HeadMeta from '../Components/Common/HeadMeta'
 import { ApiCaller } from '../Components/Utils/ApiCaller';
@@ -33,7 +33,11 @@ export default function App({ Component, pageProps }: AppProps) {
         console.log('refresh message: ', res.data.message);
       
       } catch (error) {
-        console.log('Error', error.message);
+        const err = error as AxiosError;
+
+        const data = err.response?.data as { message: string };
+  
+        console.log('Error', data?.message);
       }
 
     };

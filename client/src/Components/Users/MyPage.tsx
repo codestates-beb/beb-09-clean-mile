@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
 import Swal from 'sweetalert2';
-import { AxiosError } from 'axios';
+import { AxiosError, AxiosResponse } from 'axios';
 import { BsFillImageFill } from 'react-icons/bs';
 import { hero_img } from '../Reference';
 import { UserInfo, Pagination } from '../Interfaces';
@@ -20,16 +20,15 @@ const MyPage = ({ userInfo, postPagination }: { userInfo: UserInfo, postPaginati
   const router = useRouter()
   const [fileUrl, setFileUrl] = useState<string | null>(null);
   const [fileType, setFileType] = useState<string | null>(null);
-  const [uploadFile, setUploadFile] = useState(null);
-  const [page, setPage] = useState(1);
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [nickname, setNickname] = useState('');
+  const [nickname, setNickname] = useState(userInfo.user.nickname);
   const [errorMessage, setErrorMessage] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [postData, setPostData] = useState([]);
 
-  console.log(postPagination)
 
+  console.log(userInfo);
   /**
    * 파일 업로드 이벤트를 처리
    * @param {Event} e - 파일 업로드 이벤트
@@ -72,20 +71,20 @@ const MyPage = ({ userInfo, postPagination }: { userInfo: UserInfo, postPaginati
       console.log(postData);
       setCurrentPage(pageNumber);
 
-      } catch (error) {
+    } catch (error) {
 
-        console.log(error)
+      console.log(error)
     }
   };
 
   useEffect(() => {
     (async () => {
-        await handlePageChange(currentPage);
+      await handlePageChange(currentPage);
     })();
   }, []);
 
 
-  const nicknameEdit = () => {
+  const myPageEdit = () => {
     setIsEditing(true);
   };
 
@@ -107,49 +106,37 @@ const MyPage = ({ userInfo, postPagination }: { userInfo: UserInfo, postPaginati
     validateNickname();
   }, [nickname]);
 
-  const changeNickname = async () => {
-    const formData = new FormData();
+  const profileChange = async () => {
+    
 
-    formData.append('nickname', nickname);
+    const hasNicknameChange = nickname !== userInfo.user.nickname;
+    const hasImageChange = uploadFile !== null;
 
     try {
       const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/change-nickname`;
-      const dataBody = formData;
-      const isJSON = true;
+      const URL2 = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/change-banner`;
+      const isJSON = false;
       const headers = {
         'Content-Type': 'application/form-data',
         'Accept': 'application/json',
       }
       const isCookie = true;
 
-      const res = await ApiCaller.post(URL, dataBody, isJSON, headers, isCookie);
-
-      console.log(res.data.chgNickname);
-
-      if (res.status === 200) {
-        Swal.fire({
-          title: 'Success!',
-          text: res.data.message,
-          icon: 'success',
-          confirmButtonText: 'OK',
-          confirmButtonColor: '#6BCB77'
-        }).then(() => {
-          Swal.close();
-          router.reload();
-        });
-        setIsEditing(false);
-
-      } else {
-        Swal.fire({
-          title: 'Error',
-          text: res.data.message,
-          icon: 'error',
-          confirmButtonText: 'OK',
-          confirmButtonColor: '#6BCB77'
-        }).then(() => {
-          Swal.close();
-        });
+      if(hasNicknameChange) {
+        const formData = new FormData();
+        formData.append('nickname', nickname);
+        const res = await ApiCaller.post(URL, formData, isJSON, headers, isCookie);
+        handleResponse(res);
       }
+
+      if(hasImageChange) {
+        const formData = new FormData();
+        formData.append('imgFile', uploadFile);
+        const res = await ApiCaller.post(URL2, formData, isJSON, headers, isCookie);
+        handleResponse(res);
+        setFileUrl(res.data.imageUrl);
+      }
+
     } catch (error) {
       const err = error as AxiosError;
 
@@ -167,6 +154,34 @@ const MyPage = ({ userInfo, postPagination }: { userInfo: UserInfo, postPaginati
 
     }
   }
+
+  const handleResponse = (res: AxiosResponse) => {
+    if (res.status === 200) {
+      Swal.fire({
+        title: 'Success!',
+        text: '프로필 변경이 성공되었습니다.',
+        icon: 'success',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#6BCB77'
+      }).then(() => {
+        Swal.close();
+        router.reload();
+      });
+      setIsEditing(false);
+
+    } else {
+      Swal.fire({
+        title: 'Error',
+        text: res.data.message,
+        icon: 'error',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#6BCB77'
+      }).then(() => {
+        Swal.close();
+      });
+    }
+  }
+
 
   /**
    * 클립보드에 작성자의 지갑 주소를 복사하는 함수
@@ -202,32 +217,36 @@ const MyPage = ({ userInfo, postPagination }: { userInfo: UserInfo, postPaginati
   return (
     <div className="w-full min-h-screen">
       <div className="w-full h-[30rem] md:h-[25rem] sm:h-[20rem] xs:h-[15rem] border-2 border-dashed rounded-xl">
-        <label className="
-          h-full 
-          text-gray-400 
-          flex 
-          items-center 
-          justify-center 
-          cursor-pointer
-          hover:bg-gray-300
-          transition
-          duration-300"
-          htmlFor="nft-file">
-          {fileUrl ? (
-            <div className="w-full h-full">
-              <img src={fileUrl} className="w-full h-full object-contain" alt="NFT" />
-            </div>
-          ) : (
-            <BsFillImageFill size={80} />
-          )}
-          <input
-            className="hidden"
-            id="nft-file"
-            type="file"
-            accept="image/*,video/*"
-            onChange={fileUpload}
-            required />
-        </label>
+        {isEditing ? (
+          <label className="
+            h-full 
+            text-gray-400 
+            flex 
+            items-center 
+            justify-center 
+            cursor-pointer
+            hover:bg-gray-300
+            transition
+            duration-300"
+            htmlFor="nft-file">
+            {fileUrl ? (
+              <div className="w-full h-full">
+                <img src={fileUrl} className="w-full h-full object-contain" alt="banner Image" />
+              </div>
+            ) : (
+              <BsFillImageFill size={80} />
+            )}
+            <input
+              className="hidden"
+              id="nft-file"
+              type="file"
+              accept="image/*,video/*"
+              onChange={fileUpload}
+              required />
+          </label>
+        ) : (
+          <img src={userInfo.user.banner_img_url} className="w-full h-full object-contain" alt="banner Image" />
+        )}
       </div>
       <div className='
         w-[15rem] 
@@ -257,8 +276,8 @@ const MyPage = ({ userInfo, postPagination }: { userInfo: UserInfo, postPaginati
         <Image src={hero_img} layout='fill' objectFit='cover' alt='profile image' />
       </div>
       <div className='w-full h-full flex flex-col sm:items-center xs:items-center justify-center gap-6 px-12 sm:px-2 xs:px-2'>
-        <div className='w-[10%] md:w-[80%] sm:w-full xs:w-full flex flex-col items-start sm:items-center xs:items-center gap-3 ml-[14%] lg:ml-[18%] md:ml-[20%] sm:ml-0 xs:ml-0 my-2 mt-5 sm:mt-24 xs:mt-20'>
-          <div className='flex gap-12 sm:gap-4 xs:gap-2'>
+        <div className='w-[80%] md:w-[80%] sm:w-full xs:w-full flex flex-col items-start sm:items-center xs:items-center gap-3 ml-[14%] lg:ml-[18%] md:ml-[20%] sm:ml-0 xs:ml-0 my-2 mt-5 sm:mt-24 xs:mt-20'>
+          <div className='w-full flex justify-between gap-12 sm:gap-4 xs:gap-2'>
             {isEditing ? (
               <input
                 type="text"
@@ -289,7 +308,7 @@ const MyPage = ({ userInfo, postPagination }: { userInfo: UserInfo, postPaginati
                 duration-300
                 cursor-pointer'
                 type="button"
-                onClick={changeNickname}
+                onClick={profileChange}
                 disabled={errorMessage !== ''}
               >
                 Save
@@ -310,7 +329,7 @@ const MyPage = ({ userInfo, postPagination }: { userInfo: UserInfo, postPaginati
                   duration-300
                   cursor-pointer'
                 type="button"
-                onClick={nicknameEdit}
+                onClick={myPageEdit}
               >
                 Edit
               </button>

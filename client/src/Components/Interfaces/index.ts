@@ -47,7 +47,7 @@ type PostUsers = {
 
 type PostDetail = {
   media: {
-    image: string[];
+    img: string[];
     video: string[];
   };
   view: {

@@ -50,7 +50,7 @@ const GeneralDetail = ({ postDetail, comment }: { postDetail: PostDetail, commen
               <Slider {...settings} className='relative w-full h-full flex justify-center items-center'>
                 {postDetail.media.img.map((media, index) => (
                   <div key={index} className="w-full h-full">
-                    <Image src={media.url} layout="fill" objectFit="contain" key={index}/>
+                    <Image src={media.url} layout="fill" objectFit="contain" key={index} alt='post media' />
                   </div>
                 ))}
               </Slider>
