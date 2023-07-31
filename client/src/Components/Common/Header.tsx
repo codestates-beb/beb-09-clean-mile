@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/router';
 import Swal from 'sweetalert2';
 import { AxiosError } from 'axios';
+import { useSelector, useDispatch } from 'react-redux';
 import { GiHamburgerMenu, GiToken } from 'react-icons/gi';
 import { IoCloseSharp } from 'react-icons/io5';
 import { BiSolidDownArrow, BiSolidUser } from 'react-icons/bi';
@@ -13,16 +14,20 @@ import { useMutation, useQueryClient, dehydrate } from 'react-query';
 import { Nav, NewNotice, insta_icon } from '../Reference';
 import { UserInfo } from '../Interfaces';
 import { ApiCaller } from '../Utils/ApiCaller';
+import { setLoggedIn} from '../Redux';
 
 const Header = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const dispatch = useDispatch();
+
   const [isOpen, setIsOpen] = useState(false);
   const [isMenu, setIsMenu] = useState(false);
   const [isUserMenuOpen, setUserMenuOpen] = useState(false);
   const [arrowRotation, setArrowRotation] = useState(0);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userInfoDetail, setUserInfoDetail] = useState<UserInfo | null>(null);
+
+  const isLoggedIn = useSelector(state => state.isLoggedIn)
 
   /**
    * 특정 URI로 이동하는 함수
@@ -40,6 +45,53 @@ const Header = () => {
     setUserMenuOpen(!isUserMenuOpen);
     setArrowRotation(arrowRotation + 180);
   }
+
+  const userInfo = async () => {
+    try {
+      const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/userInfo`;
+      const dataBody = null;
+      const isJSON = false;
+      const headers = {};
+      const isCookie = true;
+
+      const res = await ApiCaller.get(URL, dataBody, isJSON, headers, isCookie);
+      return res.data.data
+    } catch (error) {
+      const err = error as AxiosError;
+
+      const data = err.response?.data as { message: string };
+
+      console.log('User Info Error: ', data?.message);
+      throw err;
+    }
+  }
+  
+  /**
+   * loginMutation 함수는 useMutation hook을 사용하여 loginAPI를 호출하고, 요청의 결과에 따라 적절한 동작을 수행
+   * 
+   * @returns {UseMutationResult} 리액트 쿼리의 useMutation hook으로부터 반환되는 결과 객체
+   */
+  const loginMutation = useMutation(userInfo, {
+    onSuccess: (data: UserInfo) => {
+      queryClient.invalidateQueries('user');
+      queryClient.setQueryData('user', data);
+
+      const dehydratedState = dehydrate(queryClient);
+      localStorage.setItem('user', JSON.stringify(dehydratedState));
+
+      // Move userInfoDetail setting logic here
+      dispatch(setLoggedIn(true));
+      setUserInfoDetail(data);
+    },
+    onError: (error) => {
+      console.log('Mutation Error: ', error);
+    }
+  });
+
+  useEffect(() => {
+    loginMutation.mutate();
+  }, [userInfoDetail]);
+
 
   const logout = async () => {
 
@@ -74,12 +126,13 @@ const Header = () => {
               confirmButtonColor: '#6BCB77',
             }).then(() => {
               Swal.close();
-              router.reload();
+              router.replace('/');
 
               if (typeof window !== "undefined") {
                 localStorage.removeItem('user');
               }
               queryClient.removeQueries('user');
+              dispatch(setLoggedIn(false));
             });
           } else {
             Swal.fire({
@@ -122,52 +175,6 @@ const Header = () => {
       }
     });
   }
-
-  const userInfo = async () => {
-    try {
-      const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/userInfo`;
-      const dataBody = null;
-      const isJSON = false;
-      const headers = {};
-      const isCookie = true;
-
-      const res = await ApiCaller.get(URL, dataBody, isJSON, headers, isCookie);
-      return res.data.data
-    } catch (error) {
-      const err = error as AxiosError;
-
-      const data = err.response?.data as { message: string };
-
-      console.log('User Info Error: ', data?.message);
-      throw err;
-    }
-  }
-
-  /**
-   * loginMutation 함수는 useMutation hook을 사용하여 loginAPI를 호출하고, 요청의 결과에 따라 적절한 동작을 수행
-   * 
-   * @returns {UseMutationResult} 리액트 쿼리의 useMutation hook으로부터 반환되는 결과 객체
-   */
-  const loginMutation = useMutation(userInfo, {
-    onSuccess: (data: UserInfo) => {
-      queryClient.invalidateQueries('user');
-      queryClient.setQueryData('user', data);
-
-      const dehydratedState = dehydrate(queryClient);
-      localStorage.setItem('user', JSON.stringify(dehydratedState));
-
-      // Move userInfoDetail setting logic here
-      setIsLoggedIn(true);
-      setUserInfoDetail(data);
-    },
-    onError: (error) => {
-      console.log('Mutation Error: ', error);
-    }
-  });
-
-  useEffect(() => {
-    loginMutation.mutate();
-  }, []);
 
   return (
     <>

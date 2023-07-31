@@ -1,18 +1,20 @@
 import React, { useEffect } from 'react';
 import '@/styles/globals.css'
-import { Store } from 'redux';
+import { createStore } from 'redux';
 import { Provider } from 'react-redux';
-import { createWrapper } from 'next-redux-wrapper';
 import { QueryClient, QueryClientProvider } from 'react-query'; 
 import { AxiosError } from 'axios';
 import type { AppProps } from 'next/app'
 import HeadMeta from '../Components/Common/HeadMeta'
 import { ApiCaller } from '../Components/Utils/ApiCaller';
+import reducer from '../Components/Redux'
 
 // Initialize a QueryClient
 const queryClient = new QueryClient();
 
 export default function App({ Component, pageProps }: AppProps) {
+
+  const store = createStore(reducer);
 
   useEffect(() => {
     /**
@@ -56,8 +58,10 @@ export default function App({ Component, pageProps }: AppProps) {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <Provider store={store}>
         <HeadMeta />
         <Component {...pageProps} />
+      </Provider>
     </QueryClientProvider>
   )
 }

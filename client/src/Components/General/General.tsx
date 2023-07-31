@@ -2,11 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { SearchInput } from '../Reference';
+import { Post, Pagination } from '../Interfaces';
 
-const General = () => {
+const General = ({ postList, postPagination }: { postList: Post, postPagination: Pagination }) => {
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
   const [filter, setFilter] = useState('newest');
+
+  console.log(postList)
 
   const dummyNotice = [
     { id: 1, title: 'general1', content: 'general111', writer: 'admin', date: '2023-07-26', views: 0 },
@@ -37,7 +40,7 @@ const General = () => {
   };
 
   // 필터에 따라 게시물 정렬
-  let sortedPosts = [...dummyNotice];
+  let sortedPosts = [...postList];
   if (filter === 'newest') {
     sortedPosts.sort((a, b) => (new Date(a.date) < new Date(b.date) ? 1 : -1));
   } else {
@@ -45,7 +48,7 @@ const General = () => {
   }
 
   const postsPerPage = 10;
-  const totalPages = Math.ceil(dummyNotice.length / postsPerPage);
+  const totalPages = Math.ceil(postList.length / postsPerPage);
 
   const handlePageChange = (pageNumber: number) => {
       setCurrentPage(pageNumber);
@@ -57,7 +60,7 @@ const General = () => {
   }, [currentPage]);
 
   // 기존 dummyNotice를 sortedPosts로 교체
-  const currentPosts = sortedPosts.slice((currentPage-1) * postsPerPage, currentPage * postsPerPage);
+  const currentPosts = postList.slice((currentPage-1) * postsPerPage, currentPage * postsPerPage);
 
   return (
     <div className='w-full flex flex-col justify-center gap-12 px-24 sm:px-2 xs:px-2 py-14 lg:py-12 md:py-6 sm:py-6 xs:py-3'>
@@ -108,16 +111,16 @@ const General = () => {
                     <td colSpan={6} className="p-6 text-center">등록된 게시글이 없습니다.</td>
                   </tr>
                 ) : (
-                  currentPosts.map((post) => (
+                  currentPosts.map((post, i) => (
                     <tr className="
                       hover:bg-gray-200 
                       transition-all 
                       duration-300 
                       cursor-pointer"
-                      key={post.id}
-                      onClick={() => router.push(`/posts/general/${post.id}`)}>
+                      key={i}
+                      onClick={() => router.push(`/posts/general/${post._id}`)}>
                       <td className="border-b p-6 sm:p-3 xs:p-2">
-                        <p className="text-xl sm:text-sm xs:text-xs font-semibold">{post.id}</p>
+                        <p className="text-xl sm:text-sm xs:text-xs font-semibold">{i + 1}</p>
                       </td>
                       <td className="border-b p-6 sm:p-3 xs:p-2">
                         <p className="text-gray-600 sm:text-sm xs:text-xs"> {post.title}</p>
@@ -127,17 +130,17 @@ const General = () => {
                       </td>
                       <td className="border-b p-6 sm:p-3 xs:p-2">
                         <p className="text-gray-600 sm:text-sm xs:text-xs">
-                          {post.writer}
+                          {post.user_id.nickname}
                         </p>
                       </td>
                       <td className="border-b p-6 sm:p-3 xs:p-2">
                         <p className="text-gray-600 sm:text-sm xs:text-xs"> 
-                          {post.date}
+                          {post.updated_at.split('T')[0]}<br />{post.updated_at.substring(11, 19)}
                         </p>
                       </td>
                       <td className="border-b p-6 sm:p-3 xs:p-2">
                         <p className="text-gray-600"> 
-                          {post.views}
+                          {post.view.count}
                         </p>
                       </td>
                     </tr>

@@ -16,13 +16,13 @@ const EXTENSIONS = [
   { type: 'mp4' },
 ];
 
-const MyPage = ({ userInfo, postPagination }: { userInfo: UserInfo, postPagination: Pagination }) => {
+const MyPage = ({ userInfo }: { userInfo: UserInfo }) => {
   const router = useRouter()
   const [fileUrl, setFileUrl] = useState<string | null>(null);
   const [fileType, setFileType] = useState<string | null>(null);
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [nickname, setNickname] = useState(userInfo.user.nickname);
+  const [nickname, setNickname] = useState(userInfo?.user.nickname);
   const [errorMessage, setErrorMessage] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [postData, setPostData] = useState([]);
@@ -55,7 +55,7 @@ const MyPage = ({ userInfo, postPagination }: { userInfo: UserInfo, postPaginati
   }
 
   const postsPerPage = 5;
-  const totalPages = Math.ceil(userInfo.posts.data.length / postsPerPage);
+  const totalPages = Math.ceil(userInfo?.posts.data?.length / postsPerPage);
 
   const handlePageChange = async (pageNumber: number) => {
     try {
@@ -93,9 +93,9 @@ const MyPage = ({ userInfo, postPagination }: { userInfo: UserInfo, postPaginati
    * 입력한 닉네임이 유효한지 확인하고, 유효하지 않은 경우 에러 메시지를 설정 
    */
   const validateNickname = () => {
-    if (nickname.length < 2) {
+    if (nickname?.length < 2) {
       setErrorMessage('닉네임은 최소 2자 이상이어야 합니다.');
-    } else if (nickname.length > 8) {
+    } else if (nickname?.length > 8) {
       setErrorMessage('닉네임은 최대 8자 입니다.');
     } else {
       setErrorMessage('');
@@ -107,7 +107,7 @@ const MyPage = ({ userInfo, postPagination }: { userInfo: UserInfo, postPaginati
   }, [nickname]);
 
   const profileChange = async () => {
-    
+
 
     const hasNicknameChange = nickname !== userInfo.user.nickname;
     const hasImageChange = uploadFile !== null;
@@ -122,14 +122,14 @@ const MyPage = ({ userInfo, postPagination }: { userInfo: UserInfo, postPaginati
       }
       const isCookie = true;
 
-      if(hasNicknameChange) {
+      if (hasNicknameChange) {
         const formData = new FormData();
         formData.append('nickname', nickname);
         const res = await ApiCaller.post(URL, formData, isJSON, headers, isCookie);
         handleResponse(res);
       }
 
-      if(hasImageChange) {
+      if (hasImageChange) {
         const formData = new FormData();
         formData.append('imgFile', uploadFile);
         const res = await ApiCaller.post(URL2, formData, isJSON, headers, isCookie);
@@ -214,6 +214,7 @@ const MyPage = ({ userInfo, postPagination }: { userInfo: UserInfo, postPaginati
     }
   }
 
+  {console.log(uploadFile)}
   return (
     <div className="w-full min-h-screen">
       <div className="w-full h-[30rem] md:h-[25rem] sm:h-[20rem] xs:h-[15rem] border-2 border-dashed rounded-xl">
@@ -245,7 +246,7 @@ const MyPage = ({ userInfo, postPagination }: { userInfo: UserInfo, postPaginati
               required />
           </label>
         ) : (
-          <img src={userInfo.user.banner_img_url} className="w-full h-full object-contain" alt="banner Image" />
+          <img src={!userInfo?.user.banner_img_url ? null : userInfo?.user.banner_img_url} className="w-full h-full object-contain" alt="banner Image" />
         )}
       </div>
       <div className='
@@ -374,12 +375,12 @@ const MyPage = ({ userInfo, postPagination }: { userInfo: UserInfo, postPaginati
               </tr>
             </thead>
             <tbody>
-              {userInfo?.posts?.data.length === 0 ? (
+              {userInfo?.posts.data?.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="p-6 text-center">작성한 게시글이 없습니다.</td>
                 </tr>
               ) : (
-                userInfo?.posts?.data.map((post, i) => (
+                userInfo?.posts.data?.map((post, i) => (
                   <tr className="
                     hover:bg-gray-200 
                     transition-all 
@@ -445,12 +446,12 @@ const MyPage = ({ userInfo, postPagination }: { userInfo: UserInfo, postPaginati
               </tr>
             </thead>
             <tbody>
-              {userInfo.posts.data.length === 0 ? (
+              {postData === null ? (
                 <tr>
                   <td colSpan={6} className="p-6 text-center">작성한 게시글이 없습니다.</td>
                 </tr>
               ) : (
-                postData.map((post, i) => (
+                postData?.map((post, i) => (
                   <tr className="
                     hover:bg-gray-200 
                     transition-all 
@@ -489,7 +490,7 @@ const MyPage = ({ userInfo, postPagination }: { userInfo: UserInfo, postPaginati
           </table>
           <div className='w-full mt-6 sm:mt-10 xs:mt-5 mb-5 flex justify-center'>
             <div className='flex items-center'>
-              {Array.from({ length: postPagination.totalPages }, (_, i) => (
+              {/* {Array.from({ length: postPagination?.totalPages }, (_, i) => (
                 <button
                   key={i + 1}
                   className={`px-2 py-2 mx-1 xs:text-sm ${currentPage === i + 1 ? 'font-bold' : ''}`}
@@ -497,7 +498,7 @@ const MyPage = ({ userInfo, postPagination }: { userInfo: UserInfo, postPaginati
                 >
                   {i + 1}
                 </button>
-              ))}
+              ))} */}
             </div>
           </div>
         </div>

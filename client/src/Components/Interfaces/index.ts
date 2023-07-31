@@ -63,6 +63,23 @@ type PostDetail = {
   __v: number;
 };
 
+type Post = {
+  media: {
+    img: string[];
+    video: string[];
+  }
+  view: {
+    count: number;
+  }
+  _id: string;
+  user_id: PostUsers;
+  category: string;
+  title: string;
+  content: string;
+  created_at: string;
+  updated_at: string;
+}
+
 type Pagination = {
   total: number;
   totalPage: number;
@@ -103,6 +120,4 @@ type UserInfo = {
   };
 };
 
-
-
-export type { PostDetail, Comment, LoginAPIInput, LoginAPIOutput, UserInfo, Pagination }
+export type { Post, PostDetail, Comment, LoginAPIInput, LoginAPIOutput, UserInfo, Pagination }

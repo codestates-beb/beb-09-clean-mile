@@ -140,8 +140,8 @@ const Create = () => {
             onChange={(e) => setSelectCategory(e.target.value)}
             required>
             <option className="text-sm" value="" disabled>Please select a category.</option>
-            <option className="text-sm" value="General">General</option>
-            <option className="text-sm" value="Review">Review</option>
+            <option className="text-sm" value="general">General</option>
+            <option className="text-sm" value="review">Review</option>
           </select>
         </div>
         <div className='w-2/5 sm:w-full xs:w-full'>
