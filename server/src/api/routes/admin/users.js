@@ -3,6 +3,8 @@ const upload = require('../../../loaders/s3');
 const isAdminAuth = require('../../middlewares/isAdminAuth');
 const clientUsersController = require('../../../services/client/usersController');
 const adminUsersController = require('../../../services/admin/usersController');
+const dnftController = require("../../../services/contract/dnftController");
+const badgeController = require("../../../services/contract/badgeController");
 const EventEntryModel = require('../../../models/EventEntries');
 const PostModel = require('../../../models/Posts');
 
@@ -72,6 +74,10 @@ module.exports = (app) => {
 
       // 사용자 상세 정보 조회
       const result = await adminUsersController.getUserDetail(id);
+      const dnftData = await dnftController.userDnftData(id);
+      result.dnftData = dnftData.data;
+      const badgeData = await badgeController.userBadges(id);
+      result.badgeData = badgeData.data;
       if (!result) {
         return res.status(400).json({
           success: false,
