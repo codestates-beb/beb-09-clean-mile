@@ -23,6 +23,9 @@ const Page = () => {
             <Stack direction={"row"} justifyContent="space-between" spacing={3}>
               <Typography variant="h4">Post</Typography>
               <Stack direction={"row"} spacing={1}>
+                <Button variant="contained" color="success">
+                  Edit
+                </Button>
                 <Button variant="contained" color="warning">
                   Delete
                 </Button>
