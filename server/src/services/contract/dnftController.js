@@ -79,10 +79,10 @@ const updateName = async (email, newName) => {
     //업데이트는 token owner만 가능하다
     
     const user = await UserModel.findOne({email: email});
-    const ownerPK = user.wallet.private_key;
-    let owner =  new ethers.Wallet(ownerPK, provider);
+    // const ownerPK = user.wallet.private_key;
+    // let owner =  new ethers.Wallet(ownerPK, provider);
     const dnft = await DnftModel.findOne({user_id: user._id});
-    const transaction = await dnftContract.connect(owner).updateName(dnft.token_id, newName);
+    const transaction = await dnftContract.connect(signer).updateName(dnft.token_id, newName);
     await transaction.wait();
     if (transaction){
       dnft.name = newName;
@@ -105,20 +105,17 @@ const updateName = async (email, newName) => {
  * @param {string} newDescription
  * @returns 성공여부
  */
-const updateDescription = async (email,newEvent) => {
+const updateDescription = async (userId,newEvent) => {
   try{
-    //업데이트는 token owner만 가능하다
-    const user = await UserModel.findOne({email: email});
-    const ownerPK = user.wallet.private_key;
-    let owner =  new ethers.Wallet(ownerPK, provider);
-    const dnft = await DnftModel.findOne({user_id: user._id});
+    // const ownerPK = user.wallet.private_key;
+    // let owner =  new ethers.Wallet(ownerPK, provider);
+    const dnft = await DnftModel.findOne({user_id: userId});
 
-    const currentDescription = await dnftContract.connect(owner).dnftDescription(dnft.token_id);
+    const currentDescription = await dnftContract.connect(signer).dnftDescription(dnft.token_id);
 
     const newDescription = `${currentDescription}\n${newEvent}`;
 
-    const transaction = await dnftContract.connect(owner).updateDescription(dnft.token_id, newDescription);
-    await transaction.wait();
+    const transaction = await dnftContract.connect(signer).updateDescription(dnft.token_id, newDescription);
     if (transaction){
       dnft.description = newDescription;
       const result = await dnft.save();
@@ -168,14 +165,13 @@ const userDnftData = async (userId) => {
 const upgradeDnft = async (email) => {
   try{
     const user = await UserModel.findOne({ email: email });
-    const ownerPK = user.wallet.private_key;
-    let owner = new ethers.Wallet(ownerPK, provider);
+    // const ownerPK = user.wallet.private_key;
+    // let owner = new ethers.Wallet(ownerPK, provider);
     const dnft = await DnftModel.findOne({user_id: user._id});
     const tokenId = dnft.token_id;
-    const gasPrice = ethers.utils.parseUnits('50', 'gwei');
-    const feeData = await provider.getFeeData();
-    const gasLimit =  utils.formatUnits(feeData.maxFeePerGas, "wei");
-    const transaction = await dnftContract.connect(owner).upgradeDNFT(tokenId,{ gasPrice,gasLimit});
+    const gasPrice = ethers.utils.parseUnits('10', 'gwei');
+    const gasLimit =  500000;
+    const transaction = await dnftContract.connect(signer).upgradeDNFT(tokenId,{ gasPrice,gasLimit});
     await transaction.wait();
 
     if (transaction) {

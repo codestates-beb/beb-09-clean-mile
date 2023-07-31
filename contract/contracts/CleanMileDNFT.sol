@@ -111,18 +111,21 @@ contract CleanMileDNFT is ERC721, ICleanMileDNFT, Ownable {
         _tokenURIs[tokenId] = _tokenURI;
     }
 
-    function updateName(uint256 _tokenId, string calldata _name) external {
-        if (ownerOf(_tokenId) != msg.sender)
-            revert NotOwner(_tokenId, msg.sender);
+    function updateName(
+        uint256 _tokenId,
+        string calldata _name
+    ) external onlyOwner {
+        // if (ownerOf(_tokenId) != msg.sender)
+        //     revert NotOwner(_tokenId, msg.sender);
         _dnftData[_tokenId].name = _name;
     }
 
     function updateDescription(
         uint256 _tokenId,
         string calldata _description
-    ) external {
-        if (ownerOf(_tokenId) != msg.sender)
-            revert NotOwner(_tokenId, msg.sender);
+    ) external onlyOwner {
+        // if (ownerOf(_tokenId) != msg.sender)
+        //     revert NotOwner(_tokenId, msg.sender);
         _dnftData[_tokenId].description = _description;
     }
 
@@ -132,13 +135,13 @@ contract CleanMileDNFT is ERC721, ICleanMileDNFT, Ownable {
         return true;
     }
 
-    function upgradeDNFT(uint256 _tokenId) external returns (bool) {
+    function upgradeDNFT(uint256 _tokenId) external onlyOwner returns (bool) {
         // check if the token exists
         if (!_exists(_tokenId)) revert NonexistentToken(_tokenId);
 
         // check if the badge contract is set
-        address owner = ownerOf(_tokenId);
-        if (msg.sender != owner) revert NotOwner(_tokenId, msg.sender);
+        // address owner = ownerOf(_tokenId);
+        // if (msg.sender != owner) revert NotOwner(_tokenId, msg.sender);
 
         // check current level of the DNFT
         DNFTLevel currentLevel = dnftLevel(_tokenId);
