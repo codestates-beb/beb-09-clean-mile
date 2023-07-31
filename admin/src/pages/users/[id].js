@@ -43,7 +43,6 @@ const Page = () => {
                 </Button>
               </Stack>
             </Stack>
-            <AccountProfileDetails />
             <Grid container wrap={"wrap"} gap={3}>
               <Grid xs={12} sm={6} md={3}>
                 <AccountDnft />
@@ -53,6 +52,7 @@ const Page = () => {
                 <AccountWallet />
               </Grid>
             </Grid>
+            <AccountProfileDetails />
 
             <PostsTable />
             <CommentsTable />
