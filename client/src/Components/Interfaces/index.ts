@@ -91,7 +91,7 @@ type User = {
 
 type UserInfo = {
   user: User;
-  post: {
+  posts: {
     data: PostDetail[];
     last_id: string;
     pagination: Pagination;
@@ -105,4 +105,4 @@ type UserInfo = {
 
 
 
-export type { PostDetail, Comment, LoginAPIInput, LoginAPIOutput, UserInfo }
+export type { PostDetail, Comment, LoginAPIInput, LoginAPIOutput, UserInfo, Pagination }

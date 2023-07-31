@@ -5,7 +5,7 @@ import Swal from 'sweetalert2';
 import { AxiosError } from 'axios';
 import { BsFillImageFill } from 'react-icons/bs';
 import { hero_img } from '../Reference';
-import { UserInfo } from '../Interfaces';
+import { UserInfo, Pagination } from '../Interfaces';
 import { ApiCaller } from '../Utils/ApiCaller';
 
 const EXTENSIONS = [
@@ -16,17 +16,19 @@ const EXTENSIONS = [
   { type: 'mp4' },
 ];
 
-const MyPage = ({ userInfo }: { userInfo: UserInfo }) => {
+const MyPage = ({ userInfo, postPagination }: { userInfo: UserInfo, postPagination: Pagination }) => {
   const router = useRouter()
   const [fileUrl, setFileUrl] = useState<string | null>(null);
   const [fileType, setFileType] = useState<string | null>(null);
-  const [uploadFile, setUploadFile] = useState<File | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [uploadFile, setUploadFile] = useState(null);
+  const [page, setPage] = useState(1);
   const [isEditing, setIsEditing] = useState(false);
   const [nickname, setNickname] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [postData, setPostData] = useState([]);
 
-  console.log(userInfo)
+  console.log(postPagination)
 
   /**
    * 파일 업로드 이벤트를 처리
@@ -53,43 +55,35 @@ const MyPage = ({ userInfo }: { userInfo: UserInfo }) => {
     }
   }
 
-  const dummyNotice = [
-    { id: 1, title: 'general1', content: 'general111', writer: 'admin', date: '2023-07-26', views: 0 },
-    { id: 2, title: 'general2', content: 'general222', writer: 'admin', date: '2023-07-25', views: 0 },
-    { id: 3, title: 'general3', content: 'general333', writer: 'admin', date: '2023-07-24', views: 0 },
-    { id: 4, title: 'general4', content: 'general444', writer: 'admin', date: '2023-07-23', views: 0 },
-    { id: 5, title: 'general5', content: 'general555', writer: 'admin', date: '2023-07-22', views: 0 },
-    { id: 6, title: 'general6', content: 'general666', writer: 'admin', date: '2023-07-21', views: 0 },
-    { id: 7, title: 'general7', content: 'general777', writer: 'admin', date: '2023-07-20', views: 0 },
-    { id: 8, title: 'general8', content: 'general888', writer: 'admin', date: '2023-07-19', views: 0 },
-    { id: 9, title: 'general9', content: 'general999', writer: 'admin', date: '2023-07-18', views: 0 },
-    { id: 10, title: 'general10', content: 'general1010', writer: 'admin', date: '2023-07-17', views: 0 },
-    { id: 11, title: 'general1', content: 'general111', writer: 'admin', date: '2023-07-16', views: 0 },
-    { id: 12, title: 'general2', content: 'general222', writer: 'admin', date: '2023-07-15', views: 0 },
-    { id: 13, title: 'general3', content: 'general333', writer: 'admin', date: '2023-07-14', views: 0 },
-    { id: 14, title: 'general4', content: 'general444', writer: 'admin', date: '2023-07-13', views: 0 },
-    { id: 15, title: 'general5', content: 'general555', writer: 'admin', date: '2023-07-12', views: 0 },
-    { id: 16, title: 'general6', content: 'general666', writer: 'admin', date: '2023-07-11', views: 0 },
-    { id: 17, title: 'general7', content: 'general777', writer: 'admin', date: '2023-07-10', views: 0 },
-    { id: 18, title: 'general8', content: 'general888', writer: 'admin', date: '2023-07-09', views: 0 },
-    { id: 19, title: 'general9', content: 'general999', writer: 'admin', date: '2023-07-08', views: 0 },
-    { id: 20, title: 'general10', content: 'general1010', writer: 'admin', date: '2023-07-07', views: 0 },
-  ]
-
   const postsPerPage = 5;
-  const totalPages = Math.ceil(dummyNotice.length / postsPerPage);
+  const totalPages = Math.ceil(userInfo.posts.data.length / postsPerPage);
 
-  const handlePageChange = (pageNumber: number) => {
-    setCurrentPage(pageNumber);
+  const handlePageChange = async (pageNumber: number) => {
+    try {
+      const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/profile/postPagination/${userInfo.user._id}?page=${pageNumber}`;
+      const dataBody = null;
+      const isJSON = false;
+      const headers = {};
+      const isCookie = true;
+
+      const res = await ApiCaller.get(URL, dataBody, isJSON, headers, isCookie);
+
+      setPostData(res.data.data.data);
+      console.log(postData);
+      setCurrentPage(pageNumber);
+
+      } catch (error) {
+
+        console.log(error)
+    }
   };
 
-  // useEffect(() => {
-  //   // URL query에 page 번호를 기록하려면 아래 코드를 활성화하세요.
-  //   router.push(`/user/mypage?page=${currentPage}`);
-  // }, [currentPage]);
+  useEffect(() => {
+    (async () => {
+        await handlePageChange(currentPage);
+    })();
+  }, []);
 
-  // 기존 dummyNotice를 sortedPosts로 교체
-  const currentPosts = dummyNotice.slice((currentPage - 1) * postsPerPage, currentPage * postsPerPage);
 
   const nicknameEdit = () => {
     setIsEditing(true);
@@ -122,7 +116,7 @@ const MyPage = ({ userInfo }: { userInfo: UserInfo }) => {
       const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/change-nickname`;
       const dataBody = formData;
       const isJSON = true;
-      const headers= {
+      const headers = {
         'Content-Type': 'application/form-data',
         'Accept': 'application/json',
       }
@@ -141,7 +135,7 @@ const MyPage = ({ userInfo }: { userInfo: UserInfo }) => {
           confirmButtonColor: '#6BCB77'
         }).then(() => {
           Swal.close();
-          router.replace(`/users/mypage?nickname=${res.data.chgNickname}`);
+          router.reload();
         });
         setIsEditing(false);
 
@@ -361,42 +355,42 @@ const MyPage = ({ userInfo }: { userInfo: UserInfo }) => {
               </tr>
             </thead>
             <tbody>
-              {currentPosts.length === 0 ? (
+              {userInfo?.posts?.data.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="p-6 text-center">작성한 게시글이 없습니다.</td>
                 </tr>
               ) : (
-                currentPosts.map((post) => (
+                userInfo?.posts?.data.map((post, i) => (
                   <tr className="
                     hover:bg-gray-200 
                     transition-all 
                     duration-300 
                     cursor-pointer
                     sm:text-sm"
-                    key={post.id}
-                    onClick={() => router.push(`/posts/${post.id}`)}>
+                    key={i}
+                    onClick={() => router.push(`/posts/general/${post._id}`)}>
                     <td className="border-b p-6 sm:p-2 xs:p-2">
-                      <p className="text-xl sm:text-sm xs:text-xs font-semibold">{post.id}</p>
+                      <p className="text-xl sm:text-sm xs:text-xs font-semibold">{i + 1}</p>
                     </td>
                     <td className="border-b p-6 sm:p-2 xs:p-2">
-                      <p className="text-gray-600 sm:text-sm xs:text-xs"> {post.title}</p>
+                      <p className="text-gray-600 sm:text-sm xs:text-xs">{post.title}</p>
                     </td>
                     <td className="border-b p-6 sm:p-2 xs:p-2">
-                      <p className="text-gray-600 sm:text-sm xs:text-xs"> {post.content}</p>
+                      <p className="text-gray-600 sm:text-sm xs:text-xs">{post.content.length >= 50 ? post.content.slice(0, 50) + '...' : post.content}</p>
                     </td>
                     <td className="border-b p-6 sm:p-2 xs:p-2">
                       <p className="text-gray-600 sm:text-sm xs:text-xs">
-                        {post.writer}
+                        {post.user_id.nickname}
                       </p>
                     </td>
                     <td className="border-b p-6 sm:p-2 xs:p-2">
                       <p className="text-gray-600 sm:text-sm xs:text-xs">
-                        {post.date}
+                        {post.updated_at.split('T')[0]}<br />{post.updated_at.substring(11, 19)}
                       </p>
                     </td>
                     <td className="border-b p-6 sm:p-3 xs:p-2">
                       <p className="text-gray-600">
-                        {post.views}
+                        {post.view.count}
                       </p>
                     </td>
                   </tr>
@@ -432,12 +426,12 @@ const MyPage = ({ userInfo }: { userInfo: UserInfo }) => {
               </tr>
             </thead>
             <tbody>
-              {userInfo?.post?.data.length === 0 ? (
+              {userInfo.posts.data.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="p-6 text-center">작성한 게시글이 없습니다.</td>
                 </tr>
               ) : (
-                userInfo?.post?.data.map((post, i) => (
+                postData.map((post, i) => (
                   <tr className="
                     hover:bg-gray-200 
                     transition-all 
@@ -456,12 +450,12 @@ const MyPage = ({ userInfo }: { userInfo: UserInfo }) => {
                     </td>
                     <td className="border-b p-6 sm:p-2 xs:p-2">
                       <p className="text-gray-600 sm:text-sm xs:text-xs">
-                        {userInfo.user.nickname}
+                        {post.user_id.nickname}
                       </p>
                     </td>
                     <td className="border-b p-6 sm:p-2 xs:p-2">
                       <p className="text-gray-600 sm:text-sm xs:text-xs">
-                        {post.updated_at.split('T')[0]}<br />{post.updated_at.substring(11,19)}
+                        {post.updated_at.split('T')[0]}<br />{post.updated_at.substring(11, 19)}
                       </p>
                     </td>
                     <td className="border-b p-6 sm:p-2 xs:p-2">
@@ -476,7 +470,7 @@ const MyPage = ({ userInfo }: { userInfo: UserInfo }) => {
           </table>
           <div className='w-full mt-6 sm:mt-10 xs:mt-5 mb-5 flex justify-center'>
             <div className='flex items-center'>
-              {Array.from({ length: totalPages }, (_, i) => (
+              {Array.from({ length: postPagination.totalPages }, (_, i) => (
                 <button
                   key={i + 1}
                   className={`px-2 py-2 mx-1 xs:text-sm ${currentPage === i + 1 ? 'font-bold' : ''}`}

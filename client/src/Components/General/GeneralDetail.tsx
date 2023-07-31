@@ -20,13 +20,13 @@ const GeneralDetail = ({ postDetail, comment }: { postDetail: PostDetail, commen
     setIsHeartFilled(!isHeartFilled);
   }
 
-  // const settings = {
-  //   dots: true,
-  //   infinite: false,
-  //   speed: 500,
-  //   slidesToShow: postDetail.post.media.img.length > 2 ? 3 : postDetail.post.media.img.length,
-  //   slidesToScroll: postDetail.post.media.img.length > 2 ? 3 : postDetail.post.media.img.length,
-  // };
+  const settings = {
+    dots: true,
+    infinite: false,
+    speed: 500,
+    slidesToShow: postDetail.media.img.length > 2 ? 3 : postDetail.media.img.length,
+    slidesToScroll: postDetail.media.img.length > 2 ? 3 : postDetail.media.img.length,
+  };
 
   return (
   <>
@@ -46,13 +46,17 @@ const GeneralDetail = ({ postDetail, comment }: { postDetail: PostDetail, commen
         </div>
         <div className='w-full max-h-full flex flex-col whitespace-pre-wrap'>
           <div className='w-[60%] h-[60%] mx-auto mb-10'>
-            {/* <Slider {...settings} className='relative w-full h-full flex justify-center items-center'>
-              {dummyNotice.media.map((media, index) => (
-                <div key={index} className="w-full h-full">
-                  <Image src={media} width={100} height={100} alt='image' />
-                </div>
-              ))}
-            </Slider> */}
+            {postDetail.media.img.length !== 0 || postDetail.media.video.length !== 0 ? (
+              <Slider {...settings} className='relative w-full h-full flex justify-center items-center'>
+                {postDetail.media.img.map((media, index) => (
+                  <div key={index} className="w-full h-full">
+                    <Image src={media.url} layout="fill" objectFit="contain" key={index}/>
+                  </div>
+                ))}
+              </Slider>
+            ) : (
+              null
+            )}
             {/* <div className="w-full h-full">
               <Image src={dummyNotice.media[0]} width={100} height={100} alt='image' />
             </div> */}
@@ -63,7 +67,7 @@ const GeneralDetail = ({ postDetail, comment }: { postDetail: PostDetail, commen
         </div>
         <div className='w-full flex flex-col gap-4'>
           <h2 className='text-xl font-bold xs:text-base'>Comment</h2>
-            {comment ? (
+            {comment.length !== 0 ? (
               <>
                 <div className='w-full grid grid-cols-2 items-center border rounded-xl p-3 sm:p-2'>
                   <div>
