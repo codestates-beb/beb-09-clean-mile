@@ -18,15 +18,15 @@ export default UserPage;
 
 export const getServerSideProps = async (context: GetServerSidePropsContext) => {
   const { id } = context.query;
+  console.log(id === '64c3dee91014d3885aa94bc9');
 
   try {
-    const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/profile/${id}`;
+    const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/profile/64c3dee91014d3885aa94bc9`;
     const dataBody = null;
     const headers = {};
-    const isJSON = false;
+    const isJSON = true;
     const isCookie = true;
 
-    // username과 다른 쿼리 파라미터를 사용하여 필요한 데이터를 가져옵니다.
     const res = await ApiCaller.get(URL, dataBody, isJSON, headers, isCookie);
 
     console.log(res.data.data)

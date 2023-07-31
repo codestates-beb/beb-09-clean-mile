@@ -6,52 +6,19 @@ import { Post, Pagination } from '../Interfaces';
 
 const General = ({ postList, postPagination }: { postList: Post, postPagination: Pagination }) => {
   const router = useRouter();
-  const [currentPage, setCurrentPage] = useState(1);
-  const [filter, setFilter] = useState('newest');
+  const [currentPage, setCurrentPage] = useState(Number(router.query.page || 1));
 
-  console.log(postList)
+  console.log(postPagination)
 
-  const dummyNotice = [
-    { id: 1, title: 'general1', content: 'general111', writer: 'admin', date: '2023-07-26', views: 0 },
-    { id: 2, title: 'general2', content: 'general222', writer: 'admin', date: '2023-07-25', views: 0 },
-    { id: 3, title: 'general3', content: 'general333', writer: 'admin', date: '2023-07-24', views: 0 },
-    { id: 4, title: 'general4', content: 'general444', writer: 'admin', date: '2023-07-23', views: 0 },
-    { id: 5, title: 'general5', content: 'general555', writer: 'admin', date: '2023-07-22', views: 0 },
-    { id: 6, title: 'general6', content: 'general666', writer: 'admin', date: '2023-07-21', views: 0 },
-    { id: 7, title: 'general7', content: 'general777', writer: 'admin', date: '2023-07-20', views: 0 },
-    { id: 8, title: 'general8', content: 'general888', writer: 'admin', date: '2023-07-19', views: 0 },
-    { id: 9, title: 'general9', content: 'general999', writer: 'admin', date: '2023-07-18', views: 0 },
-    { id: 10, title: 'general10', content: 'general1010', writer: 'admin', date: '2023-07-17', views: 0 },
-    { id: 11, title: 'general1', content: 'general111', writer: 'admin', date: '2023-07-16', views: 0 },
-    { id: 12, title: 'general2', content: 'general222', writer: 'admin', date: '2023-07-15', views: 0 },
-    { id: 13, title: 'general3', content: 'general333', writer: 'admin', date: '2023-07-14', views: 0 },
-    { id: 14, title: 'general4', content: 'general444', writer: 'admin', date: '2023-07-13', views: 0 },
-    { id: 15, title: 'general5', content: 'general555', writer: 'admin', date: '2023-07-12', views: 0 },
-    { id: 16, title: 'general6', content: 'general666', writer: 'admin', date: '2023-07-11', views: 0 },
-    { id: 17, title: 'general7', content: 'general777', writer: 'admin', date: '2023-07-10', views: 0 },
-    { id: 18, title: 'general8', content: 'general888', writer: 'admin', date: '2023-07-09', views: 0 },
-    { id: 19, title: 'general9', content: 'general999', writer: 'admin', date: '2023-07-08', views: 0 },
-    { id: 20, title: 'general10', content: 'general1010', writer: 'admin', date: '2023-07-07', views: 0 },
-  ]
-
-  // 필터 변경 핸들러
-  const handleFilterChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setFilter(event.target.value);
-  };
-
-  // 필터에 따라 게시물 정렬
-  let sortedPosts = [...postList];
-  if (filter === 'newest') {
-    sortedPosts.sort((a, b) => (new Date(a.date) < new Date(b.date) ? 1 : -1));
-  } else {
-    sortedPosts.sort((a, b) => (new Date(a.date) > new Date(b.date) ? 1 : -1));
-  }
-
-  const postsPerPage = 10;
-  const totalPages = Math.ceil(postList.length / postsPerPage);
+  const totalPages = postPagination.totalPages;
 
   const handlePageChange = (pageNumber: number) => {
       setCurrentPage(pageNumber);
+  };
+
+    // 필터 변경 핸들러
+  const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    router.push(`/posts/general?page=${currentPage}&order=${e.target.value}`);
   };
 
   useEffect(() => {
@@ -59,20 +26,18 @@ const General = ({ postList, postPagination }: { postList: Post, postPagination:
     router.push(`/posts/general?page=${currentPage}`);
   }, [currentPage]);
 
-  // 기존 dummyNotice를 sortedPosts로 교체
-  const currentPosts = postList.slice((currentPage-1) * postsPerPage, currentPage * postsPerPage);
-
   return (
     <div className='w-full flex flex-col justify-center gap-12 px-24 sm:px-2 xs:px-2 py-14 lg:py-12 md:py-6 sm:py-6 xs:py-3'>
       <h1 className='font-bold text-5xl lg:text-4xl md:text-3xl sm:text-2xl xs:text-xl text-center'>
         General
       </h1>
       <div className={`flex justify-center items-center w-full`}>
-        <div className={`w-full ${currentPosts.length === 0 && 'min-h-screen items-center justify-around'}`}>
+        <div className={`w-full ${postList.length === 0 && 'min-h-screen items-center justify-around'}`}>
           <div className='flex justify-end mb-3 gap-3'>
             <select className="border border-black py-2 px-4 pr-7 rounded-md text-sm" onChange={handleFilterChange}>
-              <option className="text-sm xs:text-xs" value="newest">최신 순</option>
-              <option className="text-sm xs:text-xs" value="oldest">오래된 순</option>
+              <option className="text-sm xs:text-xs" value="desc">최신 순</option>
+              <option className="text-sm xs:text-xs" value="asc">오래된 순</option>
+              <option className="text-sm xs:text-xs" value="view">조회수 순</option>
             </select>
             <Link className='
               border 
@@ -106,12 +71,12 @@ const General = ({ postList, postPagination }: { postList: Post, postPagination:
                 </tr>
               </thead>
               <tbody>
-                {currentPosts.length === 0 ? (
+                {postList?.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="p-6 text-center">등록된 게시글이 없습니다.</td>
                   </tr>
                 ) : (
-                  currentPosts.map((post, i) => (
+                  postList?.map((post, i) => (
                     <tr className="
                       hover:bg-gray-200 
                       transition-all 
@@ -130,7 +95,7 @@ const General = ({ postList, postPagination }: { postList: Post, postPagination:
                       </td>
                       <td className="border-b p-6 sm:p-3 xs:p-2">
                         <p className="text-gray-600 sm:text-sm xs:text-xs">
-                          {post.user_id.nickname}
+                          {post.user_id?.nickname}
                         </p>
                       </td>
                       <td className="border-b p-6 sm:p-3 xs:p-2">
@@ -161,7 +126,7 @@ const General = ({ postList, postPagination }: { postList: Post, postPagination:
                 ))}
               </div>
             </div>
-          <SearchInput />
+            <SearchInput />
           </div>
         </div>  
       </div>

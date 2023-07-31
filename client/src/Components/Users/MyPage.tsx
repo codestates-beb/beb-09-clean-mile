@@ -17,18 +17,20 @@ const EXTENSIONS = [
 ];
 
 const MyPage = ({ userInfo }: { userInfo: UserInfo }) => {
+// const MyPage = () => {
   const router = useRouter()
   const [fileUrl, setFileUrl] = useState<string | null>(null);
   const [fileType, setFileType] = useState<string | null>(null);
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [nickname, setNickname] = useState(userInfo?.user.nickname);
+  // const [nickname, setNickname] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [postData, setPostData] = useState([]);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  // const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
 
-
-  console.log(userInfo);
   /**
    * 파일 업로드 이벤트를 처리
    * @param {Event} e - 파일 업로드 이벤트
@@ -214,7 +216,53 @@ const MyPage = ({ userInfo }: { userInfo: UserInfo }) => {
     }
   }
 
-  {console.log(uploadFile)}
+  // useEffect(() => {
+  //   if (typeof window !== "undefined" && localStorage.getItem('user')) {
+  //     const userCache = JSON.parse(localStorage.getItem('user') || '');
+  //     setIsLoggedIn(userCache !== null);
+  //     setUserInfo(userCache.queries[0].state.data)
+  //   }
+  // }, []);
+
+  // const userProfile = async () => {
+
+  //   console.log(userInfo.user._id);
+
+  //   try {
+  //     const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/profile/64c3dee91014d3885aa94bc9`;
+  //     const dataBody = null;
+  //     const headers = {};
+  //     const isJSON = true;
+  //     const isCookie = true;
+  
+  //     const res = await ApiCaller.get(URL, dataBody, isJSON, headers, isCookie);
+  
+  //     console.log('res.data.data', res.data.data)
+  
+  //     let userInfo;
+  //     if (res.status === 200 && res.data.success) {
+  //       userInfo = res.data.data;
+  //     } else {
+  //       // API 호출에 실패하면 오류 메시지를 출력하고 빈 객체를 반환합니다.
+  //       console.error('API 호출 실패:', res.data.message);
+  //       userInfo = {};
+  //     }
+  //     return { props: { userInfo } };
+  //   } catch (error) {
+  //     console.error('유저 정보를 가져오는데 실패했습니다:', error);
+  
+  //     return {
+  //       props: {
+  //         userInfo: null,
+  //       }
+  //     };
+  //   }
+  // }
+
+  // useEffect(() => {
+  //   userProfile()
+  // }, [userInfo]);
+
   return (
     <div className="w-full min-h-screen">
       <div className="w-full h-[30rem] md:h-[25rem] sm:h-[20rem] xs:h-[15rem] border-2 border-dashed rounded-xl">
@@ -420,7 +468,7 @@ const MyPage = ({ userInfo }: { userInfo: UserInfo }) => {
           </table>
           <div className='w-full mt-6 sm:mt-10 xs:mt-5 mb-5 flex justify-center'>
             <div className='flex items-center'>
-              {Array.from({ length: totalPages }, (_, i) => (
+              {/* {Array.from({ length: totalPages }, (_, i) => (
                 <button
                   key={i + 1}
                   className={`px-2 py-2 mx-1 xs:text-sm ${currentPage === i + 1 ? 'font-bold' : ''}`}
@@ -428,7 +476,7 @@ const MyPage = ({ userInfo }: { userInfo: UserInfo }) => {
                 >
                   {i + 1}
                 </button>
-              ))}
+              ))} */}
             </div>
           </div>
         </div>
@@ -490,7 +538,7 @@ const MyPage = ({ userInfo }: { userInfo: UserInfo }) => {
           </table>
           <div className='w-full mt-6 sm:mt-10 xs:mt-5 mb-5 flex justify-center'>
             <div className='flex items-center'>
-              {/* {Array.from({ length: postPagination?.totalPages }, (_, i) => (
+              {/* {Array.from({ length: postPagination?.totalPage }, (_, i) => (
                 <button
                   key={i + 1}
                   className={`px-2 py-2 mx-1 xs:text-sm ${currentPage === i + 1 ? 'font-bold' : ''}`}

@@ -82,7 +82,7 @@ type Post = {
 
 type Pagination = {
   total: number;
-  totalPage: number;
+  totalPages: number;
   currentPage: number;
   startPage: number;
   endPage: number;
@@ -120,4 +120,31 @@ type UserInfo = {
   };
 };
 
-export type { Post, PostDetail, Comment, LoginAPIInput, LoginAPIOutput, UserInfo, Pagination }
+type EventHost = {
+  _id: string;
+  name: string;
+  organization: string;
+}
+
+type EventList = {
+  view: {
+    count: number;
+  };
+  _id: string;
+  title: string;
+  host_id: EventHost;
+  poster_url: string;
+  content: string;
+  capacity: number;
+  remaining: number;
+  status: string;
+  event_type: string;
+  recruitment_start_at: string;
+  recruitment_end_at: string;
+  event_start_at: string;
+  event_end_at: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export type { Post, PostDetail, Comment, LoginAPIInput, LoginAPIOutput, UserInfo, Pagination, EventList }

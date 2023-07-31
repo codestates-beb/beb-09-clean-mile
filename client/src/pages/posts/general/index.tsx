@@ -17,17 +17,28 @@ const GeneralPage = ({ postList, postPagination }: { postList: Post, postPaginat
 
 export default GeneralPage;
 
-export const getServerSideProps = async () => {
+export const getServerSideProps = async (context: GetServerSidePropsContext) => {
+  const { query } = context;
+  const page = query.page ? query.page : '1';
+  const order = query.order ? query.order : 'desc';
+  const title = query.title ? query.title : null;
+  const content = query.content ? query.content : null;
+
   try {
-    const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/posts/lists/general`;
+    let URL;
+    if(title) {
+      URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/posts/lists/general?page=${page}&order=${order}&title=${title}`;
+    } else if(content) {
+      URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/posts/lists/general?page=${page}&order=${order}&content=${content}`;
+    } else {
+      URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/posts/lists/general?page=${page}&order=${order}`;
+    }
     const dataBody = null;
     const headers = {};
     const isJSON = false;
     const isCookie = true;
 
     const res = await ApiCaller.get(URL, dataBody, isJSON, headers, isCookie);
-
-    console.log(res.data.data.data);
 
     let postList;
     let postPagination;

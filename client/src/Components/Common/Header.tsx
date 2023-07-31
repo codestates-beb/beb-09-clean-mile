@@ -90,7 +90,7 @@ const Header = () => {
 
   useEffect(() => {
     loginMutation.mutate();
-  }, [userInfoDetail]);
+  }, []);
 
 
   const logout = async () => {
