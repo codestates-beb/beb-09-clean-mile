@@ -21,7 +21,7 @@ module.exports = {
       expiresIn: '15m', // 만료 시간
       algorithm: 'HS256', // 암호화 알고리즘
       issuer: config.jwt.isu, // 발행자
-      audience: config.jwt.isu, // 발행 대상
+      audience: config.jwt.aud, // 발행 대상
       subject: 'userInfo', // 토큰 발행 목적
     });
   },
