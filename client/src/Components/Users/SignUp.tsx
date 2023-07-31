@@ -181,7 +181,7 @@ const SignUp = () => {
         'Accept': 'application/json'
       }
 
-      const isJSON = true;
+      const isJSON = false;
 
       const res = await ApiCaller.post(URL, dataBody, isJSON, headers);
       if (res.status === 200) {
@@ -276,7 +276,7 @@ const SignUp = () => {
         'Content-Type': 'application/form-data',
         'Accept': 'application/json'
       }
-      const isJSON = true;
+      const isJSON = false;
 
       const res = await ApiCaller.post(URL, dataBody, isJSON, headers);
 
@@ -340,7 +340,7 @@ const SignUp = () => {
         'Content-Type': 'application/form-data',
         'Accept': 'application/json'
       }
-      const isJSON = true;
+      const isJSON = false;
 
       const res = await ApiCaller.post(URL, dataBody, isJSON, headers);
 

@@ -7,38 +7,26 @@ import Slider from "react-slick";
 import "slick-carousel/slick/slick.css"; 
 import "slick-carousel/slick/slick-theme.css";
 import { AiOutlineDelete, AiOutlineHeart, AiFillHeart } from 'react-icons/ai'
-import { google_logo, insta_icon, insta_logo, meta_mask_logo } from '../Reference';
+import { PostDetail, Comment } from '../Interfaces';
 
-const GeneralDetail = () => {
+const GeneralDetail = ({ postDetail, comment }: { postDetail: PostDetail, comment: Comment }) => {
   const router = useRouter();
-
-  const [comment, setComment] = useState('');
-  const [comments, setComments] = useState([]);
+  const [createComment, setCreateComment] = useState('');
   const [isHeartFilled, setIsHeartFilled] = useState(false);
+    console.log(postDetail);
 
   // function to toggle heart fill
   const toggleHeartFill = () => {
     setIsHeartFilled(!isHeartFilled);
   }
 
-  const dummyNotice = { 
-    id: 1, 
-    title: 'general1', 
-    media: [google_logo], 
-    content: 'Ut rerum sed. Temporibus id molestiae consequatur rerum accusantium natus eveniet iste. Possimus a ea est est nesciunt dolore autem voluptatum. Omnis voluptate ab qui nihil consequuntur quod.quisquam', 
-    writer: 'admin', 
-    date: '2023-07-26', 
-    views: 0 
-  };
-  
-
-  const settings = {
-    dots: true,
-    infinite: false,
-    speed: 500,
-    slidesToShow: dummyNotice.media.length > 2 ? 3 : dummyNotice.media.length,
-    slidesToScroll: dummyNotice.media.length > 2 ? 3 : dummyNotice.media.length,
-  };
+  // const settings = {
+  //   dots: true,
+  //   infinite: false,
+  //   speed: 500,
+  //   slidesToShow: postDetail.post.media.img.length > 2 ? 3 : postDetail.post.media.img.length,
+  //   slidesToScroll: postDetail.post.media.img.length > 2 ? 3 : postDetail.post.media.img.length,
+  // };
 
   return (
   <>
@@ -47,13 +35,13 @@ const GeneralDetail = () => {
         <h1 className='font-bold text-5xl mb-5 xs:text-4xl'>General</h1>
       </div>
         <div className='w-full flex justify-between items-center border-b'>
-          <p className='mb-3 font-bold text-2xl xs:text-xl'>{dummyNotice.title}</p>
+          <p className='mb-3 font-bold text-2xl xs:text-xl'>{postDetail.title}</p>
           <div className='flex items-center gap-6 xs:gap-6 font-semibold text-xl xs:text-sm mb-3 xs:mb-1'>
             <p className='cursor-pointer hover:underline' onClick={() => router.push(`/user/profile`)}>
-              {dummyNotice.writer}
+              {postDetail.user_id.nickname}
             </p>
-            <p>{dummyNotice.date}</p>
-            <p>{dummyNotice.views}</p>
+            <p>{postDetail.updated_at.split('T')[0]} {postDetail.updated_at.substring(11,19)}</p>
+            <p>{postDetail.view?.count}</p>
           </div>
         </div>
         <div className='w-full max-h-full flex flex-col whitespace-pre-wrap'>
@@ -65,12 +53,12 @@ const GeneralDetail = () => {
                 </div>
               ))}
             </Slider> */}
-            <div className="w-full h-full">
+            {/* <div className="w-full h-full">
               <Image src={dummyNotice.media[0]} width={100} height={100} alt='image' />
-            </div>
+            </div> */}
           </div>
           <div>
-            {dummyNotice.content}
+            {postDetail.content}
           </div>
         </div>
         <div className='w-full flex flex-col gap-4'>
@@ -100,8 +88,8 @@ const GeneralDetail = () => {
             className='border border-gray-300 rounded-lg p-2 w-full outline-none'
             rows={4}
             placeholder='댓글을 입력하세요.'
-            value={comment}
-            onChange={(e) => setComment(e.target.value)}
+            value={createComment}
+            onChange={(e) => setCreateComment(e.target.value)}
           />
           <div className='flex justify-end'>
             <button className='

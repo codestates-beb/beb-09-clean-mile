@@ -141,9 +141,9 @@ const MyPage = ({ userInfo }: { userInfo: UserInfo }) => {
           confirmButtonColor: '#6BCB77'
         }).then(() => {
           Swal.close();
-          setIsEditing(false);
           router.replace(`/users/mypage?nickname=${res.data.chgNickname}`);
         });
+        setIsEditing(false);
 
       } else {
         Swal.fire({
@@ -204,6 +204,7 @@ const MyPage = ({ userInfo }: { userInfo: UserInfo }) => {
       });
     }
   }
+  console.log(userInfo)
 
   return (
     <div className="w-full min-h-screen">
@@ -322,7 +323,7 @@ const MyPage = ({ userInfo }: { userInfo: UserInfo }) => {
               </button>
             )}
           </div>
-          <p className='font-normal text-xs text-red-500'>{errorMessage}</p>
+          {isEditing && <p className='font-normal text-xs text-red-500'>{errorMessage}</p>}
           <p className='font-semibold sm:text-sm xs:text-xs cursor-pointer' onClick={copyAddr} title="Click to copy the address">
             {userInfo?.user?.wallet?.address}
           </p>
@@ -437,36 +438,36 @@ const MyPage = ({ userInfo }: { userInfo: UserInfo }) => {
                   <td colSpan={6} className="p-6 text-center">작성한 게시글이 없습니다.</td>
                 </tr>
               ) : (
-                currentPosts.map((post) => (
+                userInfo?.posts?.data.map((post, i) => (
                   <tr className="
                     hover:bg-gray-200 
                     transition-all 
                     duration-300 
                     cursor-pointer"
-                    key={post.id}
-                    onClick={() => router.push(`/posts/${post.id}`)}>
+                    key={i}
+                    onClick={() => router.push(`/posts/general/${post._id}`)}>
                     <td className="border-b p-6 sm:p-2 xs:p-2">
-                      <p className="text-xl sm:text-sm xs:text-xs font-semibold">{post.id}</p>
+                      <p className="text-xl sm:text-sm xs:text-xs font-semibold">{i + 1}</p>
                     </td>
                     <td className="border-b p-6 sm:p-2 xs:p-2">
                       <p className="text-gray-600 sm:text-sm xs:text-xs"> {post.title}</p>
                     </td>
                     <td className="border-b p-6 sm:p-2 xs:p-2">
-                      <p className="text-gray-600 sm:text-sm xs:text-xs"> {post.content}</p>
+                      <p className="text-gray-600 sm:text-sm xs:text-xs"> {post.content.length >= 50 ? post.content.slice(0, 50) + '...' : post.content}</p>
                     </td>
                     <td className="border-b p-6 sm:p-2 xs:p-2">
                       <p className="text-gray-600 sm:text-sm xs:text-xs">
-                        {post.writer}
+                        {userInfo.user.nickname}
                       </p>
                     </td>
                     <td className="border-b p-6 sm:p-2 xs:p-2">
                       <p className="text-gray-600 sm:text-sm xs:text-xs">
-                        {post.date}
+                        {post.updated_at.split('T')[0]}<br />{post.updated_at.substring(11,19)}
                       </p>
                     </td>
                     <td className="border-b p-6 sm:p-2 xs:p-2">
                       <p className="text-gray-600">
-                        {post.views}
+                        {post.view.count}
                       </p>
                     </td>
                   </tr>

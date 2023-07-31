@@ -20,17 +20,41 @@ interface LoginAPIOutput {
   updated_at: string;
 }
 
-type Post = {
+type CommentUsers = {
+  _id: string;
+  nickname: string;
+}
+
+type CommentLikes = {
+  count: number;
+  is_like: boolean;
+}
+
+type Comment = {
+  _id: string;
+  user_id: CommentUsers;
+  post_id: string;
+  content: string;
+  created_at: string;
+  updated_at: string;
+  likes: CommentLikes;
+}
+
+type PostUsers = {
+  _id: string;
+  nickname: string;
+}
+
+type PostDetail = {
   media: {
-    image: string | StaticImageData;
-    video: null | string;
+    image: string[];
+    video: string[];
   };
   view: {
     count: number;
-    viewers: string[];
   };
   _id: string;
-  user_id: string;
+  user_id: PostUsers;
   category: string;
   title: string;
   content: string;
@@ -68,7 +92,7 @@ type User = {
 type UserInfo = {
   user: User;
   post: {
-    data: Post[];
+    data: PostDetail[];
     last_id: string;
     pagination: Pagination;
   };
@@ -81,4 +105,4 @@ type UserInfo = {
 
 
 
-export type { Post, LoginAPIInput, LoginAPIOutput, UserInfo }
+export type { PostDetail, Comment, LoginAPIInput, LoginAPIOutput, UserInfo }

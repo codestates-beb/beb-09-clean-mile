@@ -9,9 +9,9 @@ import { IoCloseSharp } from 'react-icons/io5';
 import { BiSolidDownArrow, BiSolidUser } from 'react-icons/bi';
 import { IoMdCreate } from 'react-icons/io';
 import { FiLogOut } from 'react-icons/fi';
-import { useQueryClient, hydrate } from 'react-query';
+import { useMutation, useQueryClient, dehydrate } from 'react-query';
 import { Nav, NewNotice, insta_icon } from '../Reference';
-import { LoginAPIOutput } from '../Interfaces';
+import { UserInfo } from '../Interfaces';
 import { ApiCaller } from '../Utils/ApiCaller';
 
 const Header = () => {
@@ -22,7 +22,7 @@ const Header = () => {
   const [isUserMenuOpen, setUserMenuOpen] = useState(false);
   const [arrowRotation, setArrowRotation] = useState(0);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userInfo, setUserInfo] = useState<LoginAPIOutput | null>(null);
+  const [userInfoDetail, setUserInfoDetail] = useState<UserInfo | null>(null);
 
   /**
    * 특정 URI로 이동하는 함수
@@ -61,7 +61,7 @@ const Header = () => {
             'Content-Type': 'application/form-data',
             'Accept': 'application/json',
           }
-          const isJSON = true;
+          const isJSON = false;
           const isCookie = true;
 
           const res = await ApiCaller.post(URL, dataBody, isJSON, headers, isCookie);
@@ -122,16 +122,53 @@ const Header = () => {
     });
   }
 
-  // 로그인 상태 확인 및 데이터 복원
-  useEffect(() => {
-    if (typeof window !== "undefined" && localStorage.getItem('user')) {
-      const userCache = JSON.parse(localStorage.getItem('user') || '');
-      setIsLoggedIn(userCache !== null);
-      setUserInfo(userCache.queries[0].state.data.data)
+  const userInfo = async () => {
+    try {
+      const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/userInfo`;
+      const dataBody = null;
+      const isJSON = false;
+      const headers = {};
+      const isCookie = true;
+
+      const res = await ApiCaller.get(URL, dataBody, isJSON, headers, isCookie);
+      return res.data.data
+    } catch (error) {
+      const err = error as AxiosError;
+
+      const data = err.response?.data as { message: string };
+
+      console.log('User Info Error: ', data?.mesage);
+      throw err;
     }
+  }
+
+  /**
+   * loginMutation 함수는 useMutation hook을 사용하여 loginAPI를 호출하고, 요청의 결과에 따라 적절한 동작을 수행
+   * 
+   * @returns {UseMutationResult} 리액트 쿼리의 useMutation hook으로부터 반환되는 결과 객체
+   */
+  const loginMutation = useMutation(userInfo, {
+    onSuccess: (data: UserInfo) => {
+      queryClient.invalidateQueries('user');
+      queryClient.setQueryData('user', data);
+
+      const dehydratedState = dehydrate(queryClient);
+      localStorage.setItem('user', JSON.stringify(dehydratedState));
+
+      // Move userInfoDetail setting logic here
+      setIsLoggedIn(true);
+      setUserInfoDetail(data);
+    },
+    onError: (error) => {
+      console.log('Mutation Error: ', error);
+    }
+  });
+
+  useEffect(() => {
+    loginMutation.mutate();
   }, []);
 
-
+  console.log(userInfoDetail);
   return (
     <>
       <div className="w-full mx-auto sm:overflow-hidden h-20 flex items-center justify-between px-10 sm:px-3 xs:px-3 border-b bg-white md:gap-6 sm:gap-4 xs:gap-4 sticky top-0 z-50">
@@ -220,7 +257,7 @@ const Header = () => {
             {isLoggedIn ? (
               <div className='flex items-center gap-3'>
                 <Image src={insta_icon} width={50} height={100} alt='user profile image' />
-                <p>{userInfo?.nickname}</p>
+                <p>{userInfoDetail?.user.nickname}</p>
                 <div className='relative cursor-pointer' style={{ transform: `rotate(${arrowRotation}deg)`, transition: 'transform 0.4s' }}>
                   <BiSolidDownArrow onClick={menuToggle} />
                 </div>
@@ -250,7 +287,7 @@ const Header = () => {
                         <GiToken size={20} />
                         50 CM
                       </li>
-                      <Link href={{ pathname: '/users/mypage', query: { nickname: userInfo?.nickname } }}>
+                      <Link href={{ pathname: '/users/mypage', query: { nickname: userInfoDetail.user.nickname } }}>
                         <li className="
                           flex 
                           justify-center 

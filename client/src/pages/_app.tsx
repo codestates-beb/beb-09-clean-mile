@@ -25,7 +25,7 @@ export default function App({ Component, pageProps }: AppProps) {
         const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/refresh`;
         const dataBody = null;
         const headers = {};
-        const isJSON = true;
+        const isJSON = false;
         const isCookie = true;
 
         const res = await ApiCaller.post(URL, dataBody, isJSON, headers, isCookie);

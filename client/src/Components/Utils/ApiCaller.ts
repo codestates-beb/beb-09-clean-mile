@@ -18,15 +18,10 @@ function requestAPI(method: Method, url: string, _headers: Headers = {}, _dataBo
   if (isJSON) {
 		headers['Content-Type'] = 'application/json';
   }
-  // isJSON === true
-  if (isJSON && (method === METHOD_POST || method === METHOD_UPDATE)) {
+  // isJSON === false
+  if (!isJSON && (method === METHOD_POST || method === METHOD_UPDATE)) {
 		headers['Content-Type'] = 'multipart/form-data';
 		dataBody = dataBody;
-  }
-  // isJSON === false
-  else if (method === METHOD_POST || method === METHOD_UPDATE) {
-		headers['Content-Type'] = 'application/x-www-form-urlencoded';
-		dataBody = qs.stringify(dataBody);
   }
 
   const config: AxiosRequestConfig = {
