@@ -7,6 +7,10 @@ import {
   TextField,
   Unstable_Grid2 as Grid,
 } from "@mui/material";
+import Slider from "react-slick";
+import Image from "next/image";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 
 export const PostDetails = () => {
   const [values, setValues] = useState({
@@ -26,7 +30,25 @@ export const PostDetails = () => {
     
     출처 - 나무위키
     `,
+    media: {
+      img: [
+        "https://plohub-bucket.s3.ap-northeast-2.amazonaws.com/f8b53b11-efd9-461f-963f-6e29e0e3a302_image_0_17b2ad589801389ce.png",
+        "https://plohub-bucket.s3.ap-northeast-2.amazonaws.com/ce7f04e6-d93c-4441-a719-15fc9dd7d4b2_image_0_%E1%84%92%E1%85%A9%E1%84%88%E1%85%A1%E1%86%BC%E1%84%86%E1%85%A2%E1%86%AB.jpeg",
+      ],
+      video: [
+        "https://plohub-bucket.s3.ap-northeast-2.amazonaws.com/file_example_MP4_480_1_5MG.mp4",
+        "https://plohub-bucket.s3.ap-northeast-2.amazonaws.com/793688941acc296eae536eb5d1332f94.mp4",
+      ],
+    },
   });
+
+  const settings = {
+    dots: true,
+    infinite: false,
+    speed: 500,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+  };
 
   return (
     <Card sx={{ p: 3 }}>
@@ -125,6 +147,46 @@ export const PostDetails = () => {
                 }}
               ></TextField>
             </Grid>
+            {values.media && (
+              <Grid
+                sx={{
+                  justifyContent: "center",
+                  alignItems: "center",
+                  display: "flex",
+                }}
+              >
+                <Grid xs={12} sm={12} md={6} spacing={3}>
+                  <Slider {...settings}>
+                    {[
+                      ...values.media.img?.map((item) => ({ src: item, type: "image" })),
+                      ...values.media.video?.map((item) => ({ src: item, type: "video" })),
+                    ].map((item, index) => {
+                      if (item.type === "image") {
+                        return (
+                          <Image
+                            key={index}
+                            src={item.src}
+                            height={320}
+                            width={320}
+                            alt={`image${index}`}
+                          />
+                        );
+                      }
+
+                      if (item.type === "video") {
+                        return (
+                          <video key={index} height={320} controls>
+                            <source src={item.src} />
+                          </video>
+                        );
+                      }
+
+                      return;
+                    })}
+                  </Slider>
+                </Grid>
+              </Grid>
+            )}
           </Grid>
         </Box>
       </CardContent>
