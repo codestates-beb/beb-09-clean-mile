@@ -1,5 +1,6 @@
 const Router = require('express');
 const jwtUtil = require('../../../utils/jwtAdminUtil');
+const jwt = require('jsonwebtoken');
 const userController = require('../../../services/client/usersController');
 const isAdminAuth = require('../../middlewares/isAdminAuth');
 const upload = require('../../../loaders/s3');
