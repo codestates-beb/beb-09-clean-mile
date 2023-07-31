@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
+import Swal from 'sweetalert2';
+import { AxiosError, AxiosResponse } from 'axios';
 import { BsFillImageFill } from 'react-icons/bs';
 import { hero_img } from '../Reference';
+import { UserInfo, Pagination } from '../Interfaces';
+import { ApiCaller } from '../Utils/ApiCaller';
 
 const EXTENSIONS = [
   { type: 'gif' },
@@ -12,15 +16,20 @@ const EXTENSIONS = [
   { type: 'mp4' },
 ];
 
-const MyPage = () => {
+const MyPage = ({ userInfo }: { userInfo: UserInfo }) => {
+// const MyPage = () => {
   const router = useRouter()
   const [fileUrl, setFileUrl] = useState<string | null>(null);
   const [fileType, setFileType] = useState<string | null>(null);
   const [uploadFile, setUploadFile] = useState<File | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
   const [isEditing, setIsEditing] = useState(false);
-  const [nickname, setNickname] = useState('admin');
+  const [nickname, setNickname] = useState(userInfo?.user.nickname);
+  // const [nickname, setNickname] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [postData, setPostData] = useState([]);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  // const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
 
   /**
    * 파일 업로드 이벤트를 처리
@@ -47,45 +56,37 @@ const MyPage = () => {
     }
   }
 
-  const dummyNotice = [
-    { id: 1, title: 'general1', content: 'general111', writer: 'admin', date: '2023-07-26', views: 0 },
-    { id: 2, title: 'general2', content: 'general222', writer: 'admin', date: '2023-07-25', views: 0 },
-    { id: 3, title: 'general3', content: 'general333', writer: 'admin', date: '2023-07-24', views: 0 },
-    { id: 4, title: 'general4', content: 'general444', writer: 'admin', date: '2023-07-23', views: 0 },
-    { id: 5, title: 'general5', content: 'general555', writer: 'admin', date: '2023-07-22', views: 0 },
-    { id: 6, title: 'general6', content: 'general666', writer: 'admin', date: '2023-07-21', views: 0 },
-    { id: 7, title: 'general7', content: 'general777', writer: 'admin', date: '2023-07-20', views: 0 },
-    { id: 8, title: 'general8', content: 'general888', writer: 'admin', date: '2023-07-19', views: 0 },
-    { id: 9, title: 'general9', content: 'general999', writer: 'admin', date: '2023-07-18', views: 0 },
-    { id: 10, title: 'general10', content: 'general1010', writer: 'admin', date: '2023-07-17', views: 0 },
-    { id: 11, title: 'general1', content: 'general111', writer: 'admin', date: '2023-07-16', views: 0 },
-    { id: 12, title: 'general2', content: 'general222', writer: 'admin', date: '2023-07-15', views: 0 },
-    { id: 13, title: 'general3', content: 'general333', writer: 'admin', date: '2023-07-14', views: 0 },
-    { id: 14, title: 'general4', content: 'general444', writer: 'admin', date: '2023-07-13', views: 0 },
-    { id: 15, title: 'general5', content: 'general555', writer: 'admin', date: '2023-07-12', views: 0 },
-    { id: 16, title: 'general6', content: 'general666', writer: 'admin', date: '2023-07-11', views: 0 },
-    { id: 17, title: 'general7', content: 'general777', writer: 'admin', date: '2023-07-10', views: 0 },
-    { id: 18, title: 'general8', content: 'general888', writer: 'admin', date: '2023-07-09', views: 0 },
-    { id: 19, title: 'general9', content: 'general999', writer: 'admin', date: '2023-07-08', views: 0 },
-    { id: 20, title: 'general10', content: 'general1010', writer: 'admin', date: '2023-07-07', views: 0 },
-  ]
-
   const postsPerPage = 5;
-  const totalPages = Math.ceil(dummyNotice.length / postsPerPage);
+  const totalPages = Math.ceil(userInfo?.posts.data?.length / postsPerPage);
 
-  const handlePageChange = (pageNumber: number) => {
-    setCurrentPage(pageNumber);
+  const handlePageChange = async (pageNumber: number) => {
+    try {
+      const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/profile/postPagination/${userInfo.user._id}?page=${pageNumber}`;
+      const dataBody = null;
+      const isJSON = false;
+      const headers = {};
+      const isCookie = true;
+
+      const res = await ApiCaller.get(URL, dataBody, isJSON, headers, isCookie);
+
+      setPostData(res.data.data.data);
+      console.log(postData);
+      setCurrentPage(pageNumber);
+
+    } catch (error) {
+
+      console.log(error)
+    }
   };
 
-  // useEffect(() => {
-  //   // URL query에 page 번호를 기록하려면 아래 코드를 활성화하세요.
-  //   router.push(`/user/mypage?page=${currentPage}`);
-  // }, [currentPage]);
+  useEffect(() => {
+    (async () => {
+      await handlePageChange(currentPage);
+    })();
+  }, []);
 
-  // 기존 dummyNotice를 sortedPosts로 교체
-  const currentPosts = dummyNotice.slice((currentPage - 1) * postsPerPage, currentPage * postsPerPage);
 
-  const nicknameEdit = () => {
+  const myPageEdit = () => {
     setIsEditing(true);
   };
 
@@ -94,9 +95,9 @@ const MyPage = () => {
    * 입력한 닉네임이 유효한지 확인하고, 유효하지 않은 경우 에러 메시지를 설정 
    */
   const validateNickname = () => {
-    if (nickname.length < 2) {
+    if (nickname?.length < 2) {
       setErrorMessage('닉네임은 최소 2자 이상이어야 합니다.');
-    } else if (nickname.length > 8) {
+    } else if (nickname?.length > 8) {
       setErrorMessage('닉네임은 최대 8자 입니다.');
     } else {
       setErrorMessage('');
@@ -107,10 +108,82 @@ const MyPage = () => {
     validateNickname();
   }, [nickname]);
 
-  const changeNickname = () => {
-    setNickname(nickname);
-    setIsEditing(false);
+  const profileChange = async () => {
+
+
+    const hasNicknameChange = nickname !== userInfo.user.nickname;
+    const hasImageChange = uploadFile !== null;
+
+    try {
+      const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/change-nickname`;
+      const URL2 = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/change-banner`;
+      const isJSON = false;
+      const headers = {
+        'Content-Type': 'application/form-data',
+        'Accept': 'application/json',
+      }
+      const isCookie = true;
+
+      if (hasNicknameChange) {
+        const formData = new FormData();
+        formData.append('nickname', nickname);
+        const res = await ApiCaller.post(URL, formData, isJSON, headers, isCookie);
+        handleResponse(res);
+      }
+
+      if (hasImageChange) {
+        const formData = new FormData();
+        formData.append('imgFile', uploadFile);
+        const res = await ApiCaller.post(URL2, formData, isJSON, headers, isCookie);
+        handleResponse(res);
+        setFileUrl(res.data.imageUrl);
+      }
+
+    } catch (error) {
+      const err = error as AxiosError;
+
+      const data = err.response?.data as { message: string };
+
+      Swal.fire({
+        title: 'Error',
+        text: data?.message,
+        icon: 'error',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#6BCB77'
+      }).then(() => {
+        Swal.close();
+      });
+
+    }
   }
+
+  const handleResponse = (res: AxiosResponse) => {
+    if (res.status === 200) {
+      Swal.fire({
+        title: 'Success!',
+        text: '프로필 변경이 성공되었습니다.',
+        icon: 'success',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#6BCB77'
+      }).then(() => {
+        Swal.close();
+        router.reload();
+      });
+      setIsEditing(false);
+
+    } else {
+      Swal.fire({
+        title: 'Error',
+        text: res.data.message,
+        icon: 'error',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#6BCB77'
+      }).then(() => {
+        Swal.close();
+      });
+    }
+  }
+
 
   /**
    * 클립보드에 작성자의 지갑 주소를 복사하는 함수
@@ -118,56 +191,111 @@ const MyPage = () => {
    */
   const copyAddr = async () => {
     try {
-      // await navigator.clipboard.writeText(postDetail.post_info.author.address);
-      // setIsModalOpen(true);
-      // setModalTitle('Success');
-      // setModalBody('지갑주소가 복사되었습니다.');
-      alert('지갑주소가 복사되었습니다.');
+      console.log(userInfo.user.wallet.address);
+      await navigator.clipboard.writeText(userInfo.user.wallet.address);
+      Swal.fire({
+        title: 'Success!',
+        text: '지갑주소가 복사되었습니다.',
+        icon: 'success',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#6BCB77',
+      }).then(() => {
+        Swal.close();
+      });
 
-      // setTimeout(() => {
-      //   setIsModalOpen(false);
-      // }, 3000);
     } catch (err) {
-      //   setIsModalOpen(true);
-      // setModalTitle('Error');
-      // setModalBody('지갑주소 복사가 실패되었습니다.');
-      alert('지갑주소 복사가 실패되었습니다.');
-
-      // setTimeout(() => {
-      //   setIsModalOpen(false);
-      // }, 3000);
+      Swal.fire({
+        title: 'Error',
+        text: '지갑주소 복사가 실패되었습니다.',
+        icon: 'error',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#6BCB77',
+      }).then(() => {
+        Swal.close();
+      });
     }
   }
+
+  // useEffect(() => {
+  //   if (typeof window !== "undefined" && localStorage.getItem('user')) {
+  //     const userCache = JSON.parse(localStorage.getItem('user') || '');
+  //     setIsLoggedIn(userCache !== null);
+  //     setUserInfo(userCache.queries[0].state.data)
+  //   }
+  // }, []);
+
+  // const userProfile = async () => {
+
+  //   console.log(userInfo.user._id);
+
+  //   try {
+  //     const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/profile/64c3dee91014d3885aa94bc9`;
+  //     const dataBody = null;
+  //     const headers = {};
+  //     const isJSON = true;
+  //     const isCookie = true;
+  
+  //     const res = await ApiCaller.get(URL, dataBody, isJSON, headers, isCookie);
+  
+  //     console.log('res.data.data', res.data.data)
+  
+  //     let userInfo;
+  //     if (res.status === 200 && res.data.success) {
+  //       userInfo = res.data.data;
+  //     } else {
+  //       // API 호출에 실패하면 오류 메시지를 출력하고 빈 객체를 반환합니다.
+  //       console.error('API 호출 실패:', res.data.message);
+  //       userInfo = {};
+  //     }
+  //     return { props: { userInfo } };
+  //   } catch (error) {
+  //     console.error('유저 정보를 가져오는데 실패했습니다:', error);
+  
+  //     return {
+  //       props: {
+  //         userInfo: null,
+  //       }
+  //     };
+  //   }
+  // }
+
+  // useEffect(() => {
+  //   userProfile()
+  // }, [userInfo]);
 
   return (
     <div className="w-full min-h-screen">
       <div className="w-full h-[30rem] md:h-[25rem] sm:h-[20rem] xs:h-[15rem] border-2 border-dashed rounded-xl">
-        <label className="
-          h-full 
-          text-gray-400 
-          flex 
-          items-center 
-          justify-center 
-          cursor-pointer
-          hover:bg-gray-300
-          transition
-          duration-300"
-          htmlFor="nft-file">
-          {fileUrl ? (
-            <div className="w-full h-full">
-              <img src={fileUrl} className="w-full h-full object-contain" alt="NFT" />
-            </div>
-          ) : (
-            <BsFillImageFill size={80} />
-          )}
-          <input
-            className="hidden"
-            id="nft-file"
-            type="file"
-            accept="image/*,video/*"
-            onChange={fileUpload}
-            required />
-        </label>
+        {isEditing ? (
+          <label className="
+            h-full 
+            text-gray-400 
+            flex 
+            items-center 
+            justify-center 
+            cursor-pointer
+            hover:bg-gray-300
+            transition
+            duration-300"
+            htmlFor="nft-file">
+            {fileUrl ? (
+              <div className="w-full h-full">
+                <img src={fileUrl} className="w-full h-full object-contain" alt="banner Image" />
+              </div>
+            ) : (
+              <BsFillImageFill size={80} />
+            )}
+            <input
+              className="hidden"
+              id="nft-file"
+              type="file"
+              accept="image/*,video/*"
+              onChange={fileUpload}
+              required />
+          </label>
+        ) : (
+          <img src={!userInfo?.user.banner_img_url ? null : userInfo?.user.banner_img_url} className="w-full h-full object-contain" alt="banner Image" />
+        )}
       </div>
       <div className='
         w-[15rem] 
@@ -197,8 +325,8 @@ const MyPage = () => {
         <Image src={hero_img} layout='fill' objectFit='cover' alt='profile image' />
       </div>
       <div className='w-full h-full flex flex-col sm:items-center xs:items-center justify-center gap-6 px-12 sm:px-2 xs:px-2'>
-        <div className='w-[10%] md:w-[80%] sm:w-full xs:w-full flex flex-col items-start sm:items-center xs:items-center gap-3 ml-[14%] lg:ml-[18%] md:ml-[20%] sm:ml-0 xs:ml-0 my-2 mt-5 sm:mt-24 xs:mt-20'>
-          <div className='flex gap-12 sm:gap-4 xs:gap-2'>
+        <div className='w-[80%] md:w-[80%] sm:w-full xs:w-full flex flex-col items-start sm:items-center xs:items-center gap-3 ml-[14%] lg:ml-[18%] md:ml-[20%] sm:ml-0 xs:ml-0 my-2 mt-5 sm:mt-24 xs:mt-20'>
+          <div className='w-full flex justify-between gap-12 sm:gap-4 xs:gap-2'>
             {isEditing ? (
               <input
                 type="text"
@@ -209,7 +337,7 @@ const MyPage = () => {
             ) : (
               <>
                 <p className='font-bold text-3xl lg:text-2xl md:text-xl sm:text-lg xs:text-lg'>
-                  {nickname}
+                  {userInfo?.user?.nickname}
                 </p>
               </>
             )}
@@ -229,7 +357,7 @@ const MyPage = () => {
                 duration-300
                 cursor-pointer'
                 type="button"
-                onClick={changeNickname}
+                onClick={profileChange}
                 disabled={errorMessage !== ''}
               >
                 Save
@@ -250,15 +378,15 @@ const MyPage = () => {
                   duration-300
                   cursor-pointer'
                 type="button"
-                onClick={nicknameEdit}
+                onClick={myPageEdit}
               >
                 Edit
               </button>
             )}
           </div>
-          <p className='font-normal text-xs text-red-500'>{errorMessage}</p>
-          <p className='font-semibold sm:text-sm xs:text-xs' onClick={copyAddr} title="Click to copy the address">
-            0x3557db220dbfdBbB8Cf5489495Bf02AAC9A889ED
+          {isEditing && <p className='font-normal text-xs text-red-500'>{errorMessage}</p>}
+          <p className='font-semibold sm:text-sm xs:text-xs cursor-pointer' onClick={copyAddr} title="Click to copy the address">
+            {userInfo?.user?.wallet?.address}
           </p>
           <div>
             <button className='px-3 py-2 sm:px-2 md:text-sm sm:text-sm xs:text-sm bg-[#FBA1B7] hover:bg-main-insta rounded-xl transition duration-300 text-white font-bold'>instagram connect</button>
@@ -295,42 +423,42 @@ const MyPage = () => {
               </tr>
             </thead>
             <tbody>
-              {currentPosts.length === 0 ? (
+              {userInfo?.posts.data?.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="p-6 text-center">작성한 게시글이 없습니다.</td>
                 </tr>
               ) : (
-                currentPosts.map((post) => (
+                userInfo?.posts.data?.map((post, i) => (
                   <tr className="
                     hover:bg-gray-200 
                     transition-all 
                     duration-300 
                     cursor-pointer
                     sm:text-sm"
-                    key={post.id}
-                    onClick={() => router.push(`/posts/${post.id}`)}>
+                    key={i}
+                    onClick={() => router.push(`/posts/general/${post._id}`)}>
                     <td className="border-b p-6 sm:p-2 xs:p-2">
-                      <p className="text-xl sm:text-sm xs:text-xs font-semibold">{post.id}</p>
+                      <p className="text-xl sm:text-sm xs:text-xs font-semibold">{i + 1}</p>
                     </td>
                     <td className="border-b p-6 sm:p-2 xs:p-2">
-                      <p className="text-gray-600 sm:text-sm xs:text-xs"> {post.title}</p>
+                      <p className="text-gray-600 sm:text-sm xs:text-xs">{post.title}</p>
                     </td>
                     <td className="border-b p-6 sm:p-2 xs:p-2">
-                      <p className="text-gray-600 sm:text-sm xs:text-xs"> {post.content}</p>
+                      <p className="text-gray-600 sm:text-sm xs:text-xs">{post.content.length >= 50 ? post.content.slice(0, 50) + '...' : post.content}</p>
                     </td>
                     <td className="border-b p-6 sm:p-2 xs:p-2">
                       <p className="text-gray-600 sm:text-sm xs:text-xs">
-                        {post.writer}
+                        {post.user_id.nickname}
                       </p>
                     </td>
                     <td className="border-b p-6 sm:p-2 xs:p-2">
                       <p className="text-gray-600 sm:text-sm xs:text-xs">
-                        {post.date}
+                        {post.updated_at.split('T')[0]}<br />{post.updated_at.substring(11, 19)}
                       </p>
                     </td>
                     <td className="border-b p-6 sm:p-3 xs:p-2">
                       <p className="text-gray-600">
-                        {post.views}
+                        {post.view.count}
                       </p>
                     </td>
                   </tr>
@@ -340,7 +468,7 @@ const MyPage = () => {
           </table>
           <div className='w-full mt-6 sm:mt-10 xs:mt-5 mb-5 flex justify-center'>
             <div className='flex items-center'>
-              {Array.from({ length: totalPages }, (_, i) => (
+              {/* {Array.from({ length: totalPages }, (_, i) => (
                 <button
                   key={i + 1}
                   className={`px-2 py-2 mx-1 xs:text-sm ${currentPage === i + 1 ? 'font-bold' : ''}`}
@@ -348,7 +476,7 @@ const MyPage = () => {
                 >
                   {i + 1}
                 </button>
-              ))}
+              ))} */}
             </div>
           </div>
         </div>
@@ -366,41 +494,41 @@ const MyPage = () => {
               </tr>
             </thead>
             <tbody>
-              {currentPosts.length === 0 ? (
+              {postData === null ? (
                 <tr>
                   <td colSpan={6} className="p-6 text-center">작성한 게시글이 없습니다.</td>
                 </tr>
               ) : (
-                currentPosts.map((post) => (
+                postData?.map((post, i) => (
                   <tr className="
                     hover:bg-gray-200 
                     transition-all 
                     duration-300 
                     cursor-pointer"
-                    key={post.id}
-                    onClick={() => router.push(`/posts/${post.id}`)}>
+                    key={i}
+                    onClick={() => router.push(`/posts/general/${post._id}`)}>
                     <td className="border-b p-6 sm:p-2 xs:p-2">
-                      <p className="text-xl sm:text-sm xs:text-xs font-semibold">{post.id}</p>
+                      <p className="text-xl sm:text-sm xs:text-xs font-semibold">{i + 1}</p>
                     </td>
                     <td className="border-b p-6 sm:p-2 xs:p-2">
                       <p className="text-gray-600 sm:text-sm xs:text-xs"> {post.title}</p>
                     </td>
                     <td className="border-b p-6 sm:p-2 xs:p-2">
-                      <p className="text-gray-600 sm:text-sm xs:text-xs"> {post.content}</p>
+                      <p className="text-gray-600 sm:text-sm xs:text-xs"> {post.content.length >= 50 ? post.content.slice(0, 50) + '...' : post.content}</p>
                     </td>
                     <td className="border-b p-6 sm:p-2 xs:p-2">
                       <p className="text-gray-600 sm:text-sm xs:text-xs">
-                        {post.writer}
+                        {post.user_id.nickname}
                       </p>
                     </td>
                     <td className="border-b p-6 sm:p-2 xs:p-2">
                       <p className="text-gray-600 sm:text-sm xs:text-xs">
-                        {post.date}
+                        {post.updated_at.split('T')[0]}<br />{post.updated_at.substring(11, 19)}
                       </p>
                     </td>
                     <td className="border-b p-6 sm:p-2 xs:p-2">
                       <p className="text-gray-600">
-                        {post.views}
+                        {post.view.count}
                       </p>
                     </td>
                   </tr>
@@ -410,7 +538,7 @@ const MyPage = () => {
           </table>
           <div className='w-full mt-6 sm:mt-10 xs:mt-5 mb-5 flex justify-center'>
             <div className='flex items-center'>
-              {Array.from({ length: totalPages }, (_, i) => (
+              {/* {Array.from({ length: postPagination?.totalPage }, (_, i) => (
                 <button
                   key={i + 1}
                   className={`px-2 py-2 mx-1 xs:text-sm ${currentPage === i + 1 ? 'font-bold' : ''}`}
@@ -418,7 +546,7 @@ const MyPage = () => {
                 >
                   {i + 1}
                 </button>
-              ))}
+              ))} */}
             </div>
           </div>
         </div>

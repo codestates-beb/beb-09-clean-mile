@@ -154,10 +154,7 @@ module.exports = (app) => {
       }
 
       // 이메일 인증 코드 검증
-      const chkMailAuthCode = await usersController.checkEmailAuthCode(
-        email,
-        email_verification_code
-      );
+      const chkMailAuthCode = await usersController.checkEmailAuthCode(email, email_verification_code);
       if (!chkMailAuthCode.success) {
         return res.status(400).json({
           success: false,
@@ -270,6 +267,7 @@ module.exports = (app) => {
   route.post('/refresh', async (req, res) => {
     try {
       const refreshToken = req.cookies.refreshToken;
+
       if (!refreshToken) {
         return res.status(401).json({
           success: false,
@@ -362,7 +360,7 @@ module.exports = (app) => {
 
       return res.status(200).json({
         success: true,
-        message: '사용자 프로필 조회에 성공했습니다.',
+        message: '사용자 프로필 조회에 성공',
         data: result,
       });
     } catch (err) {
@@ -452,10 +450,7 @@ module.exports = (app) => {
       }
 
       // 닉네임 변경
-      const chgNicknameResult = await usersController.changeNickname(
-        email,
-        nickname
-      );
+      const chgNicknameResult = await usersController.changeNickname(email, nickname);
       if (!chgNicknameResult.success) {
         return res.status(400).json({
           success: false,
@@ -483,49 +478,41 @@ module.exports = (app) => {
    * @group users - 사용자 관련
    * @summary 사용자 배너 이미지 변경
    */
-  route.post(
-    '/change-banner',
-    isAuth,
-    upload.single('imgFile'),
-    async (req, res) => {
-      try {
-        const email = req.decoded.email;
+  route.post('/change-banner', isAuth, upload.single('imgFile'), async (req, res) => {
+    try {
+      const email = req.decoded.email;
 
-        // S3 이미지 업로드
-        const imageData = req.file;
-        if (!imageData) {
-          return res.status(400).json({
-            success: false,
-            message: '이미지 업로드에 실패하였습니다.',
-          });
-        }
-
-        // 사용자 배너 이미지 변경
-        const chgBannerResult = await usersController.changeBanner(
-          email,
-          imageData.location
-        );
-        if (!chgBannerResult.success) {
-          return res.status(400).json({
-            success: false,
-            message: '배너 이미지 변경에 실패했습니다.',
-          });
-        }
-
-        return res.status(200).json({
-          success: true,
-          message: '배너 이미지 변경에 성공했습니다.',
-          imageUrl: chgBannerResult.data,
-        });
-      } catch (err) {
-        console.error('Error:', err);
-        return res.status(500).json({
+      // S3 이미지 업로드
+      const imageData = req.file;
+      if (!imageData) {
+        return res.status(400).json({
           success: false,
-          message: '서버 오류',
+          message: '이미지 업로드에 실패하였습니다.',
         });
       }
+
+      // 사용자 배너 이미지 변경
+      const chgBannerResult = await usersController.changeBanner(email, imageData.location);
+      if (!chgBannerResult.success) {
+        return res.status(400).json({
+          success: false,
+          message: '배너 이미지 변경에 실패했습니다.',
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: '배너 이미지 변경에 성공했습니다.',
+        imageUrl: chgBannerResult.data,
+      });
+    } catch (err) {
+      console.error('Error:', err);
+      return res.status(500).json({
+        success: false,
+        message: '서버 오류',
+      });
     }
-  );
+  });
 };
 
 /**
