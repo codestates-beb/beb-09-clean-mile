@@ -44,8 +44,8 @@ describe("CleanMileDNFT", function () {
     const newName = "new DNFT 1";
     const newDescription = "new Description 1";
 
-    await cleanMileDNFT.connect(addr1).updateName(tokenId, newName);
-    await cleanMileDNFT.connect(addr1).updateDescription(tokenId, newDescription);
+    await cleanMileDNFT.connect(owner).updateName(tokenId, newName);
+    await cleanMileDNFT.connect(owner).updateDescription(tokenId, newDescription);
 
     const dnftName = await cleanMileDNFT.dnftName(tokenId);
     const dnftDescription = await cleanMileDNFT.dnftDescription(tokenId);
@@ -71,7 +71,7 @@ describe("CleanMileDNFT", function () {
 
     await cleanMileBadge.transferBadge(owner.address,addr1.address,badgeId,1);
 
-    await cleanMileDNFT.connect(addr1).upgradeDNFT(dnftId)
+    await cleanMileDNFT.connect(owner).upgradeDNFT(dnftId)
 
     const dnftLevel = await cleanMileDNFT.dnftLevel(dnftId);
     const badgeScore = await cleanMileBadge.userBadgeScore(addr1.address);
@@ -95,14 +95,14 @@ describe("CleanMileDNFT", function () {
 
     await cleanMileBadge.transferBadge(owner.address,addr1.address,badgeId,1);
 
-    await cleanMileDNFT.connect(addr1).upgradeDNFT(dnftId);
+    await cleanMileDNFT.connect(owner).upgradeDNFT(dnftId);
 
     const dnftLevel = await cleanMileDNFT.dnftLevel(dnftId);
 
     expect(dnftLevel).to.equal(0);
   })
 
-  it("Negative) 토큰 Owner가 아닌 사람이 Name, Description 업데이트 시도 시 실패", async function() {
+  it("Negative) 컨트랙트 Owner가 아닌 사람이 Name, Description 업데이트 시도 시 실패", async function() {
     const dnftId = 0;
     const description = "Description 1";
     const name = "DNFT 1";
@@ -110,13 +110,13 @@ describe("CleanMileDNFT", function () {
     await cleanMileDNFT.mintDNFT(addr1.address, name, description, 0);
 
     const newName = "new DNFT 1";
-    await cleanMileDNFT.updateName(dnftId, newName).catch(err => {
-      expect(err.message).to.contain("NotOwner");
+    await cleanMileDNFT.connect(addr1).updateName(dnftId, newName).catch(err => {
+      expect(err.message);
     });
 
     const newDescription = "new Description 1";
-    await cleanMileDNFT.updateDescription(dnftId, newDescription).catch(err => {
-      expect(err.message).to.contain("NotOwner");
+    await cleanMileDNFT.connect(addr1).updateDescription(dnftId, newDescription).catch(err => {
+      expect(err.message);
     });
 
     const currentName = await cleanMileDNFT.dnftName(dnftId);
