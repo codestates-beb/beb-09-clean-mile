@@ -138,18 +138,22 @@ const updateDescription = async (email,newEvent) => {
  * @param {string} email
  * @returns 사용자 DNFT 데이터
  */
-const userDnftData = async (email) => {
+const userDnftData = async (userId) => {
   try{
-    const user = await UserModel.findOne({email: email });
-    const dnft = await DnftModel.findOne({user_id: user._id});
+    const user = await UserModel.findOne({_id: userId });
+    const dnft = await DnftModel.findOne({user_id: userId});
     
-    return {
-      owner: user.nickname,
-      tokenId: dnft.token_id,
-      name: dnft.name,
-      imageUrl: dnft.token_uri,
-      description: dnft.description
-    }
+    return ({
+      success: true,
+      data:
+      {
+        owner: user.nickname,
+        tokenId: dnft.token_id,
+        name: dnft.name,
+        imageUrl: dnft.token_uri,
+        description: dnft.description
+      }
+    })
   }catch(err){
     console.error("Error:", err);
     throw new Error(err);

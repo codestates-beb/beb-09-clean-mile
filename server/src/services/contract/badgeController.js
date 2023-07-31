@@ -196,8 +196,37 @@ const transferBadge = async (recipient, eventId) => {
     }
 }
 
+const userBadges = async (userId) => {
+  try{
+    const userEvents = await EventEntryModel.find({user_id: userId});
+    let confirmedEventList = [];
+    for (const userEvent of userEvents){
+      if (userEvent.is_nft_issued){
+        confirmedEventList.push(
+          userEvent.event_id
+        )
+      }
+    }
+    let badgeList = [];
+    const badgeType = ['bronze','silver','gold'];
+    for (const eventId of confirmedEventList){
+      const badge = await BadgeModel.findOne({event_id: eventId});
+      badgeList.push({
+        name: badge.name,
+        description: badge.description,
+        image: badge.image_url,
+        badgeType: badgeType[badge.type]
+      })
+    }
+    return ({success: true, data: badgeList});
+  }catch(err){
+    console.error("Error:", err);
+    throw new Error(err);
+  }
+}
 module.exports = {
   createBadge,
   transferBadge,
-  transferBadges
+  transferBadges,
+  userBadges
 }

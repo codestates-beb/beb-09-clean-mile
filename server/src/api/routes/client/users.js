@@ -3,6 +3,8 @@ const jwtUtil = require('../../../utils/jwtUtil');
 const isAuth = require('../../middlewares/isAuth');
 const upload = require('../../../loaders/s3');
 const usersController = require('../../../services/client/usersController');
+const dnftController = require("../../../services/contract/dnftController");
+const badgeController = require("../../../services/contract/badgeController");
 
 const route = Router();
 
@@ -353,6 +355,11 @@ module.exports = (app) => {
       /**
        * @todo dnft, badge 정보 추가 필요
        */
+      const dnftData = await dnftController.userDnftData(id);
+      result.dnft = dnftData.data;
+
+      const badges = await badgeController.userBadges(id);
+      result.badges = badges.data;
 
       // 사용자가 작성한 게시글 목록 조회 (review, general)
       const posts = await usersController.getPosts(id, page, limit);
@@ -536,6 +543,7 @@ route.get('/userInfo', isAuth, async (req, res) => {
     /**
      * @todo 사용자 배지, dnft 정보 조회 수정 필요
      */
+    const dnftData= await dnftController.userDnftData(user_id);
 
     // 사용자 작성한 General, Review Posts List 조회
     const posts = await usersController.getPosts(user_id);
@@ -547,6 +555,7 @@ route.get('/userInfo', isAuth, async (req, res) => {
       success: true,
       data: {
         user: user.data,
+        dnftData: dnftData.data,
         events: events.data,
         posts: posts.data,
       },
@@ -566,4 +575,27 @@ route.get('/userInfo', isAuth, async (req, res) => {
  * @group users - 사용자 관련
  * @summary DNFT 업그레이드
  */
-route.post('/upgrade-dnft', isAuth, (req, res) => {});
+route.post('/upgrade-dnft', isAuth, async (req, res) => {
+  try{
+    const email = req.body;
+
+    const upgradeDNFT = await dnftController.upgradeDnft(email);
+
+    if (upgradeDNFT.success){
+    return res.status(200).json({
+      success: true
+    })
+    }else{
+      return res.status(400).json({
+        success: false,
+        message: "DNFT 업그레이드에 실패하였습니다"
+      })
+    }
+  }catch(err){
+    console.error('Error:', err);
+    return res.status(500).json({
+      success: false,
+      message: '서버 오류',
+    });
+  }
+});
