@@ -34,13 +34,10 @@ const createDNFT = async (email, userType) => {
   try { 
     const user = await UserModel.findOne({ email : email });
     let description;
-    let tokenId;
-    const dnftLen = await DnftModel.find();
-    tokenId = dnftLen.length;
+    const tokenId = await DnftModel.countDocuments();
     if (userType == 0) {
       // 일반 사용자
-      console.log(transaction);
-      description = "";
+      description = "---Events---";
     } else if (userType == 1) {
       // 관리자
       description = "Administrator";
@@ -108,14 +105,19 @@ const updateName = async (email, newName) => {
  * @param {string} newDescription
  * @returns 성공여부
  */
-const updateDescription = async (email,newDescription) => {
+const updateDescription = async (email,newEvent) => {
   try{
     //업데이트는 token owner만 가능하다
     const user = await UserModel.findOne({email: email});
     const ownerPK = user.wallet.private_key;
     let owner =  new ethers.Wallet(ownerPK, provider);
     const dnft = await DnftModel.findOne({user_id: user._id});
-    const transaction = await dnftContract.connect(owner).updateName(dnft.token_id, newDescription);
+
+    const currentDescription = await dnftContract.connect(owner).dnftDescription(dnft.token_id);
+
+    const newDescription = `${currentDescription}\n${newEvent}`;
+
+    const transaction = await dnftContract.connect(owner).updateDescription(dnft.token_id, newDescription);
     await transaction.wait();
     if (transaction){
       dnft.description = newDescription;
@@ -167,7 +169,8 @@ const upgradeDnft = async (email) => {
     const dnft = await DnftModel.findOne({user_id: user._id});
     const tokenId = dnft.token_id;
     const gasPrice = ethers.utils.parseUnits('50', 'gwei');
-    const gasLimit = 1000000;
+    const feeData = await provider.getFeeData();
+    const gasLimit =  utils.formatUnits(feeData.maxFeePerGas, "wei");
     const transaction = await dnftContract.connect(owner).upgradeDNFT(tokenId,{ gasPrice,gasLimit});
     await transaction.wait();
 
