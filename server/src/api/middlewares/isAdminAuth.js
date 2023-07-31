@@ -1,9 +1,6 @@
-const jwtUtil = require('../../utils/jwtUtil');
+const jwtUtil = require('../../utils/jwtAdminUtil');
 
-/**
- * jwt 인증 미들웨어
- */
-const verifyToken = async (req, res, next) => {
+const verifyAdminToken = async (req, res, next) => {
   const accessToken = req.cookies.accessToken;
   if (!accessToken) {
     return res.status(401).json({
@@ -13,8 +10,8 @@ const verifyToken = async (req, res, next) => {
   }
 
   // 토큰 검증
-  const result = jwtUtil.verify(accessToken);
-  if (!result.success) {
+  const result = jwtUtil.adminVerify(accessToken);
+  if (!result.success || !result.decoded.isAdmin) {
     return res.status(401).json({
       success: false,
       message: `Access Token : ${result.message}`,
@@ -26,4 +23,4 @@ const verifyToken = async (req, res, next) => {
   next();
 };
 
-module.exports = verifyToken;
+module.exports = verifyAdminToken;

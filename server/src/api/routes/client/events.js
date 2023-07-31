@@ -1,6 +1,6 @@
 const Router = require('express');
 const upload = require('../../../loaders/s3');
-const jwtController = require('../../../services/jwtController');
+const jwtUtil = require('../../../utils/jwtUtil');
 const eventsController = require('../../../services/client/eventsController');
 const isAuth = require('../../middlewares/isAuth');
 const { postViews } = require('../../../services/client/postsController');
@@ -22,7 +22,7 @@ module.exports = (app) => {
 
       // 행사 참여 여부 확인
       if (req.cookies.accessToken) {
-        const decoded = jwtController.verify(req.cookies.accessToken);
+        const decoded = jwtUtil.verify(req.cookies.accessToken);
         if (!decoded.success) {
           return res.status(401).json({
             success: false,

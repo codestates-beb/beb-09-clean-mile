@@ -1,9 +1,7 @@
 const Router = require('express');
-const jwt = require('jsonwebtoken');
-const jwtController = require('../../../services/jwtController');
-const adminAuthController = require('../../../services/admin/adminAuthController');
+const jwtUtil = require('../../../utils/jwtAdminUtil');
 const userController = require('../../../services/client/usersController');
-const isAuth = require('../../middlewares/isAuth');
+const isAdminAuth = require('../../middlewares/isAdminAuth');
 const upload = require('../../../loaders/s3');
 
 const route = Router();
@@ -46,8 +44,8 @@ module.exports = (app) => {
       adminResult.data.hashed_pw = ''; // pw hash값 삭제
 
       // 토큰 생성
-      const accessToken = jwtController.adminSign(email, adminResult.data._id);
-      const refreshToken = jwtController.refresh(email, adminResult.data._id);
+      const accessToken = jwtUtil.adminSign(email, adminResult.data._id);
+      const refreshToken = jwtUtil.adminRefresh(email, adminResult.data._id);
 
       // 쿠키에 토큰 저장
       userController.setTokenCookie(res, accessToken, refreshToken);
@@ -71,7 +69,7 @@ module.exports = (app) => {
    * @group Admin
    * @Summary 관리자 로그아웃
    */
-  route.post('/logout', isAuth, async (req, res) => {
+  route.post('/logout', isAdminAuth, async (req, res) => {
     try {
       // 쿠키를 삭제하여 로그아웃 처리
       res.clearCookie('accessToken');
@@ -106,7 +104,7 @@ module.exports = (app) => {
       }
 
       // Refresh 토큰 검증
-      const refreshVerify = await jwtController.refreshVerify(refreshToken);
+      const refreshVerify = await jwtUtil.adminRefreshVerify(refreshToken);
       if (!refreshVerify.success) {
         return res.status(401).json({
           success: false,
@@ -118,8 +116,8 @@ module.exports = (app) => {
       const user_id = refreshVerify.decoded.user_id;
 
       // Access 토큰 재발급
-      const newAccessToken = jwtController.adminSign(email, user_id);
-      const newRefreshToken = jwtController.refresh(email, user_id);
+      const newAccessToken = jwtUtil.adminSign(email, user_id);
+      const newRefreshToken = jwtUtil.adminRefresh(email, user_id);
 
       // 쿠키에 토큰 저장
       userController.setTokenCookie(res, newAccessToken, newRefreshToken);

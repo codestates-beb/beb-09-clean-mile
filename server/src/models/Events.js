@@ -37,13 +37,13 @@ const eventSchema = new mongoose.Schema({
   status: {
     // 이벤트 진행 상태
     type: String,
-    enum: ['Created', 'Recruiting', 'Progressing', 'Finished', 'Canceled'],
+    enum: ['created', 'recruiting', 'progressing', 'finished', 'canceled'],
   },
   event_type: {
     // 이벤트 타입
-    // 선착순, 추첨, 결제
+    // 선착순(fcfs), 추첨
     type: String,
-    enum: ['FirstComeFirstServe', 'RandomDraw', 'Payment'],
+    enum: ['fcfs', 'random'],
   },
   recruitment_start_at: {
     // 모집 시작일

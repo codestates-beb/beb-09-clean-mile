@@ -1,31 +1,8 @@
 const jwt = require('jsonwebtoken');
 const config = require('../config');
-const { findUserEmail } = require('./client/usersController');
+const { findUserEmail } = require('../services/client/usersController');
 
 module.exports = {
-  /**
-   * Access 토큰 발급
-   * @param {string} email
-   * @returns Access token
-   */
-  sign: (email, user_id) => {
-    // Access 토큰에 들어갈 페이로드
-    const payload = {
-      email: email, // custom claims
-      user_id: user_id, // custom claims
-      isAdmin: false, // custom claims
-    };
-
-    // 시크릿 키로 서명된 Access 토큰 발급 후 반환
-    return jwt.sign(payload, config.jwt.jwtSecret, {
-      expiresIn: '15m', // 만료 시간
-      algorithm: 'HS256', // 암호화 알고리즘
-      issuer: config.jwt.isu, // 발행자
-      audience: config.jwt.isu, // 발행 대상
-      subject: 'userInfo', // 토큰 발행 목적
-    });
-  },
-
   /**
    * 관리자 Access 토큰 발급
    * @param {*} email
@@ -41,24 +18,31 @@ module.exports = {
     };
 
     // 시크릿 키로 서명된 Access 토큰 발급 후 반환
-    return jwt.sign(payload, config.jwt.jwtSecret, {
+    return jwt.sign(payload, config.jwt.jwtAdminSecret, {
       expiresIn: '15m', // 만료 시간
       algorithm: 'HS256', // 암호화 알고리즘
       issuer: config.jwt.isu, // 발행자
-      audience: config.jwt.isu, // 발행 대상
+      audience: config.jwt.aud, // 발행 대상
       subject: 'admin', // 토큰 발행 목적
     });
   },
 
   /**
-   * Access 토큰 검증
+   * 관리자 Access 토큰 검증
    * @param {string} token
    * @returns 검증 결과
    */
-  verify: (token) => {
+  adminVerify: (token) => {
     let decoded;
     try {
-      decoded = jwt.verify(token, config.jwt.jwtSecret);
+      decoded = jwt.verify(token, config.jwt.jwtAdminSecret);
+      if (!decoded.isAdmin) {
+        return {
+          success: false,
+          message: '관리자가 아닙니다.',
+        };
+      }
+
       return {
         success: true,
         decoded: decoded,
@@ -73,16 +57,16 @@ module.exports = {
   },
 
   /**
-   * Refresh 토큰 발급
+   * 관리자 Refresh 토큰 발급
    * @returns Refresh token
    */
-  refresh: (email, user_id) => {
+  adminRefresh: (email, user_id) => {
     // Refresh 토큰에 들어갈 페이로드
     const payload = {
       email: email, // custom claims
       user_id: user_id, // custom claims
     };
-    return jwt.sign(payload, config.jwt.jwtSecret, {
+    return jwt.sign(payload, config.jwt.jwtAdminRefreshSecret, {
       algorithm: 'HS256', // 암호화 알고리즘
       expiresIn: '14d', // 만료 시간
       issuer: config.jwt.isu, // 발행자
@@ -96,9 +80,9 @@ module.exports = {
    * @param {string} token
    * @returns 검증 결과
    */
-  refreshVerify: async (token) => {
+  adminRefreshVerify: async (token) => {
     try {
-      const decoded = jwt.verify(token, config.jwt.jwtSecret);
+      const decoded = jwt.verify(token, config.jwt.jwtAdminRefreshSecret);
 
       // 사용자 확인
       const findUser = await findUserEmail(decoded.email);
@@ -111,7 +95,8 @@ module.exports = {
 
       if (
         decoded.email === findUser.data.email &&
-        decoded.iss === config.jwt.isu
+        decoded.iss === config.jwt.isu &&
+        findUser.data.user_type === 'admin'
       ) {
         return {
           success: true,
