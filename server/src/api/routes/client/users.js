@@ -550,7 +550,7 @@ route.get('/userInfo', isAuth, async (req, res) => {
      * @todo 사용자 배지, dnft 정보 조회 수정 필요
      */
     const dnftData= await dnftController.userDnftData(user_id);
-    if (!dnftData,success)  return res.status(400).json({success:false});
+    if (!dnftData.success)  return res.status(400).json({success:false});
 
     const badgeData = await badgeController.userBadges(user_id);
     if (!badgeData.success) return res.status(400).json({success:false});
