@@ -72,6 +72,23 @@ describe("CleanMileBadge", function () {
     expect(await cleanMileBadge.badgeBalance(addr2.address, badgeId)).to.equal(10);
   })
 
+  it ("Positive) 뱃지를 전송 받은 사용자는 뱃지의 등급 만큼 뱃지 점수가 올라가게 됩니다", async function () {
+    const badgeType = 2; //Gold
+    const badgeId = 0;
+    const amount = 100;
+    const uri = "ipfs//Badge 1";
+
+    await cleanMileBadge.mintBadge(owner.address, badgeType, amount, uri);
+
+    await cleanMileBadge.setApprovalForAll(addr1.address, true);
+
+    await cleanMileBadge.connect(addr1).transferBadge(owner.address, addr2.address, 0, 10);
+
+    const userBadgeScore = await cleanMileBadge.userBadgeScore(addr2.address);
+
+    expect(userBadgeScore).to.equal(10);
+  })
+
   it ("Negative) 뱃지 소유자가 아니거나 권한을 부여 받지 않은 사용자는 토큰을 전송할 수 없습니다.", async function () {
     const badgeType = 2; //Gold
     const badgeId = 0;

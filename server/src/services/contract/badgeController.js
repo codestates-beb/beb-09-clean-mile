@@ -56,6 +56,7 @@ const createBadge = async ( name, description, imageUrl, badgeType, amount, even
     const badgeScore = [1,5,10];
 
     const event = await EventModel.findOne({title: eventTitle});
+    if (!event) return ({success: false, message: "데이터 요청 실패"});
     const eventId = event._id;
 
     if (transaction && eventId){
@@ -94,6 +95,7 @@ const isConfirmedUser = async (eventId) => {
   try{
     const confirmedUser = [];
     const entryList = await EventEntryModel.find({event_id: eventId});
+    if (!entryList) return ({success: false, message: "데이터 요청 실패"});
     for (const entry of entryList){
       if (entry.is_confirmed) confirmedUser.push(entry.user_id); 
     }
@@ -119,19 +121,21 @@ const transferBadges = async (recipients, eventId) => {
   try{
   const amount = 1;
 
-  const event = await EventModel.findById(eventId);
+  // const event = await EventModel.findById(eventId);
 
   const badge = await BadgeModel.findOne({event_id: eventId});
+  if (!badge) return ({success: false, message: "데이터 요청 실페"});
   const tokenId = badge.badge_id;
   let recipientsAddress = [];
   for (const id of recipients) {
     let user = await UserModel.findById(id);
+    if (!user) return ({success: false, message: "데이터 요청 실패"});
     let address = user.wallet.address;
     recipientsAddress.push(address);
   }
 
   const gasPrice = ethers.utils.parseUnits('50', 'gwei');
-  const feeData = await provider.getFeeData();
+  // const feeData = await provider.getFeeData();
   // const gasLimit =  ethers.utils.formatUnits(feeData.maxFeePerGas, "wei");
   const gasLimit = 10000000;
   
@@ -146,10 +150,12 @@ const transferBadges = async (recipients, eventId) => {
     badge.remain_quantity -= recipients.length;
     for (let i=0; i<recipients.length; i++){
       let user = await EventEntryModel.findOne({event_id: eventId, user_id: recipients[i]});
+      if (!user) return ({success: false, message: "데이터 요청 실패"});
       user.is_nft_issued = true;  
       await user.save();
 
       let userInfo = await UserModel.findById(recipients[i]);
+      if (!userInfo) return ({success: false, message: "데이터 요청 실패"});
       userInfo.wallet.badge_amount +=1;
       userInfo.wallet.total_badge_score += badgeScore[badge.type];
       await userInfo.save();
@@ -177,12 +183,14 @@ const transferBadge = async (recipient, eventId) => {
     const sender = config.SENDER;
     const amount = 1;
 
-    const event = await EventModel.findById(eventId);
+    // const event = await EventModel.findById(eventId);
   
     const badge = await BadgeModel.findOne({event_id: eventId});
+    if(!badge) return ({success: false, message: "데이터 요청 실패"});
     const tokenId = badge.badge_id;
 
     const recipientInfo = await UserModel.findById(recipient);
+    if(!recipientInfo) return ({success: false, message: "데이터 요청 실패"});
     const recipientAddress = recipientInfo.wallet.address;
   
     const transaction = await badgeContract.connect(signer).transferBadge(sender, recipientAddress, tokenId, amount);
@@ -192,11 +200,13 @@ const transferBadge = async (recipient, eventId) => {
   
     if (transaction){
       badge.remain_quantity -= 1
-      let user = await EventEntryModel.findOne({event_id: eventId, user_id: recipients[i]});
+      let user = await EventEntryModel.findOne({event_id: eventId, user_id: recipient});
+      if (!user) return ({success: false, message: "데이터 요청 실패"});
       user.is_nft_issued = true;  
       await user.save();
 
       let userInfo = await UserModel.findById(recipient);
+      if (!userInfo) return ({success: false, message: "데이터 요청 실패"});
       userInfo.wallet.badge_amount +=1;
       userInfo.wallet.total_badge_score += badgeScore[badge.type];
 
@@ -217,6 +227,7 @@ const transferBadge = async (recipient, eventId) => {
 const userBadges = async (userId) => {
   try{
     const userEvents = await EventEntryModel.find({user_id: userId});
+    if (!userEvents) return ({success: false, message: "데이터 요청 실패"});
     let confirmedEventList = [];
     for (const userEvent of userEvents){
       if (userEvent.is_nft_issued){
@@ -229,6 +240,7 @@ const userBadges = async (userId) => {
     const badgeType = ['bronze','silver','gold'];
     for (const eventId of confirmedEventList){
       const badge = await BadgeModel.findOne({event_id: eventId});
+      if (!badge) return ({success: false, message: "데이터 요청 실패"});
       badgeList.push({
         name: badge.name,
         description: badge.description,
