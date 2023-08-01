@@ -20,7 +20,7 @@ export const EventHost = ({ host }) => {
                 fullWidth
                 label="ID"
                 name="id"
-                value={host.id}
+                value={host.id ? host.id : "N/A"}
                 InputProps={{
                   readOnly: true,
                 }}
@@ -29,9 +29,9 @@ export const EventHost = ({ host }) => {
             <Grid xs={12} md={6}>
               <TextField
                 fullWidth
-                label="Category"
-                name="category"
-                value={values.category}
+                label="Name"
+                name="name"
+                value={host.name ? host.name : "N/A"}
                 InputProps={{
                   readOnly: true,
                 }}
@@ -40,9 +40,9 @@ export const EventHost = ({ host }) => {
             <Grid xs={12} md={6}>
               <TextField
                 fullWidth
-                label="Title"
-                name="title"
-                value={values.title}
+                label="Email"
+                name="email"
+                value={host.email ? host.email : "N/A"}
                 InputProps={{
                   readOnly: true,
                 }}
@@ -51,9 +51,9 @@ export const EventHost = ({ host }) => {
             <Grid xs={12} md={6}>
               <TextField
                 fullWidth
-                label="Writer"
-                name="writer"
-                value={values.writer}
+                label="Phone Number"
+                name="phone_number"
+                value={host.phone_number ? host.phone_number : "N/A"}
                 InputProps={{
                   readOnly: true,
                 }}
@@ -62,45 +62,31 @@ export const EventHost = ({ host }) => {
             <Grid xs={12} md={6}>
               <TextField
                 fullWidth
-                label="View"
-                name="view"
-                value={values.view}
+                label="Wallet Address"
+                name="wallet_address"
+                value={host.wallet_address ? host.wallet_address : "N/A"}
                 InputProps={{
                   readOnly: true,
                 }}
               />
             </Grid>
-            {values.event_id && (
-              <Grid xs={12} md={6}>
-                <TextField
-                  fullWidth
-                  label="Event ID"
-                  name="event_id"
-                  value={event_id}
-                  InputProps={{
-                    readOnly: true,
-                  }}
-                ></TextField>
-              </Grid>
-            )}
             <Grid xs={12} md={6}>
               <TextField
                 fullWidth
-                label="Created At"
-                name="created_at"
-                value={values.created_at}
+                label="Organization"
+                name="organization"
+                value={host.organization ? host.organization : "N/A"}
                 InputProps={{
                   readOnly: true,
                 }}
               ></TextField>
             </Grid>
-            <Grid xs={12} md={12}>
+            <Grid xs={12} md={6}>
               <TextField
                 fullWidth
-                multiline
-                label="Content"
-                name="content"
-                value={values.content}
+                label="Created At"
+                name="created_at"
+                value={host.created_at ? host.created_at : "N/A"}
                 InputProps={{
                   readOnly: true,
                 }}

@@ -11,7 +11,15 @@ const Page = () => {
   const { id } = router.query;
 
   const data = {
-    host: {},
+    host: {
+      id: "3Rxv4WLTT5EqiBiVozgy4LZLW6ELRVM8",
+      name: "초전도체",
+      email: "Presley89@hotmail.com",
+      phone_number: "010-1234-5678",
+      wallet_address: "0xdefe6c0baf788845b9a59f42fdc1ccc85f3cf2cd",
+      organization: "퀀텀에너지 연구소",
+      created_at: "2021-10-01T00:00:00.000000Z",
+    },
     badge: {
       id: "3Rxv4WLTT5EqiBiVozgy4LZLW6ELRVM8",
       image_url: "/assets/avatars/avatar-anika-visser.png",
@@ -52,7 +60,7 @@ const Page = () => {
                 </Button>
               </Stack>
             </Stack>
-            <EventHost host={host} />
+            <EventHost host={data.host} />
             <EventDetails />
             <EventBadge badge={data.badge} />
           </Stack>
