@@ -57,7 +57,7 @@ module.exports = (app) => {
    * @group Posts
    * @Summary 댓글 수정
    */
-  route.post('/edit', isAuth, upload.none(), async (req, res) => {
+  route.patch('/edit', isAuth, upload.none(), async (req, res) => {
     try {
       const user_id = req.decoded.user_id;
 
@@ -180,7 +180,7 @@ module.exports = (app) => {
    * @group Posts
    * @Summary 댓글 좋아요
    */
-  route.post('/like/:comment_id', isAuth, async (req, res) => {
+  route.patch('/like/:comment_id', isAuth, async (req, res) => {
     try {
       const user_id = req.decoded.user_id;
 
