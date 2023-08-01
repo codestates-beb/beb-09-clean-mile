@@ -429,7 +429,7 @@ module.exports = (app) => {
    * @group users - 사용자 관련
    * @summary 닉네임 변경
    */
-  route.post('/change-nickname', isAuth, upload.none(), async (req, res) => {
+  route.patch('/change-nickname', isAuth, upload.none(), async (req, res) => {
     try {
       const email = req.decoded.email;
       const nickname = req.body.nickname;
@@ -478,7 +478,7 @@ module.exports = (app) => {
    * @group users - 사용자 관련
    * @summary 사용자 배너 이미지 변경
    */
-  route.post('/change-banner', isAuth, upload.single('imgFile'), async (req, res) => {
+  route.patch('/change-banner', isAuth, upload.single('imgFile'), async (req, res) => {
     try {
       const email = req.decoded.email;
 

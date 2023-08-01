@@ -83,7 +83,7 @@ module.exports = (app) => {
    * @group Posts
    * @Summary 게시글 수정
    */
-  route.post('/edit', isAuth, upload.none(), async (req, res) => {
+  route.patch('/edit', isAuth, upload.none(), async (req, res) => {
     try {
       const { post_id, title, content } = req.body;
 

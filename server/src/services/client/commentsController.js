@@ -85,13 +85,20 @@ const findComment = async (commentId) => {
  */
 const editComment = async (commentId, content) => {
   try {
-    const result = await CommentModel.findByIdAndUpdate(
-      { _id: commentId },
-      { $set: { content: content, updated_at: new Date() } }
-    );
+    const comment = await CommentModel.findById(commentId);
+    if (!comment) {
+      return { success: false };
+    }
+
+    // 댓글 수정
+    comment.content = content;
+    comment.updated_at = new Date();
+
+    const result = await comment.save();
     if (!result) {
       return { success: false };
     }
+
     return { success: true };
   } catch (err) {
     console.error('Error:', err);

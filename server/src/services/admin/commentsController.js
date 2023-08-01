@@ -4,14 +4,14 @@ const UserModel = require('../../models/Users');
 const calcPagination = require('../../utils/calcPagination');
 
 /**
- * 댓글 정보 조회
+ * 댓글 리스트 조회
  * @param {*} category
  * @param {*} page
  * @param {*} title
  * @param {*} content
  * @param {*} writer
  * @param {*} limit
- * @returns
+ * @returns 리스트 조회 결과, 페이지네이션 정보
  */
 const getComments = async (category, page, title, content, writer, limit) => {
   try {
@@ -78,4 +78,44 @@ const getComments = async (category, page, title, content, writer, limit) => {
   }
 };
 
-module.exports = { getComments };
+/**
+ * 댓글 아이디를 통한 댓글 조회
+ * @param {*} comment_id
+ * @returns 조회 결과
+ */
+const getComment = async (comment_id) => {
+  try {
+    // 댓글 조회
+    const comment = await CommentModel.findById(comment_id).select('-__v');
+    if (!comment) {
+      return { success: false };
+    }
+
+    return { success: true, data: comment };
+  } catch (err) {
+    console.error('Error:', err);
+    throw Error(err);
+  }
+};
+
+/**
+ * 댓글 삭제
+ * @param {*} comment_id
+ * @returns 성공 여부
+ */
+const deleteComment = async (comment_id) => {
+  try {
+    // 댓글 삭제
+    const result = await CommentModel.findByIdAndDelete(comment_id);
+    if (!result) {
+      return { success: false };
+    }
+
+    return { success: true };
+  } catch (err) {
+    console.error('Error:', err);
+    throw Error(err);
+  }
+};
+
+module.exports = { getComments, getComment, deleteComment };
