@@ -4,6 +4,7 @@ import { Layout as DashboardLayout } from "src/layouts/dashboard/layout";
 import { useRouter } from "next/router";
 import { PostDetails } from "src/components/posts/post-details";
 import { EventDetails } from "src/components/events/event-details";
+import { EventBadge } from "src/components/events/event-badge";
 
 const Page = () => {
   const router = useRouter();
@@ -35,6 +36,7 @@ const Page = () => {
                 </Button>
               </Stack>
             </Stack>
+            <EventBadge />
             <EventDetails />
           </Stack>
         </Container>
