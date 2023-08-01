@@ -15,6 +15,9 @@ const Comments = ({ postDetail, comments }: { postDetail: PostDetail, comments: 
   const [likedComments, setLikedComments] = useState<{ [key: string]: boolean }>({});
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editCommentInput, setEditCommentInput] = useState('');
+  const [editingComment, setEditingComment] = useState<string | null>(null);
 
 
   useEffect(() => {
@@ -51,7 +54,7 @@ const Comments = ({ postDetail, comments }: { postDetail: PostDetail, comments: 
           confirmButtonColor: '#6BCB77'
         }).then(() => {
           Swal.close();
-          router.replace(`/users/mypage?nickname=`);
+          router.reload();
         });
       } else {
         Swal.fire({
@@ -81,18 +84,17 @@ const Comments = ({ postDetail, comments }: { postDetail: PostDetail, comments: 
     }
   }
 
-  const likeComment = async (comment_id: string) => {
-    console.log(comment_id)
+  const likeComment = async (commentId: string) => {
     try {
-      const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/comments/like/${comment_id}`;
+      const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/comments/like/${commentId}`;
       const dataBody = null;
       const isJSON = false;
       const headers = {};
       const isCookie = true;
 
-      const res = await ApiCaller.post(URL, dataBody, isJSON, headers, isCookie);
+      const res = await ApiCaller.patch(URL, dataBody, isJSON, headers, isCookie);
       if (res.status === 200) {
-        setLikedComments({...likedComments, [comment_id]: !likedComments[comment_id]});
+        setLikedComments({...likedComments, [commentId]: !likedComments[commentId]});
       }
 
 
@@ -113,10 +115,135 @@ const Comments = ({ postDetail, comments }: { postDetail: PostDetail, comments: 
     }
   }
 
-  const editComment = async () => {
-    
+  const handleEditComment = (commentId: string) => {
+    setEditingComment(commentId);
+    setEditCommentInput(comment);
+  };
+
+  const editComment = async (commentId: string) => {
+    const formData = new FormData();
+
+    formData.append('comment_id', commentId);
+    formData.append('content', editCommentInput);
+
+    try {
+      const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/comments/edit`;
+      const dataBody = formData;
+      const isJSON = false;
+      const headers = {
+        'Content-Type': 'multipart/form-data',
+        'Accept': 'application/json'
+      };
+      const isCookie = true;
+
+      const res = await ApiCaller.patch(URL, dataBody, isJSON, headers, isCookie);
+      if (res.status === 200) {
+        Swal.fire({
+          title: 'Success!',
+          text: res.data.message,
+          icon: 'success',
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#6BCB77'
+        }).then(() => {
+          Swal.close();
+          router.reload();
+        });
+      } else {
+        Swal.fire({
+          title: 'Error',
+          text: res.data.message,
+          icon: 'error',
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#6BCB77'
+        }).then(() => {
+          Swal.close();
+        });
+      }
+    } catch (error) {
+      const err = error as AxiosError;
+
+      const data = err.response?.data as { message: string };
+
+      Swal.fire({
+        title: 'Error',
+        text: data?.message,
+        icon: 'error',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#6BCB77'
+      }).then(() => {
+        Swal.close();
+      });
+    }
   }
 
+  const deleteComment = async (commentId: string) => {
+    Swal.fire({
+      title: '삭제 하시겠습니까?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'OK',
+      confirmButtonColor: '#6BCB77',
+      cancelButtonText: 'Cancel',
+      cancelButtonColor: '#FF6B6B'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/comments/delete/${commentId}`;
+          const dataBody = null;
+          const isJSON = false;
+          const headers = {};
+          const isCookie = true;
+
+          const res = await ApiCaller.delete(URL, dataBody, isJSON, headers, isCookie);
+          if (res.status === 200) {
+            Swal.fire({
+              title: 'Success!',
+              text: res.data.message,
+              icon: 'success',
+              confirmButtonText: 'OK',
+              confirmButtonColor: '#6BCB77'
+            }).then(() => {
+              Swal.close();
+              router.reload();
+            });
+
+          } else {
+            Swal.fire({
+              title: 'Error',
+              text: res.data.message,
+              icon: 'error',
+              confirmButtonText: 'OK',
+              confirmButtonColor: '#6BCB77'
+            }).then(() => {
+              Swal.close();
+            });
+          }
+        } catch (error) {
+          const err = error as AxiosError;
+
+          const data = err.response?.data as { message: string };
+
+          Swal.fire({
+            title: 'Error',
+            text: data?.message,
+            icon: 'error',
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#6BCB77'
+          }).then(() => {
+            Swal.close();
+          });
+        }
+      } else if (result.isDismissed) {
+        Swal.fire({
+          title: 'Success!',
+          text: '게시글 삭제를 취소하셨습니다.',
+          icon: 'success',
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#6BCB77',
+        })
+      }
+    })
+  }
 
   return (
     <>
@@ -127,7 +254,35 @@ const Comments = ({ postDetail, comments }: { postDetail: PostDetail, comments: 
               return (
                 <div className='w-full grid grid-cols-2 items-center border rounded-xl p-3 sm:p-2' key={i}>
                   <div>
-                    <p className='text-lg sm:text-base xs:text-xs font-semibold'>{comment.content}</p>
+                  {editingComment === comment._id ? (
+                    <div className='flex gap-2'>
+                      <input
+                        type="text"
+                        value={editCommentInput}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditCommentInput(e.target.value)}
+                        className="border rounded-xl px-2 py-1 w-32"
+                      />
+                      <button className='
+                        bg-main-yellow 
+                        hover:bg-yellow-400 
+                        rounded-lg 
+                        text-sm 
+                        px-2 
+                        py-1 
+                        text-white 
+                        transition 
+                        duration-300'
+                        onClick={() => { editComment(comment._id); setEditingComment(null); }}>
+                        Save
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      <p className='text-lg sm:text-base xs:text-xs font-semibold'>
+                        {comment.content}
+                      </p>
+                    </>
+                  )}
                   </div>
                   <div className='text-right flex justify-end gap-6 sm:gap-2 xs:gap-2'>
                     <div>
@@ -147,8 +302,8 @@ const Comments = ({ postDetail, comments }: { postDetail: PostDetail, comments: 
                       {/* ... comment content ... */}
                       {isLoggedIn && userInfo?._id === comment.user_id._id && (
                         <>
-                          <MdOutlineCreate className="text-red-500 cursor-pointer sm:w-[30%] xs:w-[30%]" size={26} />
-                          <AiOutlineDelete className="text-red-500 cursor-pointer sm:w-[30%] xs:w-[30%]" size={26} />
+                          <MdOutlineCreate className="text-red-500 cursor-pointer sm:w-[30%] xs:w-[30%]" size={26} onClick={() => handleEditComment(comment._id)} />
+                          <AiOutlineDelete className="text-red-500 cursor-pointer sm:w-[30%] xs:w-[30%]" size={26} onClick={() => deleteComment(comment._id)} />
                         </>
                       )}
                     </div>
