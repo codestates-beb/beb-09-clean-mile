@@ -1,6 +1,7 @@
 const smtpTransport = require('../../loaders/email');
 const config = require('../../config/index');
 const calcPagination = require('../../utils/calcPagination');
+const getKorDate = require('../../utils/getKorDateUtil');
 const MailModel = require('../../models/Mails');
 const UserModel = require('../../models/Users');
 const PostModel = require('../../models/Posts');
@@ -316,7 +317,7 @@ const changeNickname = async (email, nickname) => {
       return { success: false };
     } else {
       userData.nickname = nickname;
-      userData.updated_at = Date.now();
+      userData.updated_at = getKorDate();
       const result = await userData.save();
       return { success: true, data: result.nickname };
     }
@@ -340,7 +341,7 @@ const changeBanner = async (email, bannerUrl) => {
     }
 
     userData.banner_img_url = bannerUrl;
-    userData.updated_at = Date.now();
+    userData.updated_at = getKorDate();
     const result = await userData.save();
     if (!result) {
       return { success: false };

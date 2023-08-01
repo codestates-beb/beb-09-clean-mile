@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const getKorDate = require('../utils/getKorDateUtil');
 
 /**
  * EventHosts Collection Schema
@@ -27,12 +28,12 @@ const eventHostSchema = new mongoose.Schema({
   created_at: {
     // 호스트 생성일
     type: Date,
-    default: Date.now,
+    default: getKorDate,
   },
   updated_at: {
     // 호스트 정보 수정일
     type: Date,
-    default: Date.now,
+    default: getKorDate,
   },
 });
 

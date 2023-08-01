@@ -1,5 +1,9 @@
 const mongoose = require('mongoose');
+const getKorDate = require('../utils/getKorDateUtil');
 
+/**
+ * EventEntries Collection Schema
+ */
 const eventEntrySchema = new mongoose.Schema({
   event_id: {
     // 이벤트 ID
@@ -29,12 +33,12 @@ const eventEntrySchema = new mongoose.Schema({
   created_at: {
     // 이벤트 참가자 데이터 생성일
     type: Date,
-    default: Date.now,
+    default: getKorDate,
   },
   updated_at: {
     // 이벤트 참가자 데이터 수정일
     type: Date,
-    default: Date.now,
+    default: getKorDate,
   },
 });
 
