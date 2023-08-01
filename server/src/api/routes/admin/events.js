@@ -33,6 +33,12 @@ module.exports = (app) => {
         content,
         organization
       );
+      if (!events) {
+        return res.status(400).json({
+          success: false,
+          message: '이벤트 정보 조회 실패',
+        });
+      }
 
       return res.status(200).json({
         success: true,
@@ -60,7 +66,7 @@ module.exports = (app) => {
       // 이벤트 정보 조회
       const event = await adminEventsController.getEvent(event_id);
       if (!event) {
-        return res.status(404).json({
+        return res.status(400).json({
           success: false,
           message: event.message,
         });
@@ -108,6 +114,28 @@ module.exports = (app) => {
         message: '이벤트 참여자 리스트 조회 성공',
         data: entries,
       });
+    } catch (err) {
+      console.error('Error:', err);
+      return res.status(500).json({
+        success: false,
+        message: '서버 오류',
+      });
+    }
+  });
+
+  /**
+   * @route POST /admin/events/entry/download/:event_id
+   * @group Admin - Event
+   * @summary 이벤트 참여자 리스트 다운로드
+   */
+  route.get(
+    '/entry/download/:event_id',
+    isAdminAuth,
+    adminEventsController.exportToExcel
+  );
+
+  route.post('/create', isAdminAuth, async (req, res) => {
+    try {
     } catch (err) {
       console.error('Error:', err);
       return res.status(500).json({

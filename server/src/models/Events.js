@@ -34,11 +34,13 @@ const eventSchema = new mongoose.Schema({
   remaining: {
     // 남은 인원
     type: Number,
+    default: 0,
   },
   status: {
     // 이벤트 진행 상태
     type: String,
     enum: ['created', 'recruiting', 'progressing', 'finished', 'canceled'],
+    default: 'created',
   },
   event_type: {
     // 이벤트 타입
