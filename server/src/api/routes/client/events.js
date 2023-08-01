@@ -42,18 +42,16 @@ module.exports = (app) => {
       return res.status(200).json({
         success: true,
         message: '행사 리스트 조회 성공',
-        data: result.data,
-        
+        data: result,
       });
-
-    }catch (err) {
+    } catch (err) {
       console.error('Error:', err);
       return res.status(500).json({
         success: false,
         message: '서버 오류',
       });
     }
-  })
+  });
 
   /**
    * @router POST /events/detail/:_id

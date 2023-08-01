@@ -28,7 +28,8 @@ const badgeSchema = new mongoose.Schema({
   },
   event_id: {
     // 이벤트 ID
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'event',
   },
   initial_quantity: {
     // 뱃지 초기 발행량
@@ -55,11 +56,6 @@ const badgeSchema = new mongoose.Schema({
     // 뱃지 수정일
     type: Date,
     default: getKorDate,
-  },
-  event: {
-    // events collection의 _id를 참조
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'event',
   },
 });
 

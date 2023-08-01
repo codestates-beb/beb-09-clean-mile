@@ -11,7 +11,8 @@ const dnftSchema = new mongoose.Schema({
   },
   user_id: {
     // 사용자 ID
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'user',
   },
   name: {
     //변동 가능
@@ -38,11 +39,6 @@ const dnftSchema = new mongoose.Schema({
     // DNFT 정보 수정일
     type: Date,
     default: getKorDate,
-  },
-  user: {
-    // users collection의 _id를 참조
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'user',
   },
 });
 
