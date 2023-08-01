@@ -281,39 +281,12 @@ module.exports = (app) => {
         content
       );
 
-      return res.status(200).json({
-        success: true,
-        data: result,
-      });
-    } catch (err) {
-      console.error('Error:', err);
-      return res.status(500).json({
-        success: false,
-        message: '서버 오류',
-      });
-    }
-  });
-
-  /**
-   * @router GET /posts/list/general
-   * @group Posts
-   * @Summary 이벤트 게시글 목록 조회
-   */
-  route.get('/list/event', async (req, res) => {
-    try {
-      const {
-        last_id = null,
-        limit = 10,
-        title = null,
-        content = null,
-      } = req.query;
-
-      const result = await postsController.getEvents(
-        last_id, // 마지막 게시글 id
-        limit,
-        title,
-        content
-      );
+      if(!result) {
+        return res.status(400).json({
+          success: false,
+          message: '공지사항 정보 조회 실패',
+        });
+      }
 
       return res.status(200).json({
         success: true,

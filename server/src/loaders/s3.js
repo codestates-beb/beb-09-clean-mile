@@ -20,11 +20,9 @@ upload = multer({
       cb(null, { fieldName: file.fieldname });
     },
     key: function (req, file, cb) {
-      // const uuid = uuid.v4().substring(0, 8);
       const uniqueId = uuid.v4();
       const fileName = `${uniqueId}_${file.originalname}`;
-      const fullPath = uniqueId + '/' + fileName;
-      cb(null, fullPath);
+      cb(null, fileName);
     },
   }),
   // 업로드 파일 용량 제한 (5MB)
