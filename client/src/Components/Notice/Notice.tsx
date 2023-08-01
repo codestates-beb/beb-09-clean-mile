@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { SearchInput } from '../Reference';
+import { Post, Pagination } from '../../Components/Interfaces';
 
-const Notice = () => {
+const Notice = ({ noticeList, noticePagination }: { noticeList: Post, noticePagination: Pagination }) => {
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
   const [filter, setFilter] = useState('newest');

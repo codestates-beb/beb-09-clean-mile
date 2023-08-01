@@ -74,7 +74,10 @@ const Create = () => {
       const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/posts/create`;
       const dataBody = formData;
       const isJSON = false;
-      const headers = {};
+      const headers = {
+        'Content-Type': 'multipart/form-data',
+        'Accept': 'application/json'
+      };
       const isCookie = true;
 
       const res = await ApiCaller.post(URL, dataBody, isJSON, headers, isCookie);

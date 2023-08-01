@@ -12,9 +12,9 @@ import { IoMdCreate } from 'react-icons/io';
 import { FiLogOut } from 'react-icons/fi';
 import { useMutation, useQueryClient, dehydrate } from 'react-query';
 import { Nav, NewNotice, insta_icon } from '../Reference';
-import { UserInfo } from '../Interfaces';
+import { UserInfo, LoggedIn } from '../Interfaces';
 import { ApiCaller } from '../Utils/ApiCaller';
-import { setLoggedIn} from '../Redux';
+import { setLoggedIn } from '../Redux';
 
 const Header = () => {
   const router = useRouter();
@@ -26,8 +26,7 @@ const Header = () => {
   const [isUserMenuOpen, setUserMenuOpen] = useState(false);
   const [arrowRotation, setArrowRotation] = useState(0);
   const [userInfoDetail, setUserInfoDetail] = useState<UserInfo | null>(null);
-
-  const isLoggedIn = useSelector(state => state.isLoggedIn)
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   /**
    * 특정 URI로 이동하는 함수
@@ -75,13 +74,6 @@ const Header = () => {
     onSuccess: (data: UserInfo) => {
       queryClient.invalidateQueries('user');
       queryClient.setQueryData('user', data);
-
-      const dehydratedState = dehydrate(queryClient);
-      localStorage.setItem('user', JSON.stringify(dehydratedState));
-
-      // Move userInfoDetail setting logic here
-      dispatch(setLoggedIn(true));
-      setUserInfoDetail(data);
     },
     onError: (error) => {
       console.log('Mutation Error: ', error);
@@ -89,7 +81,14 @@ const Header = () => {
   });
 
   useEffect(() => {
-    loginMutation.mutate();
+    const user = localStorage.getItem('user');
+    if (user) {
+      const userCache = JSON.parse(localStorage.getItem('user') || '');
+      setUserInfoDetail(userCache.queries[0]?.state.data);
+      setIsLoggedIn(true);
+    } else {
+      loginMutation.mutate();
+    }
   }, []);
 
 
@@ -264,7 +263,7 @@ const Header = () => {
             {isLoggedIn ? (
               <div className='flex items-center gap-3'>
                 <Image src={insta_icon} width={50} height={100} alt='user profile image' />
-                <p>{userInfoDetail?.user.nickname}</p>
+                <p>{userInfoDetail?.nickname}</p>
                 <div className='relative cursor-pointer' style={{ transform: `rotate(${arrowRotation}deg)`, transition: 'transform 0.4s' }}>
                   <BiSolidDownArrow onClick={menuToggle} />
                 </div>
@@ -294,7 +293,7 @@ const Header = () => {
                         <GiToken size={20} />
                         50 CM
                       </li>
-                      <Link href={{ pathname: '/users/mypage', query: { id: userInfoDetail?.user._id } }}>
+                      <Link href={{ pathname: '/users/mypage', query: { id: userInfoDetail?._id } }}>
                         <li className="
                           flex 
                           justify-center 

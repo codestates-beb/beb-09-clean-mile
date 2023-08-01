@@ -147,4 +147,8 @@ type EventList = {
   updated_at: string;
 }
 
-export type { Post, PostDetail, Comment, LoginAPIInput, LoginAPIOutput, UserInfo, Pagination, EventList }
+type LoggedIn = {
+  isLoggedIn: boolean;
+}
+
+export type { Post, PostDetail, Comment, LoginAPIInput, LoginAPIOutput, UserInfo, Pagination, EventList, LoggedIn }

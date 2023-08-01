@@ -7,24 +7,14 @@ import { AxiosError } from 'axios';
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import { AiOutlineDelete, AiOutlineHeart, AiFillHeart } from 'react-icons/ai'
 import { PostDetail, Comment, UserInfo } from '../Interfaces';
 import { ApiCaller } from '../Utils/ApiCaller';
+import { Comments } from '../Reference';
 
-const GeneralDetail = ({ postDetail, comments }: { postDetail: PostDetail, comments: Comment }) => {
+const GeneralDetail = ({ postDetail, comments }: { postDetail: PostDetail, comments: Comment[] }) => {
   const router = useRouter();
-  const [createComment, setCreateComment] = useState('');
-  const [isHeartFilled, setIsHeartFilled] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
-
-  console.log(comments)
-
-
-  // function to toggle heart fill
-  const toggleHeartFill = () => {
-    setIsHeartFilled(!isHeartFilled);
-  }
 
   const settings = {
     dots: true,
@@ -38,7 +28,7 @@ const GeneralDetail = ({ postDetail, comments }: { postDetail: PostDetail, comme
     if (typeof window !== "undefined" && localStorage.getItem('user')) {
       const userCache = JSON.parse(localStorage.getItem('user') || '');
       setIsLoggedIn(userCache !== null);
-      setUserInfo(userCache.queries[0].state.data)
+      setUserInfo(userCache.queries[0]?.state.data)
     }
   }, []);
 
@@ -70,7 +60,7 @@ const GeneralDetail = ({ postDetail, comments }: { postDetail: PostDetail, comme
               confirmButtonColor: '#6BCB77'
             }).then(() => {
               Swal.close();
-              router.replace(`/users/mypage?id=${postDetail.user_id._id}`);
+              router.reload();
             });
 
           } else {
@@ -109,8 +99,6 @@ const GeneralDetail = ({ postDetail, comments }: { postDetail: PostDetail, comme
         })
       }
     })
-
-
   }
 
   return (
@@ -142,77 +130,14 @@ const GeneralDetail = ({ postDetail, comments }: { postDetail: PostDetail, comme
             ) : (
               null
             )}
-            {/* <div className="w-full h-full">
-              <Image src={dummyNotice.media[0]} width={100} height={100} alt='image' />
-            </div> */}
           </div>
           <div>
             {postDetail.content}
           </div>
         </div>
-        <div className='w-full flex flex-col gap-4'>
-          <h2 className='text-xl font-bold xs:text-base'>Comment</h2>
-          {comments.length !== 0 ? (
-            comments.map((comment, i) => {
-              return (
-                <div className='w-full grid grid-cols-2 items-center border rounded-xl p-3 sm:p-2' key={i}>
-                  <div>
-                    <p className='text-lg sm:text-base xs:text-xs font-semibold'>{comment.content}</p>
-                  </div>
-                  <div className='text-right flex justify-end gap-6 sm:gap-2 xs:gap-2'>
-                    <div>
-                      <p className='font-bold text-lg sm:text-sm xs:text-xs cursor-pointer hover:underline' onClick={() => router.push(`/user/profile`)}>{comment.user_id.nickname}</p>
-                      <div>
-                        <p className='text-sm sm:text-xs xs:text-xs'>
-                          {comment.updated_at.split('T')[0]} {comment.updated_at.substring(11, 19)}
-                        </p>
-                      </div>
-                    </div>
-                    <div className='flex justify-end items-center gap-4 sm:gap-2 xs:gap-2'>
-                      {
-                        isHeartFilled ?
-                          <AiFillHeart className='text-main-red cursor-pointer sm:w-[30%] xs:w-[30%]' size={26} onClick={toggleHeartFill} /> :
-                          <AiOutlineHeart className='text-main-red cursor-pointer sm:w-[30%] xs:w-[30%]' size={26} onClick={toggleHeartFill} />
-                      }
-                      <AiOutlineDelete className="text-red-500 cursor-pointer sm:w-[30%] xs:w-[30%]" size={26} />
-                    </div>
-                  </div>
-                </div>
-              )
-            })
-          ) : (
-            null
-          )}
-          <textarea
-            className='border border-gray-300 rounded-lg p-2 w-full outline-none'
-            rows={4}
-            placeholder='댓글을 입력하세요.'
-            value={createComment}
-            onChange={(e) => setCreateComment(e.target.value)}
-          />
-          <div className='flex justify-end'>
-            <button className='
-              py-2 
-              px-4
-              sm:px-6 
-              xs:px-6
-              bg-main-blue
-              text-white 
-              text-lg
-              sm:text-sm
-              xs:text-sm
-              rounded-md 
-              hover:bg-blue-600 
-              transition 
-              duration-300
-              '
-            >
-              Create
-            </button>
-          </div>
-        </div>
+        <Comments postDetail={postDetail} comments={comments} />
         <div className='w-full flex gap-3 xs:gap-2 justify-end my-16'>
-          {isLoggedIn && userInfo?.user._id === postDetail.user_id._id ? (
+          {isLoggedIn && userInfo?._id === postDetail.user_id._id ? (
             <>
               <button className='
                 w-[5%]
@@ -261,7 +186,7 @@ const GeneralDetail = ({ postDetail, comments }: { postDetail: PostDetail, comme
                   Edit
                 </button>
               </Link>
-              <Link href='/'
+              <Link href='/posts/general?page=1'
                 className='
                 w-[5%]
                 lg:w-[15%]
@@ -287,7 +212,7 @@ const GeneralDetail = ({ postDetail, comments }: { postDetail: PostDetail, comme
               </Link>
             </>
           ) : (
-            <Link href='/'
+            <Link href='/posts/general?page=1'
               className='
               w-[5%]
               lg:w-[15%]
