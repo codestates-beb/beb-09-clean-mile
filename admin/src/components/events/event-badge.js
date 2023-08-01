@@ -22,7 +22,7 @@ const badge = {
   created_at: "2021-10-01T00:00:00.000000Z",
 };
 
-export const EventBadge = () => (
+export const EventBadge = ({ badge }) => (
   <Card sx={{ p: 3 }}>
     <CardHeader title="Badge" />
     <CardContent>

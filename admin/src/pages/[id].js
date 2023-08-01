@@ -2,13 +2,29 @@ import Head from "next/head";
 import { Box, Container, Stack, Typography, Button } from "@mui/material";
 import { Layout as DashboardLayout } from "src/layouts/dashboard/layout";
 import { useRouter } from "next/router";
-import { PostDetails } from "src/components/posts/post-details";
 import { EventDetails } from "src/components/events/event-details";
 import { EventBadge } from "src/components/events/event-badge";
+import { EventHost } from "src/components/events/event-host";
 
 const Page = () => {
   const router = useRouter();
   const { id } = router.query;
+
+  const data = {
+    host: {},
+    badge: {
+      id: "3Rxv4WLTT5EqiBiVozgy4LZLW6ELRVM8",
+      image_url: "/assets/avatars/avatar-anika-visser.png",
+      badge_id: 1,
+      name: "플로깅 그랜드마스터",
+      description: "플로깅 100회 이상 달성",
+      type: 2,
+      token_uri: "https://badge.world/api/v1/badges/1",
+      initial_quantity: 10,
+      remaining_quantity: 10,
+      created_at: "2021-10-01T00:00:00.000000Z",
+    },
+  };
 
   return (
     <>
@@ -36,8 +52,9 @@ const Page = () => {
                 </Button>
               </Stack>
             </Stack>
-            <EventBadge />
+            <EventHost host={host} />
             <EventDetails />
+            <EventBadge badge={data.badge} />
           </Stack>
         </Container>
       </Box>
