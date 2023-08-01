@@ -28,6 +28,13 @@ module.exports = (app) => {
         category
       );
 
+      if(!notices) {
+        return res.status(400).json({
+          success: false,
+          message: '공지사항 정보 조회 실패',
+        });
+      }
+
       return res.status(200).json({
         success: true,
         message: '공지사항 정보 조회 성공',
@@ -61,8 +68,6 @@ module.exports = (app) => {
         const videoUrls = req.files['video']
           ? req.files['video'].map((file) => file.location)
           : [];
-
-        console.log('imageUrls', req.files['image']);
 
         const media = {
           images: imageUrls,
