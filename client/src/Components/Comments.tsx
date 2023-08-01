@@ -21,10 +21,10 @@ const Comments = ({ postDetail, comments }: { postDetail: PostDetail, comments: 
 
 
   useEffect(() => {
-    if (typeof window !== "undefined" && localStorage.getItem('user')) {
-      const userCache = JSON.parse(localStorage.getItem('user') || '');
+    if (typeof window !== "undefined" && localStorage.getItem('user_info')) {
+      const userCache = JSON.parse(localStorage.getItem('user_info') || '');
       setIsLoggedIn(userCache !== null);
-      setUserInfo(userCache.queries[0]?.state.data)
+      setUserInfo(userCache.queries[0]?.state.data.user)
     }
   }, []);
   
@@ -283,6 +283,7 @@ const Comments = ({ postDetail, comments }: { postDetail: PostDetail, comments: 
                       </p>
                     </>
                   )}
+                  {console.log(userInfo?._id, comment.user_id._id)}
                   </div>
                   <div className='text-right flex justify-end gap-6 sm:gap-2 xs:gap-2'>
                     <div>
