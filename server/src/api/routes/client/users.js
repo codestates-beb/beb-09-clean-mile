@@ -129,10 +129,14 @@ module.exports = (app) => {
 
       //사용자 DNFT 발급
       const createDNFT = await dnftController.createDNFT(userData.email, 0);
+<<<<<<< HEAD
       if (!createDNFT.success)
         return res
           .status(400)
           .json({ success: false, message: '사용자 DNFT 발급 실패' });
+=======
+      if (!createDNFT.success) return res.status(400).json({ success: false, message: '사용자 DNFT 발급 실패' });
+>>>>>>> Update latest notice
 
       return res.status(200).json({
         success: true,
@@ -571,6 +575,11 @@ route.get('/userInfo', isAuth, async (req, res) => {
 
     const badgeData = await badgeController.userBadges(user_id);
     if (!badgeData.success) return res.status(400).json({ success: false });
+<<<<<<< HEAD
+=======
+
+    console.log(badgeData);
+>>>>>>> Update latest notice
 
     // 사용자 작성한 General, Review Posts List 조회
     const posts = await usersController.getPosts(user_id);

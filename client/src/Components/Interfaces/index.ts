@@ -151,4 +151,12 @@ type LoggedIn = {
   isLoggedIn: boolean;
 }
 
-export type { Post, PostDetail, Comment, LoginAPIInput, LoginAPIOutput, UserInfo, Pagination, EventList, LoggedIn }
+type Dnft = {
+  owner: string;
+  token_id: number;
+  name: string;
+  image_url: string;
+  description: string;
+}
+
+export type { Post, PostDetail, Comment, LoginAPIInput, LoginAPIOutput, UserInfo, Pagination, EventList, LoggedIn, Dnft }

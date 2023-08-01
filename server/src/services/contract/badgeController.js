@@ -261,9 +261,15 @@ const userBadges = async (userId) => {
       }
     }
     let badgeList = [];
+<<<<<<< HEAD
     const badgeType = ['bronze', 'silver', 'gold'];
     for (const eventId of confirmedEventList) {
       const badge = await BadgeModel.findOne({ event_id: eventId });
+=======
+    const badgeType = ['bronze','silver','gold'];
+    for (const eventId of confirmedEventList){
+      const badge = await BadgeModel.findOne({event_id: eventId});
+>>>>>>> Update latest notice
       if (!badge) continue;
       badgeList.push({
         name: badge.name,

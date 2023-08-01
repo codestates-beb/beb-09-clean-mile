@@ -11,8 +11,8 @@ import { BiSolidDownArrow, BiSolidUser } from 'react-icons/bi';
 import { IoMdCreate } from 'react-icons/io';
 import { FiLogOut } from 'react-icons/fi';
 import { useMutation, useQueryClient, dehydrate } from 'react-query';
-import { Nav, NewNotice, insta_icon } from '../Reference';
-import { UserInfo, LoggedIn } from '../Interfaces';
+import { Nav, NewNotice } from '../Reference';
+import { UserInfo, Post } from '../Interfaces';
 import { ApiCaller } from '../Utils/ApiCaller';
 import { setLoggedIn } from '../Redux';
 
@@ -25,8 +25,10 @@ const Header = () => {
   const [isMenu, setIsMenu] = useState(false);
   const [isUserMenuOpen, setUserMenuOpen] = useState(false);
   const [arrowRotation, setArrowRotation] = useState(0);
-  const [userInfoDetail, setUserInfoDetail] = useState<UserInfo | null>(null);
+  const [userInfoData, setUserInfoData] = useState<UserInfo | null>(null);
+  const [dnftData, setDnftData] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [latestNotice, setLatestNotice] = useState<Post>(null);
 
   /**
    * 특정 URI로 이동하는 함수
@@ -54,6 +56,7 @@ const Header = () => {
       const isCookie = true;
 
       const res = await ApiCaller.get(URL, dataBody, isJSON, headers, isCookie);
+
       return res.data.data
     } catch (error) {
       const err = error as AxiosError;
@@ -85,13 +88,18 @@ const Header = () => {
 
   useEffect(() => {
     const user = localStorage.getItem('user');
-    if (user) {
-      const userCache = JSON.parse(localStorage.getItem('user') || '');
-      setUserInfoDetail(userCache.queries[1]?.state.data);
+    const userInfo = localStorage.getItem('user_info');
+    if(userInfo) {
+      const userCache = JSON.parse(localStorage.getItem('user_info') || '');
+      setUserInfoData(userCache.queries[0]?.state.data.user);
+      setDnftData(userCache.queries[0]?.state.data.dnftData);
+    }
+    if(user) {
       setIsLoggedIn(true);
     } else {
-      loginMutation.mutate();
+      setIsLoggedIn(false);
     }
+    loginMutation.mutate();
   }, []);
 
 
@@ -132,8 +140,10 @@ const Header = () => {
 
               if (typeof window !== "undefined") {
                 localStorage.removeItem('user');
+                localStorage.removeItem('user_info');
               }
               queryClient.removeQueries('user');
+              queryClient.removeQueries('user_info');
               dispatch(setLoggedIn(false));
             });
           } else {
@@ -178,13 +188,37 @@ const Header = () => {
     });
   }
 
+  const newNotice = async () => {
+    try {
+      const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/posts/notices_latest`;
+      const dataBody = null;
+      const isJSON = false;
+      const headers = {};
+      const isCookie = true;
+
+      const res = await ApiCaller.get(URL, dataBody, isJSON, headers, isCookie);
+      setLatestNotice(res.data.data);
+    } catch (error) {
+      const err = error as AxiosError;
+
+      const data = err.response?.data as { message: string };
+
+      console.log('New Notice Error: ', data?.message);
+      throw err;
+    }
+  }
+
+  useEffect(() => {
+    newNotice();
+  }, [])
+
   return (
     <>
       <div className="w-full mx-auto sm:overflow-hidden h-20 flex items-center justify-between px-10 sm:px-3 xs:px-3 border-b bg-white md:gap-6 sm:gap-4 xs:gap-4 sticky top-0 z-50">
         <div className="w-[15%] md:w-[30%] sm:w-full xs:w-[50%] h-full flex items-center sm:justify-start overflow-hidden">
           <img src='/assets/images/clean_mile_logo_2.png' className='w-[50%] lg:w-[90%] md:w-[90%] sm:w-[80%] xs:w-[100%] cursor-pointer' alt="logo" onClick={() => navigateTo('/')} />
         </div>
-        <div className="w-3/4 md:w-full sm:w-fullh-full flex justify-end items-center gap-20">
+        <div className="w-3/4 md:w-full sm:w-fullh-full flex justify-end items-center gap-10">
           <nav className='flex justify-center items-center md:hidden sm:hidden xs:hidden relative'>
             <ul className="flex justify-center items-center gap-14">
               <li className={
@@ -265,8 +299,24 @@ const Header = () => {
           <div className="flex gap-5">
             {isLoggedIn ? (
               <div className='flex items-center gap-3'>
-                <Image src={insta_icon} width={50} height={100} alt='user profile image' />
-                <p>{userInfoDetail?.nickname}</p>
+                <div className='w-[3rem] 
+                  lg:w-[2rem] 
+                  md:w-[2rem] 
+                  sm:w-[2rem] 
+                  xs:w-[2rem] 
+                  h-[3rem] 
+                  lg:h-[2rem] 
+                  md:h-[2rem] 
+                  sm:h-[2rem] 
+                  xs:h-[2rem] 
+                  border-2 
+                  border-gray-200 
+                  rounded-full 
+                  relative 
+                  overflow-hidden'>
+                  <Image src={dnftData.image_url} layout='fill' objectFit='cover' alt='user profile image' />
+                </div>
+                <p>{userInfoData.nickname}</p>
                 <div className='relative cursor-pointer' style={{ transform: `rotate(${arrowRotation}deg)`, transition: 'transform 0.4s' }}>
                   <BiSolidDownArrow onClick={menuToggle} />
                 </div>
@@ -296,7 +346,7 @@ const Header = () => {
                         <GiToken size={20} />
                         50 CM
                       </li>
-                      <Link href={{ pathname: '/users/mypage', query: { id: userInfoDetail?._id } }}>
+                      <Link href={{ pathname: '/users/mypage', query: { id: userInfoData._id } }}>
                         <li className="
                           flex 
                           justify-center 
@@ -389,7 +439,7 @@ const Header = () => {
           </div>
         </div>
       </div>
-      {router.pathname !== '/' && router.pathname !== '/user/mypage' && <NewNotice />}
+      {router.pathname !== '/' && router.pathname !== '/user/mypage' && <NewNotice latestNotice={latestNotice} />}
     </>
   );
 };

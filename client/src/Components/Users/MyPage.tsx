@@ -16,7 +16,7 @@ const EXTENSIONS = [
   { type: 'mp4' },
 ];
 
-const MyPage = ({ userInfo, postPagination }: { userInfo: UserInfo, postPagination: Pagination }) => {
+const MyPage = ({ userInfo, postPagination, userDnft }: { userInfo: UserInfo, postPagination: Pagination, userDnft: Dnft }) => {
   // const MyPage = () => {
   const router = useRouter()
   const [fileUrl, setFileUrl] = useState<string | null>(null);
@@ -28,18 +28,17 @@ const MyPage = ({ userInfo, postPagination }: { userInfo: UserInfo, postPaginati
   const [currentPage, setCurrentPage] = useState(1);
   const [postData, setPostData] = useState([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userInfoDetail, setUserInfoDetail] = useState<UserInfo | null>(null);
+  const [userInfoData, setUserInfoData] = useState<UserInfo | null>(null);
+  const [eventsData, setEventsData] = useState<UserInfo | null>(null);
 
   useEffect(() => {
     if (typeof window !== "undefined" && localStorage.getItem('user')) {
       const userCache = JSON.parse(localStorage.getItem('user_info') || '');
       setIsLoggedIn(userCache !== null);
-      setUserInfoDetail(userCache.queries[0]?.state.data)
+      setUserInfoData(userCache.queries[0]?.state.data.user)
+      setEventsData(userCache.queries[0]?.state.data.events)
     }
   }, []);
-
-  const eventLists = userInfoDetail?.events;
-  console.log(userInfo)
 
   /**
    * 파일 업로드 이벤트를 처리
@@ -283,7 +282,7 @@ const MyPage = ({ userInfo, postPagination }: { userInfo: UserInfo, postPaginati
         xs:left-[115px] 
         overflow-hidden
         shadow-lg'>
-        <Image src={hero_img} layout='fill' objectFit='cover' alt='profile image' />
+        <Image src={userDnft.image_url} layout='fill' objectFit='cover' alt='profile image' />
       </div>
       <div className='w-full h-full flex flex-col sm:items-center xs:items-center justify-center gap-6 px-12 sm:px-2 xs:px-2'>
         <div className='w-[80%] md:w-[80%] sm:w-full xs:w-full flex flex-col items-start sm:items-center xs:items-center gap-3 ml-[14%] lg:ml-[18%] md:ml-[20%] sm:ml-0 xs:ml-0 my-2 mt-5 sm:mt-24 xs:mt-20'>
@@ -386,12 +385,12 @@ const MyPage = ({ userInfo, postPagination }: { userInfo: UserInfo, postPaginati
               </tr>
             </thead>
             <tbody>
-              {eventLists?.length === 0 ? (
+              {eventsData?.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="p-6 text-center">참여한 이벤트가 없습니다.</td>
                 </tr>
               ) : (
-                eventLists?.map((post, i) => (
+                eventsData?.map((post, i) => (
                   <tr className="
                     hover:bg-gray-200 
                     transition-all 
@@ -416,12 +415,27 @@ const MyPage = ({ userInfo, postPagination }: { userInfo: UserInfo, postPaginati
                     </td>
                     <td className="border-b p-6 md:p-2 sm:p-1 xs:p-1">
                       <p className="sm:text-xs xs:text-xs bg-main-yellow rounded-lg text-white font-semibold py-1">
-                        {post.event_type}
+                        {(() => {
+                      switch (post.event_type) {
+                            case 'fcfs': return 'First come, first served';
+                            case 'random': return 'Draw lots';
+                          default: return '';
+                          }
+                        })()}
                       </p>
                     </td>
                     <td className="border-b p-6 md:p-2 sm:p-1 xs:p-1">
                       <p className="sm:text-xs xs:text-xs bg-main-blue rounded-lg text-white font-semibold py-1">
-                        {post.status}
+                        {(() => {
+                          switch (post.status) {
+                            case 'created': return 'Before proceeding';
+                            case 'recruiting': return 'Recruiting';
+                            case 'progressing': return 'In progress';
+                            case 'finished': return 'End of progress';
+                            case 'canceled': return 'Cancel Progress';
+                            default: return 'Unknown';
+                          }
+                        })()}
                       </p>
                     </td>
                     <td className="border-b p-6 md:p-2 sm:p-1 xs:p-1">
