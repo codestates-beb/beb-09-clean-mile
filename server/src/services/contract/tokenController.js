@@ -11,11 +11,14 @@ const tokenContract = new ethers.Contract(config.TOKEN_ADDRESS, tokenABI, signer
 // 토큰 전송 transferFrom으로 할 것이냐? transfer로 할 것이냐?
 // 토큰을 전송해주고 event에 is_review_rewarded를 true로 변환해주어야 한다
 
-const tokenReward = async (userId, eventId, amount) => {
+const tokenReward = async (userId, eventId) => {
+    const amount =3;
     let user = await UserModel.findById(userId);
+    if (!user) return ({success: false, message: '사용자를 찾을 수 없습니다'});
 
     let userEntry = await EventEntry.findOne({user_id: userId, event_id: eventId});
-
+    if (!userEntry) return ({success: false, message: '사용자를 찾을 수 없습니다'});
+    if (userEntry.is_token_rewarded) return ({success: false, message: '해당 행사에 대한 보상이 이미 지급 되었습니다'});
     const address = user.wallet.address;
 
     const balance = await tokenContract.balanceOf(config.SENDER);

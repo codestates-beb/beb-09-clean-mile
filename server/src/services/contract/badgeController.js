@@ -66,7 +66,7 @@ const createBadge = async ( name, description, imageUrl, badgeType, amount, even
         description: description,
         type: badgeType,
         score: badgeScore[badgeType],
-        tokenUri: tokenURI,
+        token_uri: tokenURI,
         image_url: imageUrl,
         event_id: eventId,
         initial_quantity: amount,
@@ -233,7 +233,7 @@ const userBadges = async (userId) => {
         name: badge.name,
         description: badge.description,
         image: badge.image_url,
-        badgeType: badgeType[badge.type]
+        badge_type: badgeType[badge.type]
       })
     }
     return ({success: true, data: badgeList});

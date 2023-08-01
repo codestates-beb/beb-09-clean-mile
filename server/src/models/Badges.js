@@ -22,7 +22,7 @@ const badgeSchema = new mongoose.Schema({
     // 뱃지 이미지 URL
     type: String,
   },
-  token_Uri: {
+  token_uri: {
     // 뱃지 토큰 Uri
     type: String,
   }
