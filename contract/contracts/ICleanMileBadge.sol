@@ -55,7 +55,7 @@ interface ICleanMileBadge {
         string _uri
     );
 
-    event TransferBatch(
+    event TransferMultiple(
         address indexed sender,
         address[] recipients,
         uint256 tokenId,
