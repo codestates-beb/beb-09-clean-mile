@@ -20,6 +20,26 @@ const Page = () => {
       organization: "퀀텀에너지 연구소",
       created_at: "2021-10-01T00:00:00.000000Z",
     },
+    event: {
+      id: "3Rxv4WLTT5EqiBiVozgy4LZLW6ELRVM8",
+      title: "플로깅 그랜드마스터 선발전",
+      content: "플로깅 100회 이상 달성",
+      poster_url:
+        "https://plohub-bucket.s3.ap-northeast-2.amazonaws.com/f8b53b11-efd9-461f-963f-6e29e0e3a302_image_0_17b2ad589801389ce.png",
+      location: "서울시",
+      capacity: 10,
+      remaining: 10,
+      status: "progressing",
+      event_type: "fcfs",
+      recruitment_start_at: "2021-10-01T00:00:00.000000Z",
+      recruitment_end_at: "2021-10-02T00:00:00.000000Z",
+      event_start_at: "2021-10-03T00:00:00.000000Z",
+      event_end_at: "2021-10-04T00:00:00.000000Z",
+      view: {
+        count: 1234,
+      },
+      created_at: "2021-10-01T00:00:00.000000Z",
+    },
     badge: {
       id: "3Rxv4WLTT5EqiBiVozgy4LZLW6ELRVM8",
       image_url: "/assets/avatars/avatar-anika-visser.png",
@@ -61,8 +81,8 @@ const Page = () => {
               </Stack>
             </Stack>
             <EventHost host={data.host} />
-            <EventDetails />
-            <EventBadge badge={data.badge} />
+            <EventDetails event={data.event} />
+            {data.badge && <EventBadge badge={data.badge} />}
           </Stack>
         </Container>
       </Box>
