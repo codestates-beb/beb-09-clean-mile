@@ -131,23 +131,25 @@ const updateDescription = async (userId,newEvent) => {
 }
 
 /**
- * DNFT Data 요청(굳이 필요한가?)
+ * DNFT Data 요청
  * @param {string} email
  * @returns 사용자 DNFT 데이터
  */
 const userDnftData = async (userId) => {
   try{
     const user = await UserModel.findOne({_id: userId });
+    if(!user) return ({success: false, message: "데이터 요청 실패"});
     const dnft = await DnftModel.findOne({user_id: userId});
+    if(!dnft) return ({success: false, message: "데이터 요청 실패"});
     
     return ({
       success: true,
       data:
       {
         owner: user.nickname,
-        tokenId: dnft.token_id,
+        token_id: dnft.token_id,
         name: dnft.name,
-        imageUrl: dnft.token_uri,
+        image_url: dnft.token_uri,
         description: dnft.description
       }
     })
