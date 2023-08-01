@@ -396,6 +396,65 @@ const updateEvent = async (
   }
 };
 
+/**
+ * 이벤트 취소
+ * @param {*} event_id
+ * @returns 성공 여부
+ */
+const updateEventStatus = async (event_id) => {
+  try {
+    // 이벤트 정보 조회
+    const event = await EventModel.findById(event_id);
+    if (!event) {
+      return { success: false, message: '존재하지 않는 이벤트입니다.' };
+    }
+
+    if (event.status === 'canceled') {
+      return { success: false, message: '이미 취소된 이벤트입니다.' };
+    }
+
+    // 이벤트 상태가 ‘progressing' 이전 상태일 때만 취소 가능
+    if (event.status === 'progressing' || event.status === 'finished') {
+      return {
+        success: false,
+        message: `이벤트 상태가 ‘progressing' 이전 상태일 때만 취소 가능합니다.`,
+      };
+    }
+
+    // 이벤트 상태 변경
+    event.status = 'canceled';
+    const result = await event.save();
+    if (!result) {
+      return { success: false, message: '이벤트 취소에 실패했습니다.' };
+    }
+
+    return { success: true };
+  } catch (err) {
+    console.error('Error:', err);
+    throw Error(err);
+  }
+};
+
+/**
+ * 이벤트 삭제
+ * @param {*} event_id
+ * @returns 성공 여부
+ */
+const deleteEvent = async (event_id) => {
+  try {
+    // 이벤트 정보 삭제
+    const result = await EventModel.deleteOne({ _id: event_id });
+    if (!result) {
+      return { success: false };
+    }
+
+    return { success: true };
+  } catch (err) {
+    console.error('Error:', err);
+    throw Error(err);
+  }
+};
+
 module.exports = {
   getEvents,
   getEvent,
@@ -405,4 +464,6 @@ module.exports = {
   saveEvent,
   updateEventHost,
   updateEvent,
+  updateEventStatus,
+  deleteEvent,
 };

@@ -4,6 +4,7 @@ const isAdminAuth = require('../../middlewares/isAdminAuth');
 const adminEventsController = require('../../../services/admin/eventsController');
 const badgeController = require('../../../services/contract/badgeController');
 const dnftController = require('../../../services/contract/dnftController');
+const { getUser } = require('../../../services/client/usersController');
 
 const route = Router();
 
@@ -436,6 +437,100 @@ module.exports = (app) => {
       return res.status(200).json({
         success: true,
         message: '데이터 수정 성공',
+      });
+    } catch (err) {
+      console.error('Error:', err);
+      return res.status(500).json({
+        success: false,
+        message: '서버 오류',
+      });
+    }
+  });
+
+  /**
+   * @route PATCH /admin/events//cancel/:event_id
+   * @group Admin - Event
+   * @summary 이벤트 취소 (status 수정)
+   */
+  route.patch('/cancel/:event_id', isAdminAuth, async (req, res) => {
+    try {
+      const { event_id } = req.params;
+
+      // 관리자 확인
+      const admin = await getUser(req.decoded.user_id);
+      if (!admin) {
+        return res.status(400).json({
+          success: false,
+          message: '존재하지 않는 사용자입니다.',
+        });
+      }
+
+      if (!req.decoded.isAdmin || admin.data.user_type !== 'admin') {
+        return res.status(400).json({
+          success: false,
+          message: '관리자만 접근 가능합니다.',
+        });
+      }
+
+      // 이벤트 취소
+      const event = await adminEventsController.updateEventStatus(event_id);
+      if (!event.success) {
+        return res.status(400).json({
+          success: false,
+          message: event.message,
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: '이벤트 취소 성공',
+      });
+    } catch (err) {
+      console.error('Error:', err);
+      return res.status(500).json({
+        success: false,
+        message: '서버 오류',
+      });
+    }
+  });
+
+  /**
+   * @route DELETE /admin/events/delete/:event_id
+   * @group Admin - Event
+   * @summary 이벤트 삭제
+   */
+  route.delete('/delete/:event_id', isAdminAuth, async (req, res) => {
+    try {
+      const { event_id } = req.params;
+
+      // 관리자 확인
+      const admin = await getUser(req.decoded.user_id);
+      if (!admin) {
+        return res.status(400).json({
+          success: false,
+          message: '존재하지 않는 사용자입니다.',
+        });
+      }
+
+      if (!req.decoded.isAdmin || admin.data.user_type !== 'admin') {
+        return res.status(400).json({
+          success: false,
+          message: '관리자만 접근 가능합니다.',
+        });
+      }
+
+      // 이벤트 삭제
+      const event = await adminEventsController.deleteEvent(event_id);
+      if (!event.success) {
+        return res.status(400).json({
+          success: false,
+          message: '이벤트 삭제에 실패했습니다.',
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: '이벤트 삭제 성공',
       });
     } catch (err) {
       console.error('Error:', err);
