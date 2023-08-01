@@ -26,6 +26,11 @@ const badgeSchema = new mongoose.Schema({
     // 뱃지 이미지 URL
     type: String,
   },
+  token_uri: {
+    // 뱃지 토큰 Uri
+    type: String,
+  }
+  ,
   event_id: {
     // 이벤트 ID
     type: mongoose.Schema.Types.ObjectId,

@@ -2,6 +2,8 @@ const Router = require('express');
 const upload = require('../../../loaders/s3');
 const isAdminAuth = require('../../middlewares/isAdminAuth');
 const adminEventsController = require('../../../services/admin/eventsController');
+const badgeController = require('../../../services/contract/badgeController');
+const dnftController = require('../../../services/contract/dnftController');
 
 const route = Router();
 
@@ -33,12 +35,6 @@ module.exports = (app) => {
         content,
         organization
       );
-      if (!events) {
-        return res.status(400).json({
-          success: false,
-          message: '이벤트 정보 조회 실패',
-        });
-      }
 
       return res.status(200).json({
         success: true,
@@ -55,93 +51,93 @@ module.exports = (app) => {
   });
 
   /**
-   * @route POST /admin/events/detail/:event_id
+   * @route POST /admin/events/createBadge
    * @group Admin - Event
-   * @summary 이벤트 정보 상세 조회
+   * @summary 이벤트 관련 뱃지 생성(민팅)
    */
-  route.get('/detail/:event_id', isAdminAuth, async (req, res) => {
-    try {
-      const { event_id } = req.params;
-
-      // 이벤트 정보 조회
-      const event = await adminEventsController.getEvent(event_id);
-      if (!event) {
-        return res.status(400).json({
+  route.post(
+    '/createBadge',
+    /*isAdminAuth*/ async (req, res) => {
+      try {
+        const { name, description, imageUrl, badgeType, amount, eventTitle } =
+          req.body;
+        const createBadge = await badgeController.createBadge(
+          name,
+          description,
+          imageUrl,
+          badgeType,
+          amount,
+          eventTitle
+        );
+        if (createBadge.success) {
+          return res.status(200).json({
+            success: true,
+            message: '뱃지 생성 성공',
+          });
+        } else {
+          return res.status(400).json({
+            success: false,
+            message: '뱃지 생성 실패',
+          });
+        }
+      } catch (err) {
+        console.error('Error:', err);
+        return res.status(500).json({
           success: false,
-          message: event.message,
+          message: '서버 오류',
         });
       }
-
-      return res.status(200).json({
-        success: true,
-        message: '이벤트 정보 조회 성공',
-        data: event.data,
-      });
-    } catch (err) {
-      console.error('Error:', err);
-      return res.status(500).json({
-        success: false,
-        message: '서버 오류',
-      });
     }
-  });
-
-  /**
-   * @route POST /admin/events/detail/entry/:event_id
-   * @group Admin - Event
-   * @summary 이벤트 참여자 리스트 조회
-   */
-  route.get('/detail/entry/:event_id', isAdminAuth, async (req, res) => {
-    try {
-      const { event_id } = req.params;
-      const { page = 1, limit = 10 } = req.query;
-
-      // 이벤트 참여자 리스트 조회
-      const entries = await adminEventsController.getEventEntries(
-        event_id,
-        page,
-        limit
-      );
-      if (!entries) {
-        return res.status(404).json({
-          success: false,
-          message: '이벤트 참여자 리스트 조회 실패',
-        });
-      }
-
-      return res.status(200).json({
-        success: true,
-        message: '이벤트 참여자 리스트 조회 성공',
-        data: entries,
-      });
-    } catch (err) {
-      console.error('Error:', err);
-      return res.status(500).json({
-        success: false,
-        message: '서버 오류',
-      });
-    }
-  });
-
-  /**
-   * @route POST /admin/events/entry/download/:event_id
-   * @group Admin - Event
-   * @summary 이벤트 참여자 리스트 다운로드
-   */
-  route.get(
-    '/entry/download/:event_id',
-    isAdminAuth,
-    adminEventsController.exportToExcel
   );
+  /**
+   * @route POST /admin/events/transferBadges
+   * @group Admin - Event
+   * @summary 참여 인증 완료 사용자에게 뱃지 전송
+   */
+  route.post(
+    '/transferBadges',
+    /*isAdminAuth*/ async (req, res) => {
+      try {
+        const { eventId, eventTitle } = req.body;
 
-  route.post('/create', isAdminAuth, async (req, res) => {
-    try {
-    } catch (err) {
-      console.error('Error:', err);
-      return res.status(500).json({
-        success: false,
-        message: '서버 오류',
-      });
+        const recipients = await badgeController.isConfirmedUser(eventId);
+        if (!recipients.success) {
+          return res
+            .status(400)
+            .json({ success: false, message: '뱃지 전송 실패' });
+        }
+        console.log(recipients.data);
+        const transferBadges = await badgeController.transferBadges(
+          recipients.data,
+          eventId
+        );
+        if (transferBadges.success) {
+          //email
+          for (const userId of recipients.data) {
+            const updateDescription = await dnftController.updateDescription(
+              userId,
+              eventTitle
+            );
+            if (!updateDescription.success)
+              return res.status(400).json({ success: false });
+          }
+          return res.status(200).json({
+            success: true,
+            message: '뱃지 전송 성공',
+          });
+        } else {
+          return res.status(400).json({
+            success: false,
+            message: '뱃지 전송 실패',
+          });
+        }
+      } catch (err) {
+        console.error('Error:', err);
+        return res.status(500).json({
+          success: false,
+          message: '서버 오류',
+        });
+      }
     }
-  });
+  );
 };

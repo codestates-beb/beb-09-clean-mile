@@ -105,7 +105,7 @@ contract CleanMileBadge is ERC1155, ICleanMileBadge, Ownable {
 
             _transferBadge(from, to, tokenId, amount);
         }
-        emit TransferBatch(from, recipients, tokenId, amount);
+        emit TransferMultiple(from, recipients, tokenId, amount);
     }
 
     function _transferBadge(
