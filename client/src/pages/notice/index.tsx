@@ -27,11 +27,11 @@ export const getServerSideProps = async (context: GetServerSidePropsContext) => 
   try {
     let URL;
     if(title) {
-      URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/posts/lists/notice?page=${page}&order=${order}&title=${title}`;
+      URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/posts/list/notice?page=${page}&order=${order}&title=${title}`;
     } else if(content) {
-      URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/posts/lists/notice?page=${page}&order=${order}&content=${content}`;
+      URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/posts/list/notice?page=${page}&order=${order}&content=${content}`;
     } else {
-      URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/posts/lists/notice?page=${page}&order=${order}`;
+      URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/posts/list/notice?page=${page}&order=${order}`;
     }
     const dataBody = null;
     const headers = {};
@@ -40,13 +40,13 @@ export const getServerSideProps = async (context: GetServerSidePropsContext) => 
 
     const res = await ApiCaller.get(URL, dataBody, isJSON, headers, isCookie);
 
-    console.log(res.data)
+    console.log(res.data.data.pagination.pagination)
 
     let noticeList;
     let noticePagination;
     if (res.status === 200 && res.data.success) {
-      noticeList = res.data;
-      noticePagination = res.data;
+      noticeList = res.data.data.data;
+      noticePagination = res.data.data.pagination.pagination;
     } else {
       // API 호출에 실패하면 오류 메시지를 출력하고 빈 객체를 반환합니다.
       console.error('API 호출 실패:', res.data.message);

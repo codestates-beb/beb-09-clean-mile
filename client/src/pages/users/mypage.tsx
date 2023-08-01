@@ -18,10 +18,9 @@ export default UserPage;
 
 export const getServerSideProps = async (context: GetServerSidePropsContext) => {
   const { id } = context.query;
-  console.log(id === '64c3dee91014d3885aa94bc9');
 
   try {
-    const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/profile/64c3dee91014d3885aa94bc9`;
+    const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/profile/${id}`;
     const dataBody = null;
     const headers = {};
     const isJSON = true;
@@ -29,13 +28,13 @@ export const getServerSideProps = async (context: GetServerSidePropsContext) => 
 
     const res = await ApiCaller.get(URL, dataBody, isJSON, headers, isCookie);
 
-    console.log(res.data.data.posts.pagination.pagination)
+    console.log(res)
 
     let userInfo;
     let postPagination;
     if (res.status === 200 && res.data.success) {
       userInfo = res.data.data;
-      postPagination = res.data.data.posts.pagination.pagination;
+      postPagination = res.data.data.post.pagination.pagination;
     } else {
       // API 호출에 실패하면 오류 메시지를 출력하고 빈 객체를 반환합니다.
       console.error('API 호출 실패:', res.data.message);
