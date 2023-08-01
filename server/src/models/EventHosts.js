@@ -17,7 +17,7 @@ const eventHostSchema = new mongoose.Schema({
     // 주최측 전화번호
     type: String,
   },
-  wallet_addrss: {
+  wallet_address: {
     // 주최측 지갑 주소
     type: String,
   },

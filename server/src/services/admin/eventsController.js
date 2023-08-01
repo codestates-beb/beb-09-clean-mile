@@ -1,6 +1,7 @@
 const fs = require('fs');
 const XLSX = require('xlsx');
 const calcPagination = require('../../utils/calcPagination');
+const getKorDate = require('../../utils/getKorDateUtil');
 const EventModel = require('../../models/Events');
 const EventHostModel = require('../../models/EventHosts');
 const EventEntryModel = require('../../models/EventEntries');
@@ -223,4 +224,185 @@ const exportToExcel = async (req, res) => {
   }
 };
 
-module.exports = { getEvents, getEvent, getEventEntries, exportToExcel };
+/**
+ * 이벤트 주최자 정보 저장
+ * @param {*} hostData
+ * @returns 저장된 이벤트 주최자의 _id
+ */
+const saveEventHost = async (hostData) => {
+  try {
+    // 이벤트 주최자 정보 조회
+    const eventHost = await EventHostModel.findOne({ email: hostData.email });
+    if (eventHost) {
+      return { success: true, id: eventHost._id };
+    }
+
+    // 이벤트 주최자 정보 저장
+    const eventHostResult = new EventHostModel(hostData);
+
+    const result = await eventHostResult.save();
+    if (!result) {
+      return { success: false };
+    }
+
+    return { success: true, id: result._id };
+  } catch (err) {
+    console.error('Error:', err);
+    throw Error(err);
+  }
+};
+
+/**
+ * 주최자 정보 수정
+ * @param {*} event_id
+ * @param {*} name
+ * @param {*} email
+ * @param {*} phone_number
+ * @param {*} wallet_address
+ * @param {*} organization
+ * @returns 성공 여부
+ */
+const updateEventHost = async (
+  event_id,
+  name,
+  email,
+  phone_number,
+  wallet_address,
+  organization
+) => {
+  try {
+    // 이벤트 정보 조회
+    const event = await EventModel.findById(event_id).select('host_id');
+    if (!event) {
+      return { success: false, message: '존재하지 않는 이벤트입니다.' };
+    }
+
+    // 이벤트 주최자 정보 조회
+    const eventHost = await EventHostModel.findById(event.host_id);
+    if (!eventHost) {
+      return { success: false, message: '존재하지 않는 이벤트 주최자입니다.' };
+    }
+
+    // 이벤트 주최자 정보 수정
+    if (name) eventHost.name = name;
+    if (email) eventHost.email = email;
+    if (phone_number) eventHost.phone_number = phone_number;
+    if (wallet_address) eventHost.wallet_address = wallet_address;
+    if (organization) eventHost.organization = organization;
+
+    eventHost.updated_at = getKorDate();
+    const result = await eventHost.save();
+
+    if (!result) {
+      return {
+        success: false,
+        message: '이벤트 주최자 정보 수정에 실패했습니다.',
+      };
+    }
+
+    return { success: true };
+  } catch (err) {
+    console.error('Error:', err);
+    throw Error(err);
+  }
+};
+
+/**
+ * 이벤트 정보 저장
+ * @param {*} eventData
+ * @returns 저장된 이벤트 정보의 _id
+ */
+const saveEvent = async (eventData) => {
+  try {
+    // 이벤트 정보 저장
+    const event = new EventModel(eventData);
+
+    const result = await event.save();
+    if (!result) {
+      return { success: false };
+    }
+
+    return { success: true, id: result._id };
+  } catch (err) {
+    console.error('Error:', err);
+    throw Error(err);
+  }
+};
+
+/**
+ * 이벤트 정보 수정
+ * @param {*} event_id
+ * @param {*} title
+ * @param {*} content
+ * @param {*} location
+ * @param {*} recruitment_start_at
+ * @param {*} recruitment_end_at
+ * @param {*} event_start_at
+ * @param {*} event_end_at
+ * @returns 성공 여부
+ */
+const updateEvent = async (
+  event_id,
+  title,
+  content,
+  location,
+  recruitment_start_at,
+  recruitment_end_at,
+  event_start_at,
+  event_end_at
+) => {
+  try {
+    // 이벤트 정보 조회
+    const event = await EventModel.findById(event_id);
+    if (!event) {
+      return { success: false, message: '존재하지 않는 이벤트입니다.' };
+    }
+
+    // 이벤트 상태가 'created'일 때만 수정 가능
+    if (event.status !== 'created') {
+      return {
+        success: false,
+        message: '모집 시작일이 지나 수정할 수 없습니다.',
+      };
+    }
+
+    // 모집 시작일 전에만 수정 가능
+    if (recruitment_start_at && event.recruitment_start_at < getKorDate()) {
+      return {
+        success: false,
+        message: '모집 시작일이 지나 수정할 수 없습니다.',
+      };
+    }
+
+    // 이벤트 정보 수정
+    if (title) event.title = title;
+    if (content) event.content = content;
+    if (location) event.location = location;
+    if (recruitment_start_at) event.recruitment_start_at = recruitment_start_at;
+    if (recruitment_end_at) event.recruitment_end_at = recruitment_end_at;
+    if (event_start_at) event.event_start_at = event_start_at;
+    if (event_end_at) event.event_end_at = event_end_at;
+
+    event.updated_at = getKorDate();
+    const result = await event.save();
+    if (!result) {
+      return { success: false, message: '이벤트 정보 수정에 실패했습니다.' };
+    }
+
+    return { success: true };
+  } catch (err) {
+    console.error('Error:', err);
+    throw Error(err);
+  }
+};
+
+module.exports = {
+  getEvents,
+  getEvent,
+  getEventEntries,
+  exportToExcel,
+  saveEventHost,
+  saveEvent,
+  updateEventHost,
+  updateEvent,
+};
