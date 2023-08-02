@@ -129,14 +129,11 @@ module.exports = (app) => {
 
       //사용자 DNFT 발급
       const createDNFT = await dnftController.createDNFT(userData.email, 0);
-<<<<<<< HEAD
       if (!createDNFT.success)
         return res
           .status(400)
           .json({ success: false, message: '사용자 DNFT 발급 실패' });
-=======
       if (!createDNFT.success) return res.status(400).json({ success: false, message: '사용자 DNFT 발급 실패' });
->>>>>>> Update latest notice
 
       return res.status(200).json({
         success: true,
