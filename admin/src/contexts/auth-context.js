@@ -1,6 +1,7 @@
-import { createContext, useContext, useEffect, useReducer, useRef } from "react";
+import { createContext, useContext, useEffect, useReducer, useRef, useState } from "react";
 import PropTypes from "prop-types";
 import axios from "axios";
+import { ca } from "date-fns/locale";
 
 const HANDLERS = {
   INITIALIZE: "INITIALIZE",
@@ -61,8 +62,26 @@ export const AuthContext = createContext({ undefined });
 export const AuthProvider = (props) => {
   const { children } = props;
   const [state, dispatch] = useReducer(reducer, initialState);
+  const [refreshIntervalId, setRefreshIntervalId] = useState(null);
   const initialized = useRef(false);
 
+  const getAuthenticated = () => {
+    try {
+      return window.sessionStorage.getItem("authenticated") === "true";
+    } catch (err) {
+      throw err;
+    }
+  };
+
+  const setAuthenticated = (authenticated) => {
+    try {
+      window.sessionStorage.setItem("authenticated", authenticated);
+    } catch (err) {
+      throw err;
+    }
+  };
+
+  // TODO: change to real API call
   const initialize = async () => {
     // Prevent from calling twice in development mode with React.StrictMode enabled
     if (initialized.current) {
@@ -74,37 +93,61 @@ export const AuthProvider = (props) => {
     let isAuthenticated = false;
 
     try {
-      isAuthenticated = window.sessionStorage.getItem("authenticated") === "true";
+      isAuthenticated = getAuthenticated();
+      if (isAuthenticated) {
+        const user = {
+          id: "5e86809283e28b96d2d38537",
+          avatar: "/assets/avatars/avatar-anika-visser.png",
+          name: "Anika Visser",
+          email: "anika.visser@devias.io",
+        };
+
+        dispatch({
+          type: HANDLERS.INITIALIZE,
+          payload: user,
+        });
+      } else {
+        dispatch({
+          type: HANDLERS.INITIALIZE,
+        });
+      }
     } catch (err) {
       console.error(err);
     }
+  };
 
-    if (isAuthenticated) {
-      const user = {
-        id: "5e86809283e28b96d2d38537",
-        avatar: "/assets/avatars/avatar-anika-visser.png",
-        name: "Anika Visser",
-        email: "anika.visser@devias.io",
-      };
-
-      dispatch({
-        type: HANDLERS.INITIALIZE,
-        payload: user,
+  const refresh = async () => {
+    try {
+      const res = await axios.post("http://localhost:8080/admin/refresh", null, {
+        withCredentials: true,
       });
-    } else {
+
+      if (!res || !res.status === 200) {
+        throw new Error("Refresh failed");
+      }
+    } catch (err) {
+      console.error(err);
+      setAuthenticated(false);
+      toggleRefresh(false);
       dispatch({
         type: HANDLERS.INITIALIZE,
       });
     }
   };
 
-  useEffect(
-    () => {
-      initialize();
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
-  );
+  const toggleRefresh = (flag) => {
+    if (flag) {
+      // Refresh every 10 minutes
+      const intervalId = setInterval(() => {
+        refresh();
+      }, 10 * 60 * 1000);
+
+      setRefreshIntervalId(intervalId);
+    } else {
+      clearInterval(refreshIntervalId);
+      setRefreshIntervalId(null);
+    }
+  };
 
   const signIn = async (email, password) => {
     const formData = new FormData();
@@ -133,6 +176,9 @@ export const AuthProvider = (props) => {
         email: userData.email,
       };
 
+      setAuthenticated(true);
+      toggleRefresh(true);
+
       dispatch({
         type: HANDLERS.SIGN_IN,
         payload: user,
@@ -152,6 +198,9 @@ export const AuthProvider = (props) => {
         throw new Error("Logout failed");
       }
 
+      setAuthenticated(false);
+      toggleRefresh(false);
+
       dispatch({
         type: HANDLERS.SIGN_OUT,
       });
@@ -159,6 +208,15 @@ export const AuthProvider = (props) => {
       console.error(err);
     }
   };
+
+  useEffect(() => {
+    try {
+      initialize();
+      toggleRefresh(state.isAuthenticated);
+    } catch (err) {
+      console.error(err);
+    }
+  }, []);
 
   return (
     <AuthContext.Provider
