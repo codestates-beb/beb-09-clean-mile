@@ -5,10 +5,15 @@ import { useRouter } from "next/router";
 
 const Page = () => {
   const router = useRouter();
+
+  const { id } = router.query;
+
+  console.log(id);
+
   return (
     <>
       <Head>
-        <title>Create Event</title>
+        <title>Mint Event Badge</title>
       </Head>
       <Box
         sx={{
@@ -18,10 +23,10 @@ const Page = () => {
         <Container maxWidth="lg">
           <Stack spacing={3}>
             <Stack direction={"row"} justifyContent="space-between" spacing={3}>
-              <Typography variant="h4">Create Event</Typography>
+              <Typography variant="h4">Mint Event Badge</Typography>
               <Stack direction={"row"} spacing={1}>
                 <Button variant="contained" color="success">
-                  Create
+                  Mint
                 </Button>
                 <Button variant="contained" onClick={() => router.back()}>
                   Back
