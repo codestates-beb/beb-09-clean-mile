@@ -1,5 +1,9 @@
 const mongoose = require('mongoose');
+const getKorDate = require('../utils/getKorDateUtil');
 
+/**
+ * Badges Collection Schema
+ */
 const badgeSchema = new mongoose.Schema({
   badge_id: {
     //뱃지 ID(TokenID)
@@ -29,7 +33,8 @@ const badgeSchema = new mongoose.Schema({
   ,
   event_id: {
     // 이벤트 ID
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'event',
   },
   initial_quantity: {
     // 뱃지 초기 발행량
@@ -50,17 +55,12 @@ const badgeSchema = new mongoose.Schema({
   created_at: {
     // 뱃지 생성일
     type: Date,
-    default: Date.now,
+    default: getKorDate,
   },
   updated_at: {
     // 뱃지 수정일
     type: Date,
-    default: Date.now,
-  },
-  event: {
-    // events collection의 _id를 참조
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'event',
+    default: getKorDate,
   },
 });
 

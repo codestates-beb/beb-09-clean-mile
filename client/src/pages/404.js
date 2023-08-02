@@ -1,6 +1,7 @@
 import React from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
+import { page_not_found } from '../Components/Reference';
 
 const Error404 = () => {
   const router = useRouter();
@@ -8,13 +9,7 @@ const Error404 = () => {
   return (
     <div className="w-4/5 min-h-screen flex flex-col justify-center items-center gap-12 mx-auto">
       <div className="flex justify-center items-center relative">
-        <Image
-          src="/assets/images/404.png"
-          width={5000}
-          height={1000}
-          className="w-[60rem]"
-          alt="error 404 page not found"
-        />
+        <Image src={page_not_found} width={5000} height={1000} className="w-[60rem]" alt="error 404 page not found" />
       </div>
       <button
         className="

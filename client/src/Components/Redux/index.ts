@@ -1,6 +1,6 @@
 import { SET_LOGGED_IN } from './ActionTypes';
 
-export const setLoggedIn = (isLoggedIn) => {
+export const setLoggedIn = (isLoggedIn: boolean) => {
   return {
       type: SET_LOGGED_IN,
       payload: isLoggedIn
@@ -11,7 +11,12 @@ const initialState = {
   isLoggedIn: false
 };
 
-const reducer = (state = initialState, action) => {
+interface Action {
+  type: string;
+  payload: boolean;
+}
+
+const reducer = (state = initialState, action: Action) => {
   switch (action.type) {
       case SET_LOGGED_IN:
           return {

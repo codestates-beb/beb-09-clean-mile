@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const config = require('../config/index');
+const getKorDate = require('../utils/getKorDateUtil');
 
 /**
  * Users Collection Schema
@@ -70,12 +71,12 @@ const userSchema = new mongoose.Schema({
   created_at: {
     // 사용자 생성일
     type: Date,
-    default: Date.now,
+    default: getKorDate,
   },
   updated_at: {
     // 사용자 정보 수정일
     type: Date,
-    default: Date.now,
+    default: getKorDate,
   },
 });
 

@@ -17,12 +17,7 @@ module.exports = (app) => {
    */
   route.get('/list', async (req, res) => {
     try {
-      const {
-        last_id = null,
-        limit = 10,
-        title = null,
-        content = null,
-      } = req.query;
+      const { last_id = null, limit = 10, title = null, content = null } = req.query;
 
       // 행사 리스트 조회
       const result = await postsController.getEvents(
@@ -42,18 +37,16 @@ module.exports = (app) => {
       return res.status(200).json({
         success: true,
         message: '행사 리스트 조회 성공',
-        data: result.data,
-        
+        data: result,
       });
-
-    }catch (err) {
+    } catch (err) {
       console.error('Error:', err);
       return res.status(500).json({
         success: false,
         message: '서버 오류',
       });
     }
-  })
+  });
 
   /**
    * @router POST /events/detail/:_id
@@ -79,11 +72,7 @@ module.exports = (app) => {
       }
 
       // 행사 상세 조회
-      const result = await eventsController.findEventDetail(
-        req,
-        event_id,
-        user_id
-      );
+      const result = await eventsController.findEventDetail(req, event_id, user_id);
       if (!result.success) {
         return res.status(404).json({
           success: false,

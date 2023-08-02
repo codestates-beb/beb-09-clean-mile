@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const getKorDate = require('../utils/getKorDateUtil');
 
 /**
  * Posts Collection Schema
@@ -52,12 +53,12 @@ const postSchema = new mongoose.Schema({
   created_at: {
     // 게시글 생성일
     type: Date,
-    default: Date.now,
+    default: getKorDate,
   },
   updated_at: {
     // 게시글 수정일
     type: Date,
-    default: Date.now,
+    default: getKorDate,
   },
 });
 
