@@ -2,6 +2,7 @@ const express = require('express');
 const schedule = require('node-schedule');
 const expressApp = require('./loaders/index.js');
 const config = require('./config/index.js');
+const eventScheduler = require('./schedulers/eventScheduler.js');
 
 async function startServer() {
   const app = express();
