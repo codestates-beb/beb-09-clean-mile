@@ -14,6 +14,7 @@ import { Layout as DashboardLayout } from "src/layouts/dashboard/layout";
 import { EventsTable } from "src/components/events/events-table";
 import { useCallback, useEffect, useState } from "react";
 import { SearchBar } from "src/components/search-bar";
+import { useRouter } from "next/router";
 
 const data = [
   {
@@ -72,6 +73,8 @@ const Page = () => {
   const [status, setStatus] = useState(statuses[0]);
   const [filter, setFilter] = useState(filters[0]);
   const [searchTerm, setSearchTerm] = useState("");
+
+  const router = useRouter();
 
   const handlePageChange = useCallback((event, value) => {
     setPage(value);
@@ -132,6 +135,9 @@ const Page = () => {
                     </SvgIcon>
                   }
                   variant="contained"
+                  onClick={() => {
+                    router.push("/events/create");
+                  }}
                 >
                   Add
                 </Button>
