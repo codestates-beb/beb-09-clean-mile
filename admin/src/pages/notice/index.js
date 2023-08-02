@@ -14,6 +14,7 @@ import { Layout as DashboardLayout } from "src/layouts/dashboard/layout";
 import { PostsTable } from "src/components/posts/posts-table";
 import { useCallback, useEffect, useState } from "react";
 import { SearchBar } from "src/components/search-bar";
+import { useRouter } from "next/router";
 
 const data = [
   {
@@ -63,6 +64,8 @@ const Page = () => {
   const [filter, setFilter] = useState(filters[0]);
   const [searchTerm, setSearchTerm] = useState("");
 
+  const router = useRouter();
+
   const handlePageChange = useCallback((event, value) => {
     setPage(value);
   }, []);
@@ -111,6 +114,7 @@ const Page = () => {
                     </SvgIcon>
                   }
                   variant="contained"
+                  onClick={() => router.push("/notice/create")}
                 >
                   Add
                 </Button>
