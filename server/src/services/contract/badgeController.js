@@ -8,7 +8,8 @@ const EventEntryModel = require('../../models/EventEntries');
 const provider = new ethers.providers.JsonRpcProvider(config.RPC_URL);
 const signer = new ethers.Wallet(config.SENDER_PRIVATE_KEY, provider);
 const badgeContract = new ethers.Contract(config.BADGE_ADDRESS, badgeABI, signer);
-const pinataSDK = require('@pinata/sdk');
+const pinataSDK = require("@pinata/sdk");
+const { token } = require("morgan");
 
 /**
  * 뱃지 발행
@@ -47,18 +48,23 @@ const createBadge = async (name, description, imageUrl, badgeType, amount, event
 
     const tokenURI = `ifps://${metadataResult.IpfsHash}`;
 
-    const transaction = await badgeContract.connect(signer).mintBadge(config.SENDER, badgeType, amount, tokenURI);
-    transaction.wait();
-    const badgeScore = [1, 5, 10];
+    const transaction = await badgeContract.connect(signer).mintBadge(config.SENDER , badgeType , amount, tokenURI);
+    const receipt = await transaction.wait();
+
+    // 트랜잭션 리셉트를 통해 tokenId를 추출합니다.
+    const tokenId = Number(receipt.events[0].args.id);
+
+    console.log(tokenId);
+
+    const badgeScore = [1,5,10];
 
     const event = await EventModel.findOne({ title: eventTitle });
     if (!event) return { success: false, message: '데이터 요청 실패' };
     const eventId = event._id;
 
-    if (transaction && eventId) {
-      const badgeId = await BadgeModel.countDocuments();
+    if (transaction && eventId){
       const badgeData = new BadgeModel({
-        badge_id: badgeId,
+        badge_id: tokenId,
         name: name,
         description: description,
         type: badgeType,
@@ -242,6 +248,7 @@ const userBadges = async (userId) => {
       }
     }
     let badgeList = [];
+
     const badgeType = ['bronze', 'silver', 'gold'];
     for (const eventId of confirmedEventList) {
       const badge = await BadgeModel.findOne({ event_id: eventId });

@@ -35,7 +35,6 @@ const createDNFT = async (email, userType) => {
     const user = await UserModel.findOne({ email : email });
     if(!user) return ({success: false, message: "데이터 요청 실패"});
     let description;
-    const tokenId = await DnftModel.countDocuments();
     if (userType == 0) {
       // 일반 사용자
       description = "---Events---";
@@ -48,12 +47,17 @@ const createDNFT = async (email, userType) => {
     const transaction = await dnftContract.connect(signer).mintDNFT(user.wallet.address, user.name, description, userType);
     await transaction.wait();
 
+    const eventFilter = dnftContract.filters.Transfer(null, user.wallet.address);
+    const events = await dnftContract.queryFilter(eventFilter);
+    const tokenId = Number(events[0].args.tokenId);
+
+    console.log(tokenId);
+
     const tokenUri = await dnftContract.connect(signer).tokenURI(tokenId);
     const dnftLevel = await dnftContract.connect(signer).dnftLevel(tokenId);
-    const dnftId = await DnftModel.countDocuments();
 
     const dnftData = new DnftModel({
-      token_id: dnftId,
+      token_id: tokenId,
       user_id: user._id,
       name: user.nickname,
       description: description,
@@ -142,7 +146,7 @@ const updateDescription = async (userId,newEvent) => {
  */
 const userDnftData = async (userId) => {
   try{
-    const user = await UserModel.findOne({_id: userId });
+    const user = await UserModel.findById(userId);
     if(!user) return ({success: false, message: "데이터 요청 실패"});
     const dnft = await DnftModel.findOne({user_id: userId});
     if(!dnft) return ({success: false, message: "데이터 요청 실패"});
