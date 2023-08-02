@@ -5,7 +5,7 @@ import { ApiCaller } from '../../../Components/Utils/ApiCaller';
 import { PostDetail, Comment } from '../../../Components/Interfaces';
 
 
-const GeneralDetailPage = ({ postDetail, comments }: { postDetail: PostDetail, comments: Comment }) => {
+const GeneralDetailPage = ({ postDetail, comments }: { postDetail: PostDetail, comments: Comment[] }) => {
   return (
     <>
       <Header />

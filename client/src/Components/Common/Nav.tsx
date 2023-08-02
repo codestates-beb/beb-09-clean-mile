@@ -16,7 +16,7 @@ const Nav: React.FC<NavProps> = ({ isOpen }) => {
   }
 
   return (
-    <div className='min-h-screen fixed top-20 right-0 bottom-0 z-10 w-[30%] sm:w-[40%] xs:w-[50%] overflow-y-auto'>
+    <div className='min-h-screen fixed top-20 right-0 bottom-0 w-[30%] sm:w-[40%] xs:w-[50%] overflow-y-auto'>
       <nav className={`transition-all duration-500 ease-in-out bg-white w-full  h-full transform ${isOpen ? '-translate-x-0' : 'translate-x-full'}`}>
         <ul className="flex flex-col justify-center items-center py-8">
           <li className="hover:bg-green-600 hover:text-white font-bold text-lg w-full flex items-center justify-center h-16 transition-all duration-200 cursor-pointer"

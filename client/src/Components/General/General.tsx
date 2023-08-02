@@ -16,7 +16,7 @@ const General = ({ postList, postPagination }: { postList: Post, postPagination:
       setCurrentPage(pageNumber);
   };
 
-    // 필터 변경 핸들러
+  // 필터 변경 핸들러
   const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     router.push(`/posts/general?page=${currentPage}&order=${e.target.value}`);
   };
