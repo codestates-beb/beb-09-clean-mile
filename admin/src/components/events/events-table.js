@@ -18,7 +18,7 @@ export const EventsTable = ({ items = [], pageCount, page, handlePageChange }) =
   const router = useRouter();
 
   const handleEventSelected = (eventId) => {
-    router.push(`/${eventId}`);
+    router.push(`/events/${eventId}`);
   };
 
   return (
