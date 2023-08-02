@@ -449,7 +449,6 @@ const SignUp = () => {
     try {
       await window.ethereum.request({ method: 'eth_requestAccounts' });
     } catch (error) {
-      console.log(error);
       if (!window.ethereum) {
         // 메타마스크 설치가 안되어 있을 경우 설치 페이지로 이동
         if (agent.indexOf('chrome') != -1 || agent.indexOf('msie') != -1) {         // 크롬일 경우

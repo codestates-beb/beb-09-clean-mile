@@ -40,20 +40,18 @@ export const getServerSideProps = async (context: GetServerSidePropsContext) => 
 
     const res = await ApiCaller.get(URL, dataBody, isJSON, headers, isCookie);
 
-    console.log(res)
-
     let eventList;
     let lastId;
     if (res.status === 200 && res.data.success) {
       eventList = res.data.data.data;
-      lastId = res.data.last_id;
+      lastId = res.data.data.last_id;
     } else {
       // API 호출에 실패하면 오류 메시지를 출력하고 빈 객체를 반환합니다.
       console.error('API 호출 실패:', res.data.message);
       eventList = {};
       lastId = '';
     }
-    return { props: { eventList } };
+    return { props: { eventList, lastId } };
   } catch (error) {
     console.error('이벤트 리스트를 가져오는데 실패했습니다:', error);
 

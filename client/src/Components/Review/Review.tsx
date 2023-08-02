@@ -56,12 +56,13 @@ const Review = ({ reviewList, lastId }: { reviewList: Post[], lastId: string }) 
         <SearchInput />
         <div className='w-full flex justify-end gap-4'>
           <select className="border border-black py-2 px-4 pr-7 rounded-md text-sm" onChange={handleFilterChange}>
-            <option className="text-sm xs:text-xs py-2" value="newest">최신 순</option>
-            <option className="text-sm xs:text-xs py-2" value="oldest">오래된 순</option>
+            <option className="text-sm xs:text-xs" value="desc">Latest order</option>
+            <option className="text-sm xs:text-xs" value="asc">Old order</option>
+            <option className="text-sm xs:text-xs" value="view">View order</option>
           </select>
           <Link className='
             w-[10%] sm:w-[20%] xs:w-[20%] flex items-center justify-center border rounded-lg py-2 xs:py-3 px-6 sm:px-2 xs:px-1 sm:text-sm xs:text-xs bg-main-blue text-white hover:bg-blue-600 transition duration-300'
-            href='/posts/review/create'>
+            href='/posts/create'>
             <button className='w-full flex justify-center items-center text-center' type="button">
               Write
             </button>
@@ -88,10 +89,9 @@ const Review = ({ reviewList, lastId }: { reviewList: Post[], lastId: string }) 
               onClick={() => router.push(`/posts/review/${item._id}`)}>
               <div className='border-b-2 relative pb-[65%] sm:pb-[90%] xs:pb-[90%]'>
                 <Image
-                  className='rounded-t-3xl'
+                  className='rounded-t-3xl object-cover'
                   src={item.media.img[0]}
                   layout='fill'
-                  objectFit='cover'
                   alt='event poster'
                 />
               </div>

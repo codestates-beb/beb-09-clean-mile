@@ -130,7 +130,7 @@ const ReviewDetail = ({ reviewDetail, comments }: { reviewDetail: PostDetail, co
               <Slider {...settings} className='relative w-full h-full flex justify-center items-center'>
                 {reviewDetail.media.img.map((media, index) => (
                   <div key={index} className="w-full h-full">
-                    <Image src={media} layout="fill" objectFit="contain" key={index} alt='post media' />
+                    <img src={media} className='w-full h-full object-contain' key={index} alt='post media'/>
                   </div>
                 ))}
               </Slider>

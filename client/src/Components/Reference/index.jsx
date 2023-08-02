@@ -6,6 +6,7 @@ import Footer from '../Common/Footer';
 import Login from '../Users/Login';
 import SignUp from '../Users/SignUp';
 import Profile from '../Users/Profile';
+import UserProfile from '../Users/UserProfile';
 import Notice from '../Notice/Notice';
 import NoticeDetail from '../Notice/NoticeDetail';
 import General from '../General/General';
@@ -39,6 +40,7 @@ export {
   Login,
   SignUp,
   Profile,
+  UserProfile,
   Notice,
   NoticeDetail,
   General,

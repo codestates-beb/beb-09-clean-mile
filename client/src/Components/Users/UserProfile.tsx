@@ -117,7 +117,7 @@ const UserProfile = ({ userInfo, postPagination, userDnft }: { userInfo: UserInf
         xs:left-[115px] 
         overflow-hidden
         shadow-lg'>
-        <Image src={userDnft.image_url} layout='fill' objectFit='cover' alt='profile image' />
+        <Image src={userDnft.image_url} layout='fill' className='object-cover' alt='profile image' />
       </div>
       <div className='w-full h-full flex flex-col sm:items-center xs:items-center justify-center gap-6 px-12 sm:px-2 xs:px-2'>
         <div className='w-[80%] md:w-[80%] sm:w-full xs:w-full flex flex-col items-start sm:items-center xs:items-center gap-3 ml-[14%] lg:ml-[18%] md:ml-[20%] sm:ml-0 xs:ml-0 my-2 mt-5 sm:mt-24 xs:mt-20'>
@@ -136,19 +136,19 @@ const UserProfile = ({ userInfo, postPagination, userDnft }: { userInfo: UserInf
         </div>
         <div className='w-full h-2/3 grid grid-cols-10 lg:grid-cols-6 md:grid-cols-5 sm:grid-cols-3 xs:grid-cols-3 gap-4 justify-items-center bg-gray-200 rounded-xl px-6 py-6'>
           <div className='w-[10rem] lg:w-[8rem] md:w-[6rem] sm:w-[6rem] xs:w-[5rem] h-[10rem] lg:h-[8rem] md:h-[6rem] sm:h-[6rem] xs:h-[5rem] border rounded-full overflow-hidden relative'>
-            <Image src={hero_img} layout='fill' objectFit='cover' alt='profile image' />
+            <Image src={hero_img} layout='fill' className='object-cover' alt='profile image' />
           </div>
           <div className='w-[10rem] lg:w-[8rem] md:w-[6rem] sm:w-[6rem] xs:w-[5rem] h-[10rem] lg:h-[8rem] md:h-[6rem] sm:h-[6rem] xs:h-[5rem] border rounded-full overflow-hidden relative'>
-            <Image src={hero_img} layout='fill' objectFit='cover' alt='profile image' />
+            <Image src={hero_img} layout='fill' className='object-cover' alt='profile image' />
           </div>
           <div className='w-[10rem] lg:w-[8rem] md:w-[6rem] sm:w-[6rem] xs:w-[5rem] h-[10rem] lg:h-[8rem] md:h-[6rem] sm:h-[6rem] xs:h-[5rem] border rounded-full overflow-hidden relative'>
-            <Image src={hero_img} layout='fill' objectFit='cover' alt='profile image' />
+            <Image src={hero_img} layout='fill' className='object-cover' alt='profile image' />
           </div>
           <div className='w-[10rem] lg:w-[8rem] md:w-[6rem] sm:w-[6rem] xs:w-[5rem] h-[10rem] lg:h-[8rem] md:h-[6rem] sm:h-[6rem] xs:h-[5rem] border rounded-full overflow-hidden relative'>
-            <Image src={hero_img} layout='fill' objectFit='cover' alt='profile image' />
+            <Image src={hero_img} layout='fill' className='object-cover' alt='profile image' />
           </div>
           <div className='w-[10rem] lg:w-[8rem] md:w-[6rem] sm:w-[6rem] xs:w-[5rem] h-[10rem] lg:h-[8rem] md:h-[6rem] sm:h-[6rem] xs:h-[5rem] border rounded-full overflow-hidden relative'>
-            <Image src={hero_img} layout='fill' objectFit='cover' alt='profile image' />
+            <Image src={hero_img} layout='fill' className='object-cover' alt='profile image' />
           </div>
         </div>
         <div className='w-full h-2/3 flex flex-col gap-4 px-6 py-6 sm:px-2 xs:px-0'>

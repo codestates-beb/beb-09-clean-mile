@@ -8,7 +8,7 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { AiOutlineDelete, AiOutlineHeart, AiFillHeart } from 'react-icons/ai'
 import { google_logo, insta_icon, insta_logo, meta_mask_logo, Comments } from '../Reference';
-import { EventList, Comment } from '../../../Components/Interfaces';
+import { EventList, Comment } from '../Interfaces';
 
 const EventDetail = ({ eventDetail, comments }: { eventDetail: EventList, comments: Comment}) => {
   const router = useRouter();
@@ -32,8 +32,6 @@ const EventDetail = ({ eventDetail, comments }: { eventDetail: EventList, commen
     slidesToScroll: dummyNotice.media.length > 2 ? 3 : dummyNotice.media.length,
   };
 
-  console.log(eventDetail)
-
   return (
   <>
     <div className='w-[90%] min-h-screen mx-auto mt-20 flex flex-col gap-12'>
@@ -53,8 +51,8 @@ const EventDetail = ({ eventDetail, comments }: { eventDetail: EventList, commen
         <div className='w-[90%] max-h-full flex items-center justify-center whitespace-pre-wrap'>
           <div className='w-[60%] h-[60%] mx-auto mb-10'>
             <div className="w-full h-full flex justify-center">
-              {/* <Image src={eventDetail.poster_url} width={100} height={100} alt='image' /> */}
-              <Image src='/assets/images/ploggin_poster.png' width={500} height={100} alt='image' />
+              <Image src={eventDetail.poster_url} width={500} height={100} alt='image' />
+              {/* <Image src='/assets/images/ploggin_poster.png' width={500} height={100} alt='image' /> */}
             </div>
           </div>
           <div className='flex flex-col justify-center gap-6 mx-auto'>

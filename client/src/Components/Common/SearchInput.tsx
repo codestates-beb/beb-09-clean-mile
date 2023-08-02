@@ -36,8 +36,8 @@ const SearchInput = () => {
   return (
     <div className='w-full flex justify-center items-center'>
       <select className="border border-black py-2 px-4 rounded mr-5 sm:mr-3 text-sm sm:text-xs xs:text-xs" onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFilter(e.target.value)}>
-        <option className="text-sm sm:text-xs" value="title">제목</option>
-        <option className="text-sm sm:text-xs" value="content">내용</option>
+        <option className="text-sm sm:text-xs" value="title">Title</option>
+        <option className="text-sm sm:text-xs" value="content">Content</option>
       </select>
       <input className='
         border rounded-lg 
@@ -50,7 +50,7 @@ const SearchInput = () => {
         xs:px-1 
         w-5/12'
         type="text"
-        placeholder='게시글 검색'
+        placeholder='Search'
         value={search}
         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)} />
       <div className='ml-5 sm:ml-2 xs:ml-2'>
@@ -71,7 +71,7 @@ const SearchInput = () => {
           duration-300'
           type="button"
           onClick={handleSearch}>
-          검색
+          Search
         </button>
       </div>
     </div>

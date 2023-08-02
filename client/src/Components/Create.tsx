@@ -25,14 +25,11 @@ const Create = () => {
   
   useEffect(() => {
     if (typeof window !== "undefined" && localStorage.getItem('user')) {
-      const userCache = JSON.parse(localStorage.getItem('user') || '');
+      const userCache = JSON.parse(localStorage.getItem('user_info') || '');
       setIsLoggedIn(userCache !== null);
-      setUserInfo(userCache.queries[0].state.data.data)
+      setUserInfo(userCache.queries[0].state.data.user)
     }
   }, []);
-
-  console.log(userInfo)
-
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -68,7 +65,13 @@ const Create = () => {
     formData.append('title', title);
     formData.append('content', content);
 
-    console.log(formData)
+    images.forEach((image) => {
+      formData.append('image', image);
+    });
+
+    videos.forEach((video) => {
+      formData.append('video', video);
+    });
 
     try {
       const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/posts/create`;
@@ -90,7 +93,7 @@ const Create = () => {
           confirmButtonColor: '#6BCB77'
         }).then(() => {
           Swal.close();
-          router.replace(`/users/mypage?nickname=`);
+          router.replace(`/users/profile?id=${userInfo?._id}`);
         });
 
       } else {

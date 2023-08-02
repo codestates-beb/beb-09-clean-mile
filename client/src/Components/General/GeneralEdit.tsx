@@ -31,9 +31,6 @@ const GeneralEdit = ({ postDetailDefault }: { postDetailDefault: PostDetail }) =
     }
   }, []);
 
-  console.log(userInfo)
-
-
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = () => {

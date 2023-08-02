@@ -28,8 +28,6 @@ export const getServerSideProps = async (context: GetServerSidePropsContext) => 
 
     const res = await ApiCaller.get(URL, dataBody, isJSON, headers, isCookie);
 
-    console.log(res.data.data.dnft)
-
     let userInfo;
     let postPagination;
     let userDnft;

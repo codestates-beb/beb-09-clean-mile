@@ -159,4 +159,4 @@ type Dnft = {
   description: string;
 }
 
-export type { Post, PostDetail, Comment, LoginAPIInput, LoginAPIOutput, UserInfo, Pagination, EventList, LoggedIn, Dnft }
+export type { Post, PostDetail, Comment, LoginAPIInput, LoginAPIOutput, User, UserInfo, Pagination, EventList, LoggedIn, Dnft }
