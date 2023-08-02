@@ -2,50 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { SearchInput } from '../Reference';
+import { Post, Pagination } from '../../Components/Interfaces';
 
-const Notice = () => {
+const Notice = ({ noticeList, noticePagination }: { noticeList: Post, noticePagination: Pagination }) => {
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
   const [filter, setFilter] = useState('newest');
-
-  const dummyNotice = [
-    { id: 1, title: 'test1', content: 'test111', writer: 'admin', date: '2023-07-26', views: 0 },
-    { id: 2, title: 'test2', content: 'test222', writer: 'admin', date: '2023-07-25', views: 0 },
-    { id: 3, title: 'test3', content: 'test333', writer: 'admin', date: '2023-07-24', views: 0 },
-    { id: 4, title: 'test4', content: 'test444', writer: 'admin', date: '2023-07-23', views: 0 },
-    { id: 5, title: 'test5', content: 'test555', writer: 'admin', date: '2023-07-22', views: 0 },
-    { id: 6, title: 'test6', content: 'test666', writer: 'admin', date: '2023-07-21', views: 0 },
-    { id: 7, title: 'test7', content: 'test777', writer: 'admin', date: '2023-07-20', views: 0 },
-    { id: 8, title: 'test8', content: 'test888', writer: 'admin', date: '2023-07-19', views: 0 },
-    { id: 9, title: 'test9', content: 'test999', writer: 'admin', date: '2023-07-18', views: 0 },
-    { id: 10, title: 'test10', content: 'test1010', writer: 'admin', date: '2023-07-17', views: 0 },
-    { id: 11, title: 'test1', content: 'test111', writer: 'admin', date: '2023-07-16', views: 0 },
-    { id: 12, title: 'test2', content: 'test222', writer: 'admin', date: '2023-07-15', views: 0 },
-    { id: 13, title: 'test3', content: 'test333', writer: 'admin', date: '2023-07-14', views: 0 },
-    { id: 14, title: 'test4', content: 'test444', writer: 'admin', date: '2023-07-13', views: 0 },
-    { id: 15, title: 'test5', content: 'test555', writer: 'admin', date: '2023-07-12', views: 0 },
-    { id: 16, title: 'test6', content: 'test666', writer: 'admin', date: '2023-07-11', views: 0 },
-    { id: 17, title: 'test7', content: 'test777', writer: 'admin', date: '2023-07-10', views: 0 },
-    { id: 18, title: 'test8', content: 'test888', writer: 'admin', date: '2023-07-09', views: 0 },
-    { id: 19, title: 'test9', content: 'test999', writer: 'admin', date: '2023-07-08', views: 0 },
-    { id: 20, title: 'test10', content: 'test1010', writer: 'admin', date: '2023-07-07', views: 0 },
-  ]
-
   // 필터 변경 핸들러
-  const handleFilterChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setFilter(event.target.value);
+  const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    router.push(`/notice?page=${currentPage}&order=${e.target.value}`);
   };
 
-  // 필터에 따라 게시물 정렬
-  let sortedPosts = [...dummyNotice];
-  if (filter === 'newest') {
-    sortedPosts.sort((a, b) => (new Date(a.date) < new Date(b.date) ? 1 : -1));
-  } else {
-    sortedPosts.sort((a, b) => (new Date(a.date) > new Date(b.date) ? 1 : -1));
-  }
 
-  const postsPerPage = 10;
-  const totalPages = Math.ceil(dummyNotice.length / postsPerPage);
+  const totalPages = noticePagination.totalPages;
 
   const handlePageChange = (pageNumber: number) => {
       setCurrentPage(pageNumber);
@@ -56,20 +25,18 @@ const Notice = () => {
     router.push(`/notice?page=${currentPage}`);
   }, [currentPage]);
 
-  // 기존 dummyNotice를 sortedPosts로 교체
-  const currentPosts = sortedPosts.slice((currentPage-1) * postsPerPage, currentPage * postsPerPage);
-
   return (
     <div className='w-full flex flex-col justify-center gap-12 px-24 sm:px-2 xs:px-2 py-14 lg:py-12 md:py-6 sm:py-6 xs:py-3'>
       <h1 className='font-bold text-5xl lg:text-4xl md:text-3xl sm:text-2xl xs:text-xl text-center'>
         Notice
       </h1>
       <div className='flex justify-center items-center w-full'>
-        <div className={`w-full ${currentPosts.length === 0 && 'min-h-screen items-center justify-around'}`}>
+        <div className={`w-full ${noticeList.length === 0 && 'min-h-screen items-center justify-around'}`}>
           <div className='flex justify-end mb-3'>
             <select className="border border-black py-2 px-4 pr-7 rounded-md text-sm" onChange={handleFilterChange}>
-              <option className="text-sm xs:text-xs" value="newest">최신 순</option>
-              <option className="text-sm xs:text-xs" value="oldest">오래된 순</option>
+              <option className="text-sm xs:text-xs" value="desc">최신 순</option>
+              <option className="text-sm xs:text-xs" value="asc">오래된 순</option>
+              <option className="text-sm xs:text-xs" value="view">조회수 순</option>
             </select>
           </div>
           <div className='w-full'>
@@ -85,21 +52,21 @@ const Notice = () => {
                 </tr>
               </thead>
               <tbody>
-                {currentPosts.length === 0 ? (
+                {noticeList.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="p-6 text-center">등록된 게시글이 없습니다.</td>
                   </tr>
                 ) : (
-                  currentPosts.map((post) => (
+                  noticeList.map((post, i) => (
                     <tr className="
                       hover:bg-gray-200 
                       transition-all 
                       duration-300 
                       cursor-pointer"
-                      key={post.id}
-                      onClick={() => router.push(`/notice/${post.id}`)}>
+                      key={i}
+                      onClick={() => router.push(`/notice/${post._id}`)}>
                       <td className="border-b p-6 sm:p-3 xs:p-2">
-                        <p className="text-xl sm:text-sm xs:text-xs font-semibold">{post.id}</p>
+                        <p className="text-xl sm:text-sm xs:text-xs font-semibold">{i + 1}</p>
                       </td>
                       <td className="border-b p-6 sm:p-3 xs:p-2">
                         <p className="text-gray-600 sm:text-sm xs:text-xs"> {post.title}</p>
@@ -109,17 +76,17 @@ const Notice = () => {
                       </td>
                       <td className="border-b p-6 sm:p-3 xs:p-2">
                         <p className="text-gray-600 sm:text-sm xs:text-xs">
-                          {post.writer}
+                          {post.user_id.nickname}
                         </p>
                       </td>
                       <td className="border-b p-6 sm:p-3 xs:p-2">
                         <p className="text-gray-600 sm:text-sm xs:text-xs"> 
-                          {post.date}
+                          {post.updated_at.split('T')[0]}<br />{post.updated_at.substring(11, 19)}
                         </p>
                       </td>
                       <td className="border-b p-6 sm:p-3 xs:p-2">
                         <p className="text-gray-600"> 
-                          {post.views}
+                          {post.view.count}
                         </p>
                       </td>
                     </tr>

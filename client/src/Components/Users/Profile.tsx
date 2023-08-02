@@ -5,7 +5,7 @@ import Swal from 'sweetalert2';
 import { AxiosError, AxiosResponse } from 'axios';
 import { BsFillImageFill } from 'react-icons/bs';
 import { hero_img } from '../Reference';
-import { UserInfo, Pagination } from '../Interfaces';
+import { UserInfo, Pagination, Post, EventList, Dnft } from '../Interfaces';
 import { ApiCaller } from '../Utils/ApiCaller';
 
 const EXTENSIONS = [
@@ -16,20 +16,29 @@ const EXTENSIONS = [
   { type: 'mp4' },
 ];
 
-const MyPage = ({ userInfo }: { userInfo: UserInfo }) => {
-// const MyPage = () => {
+const Profile = ({ userInfo, postPagination, userDnft }: { userInfo: UserInfo, postPagination: Pagination, userDnft: Dnft }) => {
+  // const MyPage = () => {
   const router = useRouter()
   const [fileUrl, setFileUrl] = useState<string | null>(null);
   const [fileType, setFileType] = useState<string | null>(null);
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [nickname, setNickname] = useState(userInfo?.user.nickname);
-  // const [nickname, setNickname] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [postData, setPostData] = useState([]);
+  const [postData, setPostData] = useState<Post[]>([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  // const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+  const [userInfoData, setUserInfoData] = useState<UserInfo | null>(null);
+  const [eventsData, setEventsData] = useState<EventList[] | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && localStorage.getItem('user')) {
+      const userCache = JSON.parse(localStorage.getItem('user_info') || '');
+      setIsLoggedIn(userCache !== null);
+      setUserInfoData(userCache.queries[0]?.state.data.user)
+      setEventsData(userCache.queries[0]?.state.data.events)
+    }
+  }, []);
 
   /**
    * 파일 업로드 이벤트를 처리
@@ -56,8 +65,7 @@ const MyPage = ({ userInfo }: { userInfo: UserInfo }) => {
     }
   }
 
-  const postsPerPage = 5;
-  const totalPages = Math.ceil(userInfo?.posts.data?.length / postsPerPage);
+  const totalPages = postPagination?.totalPages;
 
   const handlePageChange = async (pageNumber: number) => {
     try {
@@ -70,7 +78,6 @@ const MyPage = ({ userInfo }: { userInfo: UserInfo }) => {
       const res = await ApiCaller.get(URL, dataBody, isJSON, headers, isCookie);
 
       setPostData(res.data.data.data);
-      console.log(postData);
       setCurrentPage(pageNumber);
 
     } catch (error) {
@@ -127,14 +134,14 @@ const MyPage = ({ userInfo }: { userInfo: UserInfo }) => {
       if (hasNicknameChange) {
         const formData = new FormData();
         formData.append('nickname', nickname);
-        const res = await ApiCaller.post(URL, formData, isJSON, headers, isCookie);
+        const res = await ApiCaller.patch(URL, formData, isJSON, headers, isCookie);
         handleResponse(res);
       }
 
       if (hasImageChange) {
         const formData = new FormData();
         formData.append('imgFile', uploadFile);
-        const res = await ApiCaller.post(URL2, formData, isJSON, headers, isCookie);
+        const res = await ApiCaller.patch(URL2, formData, isJSON, headers, isCookie);
         handleResponse(res);
         setFileUrl(res.data.imageUrl);
       }
@@ -216,53 +223,6 @@ const MyPage = ({ userInfo }: { userInfo: UserInfo }) => {
     }
   }
 
-  // useEffect(() => {
-  //   if (typeof window !== "undefined" && localStorage.getItem('user')) {
-  //     const userCache = JSON.parse(localStorage.getItem('user') || '');
-  //     setIsLoggedIn(userCache !== null);
-  //     setUserInfo(userCache.queries[0].state.data)
-  //   }
-  // }, []);
-
-  // const userProfile = async () => {
-
-  //   console.log(userInfo.user._id);
-
-  //   try {
-  //     const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/profile/64c3dee91014d3885aa94bc9`;
-  //     const dataBody = null;
-  //     const headers = {};
-  //     const isJSON = true;
-  //     const isCookie = true;
-  
-  //     const res = await ApiCaller.get(URL, dataBody, isJSON, headers, isCookie);
-  
-  //     console.log('res.data.data', res.data.data)
-  
-  //     let userInfo;
-  //     if (res.status === 200 && res.data.success) {
-  //       userInfo = res.data.data;
-  //     } else {
-  //       // API 호출에 실패하면 오류 메시지를 출력하고 빈 객체를 반환합니다.
-  //       console.error('API 호출 실패:', res.data.message);
-  //       userInfo = {};
-  //     }
-  //     return { props: { userInfo } };
-  //   } catch (error) {
-  //     console.error('유저 정보를 가져오는데 실패했습니다:', error);
-  
-  //     return {
-  //       props: {
-  //         userInfo: null,
-  //       }
-  //     };
-  //   }
-  // }
-
-  // useEffect(() => {
-  //   userProfile()
-  // }, [userInfo]);
-
   return (
     <div className="w-full min-h-screen">
       <div className="w-full h-[30rem] md:h-[25rem] sm:h-[20rem] xs:h-[15rem] border-2 border-dashed rounded-xl">
@@ -294,7 +254,7 @@ const MyPage = ({ userInfo }: { userInfo: UserInfo }) => {
               required />
           </label>
         ) : (
-          <img src={!userInfo?.user.banner_img_url ? null : userInfo?.user.banner_img_url} className="w-full h-full object-contain" alt="banner Image" />
+          <img src={!userInfo?.user.banner_img_url ? undefined : userInfo?.user.banner_img_url} className="w-full h-full object-contain" alt="banner Image" />
         )}
       </div>
       <div className='
@@ -316,17 +276,17 @@ const MyPage = ({ userInfo }: { userInfo: UserInfo }) => {
         lg:top-[470px] 
         md:top-[400px] 
         sm:top-[335px] 
-        xs:top-[240px] 
+        xs:top-[280px] 
         left-[5%] 
         sm:left-[130px] 
         xs:left-[115px] 
         overflow-hidden
         shadow-lg'>
-        <Image src={hero_img} layout='fill' objectFit='cover' alt='profile image' />
+        <Image src={userDnft.image_url} layout='fill' objectFit='cover' alt='profile image' />
       </div>
       <div className='w-full h-full flex flex-col sm:items-center xs:items-center justify-center gap-6 px-12 sm:px-2 xs:px-2'>
         <div className='w-[80%] md:w-[80%] sm:w-full xs:w-full flex flex-col items-start sm:items-center xs:items-center gap-3 ml-[14%] lg:ml-[18%] md:ml-[20%] sm:ml-0 xs:ml-0 my-2 mt-5 sm:mt-24 xs:mt-20'>
-          <div className='w-full flex justify-between gap-12 sm:gap-4 xs:gap-2'>
+          <div className='w-full flex justify-between sm:justify-center xs:justify-center gap-12 sm:gap-4 xs:gap-2'>
             {isEditing ? (
               <input
                 type="text"
@@ -412,23 +372,25 @@ const MyPage = ({ userInfo }: { userInfo: UserInfo }) => {
         <div className='w-full h-2/3 flex flex-col gap-4 px-6 py-6 sm:px-2 xs:px-0'>
           <h2 className='text-3xl sm:text-2xl xs:text-xl font-bold border-b border-black pb-2'>Participated Events</h2>
           <table className="w-full text-center border-collapse ">
-            <thead className='border-b sm:text-sm'>
+            <thead className='border-b sm:text-sm xs:text-xs'>
               <tr>
-                <th className="p-4 sm:p-2 xs:p-2">No.</th>
-                <th className="p-4 sm:p-2 xs:p-2">Title</th>
-                <th className="p-4 sm:p-2 xs:p-2">Content</th>
-                <th className="p-4 sm:p-2 xs:p-2">Writer</th>
-                <th className="p-4 sm:p-2 xs:p-2">Date</th>
-                <th className="p-4 sm:p-2 xs:p-2">View</th>
+                <th className="p-4 md:p-2 sm:p-1 xs:p-1">No.</th>
+                <th className="p-4 md:p-2 sm:p-1 xs:p-1">Title</th>
+                <th className="p-4 md:p-2 sm:p-1 xs:p-1">Content</th>
+                <th className="p-4 md:p-2 sm:p-1 xs:p-1">Writer</th>
+                <th className="p-4 md:p-2 sm:p-1 xs:p-1">Event Type</th>
+                <th className="p-4 md:p-2 sm:p-1 xs:p-1">Status</th>
+                <th className="p-4 md:p-2 sm:p-1 xs:p-1">Date</th>
+                <th className="p-4 md:p-2 sm:p-1 xs:p-1">View</th>
               </tr>
             </thead>
             <tbody>
-              {userInfo?.posts.data?.length === 0 ? (
+              {eventsData?.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="p-6 text-center">작성한 게시글이 없습니다.</td>
+                  <td colSpan={6} className="p-6 text-center">참여한 이벤트가 없습니다.</td>
                 </tr>
               ) : (
-                userInfo?.posts.data?.map((post, i) => (
+                eventsData?.map((post, i) => (
                   <tr className="
                     hover:bg-gray-200 
                     transition-all 
@@ -436,28 +398,53 @@ const MyPage = ({ userInfo }: { userInfo: UserInfo }) => {
                     cursor-pointer
                     sm:text-sm"
                     key={i}
-                    onClick={() => router.push(`/posts/general/${post._id}`)}>
-                    <td className="border-b p-6 sm:p-2 xs:p-2">
-                      <p className="text-xl sm:text-sm xs:text-xs font-semibold">{i + 1}</p>
+                    onClick={() => router.push(`/posts/events/${post._id}`)}>
+                    <td className="border-b p-6 md:p-2 sm:p-1 xs:p-1">
+                      <p className="text-xl sm:text-xs xs:text-xs font-semibold">{i + 1}</p>
                     </td>
-                    <td className="border-b p-6 sm:p-2 xs:p-2">
-                      <p className="text-gray-600 sm:text-sm xs:text-xs">{post.title}</p>
+                    <td className="border-b p-6 md:p-2 sm:p-1 xs:p-1">
+                      <p className="text-gray-600 sm:text-xs xs:text-xs">{post.title}</p>
                     </td>
-                    <td className="border-b p-6 sm:p-2 xs:p-2">
-                      <p className="text-gray-600 sm:text-sm xs:text-xs">{post.content.length >= 50 ? post.content.slice(0, 50) + '...' : post.content}</p>
+                    <td className="border-b p-6 md:p-2 sm:p-1 xs:p-1">
+                      <p className="text-gray-600 sm:text-xs xs:text-xs">{post.content.length >= 10 ? post.content.slice(0, 10) + '...' : post.content}</p>
                     </td>
-                    <td className="border-b p-6 sm:p-2 xs:p-2">
-                      <p className="text-gray-600 sm:text-sm xs:text-xs">
-                        {post.user_id.nickname}
+                    <td className="border-b p-6 md:p-2 sm:p-1 xs:p-1">
+                      <p className="text-gray-600 sm:text-xs xs:text-xs">
+                        {post.host_id.name}
                       </p>
                     </td>
-                    <td className="border-b p-6 sm:p-2 xs:p-2">
-                      <p className="text-gray-600 sm:text-sm xs:text-xs">
+                    <td className="border-b p-6 md:p-2 sm:p-1 xs:p-1">
+                      <p className="sm:text-xs xs:text-xs bg-main-yellow rounded-lg text-white font-semibold py-1">
+                        {(() => {
+                      switch (post.event_type) {
+                            case 'fcfs': return 'First come, first served';
+                            case 'random': return 'Draw lots';
+                          default: return '';
+                          }
+                        })()}
+                      </p>
+                    </td>
+                    <td className="border-b p-6 md:p-2 sm:p-1 xs:p-1">
+                      <p className="sm:text-xs xs:text-xs bg-main-blue rounded-lg text-white font-semibold py-1">
+                        {(() => {
+                          switch (post.status) {
+                            case 'created': return 'Before proceeding';
+                            case 'recruiting': return 'Recruiting';
+                            case 'progressing': return 'In progress';
+                            case 'finished': return 'End of progress';
+                            case 'canceled': return 'Cancel Progress';
+                            default: return 'Unknown';
+                          }
+                        })()}
+                      </p>
+                    </td>
+                    <td className="border-b p-6 md:p-2 sm:p-1 xs:p-1">
+                      <p className="text-gray-600 sm:text-xs xs:text-xs">
                         {post.updated_at.split('T')[0]}<br />{post.updated_at.substring(11, 19)}
                       </p>
                     </td>
-                    <td className="border-b p-6 sm:p-3 xs:p-2">
-                      <p className="text-gray-600">
+                    <td className="border-b p-6 md:p-2 sm:p-1 xs:p-1">
+                      <p className="text-gray-600 sm:text-xs xs:text-xs">
                         {post.view.count}
                       </p>
                     </td>
@@ -485,12 +472,12 @@ const MyPage = ({ userInfo }: { userInfo: UserInfo }) => {
           <table className="w-full text-center border-collapse ">
             <thead className='border-b'>
               <tr>
-                <th className="p-4 sm:p-2 xs:p-2">No.</th>
-                <th className="p-4 sm:p-2 xs:p-2">Title</th>
-                <th className="p-4 sm:p-2 xs:p-2">Content</th>
-                <th className="p-4 sm:p-2 xs:p-2">Writer</th>
-                <th className="p-4 sm:p-2 xs:p-2">Date</th>
-                <th className="p-4 sm:p-2 xs:p-2">View</th>
+                <th className="p-4 md:p-2 sm:p-2 xs:p-2">No.</th>
+                <th className="p-4 md:p-2 sm:p-2 xs:p-2">Title</th>
+                <th className="p-4 md:p-2 sm:p-2 xs:p-2">Content</th>
+                <th className="p-4 md:p-2 sm:p-2 xs:p-2">Writer</th>
+                <th className="p-4 md:p-2 sm:p-2 xs:p-2">Date</th>
+                <th className="p-4 md:p-2 sm:p-2 xs:p-2">View</th>
               </tr>
             </thead>
             <tbody>
@@ -507,27 +494,27 @@ const MyPage = ({ userInfo }: { userInfo: UserInfo }) => {
                     cursor-pointer"
                     key={i}
                     onClick={() => router.push(`/posts/general/${post._id}`)}>
-                    <td className="border-b p-6 sm:p-2 xs:p-2">
-                      <p className="text-xl sm:text-sm xs:text-xs font-semibold">{i + 1}</p>
+                    <td className="border-b p-6 md:p-2 sm:p-2 xs:p-2">
+                      <p className="text-xl sm:text-xs xs:text-xs font-semibold">{i + 1}</p>
                     </td>
-                    <td className="border-b p-6 sm:p-2 xs:p-2">
-                      <p className="text-gray-600 sm:text-sm xs:text-xs"> {post.title}</p>
+                    <td className="border-b p-6 md:p-2 sm:p-2 xs:p-2">
+                      <p className="text-gray-600 sm:text-xs xs:text-xs">{post.title.length >= 10 ? post.title.slice(0, 10) + '...' : post.title}</p>
                     </td>
-                    <td className="border-b p-6 sm:p-2 xs:p-2">
-                      <p className="text-gray-600 sm:text-sm xs:text-xs"> {post.content.length >= 50 ? post.content.slice(0, 50) + '...' : post.content}</p>
+                    <td className="border-b p-6 md:p-2 sm:p-2 xs:p-2">
+                      <p className="text-gray-600 sm:text-xs xs:text-xs">{post.content.length >= 20 ? post.content.slice(0, 20) + '...' : post.content}</p>
                     </td>
-                    <td className="border-b p-6 sm:p-2 xs:p-2">
-                      <p className="text-gray-600 sm:text-sm xs:text-xs">
+                    <td className="border-b p-6 md:p-2 sm:p-2 xs:p-2">
+                      <p className="text-gray-600 sm:text-xs xs:text-xs">
                         {post.user_id.nickname}
                       </p>
                     </td>
-                    <td className="border-b p-6 sm:p-2 xs:p-2">
-                      <p className="text-gray-600 sm:text-sm xs:text-xs">
+                    <td className="border-b p-6 md:p-2 sm:p-2 xs:p-2">
+                      <p className="text-gray-600 sm:text-xs xs:text-xs">
                         {post.updated_at.split('T')[0]}<br />{post.updated_at.substring(11, 19)}
                       </p>
                     </td>
-                    <td className="border-b p-6 sm:p-2 xs:p-2">
-                      <p className="text-gray-600">
+                    <td className="border-b p-6 md:p-2 sm:p-2 xs:p-2">
+                      <p className="text-gray-600 sm:text-xs xs:text-xs">
                         {post.view.count}
                       </p>
                     </td>
@@ -538,7 +525,7 @@ const MyPage = ({ userInfo }: { userInfo: UserInfo }) => {
           </table>
           <div className='w-full mt-6 sm:mt-10 xs:mt-5 mb-5 flex justify-center'>
             <div className='flex items-center'>
-              {/* {Array.from({ length: postPagination?.totalPage }, (_, i) => (
+              {Array.from({ length: totalPages }, (_, i) => (
                 <button
                   key={i + 1}
                   className={`px-2 py-2 mx-1 xs:text-sm ${currentPage === i + 1 ? 'font-bold' : ''}`}
@@ -546,7 +533,7 @@ const MyPage = ({ userInfo }: { userInfo: UserInfo }) => {
                 >
                   {i + 1}
                 </button>
-              ))} */}
+              ))}
             </div>
           </div>
         </div>
@@ -555,4 +542,4 @@ const MyPage = ({ userInfo }: { userInfo: UserInfo }) => {
   )
 }
 
-export default MyPage;
+export default Profile;

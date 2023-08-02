@@ -147,4 +147,16 @@ type EventList = {
   updated_at: string;
 }
 
-export type { Post, PostDetail, Comment, LoginAPIInput, LoginAPIOutput, UserInfo, Pagination, EventList }
+type LoggedIn = {
+  isLoggedIn: boolean;
+}
+
+type Dnft = {
+  owner: string;
+  token_id: number;
+  name: string;
+  image_url: string;
+  description: string;
+}
+
+export type { Post, PostDetail, Comment, LoginAPIInput, LoginAPIOutput, UserInfo, Pagination, EventList, LoggedIn, Dnft }

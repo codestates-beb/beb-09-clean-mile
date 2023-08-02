@@ -9,8 +9,17 @@ import { SvgIcon } from "@mui/material";
 
 export const items = [
   {
-    title: "Events",
+    title: "Dashboard",
     path: "/",
+    icon: (
+      <SvgIcon fontSize="small">
+        <ChartBarIcon />
+      </SvgIcon>
+    ),
+  },
+  {
+    title: "Events",
+    path: "/events",
     icon: (
       <SvgIcon fontSize="small">
         <TicketIcon />

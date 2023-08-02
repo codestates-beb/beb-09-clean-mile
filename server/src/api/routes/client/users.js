@@ -129,10 +129,8 @@ module.exports = (app) => {
 
       //사용자 DNFT 발급
       const createDNFT = await dnftController.createDNFT(userData.email, 0);
-      if (!createDNFT.success)
-        return res
-          .status(400)
-          .json({ success: false, message: '사용자 DNFT 발급 실패' });
+      if (!createDNFT.success) return res.status(400).json({ success: false, message: '사용자 DNFT 발급 실패' });
+      if (!createDNFT.success) return res.status(400).json({ success: false, message: '사용자 DNFT 발급 실패' });
 
       return res.status(200).json({
         success: true,
@@ -163,10 +161,7 @@ module.exports = (app) => {
       }
 
       // 이메일 인증 코드 검증
-      const chkMailAuthCode = await usersController.checkEmailAuthCode(
-        email,
-        email_verification_code
-      );
+      const chkMailAuthCode = await usersController.checkEmailAuthCode(email, email_verification_code);
       if (!chkMailAuthCode.success) {
         return res.status(400).json({
           success: false,
@@ -228,8 +223,12 @@ module.exports = (app) => {
 
       usersController.setTokenCookie(res, accessToken, refreshToken);
 
+      const dnftData = await dnftController.userDnftData(user_id);
+      if (!dnftData.success) return res.status(500).json({success: false});
+
       // 필요 없는 데이터 제거
       const userData = userResult.data.toObject();
+      userData.dnftData = dnftData;
       delete userData.hashed_pw;
       delete userData.__v;
 
@@ -469,10 +468,7 @@ module.exports = (app) => {
       }
 
       // 닉네임 변경
-      const chgNicknameResult = await usersController.changeNickname(
-        email,
-        nickname
-      );
+      const chgNicknameResult = await usersController.changeNickname(email, nickname);
       if (!chgNicknameResult.success) {
         return res.status(400).json({
           success: false,
@@ -500,49 +496,41 @@ module.exports = (app) => {
    * @group users - 사용자 관련
    * @summary 사용자 배너 이미지 변경
    */
-  route.patch(
-    '/change-banner',
-    isAuth,
-    upload.single('imgFile'),
-    async (req, res) => {
-      try {
-        const email = req.decoded.email;
+  route.patch('/change-banner', isAuth, upload.single('imgFile'), async (req, res) => {
+    try {
+      const email = req.decoded.email;
 
-        // S3 이미지 업로드
-        const imageData = req.file;
-        if (!imageData) {
-          return res.status(400).json({
-            success: false,
-            message: '이미지 업로드에 실패하였습니다.',
-          });
-        }
-
-        // 사용자 배너 이미지 변경
-        const chgBannerResult = await usersController.changeBanner(
-          email,
-          imageData.location
-        );
-        if (!chgBannerResult.success) {
-          return res.status(400).json({
-            success: false,
-            message: '배너 이미지 변경에 실패했습니다.',
-          });
-        }
-
-        return res.status(200).json({
-          success: true,
-          message: '배너 이미지 변경에 성공했습니다.',
-          imageUrl: chgBannerResult.data,
-        });
-      } catch (err) {
-        console.error('Error:', err);
-        return res.status(500).json({
+      // S3 이미지 업로드
+      const imageData = req.file;
+      if (!imageData) {
+        return res.status(400).json({
           success: false,
-          message: '서버 오류',
+          message: '이미지 업로드에 실패하였습니다.',
         });
       }
+
+      // 사용자 배너 이미지 변경
+      const chgBannerResult = await usersController.changeBanner(email, imageData.location);
+      if (!chgBannerResult.success) {
+        return res.status(400).json({
+          success: false,
+          message: '배너 이미지 변경에 실패했습니다.',
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: '배너 이미지 변경에 성공했습니다.',
+        imageUrl: chgBannerResult.data,
+      });
+    } catch (err) {
+      console.error('Error:', err);
+      return res.status(500).json({
+        success: false,
+        message: '서버 오류',
+      });
     }
-  );
+  });
 };
 
 /**
@@ -553,7 +541,7 @@ module.exports = (app) => {
 route.get('/userInfo', isAuth, async (req, res) => {
   try {
     const user_id = req.decoded.user_id;
-
+    
     // 사용자 정보 조회
     const user = await usersController.getUser(user_id);
     if (!user.success) {
@@ -571,6 +559,8 @@ route.get('/userInfo', isAuth, async (req, res) => {
 
     const badgeData = await badgeController.userBadges(user_id);
     if (!badgeData.success) return res.status(400).json({ success: false });
+
+    console.log(badgeData);
 
     // 사용자 작성한 General, Review Posts List 조회
     const posts = await usersController.getPosts(user_id);
