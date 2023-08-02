@@ -46,7 +46,7 @@ export const EventDetails = ({ event }) => {
   return (
     <Card sx={{ p: 3 }}>
       <CardHeader title="Detail" />
-      <CardContent sx={{ pt: 0 }}>
+      <CardContent sx={{ pt: 1 }}>
         <Box sx={{ m: -1.5 }}>
           <Grid container spacing={3}>
             <Grid xs={12} md={6}>
