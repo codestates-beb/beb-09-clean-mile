@@ -35,6 +35,11 @@
         {
           "components": [
             {
+              "internalType": "uint256",
+              "name": "token_id",
+              "type": "uint256"
+            },
+            {
               "internalType": "string",
               "name": "name",
               "type": "string"
@@ -139,7 +144,13 @@
         }
       ],
       "name": "mintDNFT",
-      "outputs": [],
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
       "stateMutability": "nonpayable",
       "type": "function"
     },

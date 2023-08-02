@@ -65,14 +65,14 @@ contract CleanMileDNFT is ERC721, ICleanMileDNFT, Ownable {
         string calldata _name,
         string calldata _description,
         UserType userType
-    ) external onlyOwner {
+    ) external onlyOwner returns (uint256) {
         if (!(userType == UserType.Admin || userType == UserType.User)) {
             revert InvalidUserType();
         }
 
         DNFTLevel _level;
 
-        if (userType == UserType.Admin) {
+        if (uint256(userType) == uint256(UserType.Admin)) {
             _level = DNFTLevel.level_6;
         } else {
             _level = DNFTLevel.level_1;
@@ -80,7 +80,7 @@ contract CleanMileDNFT is ERC721, ICleanMileDNFT, Ownable {
 
         string memory _tokenURI = IpfsUri[uint256(_level)];
 
-        _mintDNFT(_to, _name, _description, _tokenURI, _level);
+        return _mintDNFT(_to, _name, _description, _tokenURI, _level);
     }
 
     function _mintDNFT(
@@ -89,7 +89,7 @@ contract CleanMileDNFT is ERC721, ICleanMileDNFT, Ownable {
         string calldata _description,
         string memory _tokenURI,
         DNFTLevel _level
-    ) internal virtual {
+    ) internal virtual returns (uint256) {
         uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
 
@@ -97,10 +97,12 @@ contract CleanMileDNFT is ERC721, ICleanMileDNFT, Ownable {
         _setTokenURI(tokenId, _tokenURI);
 
         _dnftData[tokenId] = DNFTData({
+            token_id: tokenId,
             name: _name,
             description: _description,
             level: _level
         });
+        return tokenId;
     }
 
     function _setTokenURI(

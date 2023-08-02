@@ -222,8 +222,12 @@ module.exports = (app) => {
 
       usersController.setTokenCookie(res, accessToken, refreshToken);
 
+      const dnftData = await dnftController.userDnftData(user_id);
+      if (!dnftData.success) return res.status(500).json({success: false});
+
       // 필요 없는 데이터 제거
       const userData = userResult.data.toObject();
+      userData.dnftData = dnftData;
       delete userData.hashed_pw;
       delete userData.__v;
 
@@ -536,7 +540,7 @@ module.exports = (app) => {
 route.get('/userInfo', isAuth, async (req, res) => {
   try {
     const user_id = req.decoded.user_id;
-
+    
     // 사용자 정보 조회
     const user = await usersController.getUser(user_id);
     if (!user.success) {
