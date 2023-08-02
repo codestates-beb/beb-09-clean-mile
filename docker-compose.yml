@@ -14,6 +14,14 @@ services:
       - ./server/src:/usr/src/app/src:z
     environment:
       EXAMPLE_ENV: example
+  
+  daemon:
+    build:
+      context: ./daemon
+      dockerfile: Dockerfile
+    image: daemon
+    container_name: daemon
+    restart: always
 
   ganache:
     image: trufflesuite/ganache:latest
