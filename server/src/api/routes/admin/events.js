@@ -5,6 +5,7 @@ const adminEventsController = require('../../../services/admin/eventsController'
 const badgeController = require('../../../services/contract/badgeController');
 const dnftController = require('../../../services/contract/dnftController');
 const { getUser } = require('../../../services/client/usersController');
+const { getEventById } = require('../../../services/client/eventsController');
 
 const route = Router();
 
@@ -142,19 +143,62 @@ module.exports = (app) => {
    * @group Admin - Event
    * @summary 이벤트 관련 뱃지 생성(민팅)
    */
+  /**
+   * @Author: Lee jisu
+   * @Date: 2023-08-02
+   * @Desc: 아래의 내용을 수정함
+   * - 이미지 파일을 저장 후 파일 url을 얻는 코드 추가
+   * - user_id를 title로 찾는 것이 아닌 event_id 받아서 뱃지를 생성
+   * - 이벤트 상태가 ‘finished' 이전 상태일 때만 민팅 가능
+   * - 예외 처리 추가
+   */
   route.post(
     '/createBadge',
-    /*isAdminAuth*/ async (req, res) => {
+    isAdminAuth,
+    upload.single('image'),
+    async (req, res) => {
       try {
-        const { name, description, imageUrl, badgeType, amount, eventTitle } =
-          req.body;
+        const { event_id, name, description, type } = req.body;
+
+        const imageData = req.file;
+        if (!imageData) {
+          return res.status(400).json({
+            success: false,
+            message: '이미지 업로드에 실패하였습니다.',
+          });
+        }
+
+        if (!event_id || !name || !description || !type) {
+          return res.status(400).json({
+            success: false,
+            message: '필수 정보를 입력해주세요.',
+          });
+        }
+
+        // 이벤트 정보 조회
+        const event = await getEventById(event_id);
+        if (!event) {
+          return res.status(400).json({
+            success: false,
+            message: event.message,
+          });
+        }
+
+        if (event.status === 'finished' || event.status === 'canceled') {
+          return res.status(400).json({
+            success: false,
+            message: '이미 종료된 이벤트입니다.',
+          });
+        }
+
+        // 뱃지 생성
         const createBadge = await badgeController.createBadge(
           name,
           description,
-          imageUrl,
-          badgeType,
-          amount,
-          eventTitle
+          imageData.location,
+          Number(type), // badgeType
+          event.data.capacity, // amount
+          event_id
         );
         if (createBadge.success) {
           return res.status(200).json({
@@ -288,6 +332,14 @@ module.exports = (app) => {
           });
         }
 
+        // 이미지 파일 체크
+        if (!req.file) {
+          return res.status(400).json({
+            success: false,
+            message: '이미지 파일을 첨부해주세요.',
+          });
+        }
+
         /**
          ******** 주최측 생성 ********
          */
@@ -313,21 +365,17 @@ module.exports = (app) => {
         const eventData = {
           title: title,
           host_id: host.id,
+          poster_url: imageUrl.location,
           content: content,
           location: location,
           capacity: capacity,
+          remaining: capacity,
           event_type: event_type,
           recruitment_start_at: recruitment_start_at,
           recruitment_end_at: recruitment_end_at,
           event_start_at: event_start_at,
           event_end_at: event_end_at,
         };
-
-        // 이미지 파일
-        const imageUrl = req.file;
-        if (imageUrl) {
-          eventData.poster_url = imageUrl.location;
-        }
 
         const event = await adminEventsController.saveEvent(eventData);
         if (!event) {
@@ -520,7 +568,9 @@ module.exports = (app) => {
       }
 
       // 이벤트 삭제
-      const event = await adminEventsController.deleteEvent(event_id);
+      const event = await adminEventsController.setEventStatusCanceled(
+        event_id
+      );
       if (!event.success) {
         return res.status(400).json({
           success: false,

@@ -103,9 +103,36 @@ module.exports = (app) => {
   });
 
   /**
-   * @router POST /events/subscribe
+   * @router POST /events//entry/:event_id
    * @group Events
-   * @Summary 행사 참여
+   * @Summary 행사 참여 신청
    */
-  route.post('/subscribe', isAuth, upload.none(), async (req, res) => {});
+  route.post('/entry/:event_id', isAuth, async (req, res) => {
+    try {
+      const { event_id } = req.params;
+
+      // 행사 참여 신청
+      const result = await eventsController.eventEntry(
+        event_id,
+        req.decoded.user_id
+      );
+      if (!result.success) {
+        return res.status(400).json({
+          success: false,
+          message: result.message,
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: '행사 참여 신청 성공',
+      });
+    } catch (err) {
+      console.error('Error:', err);
+      return res.status(500).json({
+        success: false,
+        message: '서버 오류',
+      });
+    }
+  });
 };

@@ -1,7 +1,7 @@
 const fs = require('fs');
 const XLSX = require('xlsx');
 const calcPagination = require('../../utils/calcPagination');
-const getKorDate = require('../../utils/getKorDateUtil');
+const { getKorDate, escapeRegexChars } = require('../../utils/common');
 const EventModel = require('../../models/Events');
 const EventHostModel = require('../../models/EventHosts');
 const EventEntryModel = require('../../models/EventEntries');
@@ -32,19 +32,23 @@ const getEvents = async (status, page, limit, title, content, organization) => {
 
     // 제목을 검색할 경우 정규표현식 사용 (대소문자 구분 없이 검색)
     if (title) {
-      query.title = { $regex: new RegExp(title, 'i') };
+      query.title = { $regex: new RegExp(escapeRegexChars(title), 'i') };
     }
 
     // 내용을 검색할 경우 정규표현식 사용 (대소문자 구분 없이 검색)
     if (content) {
-      query.content = { $regex: new RegExp(content, 'i') };
+      query.content = { $regex: new RegExp(escapeRegexChars(content), 'i') };
     }
 
     // 단체명을 검색할 경우 정규표현식 사용 (대소문자 구분 없이 검색)
     if (organization) {
       query.host_id = {
         $in: await EventHostModel.find(
-          { organization: { $regex: new RegExp(organization, 'i') } },
+          {
+            organization: {
+              $regex: new RegExp(escapeRegexChars(organization), 'i'),
+            },
+          },
           '_id'
         ),
       };
@@ -362,7 +366,7 @@ const updateEvent = async (
     if (event.status !== 'created') {
       return {
         success: false,
-        message: '모집 시작일이 지나 수정할 수 없습니다.',
+        message: `이벤트 상태가 'created'일 때만 수정 가능합니다.`,
       };
     }
 
@@ -401,7 +405,7 @@ const updateEvent = async (
  * @param {*} event_id
  * @returns 성공 여부
  */
-const updateEventStatus = async (event_id) => {
+const setEventStatusCanceled = async (event_id) => {
   try {
     // 이벤트 정보 조회
     const event = await EventModel.findById(event_id);
@@ -464,6 +468,6 @@ module.exports = {
   saveEvent,
   updateEventHost,
   updateEvent,
-  updateEventStatus,
+  setEventStatusCanceled,
   deleteEvent,
 };

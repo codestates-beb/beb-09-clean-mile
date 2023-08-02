@@ -1,5 +1,5 @@
 const CommentModel = require('../../models/Comments');
-const getKorDate = require('../../utils/getKorDateUtil');
+const { getKorDate } = require('../../utils/common');
 
 /**
  * 좋아요 여부 확인 및 수정

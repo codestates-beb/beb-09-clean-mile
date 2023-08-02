@@ -1,7 +1,7 @@
 const smtpTransport = require('../../loaders/email');
 const config = require('../../config/index');
 const calcPagination = require('../../utils/calcPagination');
-const getKorDate = require('../../utils/getKorDateUtil');
+const { getKorDate } = require('../../utils/common');
 const MailModel = require('../../models/Mails');
 const UserModel = require('../../models/Users');
 const PostModel = require('../../models/Posts');
@@ -33,7 +33,7 @@ const saveAuthCode = async (email, authCode) => {
       const mailData = new MailModel({
         email: email,
         code: authCode,
-        expiry: Date.now() + 1000 * 60 * 10, // 10분
+        expiry: getKorDate() + 1000 * 60 * 10, // 10분
       });
       const result = await mailData.save(); // 데이터 저장
       return result._id;
@@ -42,7 +42,7 @@ const saveAuthCode = async (email, authCode) => {
         { email: email },
         {
           code: authCode,
-          expiry: Date.now() + 1000 * 60 * 10,
+          expiry: getKorDate() + 1000 * 60 * 10,
           authenticated: false,
         }
       );
@@ -143,7 +143,7 @@ const checkEmailAuthCode = async (email, code) => {
     if (
       emailData &&
       Number(emailData.code) === Number(code) &&
-      emailData.expiry >= Date.now()
+      emailData.expiry >= getKorDate()
     ) {
       await emailData.updateOne({ authenticated: true });
       return { success: true };

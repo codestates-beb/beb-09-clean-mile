@@ -29,13 +29,18 @@ const pinataSDK = require('@pinata/sdk');
 // 1. 정보들 Ipfs에 업데이트
 // 2. 뱃지 민팅
 // 3. 성공한다면 뱃지 데이터들 데이터 베이스에 저장
+/**
+ * @Author: Lee jisu
+ * @Date: 2023-08-02
+ * @Desc: user_id를 title로 찾는 것이 아닌 event_id 받아서 뱃지를 생성하도록 수정
+ */
 const createBadge = async (
   name,
   description,
   imageUrl,
   badgeType,
   amount,
-  eventTitle
+  event_id
 ) => {
   try {
     const pinata = new pinataSDK(config.PINATA_API, config.PINATA_SECRET);
@@ -68,11 +73,11 @@ const createBadge = async (
     transaction.wait();
     const badgeScore = [1, 5, 10];
 
-    const event = await EventModel.findOne({ title: eventTitle });
-    if (!event) return { success: false, message: '데이터 요청 실패' };
-    const eventId = event._id;
+    // const event = await EventModel.findOne({ title: eventTitle });
+    // if (!event) return { success: false, message: '데이터 요청 실패' };
+    // const eventId = event._id;
 
-    if (transaction && eventId) {
+    if (transaction && event_id) {
       const badgeId = await BadgeModel.countDocuments();
       const badgeData = new BadgeModel({
         badge_id: badgeId,
@@ -82,7 +87,7 @@ const createBadge = async (
         score: badgeScore[badgeType],
         token_uri: tokenURI,
         image_url: imageUrl,
-        event_id: eventId,
+        event_id: event_id,
         initial_quantity: amount,
         remain_quantity: amount,
         owners: [],

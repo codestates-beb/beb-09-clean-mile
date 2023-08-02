@@ -3,7 +3,7 @@ const CommentModel = require('../../models/Comments');
 const EventModel = require('../../models/Events');
 const EventEntryModel = require('../../models/EventEntries');
 const calcPagination = require('../../utils/calcPagination');
-const getKorDate = require('../../utils/getKorDateUtil');
+const { getKorDate, escapeRegexChars } = require('../../utils/common');
 const { findUserEmail } = require('./usersController');
 const { updateCommentLikes } = require('./commentsController');
 
@@ -201,12 +201,12 @@ const getPosts = async (page, limit, order, category, title, content) => {
 
     // 제목을 검색할 경우 정규표현식 사용 (대소문자 구분 없이 검색)
     if (title) {
-      query.title = { $regex: new RegExp(title, 'i') };
+      query.title = { $regex: new RegExp(escapeRegexChars(title), 'i') };
     }
 
     // 내용을 검색할 경우 정규표현식 사용 (대소문자 구분 없이 검색)
     if (content) {
-      query.content = { $regex: new RegExp(content, 'i') };
+      query.content = { $regex: new RegExp(escapeRegexChars(content), 'i') };
     }
 
     // 정렬 방향에 따라 정렬 객체 생성
@@ -263,12 +263,12 @@ const getEvents = async (last_id, limit, title, content) => {
 
     // 제목을 검색할 경우 정규표현식 사용 (대소문자 구분 없이 검색)
     if (title) {
-      query.title = { $regex: new RegExp(title, 'i') };
+      query.title = { $regex: new RegExp(escapeRegexChars(title), 'i') };
     }
 
     // 내용을 검색할 경우 정규표현식 사용 (대소문자 구분 없이 검색)
     if (content) {
-      query.content = { $regex: new RegExp(content, 'i') };
+      query.content = { $regex: new RegExp(escapeRegexChars(content), 'i') };
     }
     // 이벤트 ID 배열을 이용해 이벤트 목록 조회
     const events = await EventModel.find(query)
@@ -311,12 +311,12 @@ const getReviews = async (last_id, limit, title, content) => {
 
     // 제목을 검색할 경우 정규표현식 사용 (대소문자 구분 없이 검색)
     if (title) {
-      query.title = { $regex: new RegExp(title, 'i') };
+      query.title = { $regex: new RegExp(escapeRegexChars(title), 'i') };
     }
 
     // 내용을 검색할 경우 정규표현식 사용 (대소문자 구분 없이 검색)
     if (content) {
-      query.content = { $regex: new RegExp(content, 'i') };
+      query.content = { $regex: new RegExp(escapeRegexChars(content), 'i') };
     }
 
     // 게시글 목록 조회
@@ -359,12 +359,12 @@ const findPost = async (category, limit, last_id, order, title, content) => {
 
     // title이 존재하면 정규 표현식으로 검색에 추가 (대소문자 구분 없이 검색)
     if (title) {
-      query.title = { $regex: new RegExp(title, 'i') };
+      query.title = { $regex: new RegExp(escapeRegexChars(title), 'i') };
     }
 
     // content가 존재하면 정규 표현식으로 검색에 추가 (대소문자 구분 없이 검색)
     if (content) {
-      query.content = { $regex: new RegExp(content, 'i') };
+      query.content = { $regex: new RegExp(escapeRegexChars(content), 'i') };
     }
 
     // 데이터 조회 실행

@@ -4,7 +4,7 @@ const { updateCommentLikes } = require('./commentsController');
 const { postViews } = require('./postsController');
 
 /**
- * 행상 상세 정보, 댓글 조회
+ * 행사 상세 정보, 댓글 조회
  * @param {*} event_id
  * @param {*} user_id
  * @returns
@@ -64,4 +64,82 @@ const findEventDetail = async (req, event_id, user_id) => {
   }
 };
 
-module.exports = { findEventDetail };
+/**
+ * 이벤트 참가 신청
+ * @param {*} event_id
+ * @param {*} user_id
+ * @returns 성공 여부
+ */
+const eventEntry = async (event_id, user_id) => {
+  try {
+    // 이벤트 조회
+    const event = await EventModel.findById(event_id);
+    if (!event) {
+      return { success: false, message: '존재하지 않는 이벤트입니다.' };
+    }
+
+    if (event.status !== 'recruiting') {
+      return { success: false, message: '참가자 모집중인 이벤트가 아닙니다.' };
+    }
+
+    if (event.remaining <= 0) {
+      return { success: false, message: '참가자 모집이 마감된 이벤트입니다.' };
+    }
+
+    // 이벤트 신청 여부 확인
+    const entry = await EventEntryModel.findOne({
+      event_id: event_id,
+      user_id: user_id,
+    });
+    if (entry) {
+      return { success: false, message: '이미 신청한 이벤트입니다.' };
+    }
+
+    // 이벤트 신청
+    const eventEntry = new EventEntryModel({
+      event_id: event_id,
+      user_id: user_id,
+    });
+    const result = await eventEntry.save();
+    if (!result) {
+      return { success: false, message: '이벤트 신청에 실패하였습니다.' };
+    }
+
+    // 이벤트 remaining 감소
+    event.remaining -= 1;
+    const eventResult = await event.save();
+    if (!eventResult) {
+      return {
+        success: false,
+        message: '이벤트 데이터 수정에 실패했습니다.',
+      };
+    }
+
+    return { success: true };
+  } catch (err) {
+    console.error('Error:', err);
+    throw Error(err);
+  }
+};
+
+/**
+ * event_id로 이벤트 조회
+ * @param {*} event_id
+ * @returns 조회 결과
+ */
+const getEventById = async (event_id) => {
+  try {
+    // 이벤트 조회
+    const result = await EventModel.findById(event_id);
+    if (!result) {
+      return { success: false, message: '존재하지 않는 이벤트입니다.' };
+    }
+
+    return { success: true, data: result };
+  } catch (err) {
+    console.error('Error:', err);
+    throw Error(err);
+  }
+};
+
+module.exports = { findEventDetail, eventEntry, getEventById };
