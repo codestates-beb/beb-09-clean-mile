@@ -11,7 +11,7 @@ import {
   Typography,
 } from "@mui/material";
 import { Layout as DashboardLayout } from "src/layouts/dashboard/layout";
-import { PostsTable } from "src/components/posts/posts-table";
+import { EventsTable } from "src/components/events/events-table";
 import { useCallback, useEffect, useState } from "react";
 import { SearchBar } from "src/components/search-bar";
 import { useRouter } from "next/router";
@@ -19,48 +19,58 @@ import { useRouter } from "next/router";
 const data = [
   {
     id: "2569ce0d517a7f06d3ea1f24",
-    title: "hic-modi-officia",
-    content: "Doloribus voluptatem voluptatem.",
-    writer: "Beatty",
-    view: 12,
+    title: "세기말 플로깅",
+    type: "FirstComeFirstServe",
+    location: "경기도 부천시",
+    organization: "부천시청",
+    status: "Progressing",
     createdAt: "27/03/2019",
-    category: "notice",
   },
   {
-    id: "2569ce0d517a7f06d3ea1f24",
-    title: "hic-modi-officia",
-    content: "Doloribus voluptatem voluptatem.",
-    writer: "Beatty",
-    view: 12,
-    createdAt: "27/03/2019",
-    category: "notice",
+    id: "ed2b900870ceba72d203ec15",
+    createdAt: "31/03/2019",
+    title: "비치 코밍 페스티벌",
+    type: "RandomDraw",
+    location: "강원도 속초시",
+    organization: "속초시청",
+    status: "Finished",
   },
   {
-    id: "2569ce0d517a7f06d3ea1f24",
-    title: "hic-modi-officia",
-    content: "Doloribus voluptatem voluptatem.",
-    writer: "Beatty",
-    view: 12,
-    createdAt: "27/03/2019",
-    category: "notice",
+    id: "a033e38768c82fca90df3db7",
+    createdAt: "03/04/2019",
+    title: "서울 시민 플로깅 대회",
+    type: "FirstComeFirstServe",
+    location: "서울특별시",
+    organization: "서울시청",
+    status: "Created",
   },
   {
-    id: "2569ce0d517a7f06d3ea1f24",
-    title: "hic-modi-officia",
-    content: "Doloribus voluptatem voluptatem.",
-    writer: "Beatty",
-    view: 12,
-    createdAt: "27/03/2019",
-    category: "notice",
+    id: "1efecb2bf6a51def9869ab0f",
+    createdAt: "04/04/2019",
+    title: "코드스테이츠 플로깅 해커톤",
+    type: "RandomDraw",
+    location: "서울특별시",
+    organization: "코드스테이츠",
+    status: "Recruiting",
+  },
+  {
+    id: "1ed68149f65fbc6089b5fd07",
+    createdAt: "04/04/2019",
+    title: "깃허브 개발자 밋업 with 플로깅",
+    type: "FirstComeFirstServe",
+    location: "샌프란시스코",
+    organization: "깃허브",
+    status: "Progressing",
   },
 ];
-
-const filters = ["all", "title", "content"];
+const filters = ["all", "title", "content", "organization"];
+const statuses = ["all", "created", "recruiting", "progressing", "finished", "canceled"];
 
 const Page = () => {
   const [page, setPage] = useState(1);
   const [pageCount, setPageCount] = useState(5);
-  const [posts, setPosts] = useState(data);
+  const [events, setEvents] = useState(data);
+  const [status, setStatus] = useState(statuses[0]);
   const [filter, setFilter] = useState(filters[0]);
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -74,6 +84,10 @@ const Page = () => {
     setFilter(event.target.value);
   }, []);
 
+  const handleStatusChange = useCallback((event) => {
+    setStatus(event.target.value);
+  }, []);
+
   const handleSearchTermChange = useCallback((event) => {
     setSearchTerm(event.target.value);
   }, []);
@@ -83,15 +97,22 @@ const Page = () => {
       event.preventDefault();
 
       if (!searchTerm) return;
+
       console.log(filter, searchTerm);
     },
     [filter, searchTerm]
   );
 
+  useEffect(() => {
+    const filteredEvents =
+      status === "all" ? data : data.filter((e) => e.status.toLowerCase() === status);
+    setEvents(filteredEvents);
+  }, [status]);
+
   return (
     <>
       <Head>
-        <title>Notice</title>
+        <title>Events</title>
       </Head>
       <Box
         component="main"
@@ -104,7 +125,7 @@ const Page = () => {
           <Stack spacing={3}>
             <Stack direction="row" justifyContent="space-between" spacing={4}>
               <Stack spacing={1}>
-                <Typography variant="h4">Notice</Typography>
+                <Typography variant="h4">Events</Typography>
               </Stack>
               <Stack direction="row" spacing={1}>
                 <Button
@@ -114,18 +135,26 @@ const Page = () => {
                     </SvgIcon>
                   }
                   variant="contained"
-                  onClick={() => router.push("/notice/create")}
+                  onClick={() => {
+                    router.push("/events/create");
+                  }}
                 >
                   Add
                 </Button>
+                <Select value={status} onChange={handleStatusChange}>
+                  {statuses.map((status) => (
+                    <MenuItem key={status} value={status}>
+                      {status}
+                    </MenuItem>
+                  ))}
+                </Select>
               </Stack>
             </Stack>
-            <PostsTable
-              items={posts}
+            <EventsTable
+              items={events}
               page={page}
               pageCount={pageCount}
               handlePageChange={handlePageChange}
-              path="/notice"
             />
             <SearchBar
               filters={filters}
@@ -134,7 +163,7 @@ const Page = () => {
               searchTerm={searchTerm}
               handleSearchTermChange={handleSearchTermChange}
               handleSearchTermSubmit={handleSearchTermSubmit}
-              placeholder={"Search Notice"}
+              placeholder={"Search Event"}
             />
           </Stack>
         </Container>
