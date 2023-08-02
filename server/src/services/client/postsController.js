@@ -3,6 +3,7 @@ const CommentModel = require('../../models/Comments');
 const EventModel = require('../../models/Events');
 const EventEntryModel = require('../../models/EventEntries');
 const calcPagination = require('../../utils/calcPagination');
+const getKorDate = require('../../utils/getKorDateUtil');
 const { findUserEmail } = require('./usersController');
 const { updateCommentLikes } = require('./commentsController');
 
@@ -61,7 +62,7 @@ const savePost = async (email, postData, media) => {
  */
 const editPostField = async (post_id, updateFields) => {
   try {
-    updateFields.updated_at = new Date();
+    updateFields.updated_at = getKorDate();
     const result = await PostModel.findByIdAndUpdate(
       post_id,
       { $set: updateFields },

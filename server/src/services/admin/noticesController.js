@@ -1,5 +1,6 @@
 const PostModel = require('../../models/Posts');
 const calcPagination = require('../../utils/calcPagination');
+const getKorDate = require('../../utils/getKorDateUtil');
 
 /**
  * 공지사항 리스트 조회
@@ -129,7 +130,7 @@ const updateNotice = async (notice_id, title, content) => {
       notice.content = content;
     }
 
-    notice.updated_at = Date.now();
+    notice.updated_at = getKorDate();
 
     const result = await notice.save();
     if (!result) {

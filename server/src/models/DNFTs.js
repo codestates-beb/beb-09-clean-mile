@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const getKorDate = require('../utils/getKorDateUtil');
 
 /**
  * DNFTs Collection Schema
@@ -10,7 +11,8 @@ const dnftSchema = new mongoose.Schema({
   },
   user_id: {
     // 사용자 ID
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'user',
   },
   name: {
     //변동 가능
@@ -31,17 +33,12 @@ const dnftSchema = new mongoose.Schema({
   created_at: {
     // DNFT 정보 생성일
     type: Date,
-    default: Date.now,
+    default: getKorDate,
   },
   updated_at: {
     // DNFT 정보 수정일
     type: Date,
-    default: Date.now,
-  },
-  user: {
-    // users collection의 _id를 참조
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'user',
+    default: getKorDate,
   },
 });
 
