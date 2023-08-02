@@ -5,12 +5,24 @@ const SearchInput = () => {
   const router = useRouter();
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('title');
-
+  
   const handleSearch = () => {
-    if (filter === 'title') {
-      router.push(`/posts/general?page=1&order=desc&title=${search}`);
-    } else if(filter === 'content') {
-      router.push(`/posts/general?page=1&order=desc&content=${search}`);
+    switch (router.pathname) {
+      case '/posts/general':
+        if (filter === 'title') {
+          router.push(`/posts/general?page=1&order=desc&title=${search}`);
+        } else if(filter === 'content') {
+          router.push(`/posts/general?page=1&order=desc&content=${search}`);
+        }
+        return;
+      case '/posts/events': 
+        if (filter === 'title') {
+          router.push(`/posts/events?last_id=null&title=${search}`);
+        } else if(filter === 'content') {
+          router.push(`/posts/events?last_id=null&content=${search}`);
+        }
+        return;
+      default: return '';
     }
   }
 

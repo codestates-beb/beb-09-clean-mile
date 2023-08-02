@@ -64,7 +64,7 @@ const Header = () => {
       throw err;
     }
   }
-  
+
   /**
    * loginMutation 함수는 useMutation hook을 사용하여 loginAPI를 호출하고, 요청의 결과에 따라 적절한 동작을 수행
    * 
@@ -72,8 +72,11 @@ const Header = () => {
    */
   const loginMutation = useMutation(userInfo, {
     onSuccess: (data: UserInfo) => {
-      queryClient.invalidateQueries('user');
-      queryClient.setQueryData('user', data);
+      queryClient.invalidateQueries('user_info');
+      queryClient.setQueryData('user_info', data);
+
+      const dehydratedState = dehydrate(queryClient);
+      localStorage.setItem('user_info', JSON.stringify(dehydratedState));
     },
     onError: (error) => {
       console.log('Mutation Error: ', error);
@@ -84,7 +87,7 @@ const Header = () => {
     const user = localStorage.getItem('user');
     if (user) {
       const userCache = JSON.parse(localStorage.getItem('user') || '');
-      setUserInfoDetail(userCache.queries[0]?.state.data);
+      setUserInfoDetail(userCache.queries[1]?.state.data);
       setIsLoggedIn(true);
     } else {
       loginMutation.mutate();

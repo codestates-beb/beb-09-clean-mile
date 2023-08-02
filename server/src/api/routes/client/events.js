@@ -17,12 +17,7 @@ module.exports = (app) => {
    */
   route.get('/list', async (req, res) => {
     try {
-      const {
-        last_id = null,
-        limit = 10,
-        title = null,
-        content = null,
-      } = req.query;
+      const { last_id = null, limit = 10, title = null, content = null } = req.query;
 
       // 행사 리스트 조회
       const result = await postsController.getEvents(
@@ -77,11 +72,7 @@ module.exports = (app) => {
       }
 
       // 행사 상세 조회
-      const result = await eventsController.findEventDetail(
-        req,
-        event_id,
-        user_id
-      );
+      const result = await eventsController.findEventDetail(req, event_id, user_id);
       if (!result.success) {
         return res.status(404).json({
           success: false,
