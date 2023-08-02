@@ -265,8 +265,8 @@ const getPosts = async (userId, page, limit) => {
 /**
  * 이벤트 참여 목록 조회
  * @param {*} userId
+ * @param {*} page
  * @param {*} limit
- * @param {*} last_id
  * @returns 조회 결과, last_id
  */
 const getEvents = async (userId, page, limit) => {

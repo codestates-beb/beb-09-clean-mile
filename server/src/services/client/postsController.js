@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const PostModel = require('../../models/Posts');
 const CommentModel = require('../../models/Comments');
 const EventModel = require('../../models/Events');
@@ -250,9 +251,10 @@ const getPosts = async (page, limit, order, category, title, content) => {
  * @param {*} category
  * @param {*} title
  * @param {*} content
+ * @param {*} status
  * @returns
  */
-const getEvents = async (last_id, limit, title, content) => {
+const getEvents = async (last_id, limit, title, content, status) => {
   try {
     let query = {};
 
@@ -270,6 +272,12 @@ const getEvents = async (last_id, limit, title, content) => {
     if (content) {
       query.content = { $regex: new RegExp(escapeRegexChars(content), 'i') };
     }
+
+    // 상태가 존재하면, 해당 상태의 문서 조회
+    if (status) {
+      query.status = status;
+    }
+
     // 이벤트 ID 배열을 이용해 이벤트 목록 조회
     const events = await EventModel.find(query)
       .populate('host_id', ['name', 'organization'])
@@ -298,9 +306,10 @@ const getEvents = async (last_id, limit, title, content) => {
  * @param {*} limit
  * @param {*} title
  * @param {*} content
+ * @param {*} order
  * @returns
  */
-const getReviews = async (last_id, limit, title, content) => {
+const getReviews = async (last_id, limit, title, content, order) => {
   try {
     let query = { category: 'review' };
 
@@ -319,11 +328,21 @@ const getReviews = async (last_id, limit, title, content) => {
       query.content = { $regex: new RegExp(escapeRegexChars(content), 'i') };
     }
 
+    // 정렬 방향에 따라 정렬 객체 생성
+    let sort = {};
+    if (order === 'desc') {
+      sort = { created_at: -1 };
+    } else if (order === 'asc') {
+      sort = { created_at: 1 };
+    } else if (order === 'view') {
+      sort = { 'view.count': -1 };
+    }
+
     // 게시글 목록 조회
     const result = await PostModel.find(query)
       .populate('user_id', ['nickname'])
       .select('-__v -view.viewers') // 필요없는 필드 제외
-      .sort({ created_at: -1 })
+      .sort(sort)
       .limit(limit);
 
     // 결과가 없는 경우
@@ -341,70 +360,6 @@ const getReviews = async (last_id, limit, title, content) => {
   }
 };
 
-/**
- * 게시글 목록 조회
- * @param {*} category
- * @param {*} page_size
- * @param {*} last_id
- * @returns 조회결과
- */
-const findPost = async (category, limit, last_id, order, title, content) => {
-  try {
-    const query = { category: category };
-
-    // last_id가 존재하면, 마지막 id 이후의 문서 조회
-    if (last_id) {
-      query._id = { $gt: last_id };
-    }
-
-    // title이 존재하면 정규 표현식으로 검색에 추가 (대소문자 구분 없이 검색)
-    if (title) {
-      query.title = { $regex: new RegExp(escapeRegexChars(title), 'i') };
-    }
-
-    // content가 존재하면 정규 표현식으로 검색에 추가 (대소문자 구분 없이 검색)
-    if (content) {
-      query.content = { $regex: new RegExp(escapeRegexChars(content), 'i') };
-    }
-
-    // 데이터 조회 실행
-    let cursor;
-    if (category === 'Event') {
-      delete query.category;
-      cursor = EventModel.find(query)
-        .populate('host_id', ['name', 'organization'])
-        .limit(limit);
-    } else {
-      cursor = PostModel.find(query)
-        .populate('user_id', ['nickname'])
-        .limit(limit);
-    }
-
-    // 정렬
-    if (order === 'desc') {
-      cursor = cursor.sort({ created_at: -1 });
-    }
-
-    // 배열 형태로 데이터 가져오기
-    const result = await cursor.exec();
-
-    // 더 이상 문서가 없는 경우
-    if (!result.length) {
-      return { data: null, last_id: null };
-    }
-
-    // 마지막 문서의 ID를 가져옴
-    const lastDoc = result[result.length - 1];
-    last_id = lastDoc._id.toString();
-
-    // 데이터와 다음 페이지를 위한 마지막 ID 반환
-    return { data: result, last_id };
-  } catch (err) {
-    console.error('Error:', err);
-    throw Error(err);
-  }
-};
-
 module.exports = {
   savePost,
   editPostField,
@@ -412,7 +367,6 @@ module.exports = {
   postViews,
   findDetailPost,
   noticesLatestPost,
-  findPost,
   getPosts,
   getEvents,
   getReviews,

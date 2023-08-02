@@ -22,6 +22,7 @@ module.exports = (app) => {
         limit = 10,
         title = null,
         content = null,
+        status = null,
       } = req.query;
 
       // 행사 리스트 조회
@@ -29,7 +30,8 @@ module.exports = (app) => {
         last_id, // 마지막 게시글 id
         limit,
         title,
-        content
+        content,
+        status
       );
 
       if (!result) {

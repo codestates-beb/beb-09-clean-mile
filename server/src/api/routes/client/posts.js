@@ -239,7 +239,8 @@ module.exports = (app) => {
           last_id, // 마지막 게시글 id
           limit,
           title,
-          content
+          content,
+          order
         );
       }
 
@@ -281,7 +282,7 @@ module.exports = (app) => {
         content
       );
 
-      if(!result) {
+      if (!result) {
         return res.status(400).json({
           success: false,
           message: '공지사항 정보 조회 실패',
