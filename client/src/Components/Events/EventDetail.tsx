@@ -41,7 +41,7 @@ const EventDetail = ({ eventDetail, comments }: { eventDetail: EventList, commen
         <h1 className='font-bold text-5xl mb-5 xs:text-4xl'>Event</h1>
       </div>
         <div className='w-full flex justify-between items-center border-b'>
-          <p className='mb-3 font-bold text-2xl xs:text-xl'>{dummyNotice.title}</p>
+          <p className='mb-3 font-bold text-2xl xs:text-xl'>{eventDetail.title}</p>
           <div className='flex items-center gap-6 sm:gap-2 xs:gap-2 font-semibold text-xl sm:text-sm xs:text-sm mb-3 sm:mb-2 xs:mb-1'>
             <p className='cursor-pointer hover:underline'>
               {eventDetail.host_id.name}

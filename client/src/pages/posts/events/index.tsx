@@ -4,7 +4,7 @@ import { Header, Events, Footer } from '../../../Components/Reference'
 import { ApiCaller } from '../../../Components/Utils/ApiCaller';
 import { EventList } from '../../../Components/Interfaces';
 
-const EventsPage = ({ eventList, lastId }: { eventList: EventList, lastId: string }) => {
+const EventsPage = ({ eventList, lastId }: { eventList: EventList[], lastId: string }) => {
   return (
     <>
       <Header />

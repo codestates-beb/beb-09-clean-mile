@@ -4,15 +4,15 @@ import Image from 'next/image';
 import { StaticImageData } from 'next/image';
 import { MdOutlineArrowForwardIos } from 'react-icons/md';
 import { SearchInput, hero_img, insta_icon, insta_logo, google_logo, logo } from '../Reference';
-import { Post, EventList } from '../Interfaces';
+import { EventList } from '../Interfaces';
 
-const Events = ({ eventList, lastId }: { eventList: EventList, lastId: string }) => {
+const Events = ({ eventList, lastId }: { eventList: EventList[], lastId: string }) => {
   const router = useRouter();
   const [filter, setFilter] = useState<'newest' | 'oldest'>('newest');
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const getClassNameForStatus = (status) => {
+  const getClassNameForStatus = (status: string) => {
     switch (status) {
       case 'created': return 'bg-main-insta';
       case 'recruiting': return 'bg-main-blue';
@@ -51,7 +51,7 @@ const Events = ({ eventList, lastId }: { eventList: EventList, lastId: string })
               duration-300 
               hover:-translate-y-2 
               cursor-pointer"
-              key={item.id}
+              key={i}
               onClick={() => router.push(`/posts/events/${item._id}`)}>
               <div className='border-b-2 relative pb-[65%] sm:pb-[90%] xs:pb-[90%]'>
                 <Image
@@ -115,7 +115,7 @@ const Events = ({ eventList, lastId }: { eventList: EventList, lastId: string })
                   font-semibold 
                   transition 
                   duration-300'
-                  onClick={() => router.push(`/posts/events/${item.id}`)}>
+                  onClick={() => router.push(`/posts/events/${item._id}`)}>
                   Read more
                   <MdOutlineArrowForwardIos size={20} className='rounded-xl w-[10%]' />
                 </button>

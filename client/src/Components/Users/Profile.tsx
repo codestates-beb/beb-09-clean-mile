@@ -5,7 +5,7 @@ import Swal from 'sweetalert2';
 import { AxiosError, AxiosResponse } from 'axios';
 import { BsFillImageFill } from 'react-icons/bs';
 import { hero_img } from '../Reference';
-import { UserInfo, Pagination } from '../Interfaces';
+import { UserInfo, Pagination, Post, EventList, Dnft } from '../Interfaces';
 import { ApiCaller } from '../Utils/ApiCaller';
 
 const EXTENSIONS = [
@@ -16,7 +16,7 @@ const EXTENSIONS = [
   { type: 'mp4' },
 ];
 
-const MyPage = ({ userInfo, postPagination, userDnft }: { userInfo: UserInfo, postPagination: Pagination, userDnft: Dnft }) => {
+const Profile = ({ userInfo, postPagination, userDnft }: { userInfo: UserInfo, postPagination: Pagination, userDnft: Dnft }) => {
   // const MyPage = () => {
   const router = useRouter()
   const [fileUrl, setFileUrl] = useState<string | null>(null);
@@ -26,10 +26,10 @@ const MyPage = ({ userInfo, postPagination, userDnft }: { userInfo: UserInfo, po
   const [nickname, setNickname] = useState(userInfo?.user.nickname);
   const [errorMessage, setErrorMessage] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [postData, setPostData] = useState([]);
+  const [postData, setPostData] = useState<Post[]>([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userInfoData, setUserInfoData] = useState<UserInfo | null>(null);
-  const [eventsData, setEventsData] = useState<UserInfo | null>(null);
+  const [eventsData, setEventsData] = useState<EventList[] | null>(null);
 
   useEffect(() => {
     if (typeof window !== "undefined" && localStorage.getItem('user')) {
@@ -254,7 +254,7 @@ const MyPage = ({ userInfo, postPagination, userDnft }: { userInfo: UserInfo, po
               required />
           </label>
         ) : (
-          <img src={!userInfo?.user.banner_img_url ? null : userInfo?.user.banner_img_url} className="w-full h-full object-contain" alt="banner Image" />
+          <img src={!userInfo?.user.banner_img_url ? undefined : userInfo?.user.banner_img_url} className="w-full h-full object-contain" alt="banner Image" />
         )}
       </div>
       <div className='
@@ -542,4 +542,4 @@ const MyPage = ({ userInfo, postPagination, userDnft }: { userInfo: UserInfo, po
   )
 }
 
-export default MyPage;
+export default Profile;

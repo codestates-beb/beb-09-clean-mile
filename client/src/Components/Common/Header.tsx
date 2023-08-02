@@ -44,7 +44,6 @@ const Header = () => {
    */
   const menuToggle = () => {
     setUserMenuOpen(!isUserMenuOpen);
-    setArrowRotation(arrowRotation + 180);
   }
 
   const userInfo = async () => {
@@ -89,17 +88,17 @@ const Header = () => {
   useEffect(() => {
     const user = localStorage.getItem('user');
     const userInfo = localStorage.getItem('user_info');
-    if(userInfo) {
+    if (userInfo) {
       const userCache = JSON.parse(localStorage.getItem('user_info') || '');
       setUserInfoData(userCache.queries[0]?.state.data.user);
       setDnftData(userCache.queries[0]?.state.data.dnftData);
     }
-    if(user) {
+    if (user) {
       setIsLoggedIn(true);
+      loginMutation.mutate();
     } else {
       setIsLoggedIn(false);
     }
-    loginMutation.mutate();
   }, []);
 
 
@@ -214,11 +213,11 @@ const Header = () => {
 
   return (
     <>
-      <div className="w-full mx-auto sm:overflow-hidden h-20 flex items-center justify-between px-10 sm:px-3 xs:px-3 border-b bg-white md:gap-6 sm:gap-4 xs:gap-4 sticky top-0 z-50">
+      <div className="w-full mx-auto h-20 flex items-center justify-between px-10 sm:px-3 xs:px-3 border-b bg-white md:gap-6 sm:gap-4 xs:gap-4 sticky top-0 z-50">
         <div className="w-[15%] md:w-[30%] sm:w-full xs:w-[50%] h-full flex items-center sm:justify-start overflow-hidden">
           <img src='/assets/images/clean_mile_logo_2.png' className='w-[50%] lg:w-[90%] md:w-[90%] sm:w-[80%] xs:w-[100%] cursor-pointer' alt="logo" onClick={() => navigateTo('/')} />
         </div>
-        <div className="w-3/4 md:w-full sm:w-fullh-full flex justify-end items-center gap-10">
+        <div className="w-3/4 md:w-full sm:w-full h-full flex justify-end items-center gap-10">
           <nav className='flex justify-center items-center md:hidden sm:hidden xs:hidden relative'>
             <ul className="flex justify-center items-center gap-14">
               <li className={
@@ -314,23 +313,22 @@ const Header = () => {
                   rounded-full 
                   relative 
                   overflow-hidden'>
-                  <Image src={dnftData.image_url} layout='fill' objectFit='cover' alt='user profile image' />
+                  <Image src={dnftData?.image_url} layout='fill' objectFit='cover' alt='user profile image' />
                 </div>
-                <p>{userInfoData.nickname}</p>
-                <div className='relative cursor-pointer' style={{ transform: `rotate(${arrowRotation}deg)`, transition: 'transform 0.4s' }}>
-                  <BiSolidDownArrow onClick={menuToggle} />
+                <p onClick={menuToggle}>{userInfoData?.nickname}</p>
+                <div className='relative cursor-pointer'>
+                  <BiSolidDownArrow className={`transform ${isUserMenuOpen ? 'rotate-180' : ''} transition-transform duration-400`} onClick={menuToggle}/>
                 </div>
                 {isUserMenuOpen &&
                   <div className="
                     absolute 
                     top-16 
                     right-14 
-                    overflow-hidden 
                     bg-white 
                     text-black 
                     rounded 
-                    shadow-md"
-                  >
+                    shadow-md
+                    z-50">
                     <ul className="text-center">
                       <li className="
                         flex 
@@ -339,6 +337,9 @@ const Header = () => {
                         gap-2
                         border-b 
                         p-4 
+                        md:p-2
+                        sm:p-2
+                        xs:p-2
                         hover:bg-gray-300 
                         transition 
                         duration-300 
@@ -346,7 +347,7 @@ const Header = () => {
                         <GiToken size={20} />
                         50 CM
                       </li>
-                      <Link href={{ pathname: '/users/mypage', query: { id: userInfoData._id } }}>
+                      <Link href={{ pathname: '/users/profile', query: { id: userInfoData._id } }}>
                         <li className="
                           flex 
                           justify-center 
@@ -354,6 +355,9 @@ const Header = () => {
                           gap-2
                           border-b 
                           p-4 
+                          md:p-2
+                          sm:p-2
+                          xs:p-2
                           hover:bg-gray-300 
                           transition 
                           duration-300 
@@ -370,6 +374,9 @@ const Header = () => {
                           gap-2
                           border-b 
                           p-4 
+                          md:p-2
+                          sm:p-2
+                          xs:p-2
                           hover:bg-gray-300 
                           transition 
                           duration-300 
@@ -383,7 +390,10 @@ const Header = () => {
                         justify-center 
                         items-center 
                         gap-2
-                        p-4 
+                        p-4
+                        md:p-2
+                        sm:p-2
+                        xs:p-2 
                         hover:bg-gray-300 
                         transition 
                         duration-300 

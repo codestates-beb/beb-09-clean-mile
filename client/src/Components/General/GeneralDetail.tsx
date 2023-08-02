@@ -108,7 +108,7 @@ const GeneralDetail = ({ postDetail, comments }: { postDetail: PostDetail, comme
           <h1 className='font-bold text-5xl mb-5 xs:text-4xl'>General</h1>
         </div>
         <div className='w-full flex justify-between items-center border-b'>
-          <p className='mb-3 font-bold text-2xl xs:text-xl'>{eventDetail.title}</p>
+          <p className='mb-3 font-bold text-2xl xs:text-xl'>{postDetail.title}</p>
           <div className='flex items-center gap-6 xs:gap-6 font-semibold text-xl xs:text-sm mb-3 xs:mb-1'>
             <p className='cursor-pointer hover:underline' onClick={() => router.push(`/user/profile`)}>
               {postDetail.user_id.nickname}
@@ -162,7 +162,7 @@ const GeneralDetail = ({ postDetail, comments }: { postDetail: PostDetail, comme
                 Delete
               </button>
               <Link
-                href={`/posts/general/edit/1`}
+                href={`/posts/general/edit/${postDetail._id}`}
                 className='
                   w-[5%]
                   lg:w-[15%]
