@@ -2,6 +2,8 @@ const EventModel = require('../../models/Events');
 const EventEntryModel = require('../../models/EventEntries');
 const { updateCommentLikes } = require('./commentsController');
 const { postViews } = require('./postsController');
+const { getKorDate } = require('../../utils/common');
+const jwtAdminUtil = require('../../utils/jwtAdminUtil');
 
 /**
  * 행사 상세 정보, 댓글 조회
@@ -82,7 +84,8 @@ const eventEntry = async (event_id, user_id) => {
       return { success: false, message: '참가자 모집중인 이벤트가 아닙니다.' };
     }
 
-    if (event.remaining <= 0) {
+    const currentTime = getKorDate();
+    if (event.remaining <= 0 || event.event_end_at <= currentTime) {
       return { success: false, message: '참가자 모집이 마감된 이벤트입니다.' };
     }
 
@@ -142,4 +145,66 @@ const getEventById = async (event_id) => {
   }
 };
 
-module.exports = { findEventDetail, eventEntry, getEventById };
+/**
+ * 행사 참여 인증
+ * @param {*} token
+ * @param {*} user_id
+ * @returns 성공 여부
+ */
+const validateQRParticipation = async (token, user_id) => {
+  try {
+    // 토큰 유효성 확인
+    const tokenResult = jwtAdminUtil.qrVerify(token);
+    if (!tokenResult.success) {
+      return { success: false, message: '유효하지 않은 토큰입니다.' };
+    }
+
+    const event_id = tokenResult.decoded.event_id;
+
+    // 이벤트 조회
+    const event = await EventModel.findById(event_id);
+    if (!event) {
+      return { success: false, message: '존재하지 않는 이벤트입니다.' };
+    }
+
+    if (event.status !== 'progressing') {
+      return {
+        success: false,
+        message: '이벤트가 진행중일 때만 인증할 수 있습니다.',
+      };
+    }
+
+    // 이벤트 신청 여부 확인
+    const entry = await EventEntryModel.findOne({
+      event_id: event_id,
+      user_id: user_id,
+    });
+    if (!entry) {
+      return { success: false, message: '이벤트에 참가하지 않았습니다.' };
+    }
+
+    // 이미 인증한 경우
+    if (entry.is_confirmed) {
+      return { success: false, message: '이미 인증한 이벤트입니다.' };
+    }
+
+    // 참여 인증
+    entry.is_confirmed = true;
+    const result = await entry.save();
+    if (!result) {
+      return { success: false, message: '인증에 실패하였습니다.' };
+    }
+
+    return { success: true };
+  } catch (err) {
+    console.error('Error:', err);
+    throw Error(err);
+  }
+};
+
+module.exports = {
+  findEventDetail,
+  eventEntry,
+  getEventById,
+  validateQRParticipation,
+};

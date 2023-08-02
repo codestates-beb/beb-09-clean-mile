@@ -1,4 +1,3 @@
-const fs = require('fs');
 const XLSX = require('xlsx');
 const calcPagination = require('../../utils/calcPagination');
 const { getKorDate, escapeRegexChars } = require('../../utils/common');
@@ -7,6 +6,8 @@ const EventHostModel = require('../../models/EventHosts');
 const EventEntryModel = require('../../models/EventEntries');
 const BadgeModel = require('../../models/Badges');
 const UserModel = require('../../models/Users');
+const QRCodeModel = require('../../models/QRCode');
+const jwtUtil = require('../../utils/jwtAdminUtil');
 
 /**
  * 이벤트 리스트 조회
@@ -459,6 +460,58 @@ const deleteEvent = async (event_id) => {
   }
 };
 
+/**
+ * qr코드 생성을 위한 토큰 생성
+ * @param {*} event_id
+ * @returns 토큰
+ */
+const createQRcodeJWt = async (event_id) => {
+  try {
+    // 이벤트 정보 조회
+    const event = await EventModel.findById(event_id);
+    if (!event) {
+      return { success: false, message: '존재하지 않는 이벤트입니다.' };
+    }
+
+    // 이벤트 상태가 'progressing'일 때만 QR코드 생성 가능
+    if (event.status !== 'progressing') {
+      return {
+        success: false,
+        message: `이벤트 상태가 'progressing'일 때만 QR코드 생성 가능합니다.`,
+      };
+    }
+
+    // QR코드 생성 여부 확인
+    const qrCode = await QRCodeModel.findOne({ event_id: event_id });
+    if (qrCode) {
+      return { success: true, data: qrCode.token };
+    }
+
+    // jwt 토큰 생성
+    const token = jwtUtil.qrSign(event_id);
+    if (!token) {
+      return { success: false, message: 'jwt 토큰 생성 실패' };
+    }
+
+    // 데이터 저장
+    const qrCodeResult = new QRCodeModel({
+      event_id: event_id,
+      isActive: true,
+      token: token,
+    });
+
+    const result = await qrCodeResult.save();
+    if (!result) {
+      return { success: false, message: 'QR코드 데이터 저장에 실패했습니다.' };
+    }
+
+    return { success: true, data: result.token };
+  } catch (err) {
+    console.error('Error:', err);
+    throw Error(err);
+  }
+};
+
 module.exports = {
   getEvents,
   getEvent,
@@ -470,4 +523,5 @@ module.exports = {
   updateEvent,
   setEventStatusCanceled,
   deleteEvent,
+  createQRcodeJWt,
 };

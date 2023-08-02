@@ -1,4 +1,5 @@
 const Router = require('express');
+const QRCode = require('qrcode');
 const upload = require('../../../loaders/s3');
 const isAdminAuth = require('../../middlewares/isAdminAuth');
 const adminEventsController = require('../../../services/admin/eventsController');
@@ -605,6 +606,50 @@ module.exports = (app) => {
       return res.status(200).json({
         success: true,
         message: '이벤트 삭제 성공',
+      });
+    } catch (err) {
+      console.error('Error:', err);
+      return res.status(500).json({
+        success: false,
+        message: '서버 오류',
+      });
+    }
+  });
+
+  /**
+   * @route GET /admin/events/qrcode/:event_id
+   * @group Admin - Event
+   * @summary 이벤트 인증 QR코드 생성
+   */
+  route.post('/qrcode/:event_id', isAdminAuth, async (req, res) => {
+    try {
+      const { event_id } = req.params;
+
+      // jwt 토큰 생성
+      const qrCodeJwt = await adminEventsController.createQRcodeJWt(event_id);
+      if (!qrCodeJwt.success) {
+        return res.status(400).json({
+          success: false,
+          message: qrCodeJwt.message,
+        });
+      }
+
+      // QR 코드 생성 옵션 설정
+      const options = {
+        errorCorrectionLevel: 'M', // QR 코드의 오류 정정 수준
+        type: 'image/png', // 파일 형식
+        quality: 0.92, // QR 코드 이미지의 품질 (1에 가까울수록 높음)
+        margin: 3, // QR 코드 주변의 여백 설정
+      };
+
+      // 응답의 Content-Type 헤더를 설정
+      res.type('png');
+
+      // QR 코드 생성 옵션을 사용하여 이미지 파일로 변환하여 스트림으로 보내주는 역할
+      QRCode.toFileStream(res, qrCodeJwt.data, options, (err) => {
+        if (err) {
+          console.error('Error:', err);
+        }
       });
     } catch (err) {
       console.error('Error:', err);
