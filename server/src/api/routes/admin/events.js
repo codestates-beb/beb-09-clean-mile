@@ -148,8 +148,8 @@ module.exports = (app) => {
    * @Date: 2023-08-02
    * @Desc: 아래의 내용을 수정함
    * - 이미지 파일을 저장 후 파일 url을 얻는 코드 추가
-   * - user_id를 title로 찾는 것이 아닌 event_id 받아서 뱃지를 생성
    * - 이벤트 상태가 ‘finished' 이전 상태일 때만 민팅 가능
+   * - amount를 이벤트를 조회해 얻은 참여자 수로 설정
    * - 예외 처리 추가
    */
   route.post(
@@ -225,52 +225,76 @@ module.exports = (app) => {
    * @group Admin - Event
    * @summary 참여 인증 완료 사용자에게 뱃지 전송
    */
-  route.post(
-    '/transferBadges',
-    /*isAdminAuth*/ async (req, res) => {
-      try {
-        const { eventId, eventTitle } = req.body;
+  /**
+   * @Author: Lee jisu
+   * @Date: 2023-08-02
+   * @Desc: 아래의 내용을 수정함
+   * - 엔드 포인트 수정
+   * - 이벤트 상태가 ‘finished' 상태일 때만 배포 가능
+   * - 예외처리 추가
+   */
+  route.post('/transferBadges/:event_id', isAdminAuth, async (req, res) => {
+    try {
+      const { event_id } = req.params;
 
-        const recipients = await badgeController.isConfirmedUser(eventId);
-        if (!recipients.success) {
-          return res
-            .status(400)
-            .json({ success: false, message: '뱃지 전송 실패' });
-        }
-        console.log(recipients.data);
-        const transferBadges = await badgeController.transferBadges(
-          recipients.data,
-          eventId
-        );
-        if (transferBadges.success) {
-          //email
-          for (const userId of recipients.data) {
-            const updateDescription = await dnftController.updateDescription(
-              userId,
-              eventTitle
-            );
-            if (!updateDescription.success)
-              return res.status(400).json({ success: false });
-          }
-          return res.status(200).json({
-            success: true,
-            message: '뱃지 전송 성공',
-          });
-        } else {
-          return res.status(400).json({
-            success: false,
-            message: '뱃지 전송 실패',
-          });
-        }
-      } catch (err) {
-        console.error('Error:', err);
-        return res.status(500).json({
+      // 이벤트 정보 조회
+      const event = await getEventById(event_id);
+      if (!event) {
+        return res.status(400).json({
           success: false,
-          message: '서버 오류',
+          message: event.message,
         });
       }
+
+      if (event.data.status !== 'finished') {
+        return res.status(400).json({
+          success: false,
+          message: '뱃지 전송은 finished 상태의 이벤트에서만 가능합니다.',
+        });
+      }
+
+      // 행사 참여 후 인증 완료한 사용자 조회
+      const recipients = await badgeController.isConfirmedUser(event_id);
+      if (!recipients.success) {
+        return res
+          .status(400)
+          .json({ success: false, message: recipients.message });
+      }
+      console.log(recipients.data);
+
+      // 뱃지 전송
+      const transferBadges = await badgeController.transferBadges(
+        recipients.data,
+        event_id
+      );
+      if (transferBadges.success) {
+        //email
+        for (const userId of recipients.data) {
+          const updateDescription = await dnftController.updateDescription(
+            userId,
+            event.data.title
+          );
+          if (!updateDescription.success)
+            return res.status(400).json({ success: false });
+        }
+        return res.status(200).json({
+          success: true,
+          message: '뱃지 전송 성공',
+        });
+      } else {
+        return res.status(400).json({
+          success: false,
+          message: '뱃지 전송 실패',
+        });
+      }
+    } catch (err) {
+      console.error('Error:', err);
+      return res.status(500).json({
+        success: false,
+        message: '서버 오류',
+      });
     }
-  );
+  });
 
   /**
    * @route POST /admin/events/create

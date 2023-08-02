@@ -32,7 +32,7 @@ const pinataSDK = require('@pinata/sdk');
 /**
  * @Author: Lee jisu
  * @Date: 2023-08-02
- * @Desc: user_id를 title로 찾는 것이 아닌 event_id 받아서 뱃지를 생성하도록 수정
+ * @Desc: event_id를 title로 찾는 것이 아닌 클라이언트로부터 받아서 뱃지를 생성하도록 수정
  */
 const createBadge = async (
   name,
