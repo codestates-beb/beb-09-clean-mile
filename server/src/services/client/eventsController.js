@@ -1,5 +1,6 @@
 const EventModel = require('../../models/Events');
 const EventEntryModel = require('../../models/EventEntries');
+const QRCodeModel = require('../../models/QRCode');
 const { updateCommentLikes } = require('./commentsController');
 const { postViews } = require('./postsController');
 const { getKorDate } = require('../../utils/common');
@@ -161,6 +162,12 @@ const validateQRParticipation = async (token, user_id) => {
 
     const event_id = tokenResult.decoded.event_id;
 
+    // QR 코드 조회
+    const qrResult = await QRCodeModel.findOne({ event_id: event_id });
+    if (!qrResult) {
+      return { success: false, message: '존재하지 않는 QR 코드입니다.' };
+    }
+
     // 이벤트 조회
     const event = await EventModel.findById(event_id);
     if (!event) {
@@ -188,11 +195,18 @@ const validateQRParticipation = async (token, user_id) => {
       return { success: false, message: '이미 인증한 이벤트입니다.' };
     }
 
-    // 참여 인증
+    // 참여 인증 정보 업데이트
     entry.is_confirmed = true;
     const result = await entry.save();
     if (!result) {
       return { success: false, message: '인증에 실패하였습니다.' };
+    }
+
+    // 마지막 스캔 시간 저장
+    qrResult.last_scanned_at = getKorDate();
+    const updateQrData = await qrResult.save();
+    if (!updateQrData) {
+      return { success: false, message: 'QR 데이터 수정에 실패했습니다.' };
     }
 
     return { success: true };
