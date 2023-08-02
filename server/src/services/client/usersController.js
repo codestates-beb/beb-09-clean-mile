@@ -27,13 +27,15 @@ const generateRandomCode = (min, max) => {
  */
 const saveAuthCode = async (email, authCode) => {
   try {
+    const expiryDate = new Date(getKorDate().getTime() + 1000 * 60 * 10); // 10분 뒤 시간
+
     // 기존에 존재하는 이메일인지 확인
     const chkEmailData = await MailModel.find({ email: email });
     if (chkEmailData.length === 0) {
       const mailData = new MailModel({
         email: email,
         code: authCode,
-        expiry: getKorDate() + 1000 * 60 * 10, // 10분
+        expiry: expiryDate, // 10분
       });
       const result = await mailData.save(); // 데이터 저장
       return result._id;
@@ -42,7 +44,7 @@ const saveAuthCode = async (email, authCode) => {
         { email: email },
         {
           code: authCode,
-          expiry: getKorDate() + 1000 * 60 * 10,
+          expiry: expiryDate,
           authenticated: false,
         }
       );
@@ -140,6 +142,8 @@ const checkNickName = async (nickname) => {
 const checkEmailAuthCode = async (email, code) => {
   try {
     const emailData = await MailModel.findOne({ email: email });
+    console.log(emailData.expiry);
+    console.log(getKorDate());
     if (
       emailData &&
       Number(emailData.code) === Number(code) &&

@@ -3,9 +3,9 @@ const PostModel = require('../../models/Posts');
 const CommentModel = require('../../models/Comments');
 const EventModel = require('../../models/Events');
 const EventEntryModel = require('../../models/EventEntries');
+const UserModel = require('../../models/Users');
 const calcPagination = require('../../utils/calcPagination');
 const { getKorDate, escapeRegexChars } = require('../../utils/common');
-const { findUserEmail } = require('./usersController');
 const { updateCommentLikes } = require('./commentsController');
 
 /**
@@ -20,14 +20,40 @@ const getClientIP = (req) => {
 
 /**
  * 자유 게시글 저장
- * @param {*} email
+ * @param {*} user_id
  * @param {*} postData
  * @param {*} media
  * @returns 게시글 id
  */
-const savePost = async (email, postData, media) => {
+const savePost = async (user_id, postData, media) => {
   try {
-    const userData = await findUserEmail(email);
+    // 리뷰 게시글을 등록하려고 할 경우
+    if (postData.category === 'review') {
+      const event = await EventModel.findById(postData.event_id);
+      if (!event) {
+        return { success: false, message: '존재하지 않는 이벤트입니다.' };
+      }
+
+      if (event.status !== 'finished') {
+        return {
+          success: false,
+          message: '이벤트가 종료되어야 후기를 작성할 수 있습니다.',
+        };
+      }
+
+      // 이벤트 신청자인지 확인
+      const entry = await EventEntryModel.findOne({
+        event_id: postData.event_id,
+        user_id: user_id,
+      });
+      if (!entry) {
+        return {
+          success: false,
+          message: '이벤트 신청자만 리뷰를 작성할 수 있습니다.',
+        };
+      }
+    }
+
     const saveData = {
       user_id: userData.data._id,
       category: postData.category,
@@ -37,7 +63,7 @@ const savePost = async (email, postData, media) => {
     };
 
     // 저장하려는 게시글의 카테고리가 리뷰인 경우 event_id 필드 추가
-    if (postData.category === 'Review') {
+    if (postData.category === 'review') {
       saveData.event_id = postData.event_id;
     }
 
