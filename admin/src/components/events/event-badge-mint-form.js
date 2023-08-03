@@ -7,6 +7,7 @@ import {
   TextField,
   Unstable_Grid2 as Grid,
   Button,
+  Typography,
 } from "@mui/material";
 import Image from "next/image";
 import { useCallback, useRef, useState } from "react";
@@ -140,8 +141,29 @@ export const EventBadgeMintForm = ({ handleMintBadge }) => {
                 />
               </Grid>
               {values.preview && (
-                <Grid item xs={12} md={6}>
-                  <Image src={values.preview} alt="preview" width={200} height={200} />
+                <Grid
+                  item
+                  xs={12}
+                  spacing={3}
+                  sx={{
+                    border: "1px solid #ccc",
+                    borderRadius: "8px",
+                    m: 1.6,
+                  }}
+                >
+                  <Typography variant="subtitle2" sx={{ pb: 1 }}>
+                    Preview
+                  </Typography>
+                  <Box
+                    sx={{
+                      alignItems: "center",
+                      display: "flex",
+                      flexDirection: "column",
+                      pb: 3,
+                    }}
+                  >
+                    <Image src={values.preview} alt="preview" width={200} height={200} />
+                  </Box>
                 </Grid>
               )}
             </Grid>
