@@ -99,7 +99,7 @@ export const EventCreateForm = ({ handleCreateEvent }) => {
   }, []);
 
   return (
-    <form autoComplete="off" noValidate>
+    <form autoComplete="off" noValidate onsubmit={handleSubmit}>
       <Card sx={{ p: 3 }}>
         <CardHeader title="Host" />
         <CardContent sx={{ pt: 1 }}>
@@ -294,6 +294,9 @@ export const EventCreateForm = ({ handleCreateEvent }) => {
                   multiple
                   type="file"
                   inputRef={imageInputRef}
+                  inputProps={{
+                    multiple: true,
+                  }}
                 />
               </Grid>
               {values.preview.length > 0 && (
@@ -329,11 +332,11 @@ export const EventCreateForm = ({ handleCreateEvent }) => {
         </CardContent>
       </Card>
       <Stack direction={"row"} spacing={1} sx={{ mt: 3, justifyContent: "right" }}>
-        <Button variant="contained" color="success" onClick={handleSubmit}>
+        <Button variant="contained" color="success" type="submit">
           Create
         </Button>
         <Button variant="contained" color="warning" onClick={handleCancel}>
-          Back
+          Cancel
         </Button>
       </Stack>
     </form>
