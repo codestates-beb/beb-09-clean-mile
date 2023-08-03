@@ -95,6 +95,10 @@ const Page = () => {
     setEntryPage(value);
   }, []);
 
+  const handleEntryExport = useCallback(() => {
+    console.log("handleEntryExport");
+  }, []);
+
   const handleMintBadge = useCallback((values) => {
     setData((prev) => ({
       ...prev,
@@ -134,9 +138,6 @@ const Page = () => {
             <Stack direction={"row"} justifyContent="space-between" spacing={3}>
               <Typography variant="h4">Event</Typography>
               <Stack direction={"row"} spacing={1}>
-                <Button variant="contained" color="success">
-                  Edit
-                </Button>
                 <Button variant="contained" color="warning">
                   Delete
                 </Button>
@@ -174,6 +175,7 @@ const Page = () => {
                   page={entryPage}
                   pageCount={entryPageCount}
                   handlePageChange={handleEntryPageChange}
+                  handleEntryExport={handleEntryExport}
                   items={[
                     {
                       _id: "3Rxv4WLTT5EqiBiVozgy4LZLW6ELRVM8",

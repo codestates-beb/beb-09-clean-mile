@@ -11,11 +11,20 @@ import {
   Typography,
   Pagination,
   Chip,
+  Button,
+  SvgIcon,
 } from "@mui/material";
 import { Scrollbar } from "src/components/scrollbar";
 import { useRouter } from "next/router";
+import ArrowDownOnSquareIcon from "@heroicons/react/24/solid/ArrowDownOnSquareIcon";
 
-export const EventEntryTable = ({ items = [], pageCount, page, handlePageChange }) => {
+export const EventEntryTable = ({
+  items = [],
+  pageCount,
+  page,
+  handlePageChange,
+  handleEntryExport,
+}) => {
   const router = useRouter();
 
   const handleUserSelected = (userId) => {
@@ -24,6 +33,19 @@ export const EventEntryTable = ({ items = [], pageCount, page, handlePageChange 
 
   return (
     <Stack spacing={3}>
+      <Stack direction={"row"} justifyContent="left" spacing={3}>
+        <Button
+          color="inherit"
+          startIcon={
+            <SvgIcon fontSize="small">
+              <ArrowDownOnSquareIcon />
+            </SvgIcon>
+          }
+          onClick={handleEntryExport}
+        >
+          Export
+        </Button>
+      </Stack>
       <Card>
         <Scrollbar>
           <Box sx={{ minWidth: 800 }}>
