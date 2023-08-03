@@ -50,8 +50,10 @@ const dummy = {
     BCS이론은 type 1 초전도체를 기반으로 만들어졌고 제1초전도체의 현상을 완전히 설명한다. 하지만 type 2에는 맞아들어가지 않는다. 쿠퍼쌍(cooper pair)의 생성은 두 전자가 포논에 의해 묶여 있다고 이야기 하고있다. 이것이 BCS이론의 한 축인데 고온초전도체의 경우 이 쿠퍼쌍을 묶는 것이 포논이 아니라 다른 메커니즘(Spin Density Wave, Charge Density Wave, Orbital Ordering 등)에 의한 것이라 생각하고 연구중이다. 고온초전도체에서도 쿠퍼쌍은 존재하므로 어떤 메커니즘에 의해 두 전자가 묶여있다는 것이고 포논이 아닌 그 무언가를 찾고 있다.
     
     출처 - 나무위키`,
-    poster_url:
+    poster_url: [
       "https://plohub-bucket.s3.ap-northeast-2.amazonaws.com/f8b53b11-efd9-461f-963f-6e29e0e3a302_image_0_17b2ad589801389ce.png",
+      "https://plohub-bucket.s3.ap-northeast-2.amazonaws.com/f8b53b11-efd9-461f-963f-6e29e0e3a302_image_0_17b2ad589801389ce.png",
+    ],
     location: "서울시",
     capacity: 10,
     remaining: 10,
