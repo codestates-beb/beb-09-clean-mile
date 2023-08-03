@@ -6,10 +6,10 @@ RUN apk update && apk add python3 make g++
 
 COPY package*.json ./
 
-RUN npm config set cache-min 9999999
-
 RUN npm install
 
-ENV NODE_ENV=docker
+COPY src ./src
+
+ENV NODE_ENV=dev
 
 CMD [ "npm", "start" ]

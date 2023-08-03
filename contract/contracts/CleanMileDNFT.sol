@@ -80,6 +80,8 @@ contract CleanMileDNFT is ERC721, ICleanMileDNFT, Ownable {
 
         string memory _tokenURI = IpfsUri[uint256(_level)];
 
+        emit MintDNFT(_to, _name, _description, userType);
+
         return _mintDNFT(_to, _name, _description, _tokenURI, _level);
     }
 

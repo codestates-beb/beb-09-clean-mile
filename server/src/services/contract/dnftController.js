@@ -51,8 +51,6 @@ const createDNFT = async (email, userType) => {
     const events = await dnftContract.queryFilter(eventFilter);
     const tokenId = Number(events[0].args.tokenId);
 
-    console.log(tokenId);
-
     const tokenUri = await dnftContract.connect(signer).tokenURI(tokenId);
     const dnftLevel = await dnftContract.connect(signer).dnftLevel(tokenId);
 
