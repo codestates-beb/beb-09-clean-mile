@@ -147,6 +147,28 @@ type EventList = {
   updated_at: string;
 }
 
+type EventDetailType = {
+  view: {
+    count: number;
+  };
+  _id: string;
+  title: string;
+  host_id: EventHost;
+  poster_url: string;
+  content: string;
+  location: string;
+  capacity: number;
+  remaining: number;
+  status: string;
+  event_type: string;
+  recruitment_start_at: string;
+  recruitment_end_at: string;
+  event_start_at: string;
+  event_end_at: string;
+  created_at: string;
+  updated_at: string;
+}
+
 type LoggedIn = {
   isLoggedIn: boolean;
 }
@@ -159,4 +181,25 @@ type Dnft = {
   description: string;
 }
 
-export type { Post, PostDetail, Comment, LoginAPIInput, LoginAPIOutput, User, UserInfo, Pagination, EventList, LoggedIn, Dnft }
+type UserBadge = {
+  name: string;
+  description: string;
+  image: string;
+  badge_type: string;
+}
+
+export type { 
+  Post,
+  PostDetail, 
+  Comment, 
+  LoginAPIInput, 
+  LoginAPIOutput, 
+  User, 
+  UserInfo, 
+  Pagination, 
+  EventList, 
+  EventDetailType, 
+  LoggedIn, 
+  Dnft, 
+  UserBadge 
+}

@@ -24,8 +24,8 @@ const ReviewEdit = ({ reviewDetailDefault }: { reviewDetailDefault: PostDetail }
 
   
   useEffect(() => {
-    if (typeof window !== "undefined" && localStorage.getItem('user')) {
-      const userCache = JSON.parse(localStorage.getItem('user') || '');
+    if (typeof window !== "undefined" && sessionStorage.getItem('user')) {
+      const userCache = JSON.parse(sessionStorage.getItem('user') || '');
       setIsLoggedIn(userCache !== null);
       setUserInfo(userCache.queries[0].state.data.data)
     }

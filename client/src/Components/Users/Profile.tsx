@@ -5,7 +5,7 @@ import Swal from 'sweetalert2';
 import { AxiosError, AxiosResponse } from 'axios';
 import { BsFillImageFill } from 'react-icons/bs';
 import { UserProfile, hero_img } from '../Reference';
-import { UserInfo, User, Pagination, Post, EventList, Dnft } from '../Interfaces';
+import { UserInfo, User, Pagination, Post, EventList, Dnft, UserBadge } from '../Interfaces';
 import { ApiCaller } from '../Utils/ApiCaller';
 
 const EXTENSIONS = [
@@ -16,7 +16,7 @@ const EXTENSIONS = [
   { type: 'mp4' },
 ];
 
-const Profile = ({ userInfo, postPagination, userDnft }: { userInfo: UserInfo, postPagination: Pagination, userDnft: Dnft }) => {
+const Profile = ({ userInfo, postPagination, userDnft, userBadges }: { userInfo: UserInfo, postPagination: Pagination, userDnft: Dnft, userBadges: UserBadge }) => {
   // const MyPage = () => {
   const router = useRouter()
   const [fileUrl, setFileUrl] = useState<string | null>(null);
@@ -33,8 +33,8 @@ const Profile = ({ userInfo, postPagination, userDnft }: { userInfo: UserInfo, p
   const [eventsData, setEventsData] = useState<EventList[] | null>(null);
 
   useEffect(() => {
-    if (typeof window !== "undefined" && localStorage.getItem('user')) {
-      const userCache = JSON.parse(localStorage.getItem('user_info') || '');
+    if (typeof window !== "undefined" && sessionStorage.getItem('user')) {
+      const userCache = JSON.parse(sessionStorage.getItem('user_info') || '');
       setIsLoggedIn(userCache !== null);
       setUserInfoData(userCache.queries[0]?.state.data.user)
     }
@@ -395,9 +395,27 @@ const Profile = ({ userInfo, postPagination, userDnft }: { userInfo: UserInfo, p
               </div>
             </div>
             <div className='w-full h-2/3 grid grid-cols-10 lg:grid-cols-6 md:grid-cols-5 sm:grid-cols-3 xs:grid-cols-3 gap-4 justify-items-center bg-gray-200 rounded-xl px-6 py-6'>
-              <div className='w-[10rem] lg:w-[8rem] md:w-[6rem] sm:w-[6rem] xs:w-[5rem] h-[10rem] lg:h-[8rem] md:h-[6rem] sm:h-[6rem] xs:h-[5rem] border rounded-full overflow-hidden relative'>
-                <Image src={hero_img} layout='fill' className='object-cover' alt='profile image' />
-              </div>
+              {userBadges.map((badge, i) => {
+                return (
+                  <div className='w-[10rem] 
+                    lg:w-[8rem] 
+                    md:w-[6rem] 
+                    sm:w-[6rem] 
+                    xs:w-[5rem] 
+                    h-[10rem] 
+                    lg:h-[8rem] 
+                    md:h-[6rem] 
+                    sm:h-[6rem] 
+                    xs:h-[5rem] 
+                    border 
+                    rounded-full 
+                    overflow-hidden 
+                    relative'
+                    key={i}>
+                    <Image src={badge.image} layout='fill' className='object-cover' alt='profile image' />
+                  </div>
+                )
+              })}
               <div className='w-[10rem] lg:w-[8rem] md:w-[6rem] sm:w-[6rem] xs:w-[5rem] h-[10rem] lg:h-[8rem] md:h-[6rem] sm:h-[6rem] xs:h-[5rem] border rounded-full overflow-hidden relative'>
                 <Image src={hero_img} layout='fill' className='object-cover' alt='profile image' />
               </div>

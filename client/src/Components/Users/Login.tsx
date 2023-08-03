@@ -143,7 +143,7 @@ const Login = () => {
       queryClient.setQueryData('user', data);
 
       const dehydratedState = dehydrate(queryClient);
-      localStorage.setItem('user', JSON.stringify(dehydratedState));
+      sessionStorage.setItem('user', JSON.stringify(dehydratedState));
     },
     onError: (error) => {
       console.log('Mutation Error: ', error);

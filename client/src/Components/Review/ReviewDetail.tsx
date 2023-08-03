@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -16,17 +16,17 @@ const ReviewDetail = ({ reviewDetail, comments }: { reviewDetail: PostDetail, co
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
 
-  const settings = {
+  const settings = useMemo(() => ({
     dots: true,
     infinite: false,
     speed: 500,
     slidesToShow: reviewDetail?.media.img.length > 2 ? 3 : reviewDetail?.media.img.length,
     slidesToScroll: reviewDetail?.media.img.length > 2 ? 3 : reviewDetail?.media.img.length,
-  };
+  }), [reviewDetail?.media.img.length]);
 
   useEffect(() => {
-    if (typeof window !== "undefined" && localStorage.getItem('user')) {
-      const userCache = JSON.parse(localStorage.getItem('user') || '');
+    if (typeof window !== "undefined" && sessionStorage.getItem('user')) {
+      const userCache = JSON.parse(sessionStorage.getItem('user') || '');
       setIsLoggedIn(userCache !== null);
       setUserInfo(userCache.queries[0]?.state.data)
     }
@@ -140,7 +140,7 @@ const ReviewDetail = ({ reviewDetail, comments }: { reviewDetail: PostDetail, co
             <p>{reviewDetail.content}</p>
           </div>
         </div>
-        <Comments postDetail={reviewDetail} comments={comments} />
+        <Comments postDetailId={reviewDetail._id} comments={comments} />
         <div className='w-full flex gap-3 xs:gap-2 justify-end my-16'>
           {isLoggedIn && userInfo?._id === reviewDetail.user_id._id ? (
             <>

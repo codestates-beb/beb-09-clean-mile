@@ -2,10 +2,10 @@ import React from 'react';
 import { GetServerSidePropsContext } from 'next';
 import { Header, EventDetail, Footer } from '../../../Components/Reference'
 import { ApiCaller } from '../../../Components/Utils/ApiCaller';
-import { EventList, Comment } from '../../../Components/Interfaces';
+import { EventDetailType, Comment } from '../../../Components/Interfaces';
 
 
-const EventDetailPage = ({ eventDetail, comments }: { eventDetail: EventList, comments: Comment}) => {
+const EventDetailPage = ({ eventDetail, comments }: { eventDetail: EventDetailType, comments: Comment}) => {
   return (
     <>
       <Header />

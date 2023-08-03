@@ -26,8 +26,8 @@ const Create = () => {
 
 
   useEffect(() => {
-    if (typeof window !== "undefined" && localStorage.getItem('user')) {
-      const userCache = JSON.parse(localStorage.getItem('user_info') || '');
+    if (typeof window !== "undefined" && sessionStorage.getItem('user')) {
+      const userCache = JSON.parse(sessionStorage.getItem('user_info') || '');
       setIsLoggedIn(userCache !== null);
       setUserInfo(userCache.queries[0].state.data.user)
       setEventData(userCache.queries[0].state.data.events);

@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { SearchInput } from '../Reference';
 import { Post, Pagination } from '../Interfaces';
 
-const General = ({ postList, postPagination }: { postList: Post, postPagination: Pagination }) => {
+const General = ({ postList, postPagination }: { postList: Post[], postPagination: Pagination }) => {
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState(Number(router.query.page || 1));
 

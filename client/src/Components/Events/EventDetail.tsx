@@ -2,15 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import Image from 'next/image';
-import axios from 'axios';
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css"; 
 import "slick-carousel/slick/slick-theme.css";
-import { AiOutlineDelete, AiOutlineHeart, AiFillHeart } from 'react-icons/ai'
-import { google_logo, insta_icon, insta_logo, meta_mask_logo, Comments } from '../Reference';
-import { EventList, Comment } from '../Interfaces';
+import { google_logo } from '../Reference';
+import { EventDetailType, Comment } from '../Interfaces';
 
-const EventDetail = ({ eventDetail, comments }: { eventDetail: EventList, comments: Comment}) => {
+const EventDetail = ({ eventDetail, comments }: { eventDetail: EventDetailType, comments: Comment}) => {
   const router = useRouter();
 
   const dummyNotice = { 
@@ -86,7 +84,7 @@ const EventDetail = ({ eventDetail, comments }: { eventDetail: EventList, commen
             </p>
           </div>
         </div>
-        <Comments postDetail={eventDetail} comments={comments} />
+        <Comments postDetailId={eventDetail._id} comments={comments} />
         <div className='w-full flex gap-3 xs:gap-2 justify-end my-16'>
           <button className='
             w-[5%]

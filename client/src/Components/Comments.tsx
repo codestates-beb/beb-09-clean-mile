@@ -5,24 +5,24 @@ import { AxiosError } from 'axios';
 import { AiOutlineDelete, AiOutlineHeart, AiFillHeart } from 'react-icons/ai'
 import { MdOutlineCreate } from 'react-icons/md';
 import { ApiCaller } from './Utils/ApiCaller';
-import { PostDetail, Comment, UserInfo } from './Interfaces';
+import { Comment, User } from './Interfaces';
 
 
 
-const Comments = ({ postDetail, comments }: { postDetail: PostDetail, comments: Comment[] }) => {
+const Comments = ({ postDetailId, comments }: { postDetailId: string, comments: Comment[] }) => {
   const router = useRouter();
   const [comment, setComment] = useState('');
   const [likedComments, setLikedComments] = useState<{ [key: string]: boolean }>({});
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+  const [userInfo, setUserInfo] = useState<User | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editCommentInput, setEditCommentInput] = useState('');
   const [editingComment, setEditingComment] = useState<string | null>(null);
 
 
   useEffect(() => {
-    if (typeof window !== "undefined" && localStorage.getItem('user_info')) {
-      const userCache = JSON.parse(localStorage.getItem('user_info') || '');
+    if (typeof window !== "undefined" && sessionStorage.getItem('user_info')) {
+      const userCache = JSON.parse(sessionStorage.getItem('user_info') || '');
       setIsLoggedIn(userCache !== null);
       setUserInfo(userCache.queries[0]?.state.data.user)
     }
@@ -31,7 +31,7 @@ const Comments = ({ postDetail, comments }: { postDetail: PostDetail, comments: 
   const createComment = async () => {
     const formData = new FormData();
 
-    formData.append('post_id', postDetail._id);
+    formData.append('post_id', postDetailId);
     formData.append('content', comment);
 
     try {

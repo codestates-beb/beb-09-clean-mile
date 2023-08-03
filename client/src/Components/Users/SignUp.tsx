@@ -397,7 +397,7 @@ const SignUp = () => {
    */
   const getSigning = useCallback(() => {
     if (userAddressQuery.data) {
-      localStorage.setItem('Sign',
+      sessionStorage.setItem('Sign',
         `Welcome to Clean Mile! Click \"Sign\" to sign in. No password needed! I accept the MetaWis Terms of Service: Wallet address:${userAddressQuery.data ? userAddressQuery.data.toLowerCase() : ''}`,
       );
     }

@@ -22,9 +22,10 @@ const Events = ({ eventList, lastId }: { eventList: EventList[], lastId: string 
   }
 
   const fetchEvents = async ({ pageParam = lastId }) => {
-    console.log(pageParam)
     let URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/events/list?last_id=${pageParam}`;
+
     const res = await ApiCaller.get(URL, null, false, {}, true);
+    console.log(res.data)
     if (res.status === 200 && res.data.data.data) {
       return res.data.data.data;
     }
@@ -39,21 +40,22 @@ const Events = ({ eventList, lastId }: { eventList: EventList[], lastId: string 
     isFetchingNextPage,
   } = useInfiniteQuery('reviews', fetchEvents, {
     getNextPageParam: (lastPage, allPages) => {
-      return lastPage.length > 0 ? lastPage[lastPage.length - 1]._id : null;
+      const lastItem = lastPage[lastPage.length - 1];
+      return lastItem ? lastItem._id : null;
     }
   });
 
   const observer = useRef();
   const lastReviewElementRef = useCallback((node) => {
-      if (isLoading || isFetchingNextPage) return;
-      if (observer.current) observer.current.disconnect();
-      observer.current = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && hasNextPage && !isLoading) {
-          fetchNextPage();
-        }
-      });
-      if (node) observer.current.observe(node);
-    },
+    if (isLoading || isFetchingNextPage) return;
+    if (observer.current) observer.current.disconnect();
+    observer.current = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && hasNextPage && !isLoading) {
+        fetchNextPage();
+      }
+    });
+    if (node) observer.current.observe(node);
+  },
     [isLoading, isFetchingNextPage, hasNextPage, fetchNextPage]
   );
 
@@ -84,92 +86,181 @@ const Events = ({ eventList, lastId }: { eventList: EventList[], lastId: string 
           {eventList.map((item, i) => {
             return (
               <div className="
-              w-full
-              max-h-[100%]
-              bg-white 
-              shadow-lg 
-              border 
-              rounded-3xl 
-              sm:rounded-xl
-              xs:rounded-lg
-              transform 
-              transition-transform 
-              duration-300 
-              hover:-translate-y-2 
-              cursor-pointer"
-              key={i}
-              ref={lastReviewElementRef}
-              onClick={() => router.push(`/posts/events/${item._id}`)}>
-              <div className='border-b-2 relative pb-[65%] sm:pb-[90%] xs:pb-[90%]'>
-                <Image
-                  className='rounded-t-3xl object-cover'
-                  src={item.poster_url}
-                  layout='fill'
-                  alt='event poster'
-                />
-              </div>
-              <div className='flex flex-col px-6 sm:px-2 xs:px-2 py-4 gap-6'>
-                <div className='flex lg:flex-col md:flex-col sm:flex-col xs:flex-col justify-between sm:justify-center xs:justify-center items-center sm:items-center xs:items-center sm:gap-2 xs:gap-4 h-[80px] md:h-[100px] xs:h-[30px]'>
-                  <h2 className="text-lg font-bold hover:underline sm:text-lg xs:text-sm">{item.title}</h2>
-                  <p className={`text-md font-bold sm:text-xs xs:text-xs text-white rounded-lg sm:rounded-md xs:rounded-md px-1 ${getClassNameForStatus(item.status)}`}>
-                    {(() => {
-                      switch (item.status) {
-                        case 'created': return 'Before proceeding';
-                        case 'recruiting': return 'Recruiting';
-                        case 'progressing': return 'In progress';
-                        case 'finished': return 'End of progress';
-                        case 'canceled': return 'Cancel Progress';
-                        default: return 'Unknown';
-                      }
-                    })()}
-                  </p>
-                </div>
-                <p className="text-gray-700 font-semibold lg:text-sm sm:text-xs xs:text-xs overflow-ellipsis overflow-hidden h-[20px] whitespace-nowrap">{item.content}</p>
-                <button className='
-                  w-3/5 
-                  lg:w-full 
-                  md:w-full 
-                  sm:w-full 
-                  xs:w-full 
-                  flex 
-                  items-center 
-                  justify-around 
-                  gap-6 
-                  lg:gap-4 
-                  md:gap-4 
-                  sm:gap-2 
-                  xs:gap-2 
-                  bg-main-blue 
-                  hover:bg-blue-600 
-                  rounded-xl 
-                  lg:rounded-lg 
-                  px-3 
-                  lg:px-2 
-                  md:px-2 
-                  sm:px-2 
-                  xs:px-1 
-                  py-2 
-                  lg:py-1 
-                  md:py-1 
-                  sm:py-1 
-                  xs:py-1 
-                  text-white 
-                  lg:text-sm 
-                  md:text-sm 
-                  sm:text-xs 
-                  xs:text-xs 
-                  font-semibold 
-                  transition 
-                  duration-300'
+                w-full
+                max-h-[100%]
+                bg-white 
+                shadow-lg 
+                border 
+                rounded-3xl 
+                sm:rounded-xl
+                xs:rounded-lg
+                transform 
+                transition-transform 
+                duration-300 
+                hover:-translate-y-2 
+                cursor-pointer"
+                  key={i}
+                  ref={lastReviewElementRef}
                   onClick={() => router.push(`/posts/events/${item._id}`)}>
-                  Read more
-                  <MdOutlineArrowForwardIos size={20} className='rounded-xl w-[10%]' />
-                </button>
-              </div>
-            </div>
+                  <div className='border-b-2 relative pb-[65%] sm:pb-[90%] xs:pb-[90%]'>
+                    <Image
+                      className='rounded-t-3xl object-cover'
+                      src={item.poster_url}
+                      layout='fill'
+                      alt='event poster'
+                    />
+                  </div>
+                  <div className='flex flex-col px-6 sm:px-2 xs:px-2 py-4 gap-6'>
+                    <div className='flex lg:flex-col md:flex-col sm:flex-col xs:flex-col justify-between sm:justify-center xs:justify-center items-center sm:items-center xs:items-center sm:gap-2 xs:gap-4 h-[80px] md:h-[100px] xs:h-[30px]'>
+                      <h2 className="text-lg font-bold hover:underline sm:text-lg xs:text-sm">{item.title}</h2>
+                      <p className={`text-md font-bold sm:text-xs xs:text-xs text-white rounded-lg sm:rounded-md xs:rounded-md px-1 ${getClassNameForStatus(item.status)}`}>
+                        {(() => {
+                          switch (item.status) {
+                            case 'created': return 'Before proceeding';
+                            case 'recruiting': return 'Recruiting';
+                            case 'progressing': return 'In progress';
+                            case 'finished': return 'End of progress';
+                            case 'canceled': return 'Cancel Progress';
+                            default: return 'Unknown';
+                          }
+                        })()}
+                      </p>
+                    </div>
+                    <p className="text-gray-700 font-semibold lg:text-sm sm:text-xs xs:text-xs overflow-ellipsis overflow-hidden h-[20px] whitespace-nowrap">{item.content}</p>
+                    <button className='
+                    w-3/5 
+                    lg:w-full 
+                    md:w-full 
+                    sm:w-full 
+                    xs:w-full 
+                    flex 
+                    items-center 
+                    justify-around 
+                    gap-6 
+                    lg:gap-4 
+                    md:gap-4 
+                    sm:gap-2 
+                    xs:gap-2 
+                    bg-main-blue 
+                    hover:bg-blue-600 
+                    rounded-xl 
+                    lg:rounded-lg 
+                    px-3 
+                    lg:px-2 
+                    md:px-2 
+                    sm:px-2 
+                    xs:px-1 
+                    py-2 
+                    lg:py-1 
+                    md:py-1 
+                    sm:py-1 
+                    xs:py-1 
+                    text-white 
+                    lg:text-sm 
+                    md:text-sm 
+                    sm:text-xs 
+                    xs:text-xs 
+                    font-semibold 
+                    transition 
+                    duration-300'
+                      onClick={() => router.push(`/posts/events/${item._id}`)}>
+                      Read more
+                      <MdOutlineArrowForwardIos size={20} className='rounded-xl w-[10%]' />
+                    </button>
+                  </div>
+                </div>
             )
           })}
-
+          {data?.pages.map((group, i) => (
+            group.map((item, i) => {
+              return (
+                <div className="
+                w-full
+                max-h-[100%]
+                bg-white 
+                shadow-lg 
+                border 
+                rounded-3xl 
+                sm:rounded-xl
+                xs:rounded-lg
+                transform 
+                transition-transform 
+                duration-300 
+                hover:-translate-y-2 
+                cursor-pointer"
+                  key={i}
+                  ref={lastReviewElementRef}
+                  onClick={() => router.push(`/posts/events/${item._id}`)}>
+                  <div className='border-b-2 relative pb-[65%] sm:pb-[90%] xs:pb-[90%]'>
+                    <Image
+                      className='rounded-t-3xl object-cover'
+                      src={item.poster_url}
+                      layout='fill'
+                      alt='event poster'
+                    />
+                  </div>
+                  <div className='flex flex-col px-6 sm:px-2 xs:px-2 py-4 gap-6'>
+                    <div className='flex lg:flex-col md:flex-col sm:flex-col xs:flex-col justify-between sm:justify-center xs:justify-center items-center sm:items-center xs:items-center sm:gap-2 xs:gap-4 h-[80px] md:h-[100px] xs:h-[30px]'>
+                      <h2 className="text-lg font-bold hover:underline sm:text-lg xs:text-sm">{item.title}</h2>
+                      <p className={`text-md font-bold sm:text-xs xs:text-xs text-white rounded-lg sm:rounded-md xs:rounded-md px-1 ${getClassNameForStatus(item.status)}`}>
+                        {(() => {
+                          switch (item.status) {
+                            case 'created': return 'Before proceeding';
+                            case 'recruiting': return 'Recruiting';
+                            case 'progressing': return 'In progress';
+                            case 'finished': return 'End of progress';
+                            case 'canceled': return 'Cancel Progress';
+                            default: return 'Unknown';
+                          }
+                        })()}
+                      </p>
+                    </div>
+                    <p className="text-gray-700 font-semibold lg:text-sm sm:text-xs xs:text-xs overflow-ellipsis overflow-hidden h-[20px] whitespace-nowrap">{item.content}</p>
+                    <button className='
+                    w-3/5 
+                    lg:w-full 
+                    md:w-full 
+                    sm:w-full 
+                    xs:w-full 
+                    flex 
+                    items-center 
+                    justify-around 
+                    gap-6 
+                    lg:gap-4 
+                    md:gap-4 
+                    sm:gap-2 
+                    xs:gap-2 
+                    bg-main-blue 
+                    hover:bg-blue-600 
+                    rounded-xl 
+                    lg:rounded-lg 
+                    px-3 
+                    lg:px-2 
+                    md:px-2 
+                    sm:px-2 
+                    xs:px-1 
+                    py-2 
+                    lg:py-1 
+                    md:py-1 
+                    sm:py-1 
+                    xs:py-1 
+                    text-white 
+                    lg:text-sm 
+                    md:text-sm 
+                    sm:text-xs 
+                    xs:text-xs 
+                    font-semibold 
+                    transition 
+                    duration-300'
+                      onClick={() => router.push(`/posts/events/${item._id}`)}>
+                      Read more
+                      <MdOutlineArrowForwardIos size={20} className='rounded-xl w-[10%]' />
+                    </button>
+                  </div>
+                </div>
+              )
+            })
+          ))}
         </div>
       </div>
     </div>

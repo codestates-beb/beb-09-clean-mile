@@ -75,7 +75,7 @@ const Header = () => {
       queryClient.setQueryData('user_info', data);
 
       const dehydratedState = dehydrate(queryClient);
-      localStorage.setItem('user_info', JSON.stringify(dehydratedState));
+      sessionStorage.setItem('user_info', JSON.stringify(dehydratedState));
     },
     onError: (error) => {
       console.log('Mutation Error: ', error);
@@ -83,10 +83,10 @@ const Header = () => {
   });
 
   useEffect(() => {
-    const user = localStorage.getItem('user');
-    const userInfo = localStorage.getItem('user_info');
+    const user = sessionStorage.getItem('user');
+    const userInfo = sessionStorage.getItem('user_info');
     if (userInfo) {
-      const userCache = JSON.parse(localStorage.getItem('user_info') || '');
+      const userCache = JSON.parse(sessionStorage.getItem('user_info') || '');
       setUserInfoData(userCache.queries[0]?.state.data.user);
       setDnftData(userCache.queries[0]?.state.data.dnftData);
     }
@@ -135,8 +135,8 @@ const Header = () => {
               router.replace('/');
 
               if (typeof window !== "undefined") {
-                localStorage.removeItem('user');
-                localStorage.removeItem('user_info');
+                sessionStorage.removeItem('user');
+                sessionStorage.removeItem('user_info');
               }
               queryClient.removeQueries('user');
               queryClient.removeQueries('user_info');
