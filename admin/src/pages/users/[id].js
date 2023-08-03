@@ -1,6 +1,15 @@
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { Box, Container, Stack, Typography, Unstable_Grid2 as Grid, Button } from "@mui/material";
+import {
+  Box,
+  Container,
+  Stack,
+  Typography,
+  Unstable_Grid2 as Grid,
+  Button,
+  Tabs,
+  Tab,
+} from "@mui/material";
 import { Layout as DashboardLayout } from "src/layouts/dashboard/layout";
 import { UserDNFT } from "src/components/users/user-dnft";
 import { UserWallet } from "src/components/users/user-wallet";
@@ -8,10 +17,18 @@ import { UserDetails } from "src/components/users/user-details";
 import { PostsTable } from "src/components/posts/posts-table";
 import { CommentsTable } from "src/components/comments/comments-table";
 import { EventsTable } from "src/components/events/events-table";
+import { TabContext, TabList, TabPanel } from "@mui/lab";
+import { useState } from "react";
 
 const Page = () => {
+  const [tabNum, setTabNum] = useState("1");
+
   const router = useRouter();
   const { id } = router.query;
+
+  const handleTabChange = (event, value) => {
+    setTabNum(value);
+  };
 
   return (
     <>
@@ -36,19 +53,34 @@ const Page = () => {
                 </Button>
               </Stack>
             </Stack>
-            <Grid container wrap={"wrap"} gap={3}>
-              <Grid xs={12} sm={6} md={3}>
-                <UserDNFT />
-              </Grid>
-
-              <Grid xs={12} md={6}>
+            <TabContext value={tabNum}>
+              <TabList onChange={handleTabChange}>
+                <Tab label="Profile" value="1" />
+                <Tab label="Wallet" value="2" />
+                <Tab label="DNFT" value="3" />
+                <Tab label="Events" value="4" />
+                <Tab label="Posts" value="5" />
+                <Tab label="Comments" value="6" />
+              </TabList>
+              <TabPanel value={"1"}>
+                <UserDetails />
+              </TabPanel>
+              <TabPanel value={"2"}>
                 <UserWallet />
-              </Grid>
-            </Grid>
-            <UserDetails />
-            <EventsTable />
-            <PostsTable />
-            <CommentsTable />
+              </TabPanel>
+              <TabPanel value={"3"}>
+                <UserDNFT />
+              </TabPanel>
+              <TabPanel value={"4"}>
+                <EventsTable />
+              </TabPanel>
+              <TabPanel value={"5"}>
+                <PostsTable />
+              </TabPanel>
+              <TabPanel value={"6"}>
+                <CommentsTable />
+              </TabPanel>
+            </TabContext>
           </Stack>
         </Container>
       </Box>
