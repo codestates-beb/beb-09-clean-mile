@@ -21,6 +21,22 @@ async function main(){
   const badgeContract = new ethers.Contract(badgeAddress, badgeABI, provider);
   const tokenContract = new ethers.Contract(tokenAddress, tokenABI, provider);
 
+  dnftContract.on("MintDNFT", (_to, _name, _description, userType, event) => {
+    let info = {
+      recipient: _to,
+      name : _name,
+      description: _description,
+      data: event
+    }
+    const transaction = new TransactionModel(info);
+  
+    transaction.save()
+      .then(() => console.log("Transaction saved successfully."))
+      .catch((err) => console.error("Error saving transaction:", err));
+    
+    console.log(JSON.stringify(info,null,2));
+  })
+
   dnftContract.on("UpgradeDNFT",(sender, tokenId, event) => {
     let info = {
       sender: sender,
