@@ -9,6 +9,7 @@ import { EventHost } from "src/components/events/event-host";
 import { EventBadgeMintForm } from "src/components/events/event-badge-mint-form";
 import { TabContext, TabList, TabPanel } from "@mui/lab";
 import { EventEntryTable } from "src/components/events/event-entry-table";
+import { EventQRCodeLoader } from "src/components/events/event-qr-code-loader";
 
 const dummy = {
   host: {
@@ -189,7 +190,9 @@ const Page = () => {
                   ]}
                 />
               </TabPanel>
-              <TabPanel value={"6"}>QR Code</TabPanel>
+              <TabPanel value={"6"}>
+                <EventQRCodeLoader eventId={id} />
+              </TabPanel>
             </TabContext>
           </Stack>
         </Container>

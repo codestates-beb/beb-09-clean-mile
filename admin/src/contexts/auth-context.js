@@ -97,22 +97,33 @@ export const AuthProvider = (props) => {
     try {
       isAuthenticated = getAuthenticated();
       if (isAuthenticated) {
-        // const res = await axios.get("http://localhost:8080/admin/info", null, {
-        //   withCredentials: true,
-        // });
+        const res = await axios.get("http://localhost:8080/admin/info", {
+          withCredentials: true,
+        });
 
-        // if (!res || !res.status === 200) {
-        //   console.log(res.data);
-        //   return;
-        // }
+        if (!res || res.status !== 200) {
+          console.log(res.data);
+          return;
+        }
 
-        // console.log(res.data.data);
+        const data = res.data;
 
+        if (!data || !data.success) {
+          throw new Error("User data not found");
+        }
+
+        const userData = data.data;
+
+        if (!userData) {
+          throw new Error("User data not found");
+        }
+
+        // TODO: use real user data
         const user = {
-          id: "5e86809283e28b96d2d38537",
+          id: userData._id,
           avatar: "/assets/avatars/avatar-anika-visser.png",
-          name: "Anika Visser",
-          email: "anika.visser@devias.io",
+          name: userData.name,
+          email: userData.email,
         };
 
         dispatch({
