@@ -8,6 +8,7 @@ import { EventBadge } from "src/components/events/event-badge";
 import { EventHost } from "src/components/events/event-host";
 import { EventBadgeMintForm } from "src/components/events/event-badge-mint-form";
 import { TabContext, TabList, TabPanel } from "@mui/lab";
+import { EventEntryTable } from "src/components/events/event-entry-table";
 
 const dummy = {
   host: {
@@ -81,9 +82,15 @@ const dummy = {
 const Page = () => {
   const [data, setData] = useState(dummy);
   const [tabNum, setTabNum] = useState("1");
+  const [entryPage, setEntryPage] = useState(1);
+  const [entryPageCount, setEntryPageCount] = useState(5);
   const router = useRouter();
 
   const { id } = router.query;
+
+  const handleEntryPageChange = useCallback((event, value) => {
+    setEntryPage(value);
+  }, []);
 
   const handleMintBadge = useCallback((values) => {
     setData((prev) => ({
@@ -159,7 +166,29 @@ const Page = () => {
                   <EventBadgeMintForm handleMintBadge={handleMintBadge} />
                 </TabPanel>
               )}
-              <TabPanel value={"5"}>Entry</TabPanel>
+              <TabPanel value={"5"}>
+                <EventEntryTable
+                  page={entryPage}
+                  pageCount={entryPageCount}
+                  handlePageChange={handleEntryPageChange}
+                  items={[
+                    {
+                      _id: "3Rxv4WLTT5EqiBiVozgy4LZLW6ELRVM8",
+                      user_id: {
+                        name: "초전도체",
+                        email: "chogeondochi@hotmail.com",
+                        wallet: {
+                          address: "0xdefe6c0baf788845b9a59f42fdc1ccc85f3cf2cd",
+                        },
+                      },
+                      is_confirmed: true,
+                      is_nft_issued: true,
+                      is_token_rewarded: false,
+                      created_at: "2021-10-01T00:00:00.000000Z",
+                    },
+                  ]}
+                />
+              </TabPanel>
               <TabPanel value={"6"}>QR Code</TabPanel>
             </TabContext>
           </Stack>
