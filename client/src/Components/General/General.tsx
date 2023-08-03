@@ -30,7 +30,7 @@ const General = ({ postList, postPagination }: { postList: Post[], postPaginatio
         General
       </h1>
       <div className={`flex justify-center items-center w-full`}>
-        <div className={`w-full ${postList.length === 0 && 'min-h-screen items-center justify-around'}`}>
+        <div className={`w-full ${postList.length <= 4 && 'min-h-screen items-center justify-around'}`}>
           <div className='flex justify-end mb-3 gap-3'>
             <select className="border border-black py-2 px-4 pr-7 rounded-md text-sm" onChange={handleFilterChange}>
               <option className="text-sm xs:text-xs" value="desc">Latest order</option>
@@ -97,7 +97,7 @@ const General = ({ postList, postPagination }: { postList: Post[], postPaginatio
                       </td>
                       <td className="border-b p-6 sm:p-3 xs:p-2">
                         <p className="text-gray-600 sm:text-sm xs:text-xs">
-                          {post.user_id?.nickname}
+                          {post.user_id === null ? 'Unknown' : post.user_id.nickname}
                         </p>
                       </td>
                       <td className="border-b p-6 sm:p-3 xs:p-2">

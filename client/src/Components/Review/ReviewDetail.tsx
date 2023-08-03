@@ -7,14 +7,14 @@ import { AxiosError } from 'axios';
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import { PostDetail, Comment, UserInfo } from '../Interfaces';
+import { PostDetail, Comment, User } from '../Interfaces';
 import { ApiCaller } from '../Utils/ApiCaller';
 import { Comments } from '../Reference';
 
 const ReviewDetail = ({ reviewDetail, comments }: { reviewDetail: PostDetail, comments: Comment[] }) => {
   const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+  const [userInfo, setUserInfo] = useState<User | null>(null);
 
   const settings = useMemo(() => ({
     dots: true,
@@ -100,6 +100,27 @@ const ReviewDetail = ({ reviewDetail, comments }: { reviewDetail: PostDetail, co
       }
     })
   }
+
+  const handleProfile = () => {
+    if (reviewDetail.user_id === null) {
+      Swal.fire({
+        title: 'Error',
+        text: 'User does not exist.',
+        icon: 'error',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#6BCB77'
+      }).then(() => {
+        Swal.close();
+      });
+    } else {
+      if(reviewDetail.user_id._id === userInfo?._id) {
+        router.push(`/users/mypage`)
+      } else {
+        router.push(`/users/profile?id=${reviewDetail.user_id._id}`)
+      }
+    }
+  }
+
   return (
     <>
       <div className='w-[90%] min-h-screen mx-auto mt-20 flex flex-col gap-12'>
@@ -109,8 +130,8 @@ const ReviewDetail = ({ reviewDetail, comments }: { reviewDetail: PostDetail, co
         <div className='w-full flex justify-between items-center border-b'>
           <p className='mb-3 font-bold text-2xl xs:text-xl'>{reviewDetail.title}</p>
           <div className='flex items-center gap-6 xs:gap-6 font-semibold text-xl xs:text-sm mb-3 xs:mb-1'>
-            <p className='cursor-pointer hover:underline' onClick={() => router.push(`/user/profile`)}>
-              {reviewDetail.user_id.nickname}
+            <p className='cursor-pointer hover:underline' onClick={handleProfile}>
+              {reviewDetail.user_id === null ? 'Unknown' : reviewDetail.user_id.nickname}
             </p>
             <p>{reviewDetail.updated_at.split('T')[0]} {reviewDetail.updated_at.substring(11, 19)}</p>
             <p>{reviewDetail.view?.count}</p>
@@ -130,7 +151,7 @@ const ReviewDetail = ({ reviewDetail, comments }: { reviewDetail: PostDetail, co
               <Slider {...settings} className='relative w-full h-full flex justify-center items-center'>
                 {reviewDetail.media.img.map((media, index) => (
                   <div key={index} className="w-full h-full">
-                    <img src={media} className='w-full h-full object-contain' key={index} alt='post media'/>
+                    <img src={media} className='w-full h-full object-contain' key={index} alt='post media' />
                   </div>
                 ))}
               </Slider>

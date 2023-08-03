@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useMemo } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -8,27 +8,17 @@ import "slick-carousel/slick/slick-theme.css";
 import { google_logo, Comments } from '../Reference';
 import { EventDetailType, Comment } from '../Interfaces';
 
-const EventDetail = ({ eventDetail, comments }: { eventDetail: EventDetailType, comments: Comment}) => {
-  const router = useRouter();
+const EventDetail = ({ eventDetail, comments }: { eventDetail: EventDetailType, comments: Comment[] }) => {
 
-  const dummyNotice = { 
-    id: 1, 
-    title: 'general1', 
-    media: [google_logo], 
-    content: 'Ut rerum sed. Temporibus id molestiae consequatur rerum accusantium natus eveniet iste. Possimus a ea est est nesciunt dolore autem voluptatum. Omnis voluptate ab qui nihil consequuntur quod.quisquam', 
-    writer: 'admin', 
-    date: '2023-07-26', 
-    views: 0 
-  };
-  
-
-  const settings = {
+  const settings = useMemo(() => ({
     dots: true,
     infinite: false,
     speed: 500,
-    slidesToShow: dummyNotice.media.length > 2 ? 3 : dummyNotice.media.length,
-    slidesToScroll: dummyNotice.media.length > 2 ? 3 : dummyNotice.media.length,
-  };
+    slidesToShow: eventDetail.poster_url.length > 2 ? 3 : eventDetail.poster_url.length,
+    slidesToScroll: eventDetail.poster_url.length > 2 ? 3 : eventDetail.poster_url.length,
+  }), [eventDetail.poster_url.length]);
+
+  console.log(eventDetail.status)
 
   return (
   <>
@@ -49,8 +39,28 @@ const EventDetail = ({ eventDetail, comments }: { eventDetail: EventDetailType, 
         <div className='w-[90%] max-h-full flex items-center justify-center whitespace-pre-wrap'>
           <div className='w-[60%] h-[60%] mx-auto mb-10'>
             <div className="w-full h-full flex justify-center">
-              <Image src={eventDetail.poster_url} width={500} height={100} alt='image' />
-              {/* <Image src='/assets/images/ploggin_poster.png' width={500} height={100} alt='image' /> */}
+              {Array.isArray(eventDetail.poster_url) 
+                ? eventDetail.poster_url.length === 0 ? (
+                    null
+                  ) : eventDetail.poster_url.length <= 2 ? (
+                    eventDetail.poster_url.map((media, index) => (
+                      <div key={index} className="w-full h-full flex justify-center">
+                        <Image src={media} width={400} height={100} key={index} alt='post media' />
+                      </div>
+                    ))
+                  ) : (
+                    <Slider {...settings} className='relative w-full h-full flex justify-center items-center'>
+                      {eventDetail.poster_url.map((media, index) => (
+                        <div key={index} className="w-full h-full">
+                          <img src={media} className='w-full h-full object-contain' key={index} alt='post media'/>
+                        </div>
+                      ))}
+                    </Slider>
+                  )
+                : typeof eventDetail.poster_url === 'string' && (
+                    <Image src={eventDetail.poster_url} width={400} height={100} alt='post media' />
+                  )
+              }
             </div>
           </div>
           <div className='flex flex-col justify-center gap-6 mx-auto'>
@@ -72,7 +82,7 @@ const EventDetail = ({ eventDetail, comments }: { eventDetail: EventDetailType, 
             </p>
             <p className=''>
               <span className='font-bold text-lg'>모집 방법: </span>
-              <br/>{eventDetail.event_type === 'fcfr' ? '선착순' : '추첨제'}
+              <br/>{eventDetail.event_type === 'fcfr' ? '선착순' : '추첨'}
             </p>
             <p className=''>
               <span className='font-bold text-lg'>총 모집 인원: </span>
@@ -86,7 +96,7 @@ const EventDetail = ({ eventDetail, comments }: { eventDetail: EventDetailType, 
         </div>
         <Comments postDetailId={eventDetail._id} comments={comments} />
         <div className='w-full flex gap-3 xs:gap-2 justify-end my-16'>
-          <button className='
+          <button className={`
             w-[5%]
             lg:w-[15%]
             md:w-[15%]
@@ -98,14 +108,13 @@ const EventDetail = ({ eventDetail, comments }: { eventDetail: EventDetailType, 
             p-3
             sm:p-2 
             xs:p-1
-            bg-main-yellow 
             text-white 
             xs:text-sm
-            hover:bg-yellow-500 
             transition 
             duration-300
-            text-center'
-            >
+            text-center
+            ${eventDetail.status !== 'recruiting' ? 'bg-yellow-400' : 'bg-main-yellow hover:bg-yellow-500 '}`}
+            disabled={eventDetail.status !== 'recruiting'}>
             Entry
           </button>
           <Link href='/posts/events' 

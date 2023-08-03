@@ -86,9 +86,9 @@ const Header = () => {
     const user = sessionStorage.getItem('user');
     const userInfo = sessionStorage.getItem('user_info');
     if (userInfo) {
-      const userCache = JSON.parse(sessionStorage.getItem('user_info') || '');
-      setUserInfoData(userCache.queries[0]?.state.data.user);
-      setDnftData(userCache.queries[0]?.state.data.dnftData);
+      const userCache = JSON.parse(sessionStorage.getItem('user') || '');
+      setUserInfoData(userCache.queries[0]?.state.data);
+      setDnftData(userCache.queries[0]?.state.data.dnftData.data);
     }
     if (user) {
       setIsLoggedIn(true);

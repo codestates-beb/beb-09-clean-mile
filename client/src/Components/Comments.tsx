@@ -286,7 +286,24 @@ const Comments = ({ postDetailId, comments }: { postDetailId: string, comments: 
                   </div>
                   <div className='text-right flex justify-end gap-6 sm:gap-2 xs:gap-2'>
                     <div>
-                      <p className='font-bold text-lg sm:text-sm xs:text-xs cursor-pointer hover:underline' onClick={() => router.push(`/users/profile?id=${comment.user_id._id}`)}>{comment.user_id.nickname}</p>
+                      <p className='font-bold text-lg sm:text-sm xs:text-xs cursor-pointer hover:underline'
+                        onClick={() => {
+                          comment.user_id === null ? (
+                            Swal.fire({
+                              title: 'Error',
+                              text: 'User does not exist.',
+                              icon: 'error',
+                              confirmButtonText: 'OK',
+                              confirmButtonColor: '#6BCB77'
+                            }).then(() => {
+                              Swal.close();
+                            })
+                          ) : (
+                            router.push(`/users/profile?id=${comment.user_id._id}`)
+                          )
+                        }}>
+                        {comment.user_id === null ? 'Unknown' : comment.user_id.nickname}
+                      </p>
                       <div>
                         <p className='text-sm sm:text-xs xs:text-xs'>
                           {comment.updated_at.split('T')[0]} {comment.updated_at.substring(11, 19)}

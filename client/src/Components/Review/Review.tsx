@@ -1,15 +1,26 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useInfiniteQuery } from 'react-query';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
 import Link from 'next/link';
+import Swal from 'sweetalert2';
 import { MdOutlineArrowForwardIos } from 'react-icons/md';
 import { SearchInput } from '../Reference';
-import { Post } from '../Interfaces';
+import { Post, User } from '../Interfaces';
 import { ApiCaller } from '../Utils/ApiCaller';
 
 const Review = ({ reviewList, lastId }: { reviewList: Post[], lastId: string }) => {
   const router = useRouter();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userInfo, setUserInfo] = useState<User | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && sessionStorage.getItem('user')) {
+      const userCache = JSON.parse(sessionStorage.getItem('user') || '');
+      setIsLoggedIn(userCache !== null);
+      setUserInfo(userCache.queries[0]?.state.data)
+    }
+  }, []);
 
   const fetchReviews = async ({ pageParam = lastId }) => {
     let URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/posts/lists/review?last_id=${pageParam}`;
@@ -101,8 +112,27 @@ const Review = ({ reviewList, lastId }: { reviewList: Post[], lastId: string }) 
                     <p className='text-lg font-bold hover:underline sm:text-lg xs:text-sm'>
                       {item.title}
                     </p>
-                    <h2 className="text-lg font-semibold hover:underline sm:text-lg xs:text-sm" onClick={() => router.push(`/user/profile`)}>
-                      {item.user_id.nickname}
+                    <h2 className="text-lg font-semibold hover:underline sm:text-lg xs:text-sm" 
+                      onClick={() => {
+                        item.user_id === null ? (
+                          Swal.fire({
+                            title: 'Error',
+                            text: 'User does not exist.',
+                            icon: 'error',
+                            confirmButtonText: 'OK',
+                            confirmButtonColor: '#6BCB77'
+                          }).then(() => {
+                            Swal.close();
+                          })
+                        ) : (
+                          item.user_id._id === userInfo?._id ? (
+                            router.push(`/users/mypage`)
+                          ) : (
+                            router.push(`/users/profile?id=${item.user_id._id}`)
+                          )
+                        )
+                      }}>
+                      {item.user_id === null ? 'Unknown' : item.user_id.nickname}
                     </h2>
                   </div>
                   <p className="text-gray-700 font-semibold lg:text-sm sm:text-xs xs:text-xs overflow-ellipsis overflow-hidden h-[20px] whitespace-nowrap">
@@ -185,7 +215,7 @@ const Review = ({ reviewList, lastId }: { reviewList: Post[], lastId: string }) 
                         {item.title}
                       </p>
                       <h2 className="text-lg font-semibold hover:underline sm:text-lg xs:text-sm" onClick={() => router.push(`/user/profile`)}>
-                        {item.user_id.nickname}
+                        {item.user_id === null ? 'Unknown' : item.user_id.nickname}
                       </h2>
                     </div>
                     <p className="text-gray-700 font-semibold lg:text-sm sm:text-xs xs:text-xs overflow-ellipsis overflow-hidden h-[20px] whitespace-nowrap">

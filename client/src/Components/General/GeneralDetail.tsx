@@ -101,6 +101,26 @@ const GeneralDetail = ({ postDetail, comments }: { postDetail: PostDetail, comme
     })
   }
 
+  const handleProfile = () => {
+    if(postDetail.user_id === null) {
+      Swal.fire({
+        title: 'Error',
+        text: 'User does not exist.',
+        icon: 'error',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#6BCB77'
+      }).then(() => {
+        Swal.close();
+      });
+    } else {
+      if(postDetail.user_id._id === userInfo?._id) {
+        router.push(`/users/mypage`)
+      } else {
+        router.push(`/users/profile?id=${postDetail.user_id._id}`)
+      }
+    }
+  }
+
   return (
     <>
       <div className='w-[90%] min-h-screen mx-auto mt-20 flex flex-col gap-12'>
@@ -110,8 +130,8 @@ const GeneralDetail = ({ postDetail, comments }: { postDetail: PostDetail, comme
         <div className='w-full flex justify-between items-center border-b'>
           <p className='mb-3 font-bold text-2xl xs:text-xl'>{postDetail.title}</p>
           <div className='flex items-center gap-6 xs:gap-6 font-semibold text-xl xs:text-sm mb-3 xs:mb-1'>
-            <p className='cursor-pointer hover:underline' onClick={() => router.push(`/users/profile?id=${postDetail.user_id._id}`)}>
-              {postDetail.user_id.nickname}
+            <p className='cursor-pointer hover:underline' onClick={handleProfile}>
+              {postDetail.user_id === null ? 'Unknown' : postDetail.user_id.nickname}
             </p>
             <p>{postDetail.updated_at.split('T')[0]} {postDetail.updated_at.substring(11, 19)}</p>
             <p>{postDetail.view?.count}</p>
