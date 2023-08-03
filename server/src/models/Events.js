@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const eventHostSchema = require('./EventHosts');
-const getKorDate = require('../utils/getKorDateUtil');
+const { getKorDate } = require('../utils/common');
 
 /**
  * Events Collection Schema
@@ -34,7 +34,6 @@ const eventSchema = new mongoose.Schema({
   remaining: {
     // 남은 인원
     type: Number,
-    default: 0,
   },
   status: {
     // 이벤트 진행 상태

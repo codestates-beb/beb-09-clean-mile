@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const getKorDate = require('../utils/getKorDateUtil');
+const { getKorDate } = require('../utils/common');
 
 /**
  * Posts Collection Schema

@@ -1,10 +1,12 @@
 const Router = require('express');
+const QRCode = require('qrcode');
 const upload = require('../../../loaders/s3');
 const isAdminAuth = require('../../middlewares/isAdminAuth');
 const adminEventsController = require('../../../services/admin/eventsController');
 const badgeController = require('../../../services/contract/badgeController');
 const dnftController = require('../../../services/contract/dnftController');
 const { getUser } = require('../../../services/client/usersController');
+const { getEventById } = require('../../../services/client/eventsController');
 
 const route = Router();
 
@@ -142,19 +144,62 @@ module.exports = (app) => {
    * @group Admin - Event
    * @summary 이벤트 관련 뱃지 생성(민팅)
    */
+  /**
+   * @Author: Lee jisu
+   * @Date: 2023-08-02
+   * @Desc: 아래의 내용을 수정함
+   * - 이미지 파일을 저장 후 파일 url을 얻는 코드 추가
+   * - 이벤트 상태가 ‘finished' 이전 상태일 때만 민팅 가능
+   * - amount를 이벤트를 조회해 얻은 참여자 수로 설정
+   * - 예외 처리 추가
+   */
   route.post(
     '/createBadge',
-    /*isAdminAuth*/ async (req, res) => {
+    isAdminAuth,
+    upload.single('image'),
+    async (req, res) => {
       try {
-        const { name, description, imageUrl, badgeType, amount, eventTitle } =
-          req.body;
+        const { event_id, name, description, type } = req.body;
+
+        const imageData = req.file;
+        if (!imageData) {
+          return res.status(400).json({
+            success: false,
+            message: '이미지 업로드에 실패하였습니다.',
+          });
+        }
+
+        if (!event_id || !name || !description || !type) {
+          return res.status(400).json({
+            success: false,
+            message: '필수 정보를 입력해주세요.',
+          });
+        }
+
+        // 이벤트 정보 조회
+        const event = await getEventById(event_id);
+        if (!event) {
+          return res.status(400).json({
+            success: false,
+            message: event.message,
+          });
+        }
+
+        if (event.status === 'finished' || event.status === 'canceled') {
+          return res.status(400).json({
+            success: false,
+            message: '이미 종료된 이벤트입니다.',
+          });
+        }
+
+        // 뱃지 생성
         const createBadge = await badgeController.createBadge(
           name,
           description,
-          imageUrl,
-          badgeType,
-          amount,
-          eventTitle
+          imageData.location,
+          Number(type), // badgeType
+          event.data.capacity, // amount
+          event_id
         );
         if (createBadge.success) {
           return res.status(200).json({
@@ -181,52 +226,76 @@ module.exports = (app) => {
    * @group Admin - Event
    * @summary 참여 인증 완료 사용자에게 뱃지 전송
    */
-  route.post(
-    '/transferBadges',
-    /*isAdminAuth*/ async (req, res) => {
-      try {
-        const { eventId, eventTitle } = req.body;
+  /**
+   * @Author: Lee jisu
+   * @Date: 2023-08-02
+   * @Desc: 아래의 내용을 수정함
+   * - 엔드 포인트 수정
+   * - 이벤트 상태가 ‘finished' 상태일 때만 배포 가능
+   * - 예외처리 추가
+   */
+  route.post('/transferBadges/:event_id', isAdminAuth, async (req, res) => {
+    try {
+      const { event_id } = req.params;
 
-        const recipients = await badgeController.isConfirmedUser(eventId);
-        if (!recipients.success) {
-          return res
-            .status(400)
-            .json({ success: false, message: '뱃지 전송 실패' });
-        }
-        console.log(recipients.data);
-        const transferBadges = await badgeController.transferBadges(
-          recipients.data,
-          eventId
-        );
-        if (transferBadges.success) {
-          //email
-          for (const userId of recipients.data) {
-            const updateDescription = await dnftController.updateDescription(
-              userId,
-              eventTitle
-            );
-            if (!updateDescription.success)
-              return res.status(400).json({ success: false });
-          }
-          return res.status(200).json({
-            success: true,
-            message: '뱃지 전송 성공',
-          });
-        } else {
-          return res.status(400).json({
-            success: false,
-            message: '뱃지 전송 실패',
-          });
-        }
-      } catch (err) {
-        console.error('Error:', err);
-        return res.status(500).json({
+      // 이벤트 정보 조회
+      const event = await getEventById(event_id);
+      if (!event) {
+        return res.status(400).json({
           success: false,
-          message: '서버 오류',
+          message: event.message,
         });
       }
+
+      if (event.data.status !== 'finished') {
+        return res.status(400).json({
+          success: false,
+          message: '뱃지 전송은 finished 상태의 이벤트에서만 가능합니다.',
+        });
+      }
+
+      // 행사 참여 후 인증 완료한 사용자 조회
+      const recipients = await badgeController.isConfirmedUser(event_id);
+      if (!recipients.success) {
+        return res
+          .status(400)
+          .json({ success: false, message: recipients.message });
+      }
+      console.log(recipients.data);
+
+      // 뱃지 전송
+      const transferBadges = await badgeController.transferBadges(
+        recipients.data,
+        event_id
+      );
+      if (transferBadges.success) {
+        //email
+        for (const userId of recipients.data) {
+          const updateDescription = await dnftController.updateDescription(
+            userId,
+            event.data.title
+          );
+          if (!updateDescription.success)
+            return res.status(400).json({ success: false });
+        }
+        return res.status(200).json({
+          success: true,
+          message: '뱃지 전송 성공',
+        });
+      } else {
+        return res.status(400).json({
+          success: false,
+          message: '뱃지 전송 실패',
+        });
+      }
+    } catch (err) {
+      console.error('Error:', err);
+      return res.status(500).json({
+        success: false,
+        message: '서버 오류',
+      });
     }
-  );
+  });
 
   /**
    * @route POST /admin/events/create
@@ -288,6 +357,14 @@ module.exports = (app) => {
           });
         }
 
+        // 이미지 파일 체크
+        if (!req.file) {
+          return res.status(400).json({
+            success: false,
+            message: '이미지 파일을 첨부해주세요.',
+          });
+        }
+
         /**
          ******** 주최측 생성 ********
          */
@@ -313,21 +390,17 @@ module.exports = (app) => {
         const eventData = {
           title: title,
           host_id: host.id,
+          poster_url: imageUrl.location,
           content: content,
           location: location,
           capacity: capacity,
+          remaining: capacity,
           event_type: event_type,
           recruitment_start_at: recruitment_start_at,
           recruitment_end_at: recruitment_end_at,
           event_start_at: event_start_at,
           event_end_at: event_end_at,
         };
-
-        // 이미지 파일
-        const imageUrl = req.file;
-        if (imageUrl) {
-          eventData.poster_url = imageUrl.location;
-        }
 
         const event = await adminEventsController.saveEvent(eventData);
         if (!event) {
@@ -520,7 +593,9 @@ module.exports = (app) => {
       }
 
       // 이벤트 삭제
-      const event = await adminEventsController.deleteEvent(event_id);
+      const event = await adminEventsController.setEventStatusCanceled(
+        event_id
+      );
       if (!event.success) {
         return res.status(400).json({
           success: false,
@@ -531,6 +606,50 @@ module.exports = (app) => {
       return res.status(200).json({
         success: true,
         message: '이벤트 삭제 성공',
+      });
+    } catch (err) {
+      console.error('Error:', err);
+      return res.status(500).json({
+        success: false,
+        message: '서버 오류',
+      });
+    }
+  });
+
+  /**
+   * @route GET /admin/events/qrcode/:event_id
+   * @group Admin - Event
+   * @summary 이벤트 인증 QR코드 생성
+   */
+  route.post('/qrcode/:event_id', isAdminAuth, async (req, res) => {
+    try {
+      const { event_id } = req.params;
+
+      // jwt 토큰 생성
+      const qrCodeJwt = await adminEventsController.createQRcodeJWt(event_id);
+      if (!qrCodeJwt.success) {
+        return res.status(400).json({
+          success: false,
+          message: qrCodeJwt.message,
+        });
+      }
+
+      // QR 코드 생성 옵션 설정
+      const options = {
+        errorCorrectionLevel: 'M', // QR 코드의 오류 정정 수준
+        type: 'image/png', // 파일 형식
+        quality: 0.92, // QR 코드 이미지의 품질 (1에 가까울수록 높음)
+        margin: 3, // QR 코드 주변의 여백 설정
+      };
+
+      // 응답의 Content-Type 헤더를 설정
+      res.type('png');
+
+      // QR 코드 생성 옵션을 사용하여 이미지 파일로 변환하여 스트림으로 보내주는 역할
+      QRCode.toFileStream(res, qrCodeJwt.data, options, (err) => {
+        if (err) {
+          console.error('Error:', err);
+        }
       });
     } catch (err) {
       console.error('Error:', err);

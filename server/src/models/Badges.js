@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const getKorDate = require('../utils/getKorDateUtil');
+const { getKorDate } = require('../utils/common');
 
 /**
  * Badges Collection Schema
@@ -29,8 +29,7 @@ const badgeSchema = new mongoose.Schema({
   token_uri: {
     // 뱃지 토큰 Uri
     type: String,
-  }
-  ,
+  },
   event_id: {
     // 이벤트 ID
     type: mongoose.Schema.Types.ObjectId,

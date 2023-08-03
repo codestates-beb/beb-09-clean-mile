@@ -2,6 +2,7 @@ const CommentModel = require('../../models/Comments');
 const PostModel = require('../../models/Posts');
 const UserModel = require('../../models/Users');
 const calcPagination = require('../../utils/calcPagination');
+const { escapeRegexChars } = require('../../utils/common');
 
 /**
  * 댓글 리스트 조회
@@ -39,7 +40,7 @@ const getComments = async (category, page, title, content, writer, limit) => {
 
     // 내용을 검색할 경우 정규표현식 사용 (대소문자 구분 없이 검색)
     if (content) {
-      query.content = { $regex: new RegExp(content, 'i') };
+      query.content = { $regex: new RegExp(escapeRegexChars(content), 'i') };
     }
 
     // 작성자를 검색할 경우

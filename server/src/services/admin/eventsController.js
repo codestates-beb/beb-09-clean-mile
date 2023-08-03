@@ -1,12 +1,13 @@
-const fs = require('fs');
 const XLSX = require('xlsx');
 const calcPagination = require('../../utils/calcPagination');
-const getKorDate = require('../../utils/getKorDateUtil');
+const { getKorDate, escapeRegexChars } = require('../../utils/common');
 const EventModel = require('../../models/Events');
 const EventHostModel = require('../../models/EventHosts');
 const EventEntryModel = require('../../models/EventEntries');
 const BadgeModel = require('../../models/Badges');
 const UserModel = require('../../models/Users');
+const QRCodeModel = require('../../models/QRCode');
+const jwtUtil = require('../../utils/jwtAdminUtil');
 
 /**
  * 이벤트 리스트 조회
@@ -32,19 +33,23 @@ const getEvents = async (status, page, limit, title, content, organization) => {
 
     // 제목을 검색할 경우 정규표현식 사용 (대소문자 구분 없이 검색)
     if (title) {
-      query.title = { $regex: new RegExp(title, 'i') };
+      query.title = { $regex: new RegExp(escapeRegexChars(title), 'i') };
     }
 
     // 내용을 검색할 경우 정규표현식 사용 (대소문자 구분 없이 검색)
     if (content) {
-      query.content = { $regex: new RegExp(content, 'i') };
+      query.content = { $regex: new RegExp(escapeRegexChars(content), 'i') };
     }
 
     // 단체명을 검색할 경우 정규표현식 사용 (대소문자 구분 없이 검색)
     if (organization) {
       query.host_id = {
         $in: await EventHostModel.find(
-          { organization: { $regex: new RegExp(organization, 'i') } },
+          {
+            organization: {
+              $regex: new RegExp(escapeRegexChars(organization), 'i'),
+            },
+          },
           '_id'
         ),
       };
@@ -362,7 +367,7 @@ const updateEvent = async (
     if (event.status !== 'created') {
       return {
         success: false,
-        message: '모집 시작일이 지나 수정할 수 없습니다.',
+        message: `이벤트 상태가 'created'일 때만 수정 가능합니다.`,
       };
     }
 
@@ -401,7 +406,7 @@ const updateEvent = async (
  * @param {*} event_id
  * @returns 성공 여부
  */
-const updateEventStatus = async (event_id) => {
+const setEventStatusCanceled = async (event_id) => {
   try {
     // 이벤트 정보 조회
     const event = await EventModel.findById(event_id);
@@ -455,6 +460,58 @@ const deleteEvent = async (event_id) => {
   }
 };
 
+/**
+ * qr코드 생성을 위한 토큰 생성
+ * @param {*} event_id
+ * @returns 토큰
+ */
+const createQRcodeJWt = async (event_id) => {
+  try {
+    // 이벤트 정보 조회
+    const event = await EventModel.findById(event_id);
+    if (!event) {
+      return { success: false, message: '존재하지 않는 이벤트입니다.' };
+    }
+
+    // 이벤트 상태가 'progressing'일 때만 QR코드 생성 가능
+    if (event.status !== 'progressing') {
+      return {
+        success: false,
+        message: `이벤트 상태가 'progressing'일 때만 QR코드 생성 가능합니다.`,
+      };
+    }
+
+    // QR코드 생성 여부 확인
+    const qrCode = await QRCodeModel.findOne({ event_id: event_id });
+    if (qrCode) {
+      return { success: true, data: qrCode.token };
+    }
+
+    // jwt 토큰 생성
+    const token = jwtUtil.qrSign(event_id);
+    if (!token) {
+      return { success: false, message: 'jwt 토큰 생성 실패' };
+    }
+
+    // 데이터 저장
+    const qrCodeResult = new QRCodeModel({
+      event_id: event_id,
+      isActive: true,
+      token: token,
+    });
+
+    const result = await qrCodeResult.save();
+    if (!result) {
+      return { success: false, message: 'QR코드 데이터 저장에 실패했습니다.' };
+    }
+
+    return { success: true, data: result.token };
+  } catch (err) {
+    console.error('Error:', err);
+    throw Error(err);
+  }
+};
+
 module.exports = {
   getEvents,
   getEvent,
@@ -464,6 +521,7 @@ module.exports = {
   saveEvent,
   updateEventHost,
   updateEvent,
-  updateEventStatus,
+  setEventStatusCanceled,
   deleteEvent,
+  createQRcodeJWt,
 };

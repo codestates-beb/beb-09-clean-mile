@@ -114,4 +114,47 @@ module.exports = {
       };
     }
   },
+
+  /**
+   * QR 토큰 발급
+   * @param {*} event_id
+   * @returns
+   */
+  qrSign: (event_id) => {
+    // QR 토큰에 들어갈 페이로드
+    const payload = {
+      event_id: event_id, // custom claims
+    };
+
+    // 시크릿 키로 서명된 QR 토큰 발급 후 반환
+    return jwt.sign(payload, config.qrCodeJwt.jwtSecret, {
+      expiresIn: '2h', // 만료 시간
+      algorithm: 'HS256', // 암호화 알고리즘
+      issuer: config.jwt.isu, // 발행자
+      audience: config.jwt.aud, // 발행 대상
+      subject: 'eventAuth', // 토큰 발행 목적
+    });
+  },
+
+  /**
+   * QR 토큰 검증
+   * @param {*} token
+   * @returns
+   */
+  qrVerify: (token) => {
+    let decoded;
+    try {
+      decoded = jwt.verify(token, config.qrCodeJwt.jwtSecret);
+      return {
+        success: true,
+        decoded: decoded,
+      };
+    } catch (err) {
+      console.error('Error:', err);
+      return {
+        success: false,
+        message: err.message,
+      };
+    }
+  },
 };

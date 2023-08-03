@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const config = require('../config/index');
-const getKorDate = require('../utils/getKorDateUtil');
+const { getKorDate } = require('../utils/common');
 
 /**
  * Users Collection Schema

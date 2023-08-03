@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const getKorDate = require('../utils/getKorDateUtil');
+const { getKorDate } = require('../utils/common');
 
 /**
  * EventEntries Collection Schema
@@ -16,7 +16,7 @@ const eventEntrySchema = new mongoose.Schema({
     ref: 'user',
   },
   is_confirmed: {
-    // 참가 확정 여부
+    // 참가 인증 여부
     type: Boolean,
     default: false,
   },
