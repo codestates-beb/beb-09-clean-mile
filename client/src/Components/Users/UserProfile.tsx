@@ -5,36 +5,20 @@ import Swal from 'sweetalert2';
 import { AxiosError, AxiosResponse } from 'axios';
 import { BsFillImageFill } from 'react-icons/bs';
 import { hero_img } from '../Reference';
-import { UserInfo, Pagination, Post, EventList, Dnft } from '../Interfaces';
+import { User, Pagination, Post, EventList, Dnft } from '../Interfaces';
 import { ApiCaller } from '../Utils/ApiCaller';
 
-const EXTENSIONS = [
-  { type: 'gif' },
-  { type: 'jpg' },
-  { type: 'jpeg' },
-  { type: 'png' },
-  { type: 'mp4' },
-];
-
-const UserProfile = ({ userInfo, postPagination, userDnft }: { userInfo: UserInfo, postPagination: Pagination, userDnft: Dnft }) => {
+const UserProfile =({ userInfo, postPagination, userDnft, userBadges }: { userInfo: User, postPagination: Pagination, userDnft: Dnft, userBadges: UserBadge[] }) => {
   const router = useRouter()
-  const [fileUrl, setFileUrl] = useState<string | null>(null);
-  const [fileType, setFileType] = useState<string | null>(null);
-  const [uploadFile, setUploadFile] = useState<File | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
-  const [nickname, setNickname] = useState(userInfo?.user.nickname);
-  const [errorMessage, setErrorMessage] = useState('');
+
   const [currentPage, setCurrentPage] = useState(1);
   const [postData, setPostData] = useState<Post[]>([]);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userInfoData, setUserInfoData] = useState<UserInfo | null>(null);
-  const [eventsData, setEventsData] = useState<EventList[] | null>(null);
 
   const totalPages = postPagination?.totalPages;
 
   const handlePageChange = async (pageNumber: number) => {
     try {
-      const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/profile/postPagination/${userInfo.user._id}?page=${pageNumber}`;
+      const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/profile/postPagination/${userInfo._id}?page=${pageNumber}`;
       const dataBody = null;
       const isJSON = false;
       const headers = {};
@@ -63,7 +47,7 @@ const UserProfile = ({ userInfo, postPagination, userDnft }: { userInfo: UserInf
    */
   const copyAddr = async () => {
     try {
-      await navigator.clipboard.writeText(userInfo.user.wallet.address);
+      await navigator.clipboard.writeText(userInfo.wallet.address);
       Swal.fire({
         title: 'Success!',
         text: '지갑주소가 복사되었습니다.',
@@ -90,7 +74,7 @@ const UserProfile = ({ userInfo, postPagination, userDnft }: { userInfo: UserInf
   return (
     <div className="w-full min-h-screen">
       <div className="w-full h-[30rem] md:h-[25rem] sm:h-[20rem] xs:h-[15rem] border-2 border-dashed rounded-xl">
-        <img src={!userInfo?.user.banner_img_url ? undefined : userInfo?.user.banner_img_url} className="w-full h-full object-contain" alt="banner Image" />
+        <img src={!userInfo?.banner_img_url ? undefined : userInfo?.banner_img_url} className="w-full h-full object-contain" alt="banner Image" />
       </div>
       <div className='
         w-[15rem] 
@@ -123,33 +107,42 @@ const UserProfile = ({ userInfo, postPagination, userDnft }: { userInfo: UserInf
         <div className='w-[80%] md:w-[80%] sm:w-full xs:w-full flex flex-col items-start sm:items-center xs:items-center gap-3 ml-[14%] lg:ml-[18%] md:ml-[20%] sm:ml-0 xs:ml-0 my-2 mt-5 sm:mt-24 xs:mt-20'>
           <div className='w-full flex justify-between sm:justify-center xs:justify-center gap-12 sm:gap-4 xs:gap-2'>
             <p className='font-bold text-3xl lg:text-2xl md:text-xl sm:text-lg xs:text-lg'>
-              {userInfo?.user?.nickname}
+              {userInfo?.nickname}
             </p>
           </div>
-          {isEditing && <p className='font-normal text-xs text-red-500'>{errorMessage}</p>}
           <p className='font-semibold sm:text-sm xs:text-xs cursor-pointer' onClick={copyAddr} title="Click to copy the address">
-            {userInfo?.user?.wallet?.address}
+            {userInfo?.wallet?.address}
           </p>
           <div>
             <p className='px-3 py-2 sm:px-2 md:text-sm sm:text-sm xs:text-sm bg-[#FBA1B7] hover:bg-main-insta rounded-xl transition duration-300 text-white font-bold'>@insta_id</p>
           </div>
         </div>
-        <div className='w-full h-2/3 grid grid-cols-10 lg:grid-cols-6 md:grid-cols-5 sm:grid-cols-3 xs:grid-cols-3 gap-4 justify-items-center bg-gray-200 rounded-xl px-6 py-6'>
-          <div className='w-[10rem] lg:w-[8rem] md:w-[6rem] sm:w-[6rem] xs:w-[5rem] h-[10rem] lg:h-[8rem] md:h-[6rem] sm:h-[6rem] xs:h-[5rem] border rounded-full overflow-hidden relative'>
-            <Image src={hero_img} layout='fill' className='object-cover' alt='profile image' />
-          </div>
-          <div className='w-[10rem] lg:w-[8rem] md:w-[6rem] sm:w-[6rem] xs:w-[5rem] h-[10rem] lg:h-[8rem] md:h-[6rem] sm:h-[6rem] xs:h-[5rem] border rounded-full overflow-hidden relative'>
-            <Image src={hero_img} layout='fill' className='object-cover' alt='profile image' />
-          </div>
-          <div className='w-[10rem] lg:w-[8rem] md:w-[6rem] sm:w-[6rem] xs:w-[5rem] h-[10rem] lg:h-[8rem] md:h-[6rem] sm:h-[6rem] xs:h-[5rem] border rounded-full overflow-hidden relative'>
-            <Image src={hero_img} layout='fill' className='object-cover' alt='profile image' />
-          </div>
-          <div className='w-[10rem] lg:w-[8rem] md:w-[6rem] sm:w-[6rem] xs:w-[5rem] h-[10rem] lg:h-[8rem] md:h-[6rem] sm:h-[6rem] xs:h-[5rem] border rounded-full overflow-hidden relative'>
-            <Image src={hero_img} layout='fill' className='object-cover' alt='profile image' />
-          </div>
-          <div className='w-[10rem] lg:w-[8rem] md:w-[6rem] sm:w-[6rem] xs:w-[5rem] h-[10rem] lg:h-[8rem] md:h-[6rem] sm:h-[6rem] xs:h-[5rem] border rounded-full overflow-hidden relative'>
-            <Image src={hero_img} layout='fill' className='object-cover' alt='profile image' />
-          </div>
+        <div className={`w-full h-2/3 ${userBadges.length === 0 ? 'flex font-bold' : 'grid grid-cols-10'} lg:grid-cols-6 md:grid-cols-5 sm:grid-cols-3 xs:grid-cols-3 gap-4 justify-items-center bg-gray-200 rounded-xl px-6 py-6`}>
+          {userBadges.length === 0 ? (
+              <p className='w-full flex justify-center items-center'>There are no registered badges.</p>
+            ) : (
+              userBadges.map((badge, i) => {
+                return (
+                  <div className='w-[10rem] 
+                    lg:w-[8rem] 
+                    md:w-[6rem] 
+                    sm:w-[6rem] 
+                    xs:w-[5rem] 
+                    h-[10rem] 
+                    lg:h-[8rem] 
+                    md:h-[6rem] 
+                    sm:h-[6rem] 
+                    xs:h-[5rem] 
+                    border 
+                    rounded-full 
+                    overflow-hidden 
+                    relative'
+                    key={i}>
+                    <Image src={badge.image_url} layout='fill' className='object-cover' alt='profile image' />
+                  </div>
+                )
+              })
+            )}
         </div>
         <div className='w-full h-2/3 flex flex-col gap-4 px-6 py-6 sm:px-2 xs:px-0'>
           <h2 className='text-3xl sm:text-2xl xs:text-xl font-bold border-b border-black pb-2'>Posts created</h2>
@@ -167,7 +160,7 @@ const UserProfile = ({ userInfo, postPagination, userDnft }: { userInfo: UserInf
             <tbody>
               {postData === null ? (
                 <tr>
-                  <td colSpan={6} className="p-6 text-center">작성한 게시글이 없습니다.</td>
+                  <td colSpan={6} className="p-6 text-center">No post was created.</td>
                 </tr>
               ) : (
                 postData?.map((post, i) => (

@@ -347,7 +347,7 @@ const Header = () => {
                         <GiToken size={20} />
                         50 CM
                       </li>
-                      <Link href={{ pathname: '/users/profile', query: { id: userInfoData?._id } }}>
+                      <Link href='/users/mypage'>
                         <li className="
                           flex 
                           justify-center 

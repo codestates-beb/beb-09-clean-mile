@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css"; 
 import "slick-carousel/slick/slick-theme.css";
-import { google_logo } from '../Reference';
+import { google_logo, Comments } from '../Reference';
 import { EventDetailType, Comment } from '../Interfaces';
 
 const EventDetail = ({ eventDetail, comments }: { eventDetail: EventDetailType, comments: Comment}) => {
