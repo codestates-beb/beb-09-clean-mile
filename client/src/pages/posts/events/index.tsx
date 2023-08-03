@@ -21,6 +21,7 @@ export const getServerSideProps = async (context: GetServerSidePropsContext) => 
   const last_id = query.page ? query.page : '';
   const title = query.title ? query.title : null;
   const content = query.content ? query.content : null;
+  const status = query.status ? query.status : null;
 
   try {
     let URL;
@@ -29,6 +30,8 @@ export const getServerSideProps = async (context: GetServerSidePropsContext) => 
       URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/events/list?last_id=${last_id}&title=${title}`;
     } else if(content) {
       URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/events/list?last_id=${last_id}&content=${content}`;
+    } else if(status) {
+      URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/events/list?status=${status}`;
     } else {
       URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/events/list?last_id=${last_id}`;
     }

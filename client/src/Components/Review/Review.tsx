@@ -1,51 +1,51 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
+import { useInfiniteQuery } from 'react-query';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
 import Link from 'next/link';
-import { StaticImageData } from 'next/image';
 import { MdOutlineArrowForwardIos } from 'react-icons/md';
-import { SearchInput, hero_img, insta_icon, insta_logo, google_logo, logo } from '../Reference';
+import { SearchInput } from '../Reference';
 import { Post } from '../Interfaces';
+import { ApiCaller } from '../Utils/ApiCaller';
 
 const Review = ({ reviewList, lastId }: { reviewList: Post[], lastId: string }) => {
   const router = useRouter();
-  /**
-   * Intersection observer 인스턴스.
-   * @type {React.MutableRefObject<IntersectionObserver|null>}
-   */
-  const observer = useRef<IntersectionObserver | null>(null);
-  const [filter, setFilter] = useState<'newest' | 'oldest'>('newest');
-  const [page, setPage] = useState(1);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  /**
-   * 마지막 포스트 엘리먼트에 대한 참조와 관련된 콜백 함수.
-   * 해당 노드가 Intersection Observer에 의해 관찰되면 페이지 상태를 증가시킴.
-   *
-   * @param {HTMLDivElement | null} node - 마지막 포스트 엘리먼트.
-   */
-  const lastPostElementRef = useCallback(
-    (node: HTMLDivElement | null) => {
+  const fetchReviews = async ({ pageParam = lastId }) => {
+    let URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/posts/lists/review?last_id=${pageParam}`;
+    const res = await ApiCaller.get(URL, null, false, {}, true);
+    if (res.status === 200 && res.data.data.data) {
+      return res.data.data.data;
+    }
+    throw new Error('Error fetching data');
+  };
+
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isLoading,
+    isFetchingNextPage,
+  } = useInfiniteQuery('reviews', fetchReviews, {
+    getNextPageParam: (lastPage, allPages) => {
+      return lastPage.length > 0 ? lastPage[lastPage.length - 1]._id : null;
+    }
+  });
+
+  const observer = useRef();
+  const lastReviewElementRef = useCallback((node) => {
+      if (isLoading || isFetchingNextPage) return;
       if (observer.current) observer.current.disconnect();
-      observer.current = new IntersectionObserver(entries => {
-        if (entries[0].isIntersecting) {
-          setPage(prevPage => prevPage + 1);
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && hasNextPage && !isLoading) {
+          fetchNextPage();
         }
-      })
+      });
       if (node) observer.current.observe(node);
     },
-    []
+    [isLoading, isFetchingNextPage, hasNextPage, fetchNextPage]
   );
 
-  /**
-   * 필터 변경을 처리하는 함수.
-   *
-   * @param {React.ChangeEvent<HTMLSelectElement>} event - 발생한 이벤트.
-   */
-  const handleFilterChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const value = event.target.value as 'newest' | 'oldest';
-    setFilter(value);
-  };
 
   return (
     <div className='w-full flex flex-col justify-center gap-12 px-24 md:px-12 sm:px-2 xs:px-2 py-14 lg:py-12 md:py-6 sm:py-6 xs:py-3'>
@@ -55,7 +55,7 @@ const Review = ({ reviewList, lastId }: { reviewList: Post[], lastId: string }) 
       <div className='flex flex-col items-center gap-12 w-full min-h-screen'>
         <SearchInput />
         <div className='w-full flex justify-end gap-4'>
-          <select className="border border-black py-2 px-4 pr-7 rounded-md text-sm" onChange={handleFilterChange}>
+          <select className="border border-black py-2 px-4 pr-7 rounded-md text-sm">
             <option className="text-sm xs:text-xs" value="desc">Latest order</option>
             <option className="text-sm xs:text-xs" value="asc">Old order</option>
             <option className="text-sm xs:text-xs" value="view">View order</option>
@@ -86,6 +86,7 @@ const Review = ({ reviewList, lastId }: { reviewList: Post[], lastId: string }) 
               hover:-translate-y-2 
               cursor-pointer"
               key={i}
+              ref={lastReviewElementRef}
               onClick={() => router.push(`/posts/review/${item._id}`)}>
               <div className='border-b-2 relative pb-[65%] sm:pb-[90%] xs:pb-[90%]'>
                 <Image
@@ -150,11 +151,6 @@ const Review = ({ reviewList, lastId }: { reviewList: Post[], lastId: string }) 
             </div>
             )
           })}
-          {isLoading && (
-            <div className="flex justify-center items-center my-5">
-              로딩 중...
-            </div>
-          )}
         </div>
       </div>
     </div>

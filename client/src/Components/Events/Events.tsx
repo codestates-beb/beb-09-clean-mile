@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
+import { useInfiniteQuery } from 'react-query';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
 import { MdOutlineArrowForwardIos } from 'react-icons/md';
@@ -6,13 +7,8 @@ import { SearchInput } from '../Reference';
 import { EventList } from '../Interfaces';
 import { ApiCaller } from '../Utils/ApiCaller';
 
-const Events = ({ eventList: initialEventList, lastId }: { eventList: EventList[], lastId: string }) => {
+const Events = ({ eventList, lastId }: { eventList: EventList[], lastId: string }) => {
   const router = useRouter();
-  const [filter, setFilter] = useState<'newest' | 'oldest'>('newest');
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [eventList, setEventList] = useState<EventList[]>(initialEventList);
-  const [newLastId, setNewLastId] = useState<string>(lastId);
-  const [newEvents, setNewEvents] = useState<EventList[]>([]);
 
   const getClassNameForStatus = (status: string) => {
     switch (status) {
@@ -25,60 +21,46 @@ const Events = ({ eventList: initialEventList, lastId }: { eventList: EventList[
     }
   }
 
-  const observer = useRef(null);
-  const lastEventElementRef = useCallback(node => {
-    if (isLoading) return;
-    if (observer.current) observer.current.disconnect();
-    observer.current = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting && !isLoading) {
-        // 페이지 상태를 직접 변경하는 대신,
-        // Observer가 트리거될 때마다 'loadMore'라는 신호를 보냅니다.
-        setIsLoading(true);
-      }
-    });
-    if (node) observer.current.observe(node);
-  }, [isLoading]);
+  const fetchEvents = async ({ pageParam = lastId }) => {
+    console.log(pageParam)
+    let URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/events/list?last_id=${pageParam}`;
+    const res = await ApiCaller.get(URL, null, false, {}, true);
+    if (res.status === 200 && res.data.data.data) {
+      return res.data.data.data;
+    }
+    throw new Error('Error fetching data');
+  };
 
-  useEffect(() => {
-    const fetchEvents = async () => {
-      setIsLoading(true);
-      let URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/events/list?last_id=${newLastId}`;
-  
-      try {
-        const res = await ApiCaller.get(URL, null, false, {}, true);
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isLoading,
+    isFetchingNextPage,
+  } = useInfiniteQuery('reviews', fetchEvents, {
+    getNextPageParam: (lastPage, allPages) => {
+      return lastPage.length > 0 ? lastPage[lastPage.length - 1]._id : null;
+    }
+  });
 
-        console.log(res.data.data)
-        
-        if (res.status === 200  && res.data.data.data) {
-          const fetchedEvents = res.data.data.data;
-        
-          // Filter out any events that are already in our list
-          const uniqueEvents = fetchedEvents.filter(
-            (fetchedEvent) => !eventList.some((event) => event._id === fetchedEvent._id)
-          );
-        
-          // Update newEvents with the uniqueEvents
-          setNewEvents(uniqueEvents);
-        
-          // Update newLastId with the ID of the last fetched event
-          if (uniqueEvents.length > 0) {
-            setNewLastId(uniqueEvents[uniqueEvents.length - 1]._id);
-          }
-        } 
-      } catch (error) {
-        console.error('이벤트 리스트를 가져오는데 실패했습니다:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-  
-    fetchEvents();
-  }, [newLastId]);
-  
-  
-  useEffect(() => {
-    setEventList((prevList) => [...prevList, ...newEvents]);
-  }, [newEvents]);
+  const observer = useRef();
+  const lastReviewElementRef = useCallback((node) => {
+      if (isLoading || isFetchingNextPage) return;
+      if (observer.current) observer.current.disconnect();
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && hasNextPage && !isLoading) {
+          fetchNextPage();
+        }
+      });
+      if (node) observer.current.observe(node);
+    },
+    [isLoading, isFetchingNextPage, hasNextPage, fetchNextPage]
+  );
+
+  // 필터 변경 핸들러
+  const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    router.push(`/events/list?status=${e.target.value}`);
+  };
 
   return (
     <div className='w-full flex flex-col justify-center gap-12 px-24 sm:px-2 xs:px-2 py-14 lg:py-12 md:py-6 sm:py-6 xs:py-3'>
@@ -89,10 +71,12 @@ const Events = ({ eventList: initialEventList, lastId }: { eventList: EventList[
         <div className='w-full'>
           <div className='flex justify-end mb-3'>
             <SearchInput />
-            <select className="border border-black py-2 px-4 pr-7 rounded-md text-sm">
-              <option className="text-sm xs:text-xs" value="desc">Latest order</option>
-              <option className="text-sm xs:text-xs" value="asc">Old order</option>
-              <option className="text-sm xs:text-xs" value="view">View order</option>
+            <select className="border border-black py-2 px-4 pr-7 rounded-md text-sm" onChange={handleFilterChange}>
+              <option className="text-sm xs:text-xs" value="created">Before proceeding</option>
+              <option className="text-sm xs:text-xs" value="recruiting">Recruiting</option>
+              <option className="text-sm xs:text-xs" value="progressing">In progress</option>
+              <option className="text-sm xs:text-xs" value="finished">End of progress</option>
+              <option className="text-sm xs:text-xs" value="canceled">Cancel Progress</option>
             </select>
           </div>
         </div>
@@ -114,7 +98,7 @@ const Events = ({ eventList: initialEventList, lastId }: { eventList: EventList[
               hover:-translate-y-2 
               cursor-pointer"
               key={i}
-              ref={i === eventList.length - 1 ? lastEventElementRef : null}
+              ref={lastReviewElementRef}
               onClick={() => router.push(`/posts/events/${item._id}`)}>
               <div className='border-b-2 relative pb-[65%] sm:pb-[90%] xs:pb-[90%]'>
                 <Image

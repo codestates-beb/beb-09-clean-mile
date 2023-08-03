@@ -1,10 +1,9 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/router';
 import Swal from 'sweetalert2';
-import { hydrate } from 'react-query';
 import { AxiosError } from 'axios';
 import { ApiCaller } from './Utils/ApiCaller';
-import { UserInfo } from './Interfaces';
+import { UserInfo, EventList } from './Interfaces';
 
 interface IFile extends File {
   preview?: string;
@@ -15,27 +14,40 @@ const Create = () => {
 
   const [selectCategory, setSelectCategory] = useState('');
   const [title, setTitle] = useState('');
-  const [content, setContent ] = useState('');
+  const [content, setContent] = useState('');
   const [images, setImages] = useState<IFile[]>([]);
   const [videos, setVideos] = useState<IFile[]>([]);
   const [selectedFile, setSelectedFile] = useState<IFile[]>([]);
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+  const [eventData, setEventData] = useState<EventList[] | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isReview, setIsReview] = useState(false);
+  const [selectEvent, setSelectEvent] = useState('');
 
-  
+
   useEffect(() => {
     if (typeof window !== "undefined" && localStorage.getItem('user')) {
       const userCache = JSON.parse(localStorage.getItem('user_info') || '');
       setIsLoggedIn(userCache !== null);
       setUserInfo(userCache.queries[0].state.data.user)
+      setEventData(userCache.queries[0].state.data.events);
+      setIsReview(selectCategory === 'review');
     }
-  }, []);
+  }, [selectCategory]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = () => {
     fileInputRef.current?.click();
   };
+
+  console.log(eventData)
+
+  const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedCategory = e.target.value;
+    setSelectCategory(selectedCategory);
+    setIsReview(selectedCategory === 'review');
+  }
 
   /**
    * 사용자가 파일을 선택하면 이를 처리하는 함수
@@ -48,7 +60,7 @@ const Create = () => {
 
     files.forEach((file) => {
       const extension = file.name.split('.').pop()?.toLowerCase();
-  
+
       if (['jpg', 'jpeg', 'png'].includes(extension || '')) {
         setImages((prevImages) => [...prevImages, file]);
       } else if (['mp4', 'avi', 'mov'].includes(extension || '')) {
@@ -64,6 +76,9 @@ const Create = () => {
     formData.append('category', selectCategory);
     formData.append('title', title);
     formData.append('content', content);
+    if (selectCategory === 'review') {
+      formData.append('event_id', selectEvent);
+    }
 
     images.forEach((image) => {
       formData.append('image', image);
@@ -130,7 +145,7 @@ const Create = () => {
         <div>
           <p className='font-bold text-4xl sm:text-2xl xs:text-2xl'>Create Posts</p>
         </div>
-        <div className='w-1/5 lg:w-[50%] md:w-[50%] sm:w-[50%] xs:w-[50%]'>
+        <div className='flex gap-5 w-1/5 lg:w-[50%] md:w-[50%] sm:w-[50%] xs:w-[50%]'>
           <select className="
             border-b 
             outline-none 
@@ -141,22 +156,39 @@ const Create = () => {
             px-4 
             w-full
             sm:text-sm
-            xs:text-sm" 
+            xs:text-sm"
             value={selectCategory}
-            onChange={(e) => setSelectCategory(e.target.value)}
+            onChange={handleCategoryChange}
             required>
             <option className="text-sm" value="" disabled>Please select a category.</option>
             <option className="text-sm" value="general">General</option>
             <option className="text-sm" value="review">Review</option>
           </select>
+          {isReview && eventData && (   // only show if isReview is true and eventData is not null
+            <select className="
+              border-b 
+              outline-none 
+              focus:border-black 
+              transition 
+              duration-300 
+              py-2 
+              px-4 
+              w-full
+              sm:text-sm
+              xs:text-sm"
+              value={selectEvent}
+              onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>  setSelectEvent(e.target.value)}>
+              {eventData.map((event, i) => <option key={i} value={event._id}>{event.title}</option>)}
+            </select>
+          )}
         </div>
         <div className='w-2/5 sm:w-full xs:w-full'>
-          <input 
-            className='w-full sm:w-[50%] xs:w-[50%] border-b focus:border-black transition duration-300 py-2 px-3' 
-            type="text" 
+          <input
+            className='w-full sm:w-[50%] xs:w-[50%] border-b focus:border-black transition duration-300 py-2 px-3'
+            type="text"
             placeholder='제목을 입력해 주세요'
             value={title}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)}/>
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)} />
         </div>
         <div className='w-full h-[45rem]'>
           <input
@@ -165,7 +197,7 @@ const Create = () => {
             className='w-full hidden'
             onChange={handleFileChange}
             multiple
-            />
+          />
           <div className='flex w-[30%] lg:w-[50%] md:w-[70%] sm:w-full xs:w-full justify-between mb-5'>
             <p className='border-b w-[60%] xs:text-sm m-0'>
               {selectedFile.length > 0 ? (
@@ -174,7 +206,7 @@ const Create = () => {
                 '파일을 선택해 주세요.'
               )}
             </p>
-            <button 
+            <button
               className='border rounded-lg p-2 bg-main-blue text-white hover:bg-blue-600 transition duration-300 xs:text-sm'
               onClick={handleFileSelect}>
               파일 선택
