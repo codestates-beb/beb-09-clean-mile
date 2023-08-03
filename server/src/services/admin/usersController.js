@@ -83,7 +83,7 @@ const getComments = async (user_id, page, limit) => {
       .limit(limit);
 
     if (commentsResult.length === 0) {
-      return { data: null, last_id: null };
+      return { data: null, pagination: null };
     }
 
     // 전체 데이터 수 조회 후 페이징 계산

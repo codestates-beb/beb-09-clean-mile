@@ -339,9 +339,24 @@ const getReviews = async (last_id, limit, title, content, order) => {
   try {
     let query = { category: 'review' };
 
+    // 정렬 방향에 따라 정렬 객체 생성
+    let sort = {};
+    let comparisonOperator = undefined;
+
+    if (order === 'desc') {
+      sort = { created_at: -1 };
+      comparisonOperator = last_id ? { $lt: last_id } : undefined;
+    } else if (order === 'asc') {
+      sort = { created_at: 1 };
+      comparisonOperator = last_id ? { $gt: last_id } : undefined;
+    } else if (order === 'view') {
+      sort = { 'view.count': -1 };
+      comparisonOperator = last_id ? { $lt: last_id } : undefined;
+    }
+
     // last_id가 존재하면, 마지막 id 이후의 문서 조회
-    if (last_id) {
-      query._id = { $lt: last_id };
+    if (comparisonOperator !== undefined) {
+      query._id = comparisonOperator;
     }
 
     // 제목을 검색할 경우 정규표현식 사용 (대소문자 구분 없이 검색)
@@ -352,16 +367,6 @@ const getReviews = async (last_id, limit, title, content, order) => {
     // 내용을 검색할 경우 정규표현식 사용 (대소문자 구분 없이 검색)
     if (content) {
       query.content = { $regex: new RegExp(escapeRegexChars(content), 'i') };
-    }
-
-    // 정렬 방향에 따라 정렬 객체 생성
-    let sort = {};
-    if (order === 'desc') {
-      sort = { created_at: -1 };
-    } else if (order === 'asc') {
-      sort = { created_at: 1 };
-    } else if (order === 'view') {
-      sort = { 'view.count': -1 };
     }
 
     // 게시글 목록 조회
