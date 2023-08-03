@@ -42,7 +42,16 @@ export const UsersTable = ({ items = [], pageCount, page, handlePageChange }) =>
                   const createdAt = user.createdAt ? format(user.createdAt, "dd/MM/yyyy") : "N/A";
 
                   return (
-                    <TableRow hover key={user.id} onClick={() => handleUserSelected(user.id)}>
+                    <TableRow
+                      hover
+                      key={user.id}
+                      onClick={() => handleUserSelected(user.id)}
+                      sx={{
+                        "&:hover": {
+                          cursor: "pointer",
+                        },
+                      }}
+                    >
                       <TableCell>
                         <Stack alignItems="center" direction="row" spacing={2}>
                           <Typography variant="subtitle2">{user.name}</Typography>

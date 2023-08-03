@@ -18,6 +18,10 @@ import { useRouter } from "next/router";
 export const EventEntryTable = ({ items = [], pageCount, page, handlePageChange }) => {
   const router = useRouter();
 
+  const handleUserSelected = (userId) => {
+    router.push(`/users/${userId}`);
+  };
+
   return (
     <Stack spacing={3}>
       <Card>
@@ -29,7 +33,6 @@ export const EventEntryTable = ({ items = [], pageCount, page, handlePageChange 
                   <TableCell>Name</TableCell>
                   <TableCell>Email</TableCell>
                   <TableCell>Wallet Address</TableCell>
-
                   <TableCell>Badge</TableCell>
                   <TableCell>Token</TableCell>
                   <TableCell>Entry In</TableCell>
@@ -38,7 +41,16 @@ export const EventEntryTable = ({ items = [], pageCount, page, handlePageChange 
               <TableBody>
                 {items.map((entry) => {
                   return (
-                    <TableRow hover key={entry._id}>
+                    <TableRow
+                      hover
+                      key={entry._id}
+                      onClick={() => handleUserSelected(entry._id)}
+                      sx={{
+                        "&:hover": {
+                          cursor: "pointer",
+                        },
+                      }}
+                    >
                       <TableCell>
                         <Stack alignItems="center" direction="row" spacing={2}>
                           <Typography variant="subtitle2">{entry.user_id.name}</Typography>

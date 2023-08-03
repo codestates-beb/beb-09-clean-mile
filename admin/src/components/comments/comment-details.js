@@ -95,6 +95,7 @@ export const CommentDetails = () => {
               <TextField
                 fullWidth
                 multiline
+                minRows={4}
                 label="Content"
                 name="content"
                 value={values.content}

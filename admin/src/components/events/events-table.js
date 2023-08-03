@@ -42,7 +42,16 @@ export const EventsTable = ({ items = [], pageCount, page, handlePageChange }) =
                   const createdAt = event.createdAt ? event.createdAt : "N/A";
 
                   return (
-                    <TableRow hover key={event.id} onClick={() => handleEventSelected(event.id)}>
+                    <TableRow
+                      hover
+                      key={event.id}
+                      onClick={() => handleEventSelected(event.id)}
+                      sx={{
+                        "&:hover": {
+                          cursor: "pointer",
+                        },
+                      }}
+                    >
                       <TableCell>
                         <Stack alignItems="center" direction="row" spacing={2}>
                           <Typography variant="subtitle2">{event.title}</Typography>
