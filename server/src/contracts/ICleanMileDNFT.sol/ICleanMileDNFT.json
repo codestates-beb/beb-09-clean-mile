@@ -7,6 +7,37 @@
       "anonymous": false,
       "inputs": [
         {
+          "indexed": false,
+          "internalType": "address",
+          "name": "_to",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "_name",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "_description",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "enum ICleanMileDNFT.UserType",
+          "name": "userType",
+          "type": "uint8"
+        }
+      ],
+      "name": "MintDNFT",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
           "indexed": true,
           "internalType": "address",
           "name": "sender",

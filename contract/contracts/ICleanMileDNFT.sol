@@ -26,6 +26,13 @@ interface ICleanMileDNFT {
 
     event UpgradeDNFT(address indexed sender, uint256 tokenId);
 
+    event MintDNFT(
+        address _to,
+        string _name,
+        string _description,
+        UserType userType
+    );
+
     function dnftName(uint256 _tokenId) external view returns (string memory);
 
     function dnftDescription(
