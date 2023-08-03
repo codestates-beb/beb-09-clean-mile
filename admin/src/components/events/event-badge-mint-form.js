@@ -8,6 +8,7 @@ import {
   Unstable_Grid2 as Grid,
   Button,
 } from "@mui/material";
+import Image from "next/image";
 import { useCallback, useRef, useState } from "react";
 
 const types = [
@@ -30,6 +31,7 @@ const initialValues = {
   description: "",
   type: 0,
   image: null,
+  preview: "",
 };
 
 export const EventBadgeMintForm = ({ handleMintBadge }) => {
@@ -41,13 +43,18 @@ export const EventBadgeMintForm = ({ handleMintBadge }) => {
     const { name, value } = event.target;
 
     if (name === "image") {
+      const reader = new FileReader();
       const file = event.target.files[0];
-      console.log(file);
-      console.log(imageInputRef);
-      setValues((prev) => ({
-        ...prev,
-        image: file,
-      }));
+      reader.onloadend = () => {
+        setValues((prev) => ({
+          ...prev,
+          image: file,
+          preview: reader.result,
+        }));
+      };
+
+      reader.readAsDataURL(file);
+
       return;
     }
 
@@ -132,8 +139,12 @@ export const EventBadgeMintForm = ({ handleMintBadge }) => {
                   inputRef={imageInputRef}
                 />
               </Grid>
+              {values.preview && (
+                <Grid item xs={12} md={6}>
+                  <Image src={values.preview} alt="preview" width={200} height={200} />
+                </Grid>
+              )}
             </Grid>
-
             <Stack direction={"row"} spacing={1} sx={{ mt: 3 }}>
               <Button variant="contained" color="success" onClick={handleSubmit}>
                 Mint

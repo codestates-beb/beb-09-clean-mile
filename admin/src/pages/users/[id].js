@@ -1,15 +1,6 @@
 import Head from "next/head";
 import { useRouter } from "next/router";
-import {
-  Box,
-  Container,
-  Stack,
-  Typography,
-  Unstable_Grid2 as Grid,
-  Button,
-  Tabs,
-  Tab,
-} from "@mui/material";
+import { Box, Container, Stack, Typography, Button, Tab } from "@mui/material";
 import { Layout as DashboardLayout } from "src/layouts/dashboard/layout";
 import { UserDNFT } from "src/components/users/user-dnft";
 import { UserWallet } from "src/components/users/user-wallet";

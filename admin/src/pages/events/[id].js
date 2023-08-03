@@ -1,5 +1,5 @@
 import Head from "next/head";
-import { Box, Container, Stack, Typography, Button } from "@mui/material";
+import { Box, Container, Stack, Typography, Button, Tab } from "@mui/material";
 import { Layout as DashboardLayout } from "src/layouts/dashboard/layout";
 import { useRouter } from "next/router";
 import { useCallback, useState } from "react";
@@ -7,6 +7,7 @@ import { EventDetails } from "src/components/events/event-details";
 import { EventBadge } from "src/components/events/event-badge";
 import { EventHost } from "src/components/events/event-host";
 import { EventBadgeMintForm } from "src/components/events/event-badge-mint-form";
+import { TabContext, TabList, TabPanel } from "@mui/lab";
 
 const dummy = {
   host: {
@@ -79,6 +80,7 @@ const dummy = {
 
 const Page = () => {
   const [data, setData] = useState(dummy);
+  const [tabNum, setTabNum] = useState("1");
   const router = useRouter();
 
   const { id } = router.query;
@@ -97,9 +99,15 @@ const Page = () => {
         initial_quantity: 10,
         remaining_quantity: 10,
         created_at: "2021-10-01T00:00:00.000000Z",
+        preview: values.preview,
       },
     }));
+    setTabNum("3");
   }, []);
+
+  const handleTabChange = (event, value) => {
+    setTabNum(value);
+  };
 
   return (
     <>
@@ -127,13 +135,33 @@ const Page = () => {
                 </Button>
               </Stack>
             </Stack>
-            <EventHost host={data.host} />
-            {data.badge ? (
-              <EventBadge badge={data.badge} />
-            ) : (
-              <EventBadgeMintForm handleMintBadge={handleMintBadge} />
-            )}
-            <EventDetails event={data.event} />
+            <TabContext value={tabNum}>
+              <TabList onChange={handleTabChange}>
+                <Tab label="Host" value="1" />
+                <Tab label="Detail" value="2" />
+                {data.badge ? <Tab label="Badge" value="3" /> : <Tab label="Mint" value="4" />}
+
+                <Tab label="Entry" value="5" />
+                <Tab label="QR Code" value="6" />
+              </TabList>
+              <TabPanel value={"1"}>
+                <EventHost host={data.host} />
+              </TabPanel>
+              <TabPanel value={"2"}>
+                <EventDetails event={data.event} />
+              </TabPanel>
+              {data.badge ? (
+                <TabPanel value={"3"}>
+                  <EventBadge badge={data.badge} />
+                </TabPanel>
+              ) : (
+                <TabPanel value={"4"}>
+                  <EventBadgeMintForm handleMintBadge={handleMintBadge} />
+                </TabPanel>
+              )}
+              <TabPanel value={"5"}>Entry</TabPanel>
+              <TabPanel value={"6"}>QR Code</TabPanel>
+            </TabContext>
           </Stack>
         </Container>
       </Box>

@@ -35,7 +35,7 @@ export const EventBadge = ({ badge }) => (
         }}
       >
         <Avatar
-          src={badge.image_url}
+          src={badge.preview}
           sx={{
             height: 80,
             mb: 2,
