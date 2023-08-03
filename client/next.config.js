@@ -2,7 +2,7 @@
 const nextConfig = {
   reactStrictMode: false,
   images: {
-    domains: ['example.com', 'plohub-bucket.s3.ap-northeast-2.amazonaws.com', 'gold-cool-goat-213.mypinata.cloud'],
+    domains: ['example.com', 'plohub-bucket.s3.ap-northeast-2.amazonaws.com', 'gold-cool-goat-213.mypinata.cloud', 'i.namu.wiki'],
   },
   webpack: (config, { dev }) => {
     if (dev) {

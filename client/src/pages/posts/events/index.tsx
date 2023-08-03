@@ -21,6 +21,7 @@ export const getServerSideProps = async (context: GetServerSidePropsContext) => 
   const last_id = query.page ? query.page : '';
   const title = query.title ? query.title : null;
   const content = query.content ? query.content : null;
+  const status = query.status ? query.status : null;
 
   try {
     let URL;
@@ -29,6 +30,8 @@ export const getServerSideProps = async (context: GetServerSidePropsContext) => 
       URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/events/list?last_id=${last_id}&title=${title}`;
     } else if(content) {
       URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/events/list?last_id=${last_id}&content=${content}`;
+    } else if(status) {
+      URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/events/list?status=${status}`;
     } else {
       URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/events/list?last_id=${last_id}`;
     }
@@ -39,21 +42,20 @@ export const getServerSideProps = async (context: GetServerSidePropsContext) => 
     const isCookie = true;
 
     const res = await ApiCaller.get(URL, dataBody, isJSON, headers, isCookie);
-
-    console.log(res)
+    console.log(res.data.data.last_id)
 
     let eventList;
     let lastId;
     if (res.status === 200 && res.data.success) {
       eventList = res.data.data.data;
-      lastId = res.data.last_id;
+      lastId = res.data.data.last_id;
     } else {
       // API 호출에 실패하면 오류 메시지를 출력하고 빈 객체를 반환합니다.
       console.error('API 호출 실패:', res.data.message);
       eventList = {};
       lastId = '';
     }
-    return { props: { eventList } };
+    return { props: { eventList, lastId } };
   } catch (error) {
     console.error('이벤트 리스트를 가져오는데 실패했습니다:', error);
 

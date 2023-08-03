@@ -40,8 +40,6 @@ export const getServerSideProps = async (context: GetServerSidePropsContext) => 
 
     const res = await ApiCaller.get(URL, dataBody, isJSON, headers, isCookie);
 
-    console.log(res.data.data.pagination.pagination)
-
     let noticeList;
     let noticePagination;
     if (res.status === 200 && res.data.success) {

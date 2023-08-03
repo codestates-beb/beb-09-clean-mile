@@ -4,31 +4,28 @@ import Image from 'next/image';
 import { useRouter } from 'next/router';
 import Swal from 'sweetalert2';
 import { AxiosError } from 'axios';
-import { useSelector, useDispatch } from 'react-redux';
 import { GiHamburgerMenu, GiToken } from 'react-icons/gi';
 import { IoCloseSharp } from 'react-icons/io5';
 import { BiSolidDownArrow, BiSolidUser } from 'react-icons/bi';
 import { IoMdCreate } from 'react-icons/io';
 import { FiLogOut } from 'react-icons/fi';
 import { useMutation, useQueryClient, dehydrate } from 'react-query';
-import { Nav, NewNotice } from '../Reference';
-import { UserInfo, Post } from '../Interfaces';
+import { Nav, NewNotice, hero_img } from '../Reference';
+import { User, UserInfo, Post, Dnft } from '../Interfaces';
 import { ApiCaller } from '../Utils/ApiCaller';
-import { setLoggedIn } from '../Redux';
 
 const Header = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const dispatch = useDispatch();
 
   const [isOpen, setIsOpen] = useState(false);
   const [isMenu, setIsMenu] = useState(false);
   const [isUserMenuOpen, setUserMenuOpen] = useState(false);
   const [arrowRotation, setArrowRotation] = useState(0);
-  const [userInfoData, setUserInfoData] = useState<UserInfo | null>(null);
-  const [dnftData, setDnftData] = useState(null);
+  const [userInfoData, setUserInfoData] = useState<User | null>(null);
+  const [dnftData, setDnftData] = useState<Dnft | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [latestNotice, setLatestNotice] = useState<Post>(null);
+  const [latestNotice, setLatestNotice] = useState<Post | null>(null);
 
   /**
    * 특정 URI로 이동하는 함수
@@ -78,7 +75,7 @@ const Header = () => {
       queryClient.setQueryData('user_info', data);
 
       const dehydratedState = dehydrate(queryClient);
-      localStorage.setItem('user_info', JSON.stringify(dehydratedState));
+      sessionStorage.setItem('user_info', JSON.stringify(dehydratedState));
     },
     onError: (error) => {
       console.log('Mutation Error: ', error);
@@ -86,10 +83,10 @@ const Header = () => {
   });
 
   useEffect(() => {
-    const user = localStorage.getItem('user');
-    const userInfo = localStorage.getItem('user_info');
+    const user = sessionStorage.getItem('user');
+    const userInfo = sessionStorage.getItem('user_info');
     if (userInfo) {
-      const userCache = JSON.parse(localStorage.getItem('user_info') || '');
+      const userCache = JSON.parse(sessionStorage.getItem('user_info') || '');
       setUserInfoData(userCache.queries[0]?.state.data.user);
       setDnftData(userCache.queries[0]?.state.data.dnftData);
     }
@@ -138,12 +135,11 @@ const Header = () => {
               router.replace('/');
 
               if (typeof window !== "undefined") {
-                localStorage.removeItem('user');
-                localStorage.removeItem('user_info');
+                sessionStorage.removeItem('user');
+                sessionStorage.removeItem('user_info');
               }
               queryClient.removeQueries('user');
               queryClient.removeQueries('user_info');
-              dispatch(setLoggedIn(false));
             });
           } else {
             Swal.fire({
@@ -313,7 +309,11 @@ const Header = () => {
                   rounded-full 
                   relative 
                   overflow-hidden'>
-                  <Image src={dnftData?.image_url} layout='fill' objectFit='cover' alt='user profile image' />
+                  {dnftData && dnftData.image_url ? (
+                    <Image src={dnftData.image_url} layout='fill' className='object-cover' alt='user profile image' />
+                  ) : (
+                    <Image src={hero_img} layout='fill' className='object-cover' alt='default profile image' />
+                  )}
                 </div>
                 <p onClick={menuToggle}>{userInfoData?.nickname}</p>
                 <div className='relative cursor-pointer'>
@@ -347,7 +347,7 @@ const Header = () => {
                         <GiToken size={20} />
                         50 CM
                       </li>
-                      <Link href={{ pathname: '/users/profile', query: { id: userInfoData._id } }}>
+                      <Link href='/users/mypage'>
                         <li className="
                           flex 
                           justify-center 

@@ -2,10 +2,10 @@ import React from 'react';
 import { GetServerSidePropsContext } from 'next';
 import { Header, EventDetail, Footer } from '../../../Components/Reference'
 import { ApiCaller } from '../../../Components/Utils/ApiCaller';
-import { EventList, Comment } from '../../../Components/Interfaces';
+import { EventDetailType, Comment } from '../../../Components/Interfaces';
 
 
-const EventDetailPage = ({ eventDetail, comments }: { eventDetail: EventList, comments: Comment}) => {
+const EventDetailPage = ({ eventDetail, comments }: { eventDetail: EventDetailType, comments: Comment}) => {
   return (
     <>
       <Header />
@@ -19,7 +19,6 @@ export default EventDetailPage;
 
 export const getServerSideProps = async (context: GetServerSidePropsContext) => {
   const { pid } = context.query;
-  console.log(context.query);
 
   const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/events/detail/${pid}`;
   const dataBody = null;
@@ -29,8 +28,6 @@ export const getServerSideProps = async (context: GetServerSidePropsContext) => 
 
   // username과 다른 쿼리 파라미터를 사용하여 필요한 데이터를 가져옵니다.
   const res = await ApiCaller.get(URL, dataBody, isJSON, headers, isCookie);
-
-  console.log(res.data.data.event);
 
   let eventDetail;
   let comments;

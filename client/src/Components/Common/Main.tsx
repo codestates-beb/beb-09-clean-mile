@@ -65,10 +65,9 @@ const Main = () =>  {
                 key={item.id}>
                 <div className='border-b-2 relative pb-[65%] sm:pb-[90%] xs:pb-[90%]'>
                   <Image 
-                    className='rounded-t-3xl'
+                    className='rounded-t-3xl object-cover'
                     src={item.image} 
                     layout='fill'
-                    objectFit='cover' 
                     alt='insta image' 
                   />
                 </div>

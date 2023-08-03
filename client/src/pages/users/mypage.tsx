@@ -1,40 +1,74 @@
 import React from 'react';
 import { GetServerSidePropsContext } from 'next';
-import { Header, UserProfile, Footer } from '../../Components/Reference'
+import cookie from 'cookie';
+import axios from 'axios';
+import { Header, MyPage, Footer } from '../../Components/Reference'
 import { ApiCaller } from '../../Components/Utils/ApiCaller';
 import { User, Pagination, Dnft, UserBadge } from '../../Components/Interfaces';
 
-const UserPage = ({ userInfo, postPagination, userDnft, userBadges }: { userInfo: User, postPagination: Pagination, userDnft: Dnft, userBadges: UserBadge[] }) => {
+const mypage = ({ 
+  userInfo, 
+  eventPagination, 
+  postPagination, 
+  userDnft, 
+  userBadges 
+  }: { 
+  userInfo: User, 
+  eventPagination: Pagination, 
+  postPagination: Pagination, 
+  userDnft: Dnft, 
+  userBadges: UserBadge }) => {
   return (
     <>
       <Header />
-      <UserProfile userInfo={userInfo} postPagination={postPagination} userDnft={userDnft} userBadges={userBadges} />
+      <MyPage 
+      userInfo={userInfo} 
+      eventPagination={eventPagination}
+      postPagination={postPagination} 
+      userDnft={userDnft} 
+      userBadges={userBadges} />
       <Footer />
     </>
   );
 }
 
-export default UserPage;
+export default mypage;
 
 export const getServerSideProps = async (context: GetServerSidePropsContext) => {
-  const { id } = context.query;
+  const cookiesObj = cookie.parse(context.req.headers.cookie || '');
 
+  let cookiesStr = '';
+  if (context.req && cookiesObj) {
+    cookiesStr = Object.entries(cookiesObj)
+      .map(([key, value]) => `${key}=${value}`)
+      .join('; ');
+    axios.defaults.headers.Cookie = cookiesStr;
+  }
+
+  
   try {
-    const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/profile/${id}`;
+    const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/profile`;
     const dataBody = null;
     const headers = {};
     const isJSON = false;
     const isCookie = true;
-
+    
     const res = await ApiCaller.get(URL, dataBody, isJSON, headers, isCookie);
 
+    console.log(res.data.data.badges)
+    
     let userInfo;
+    let userPosts;
     let postPagination;
+    let userEvents;
+    let eventPagination;
     let userDnft;
     let userBadges;
-    
     if (res.status === 200 && res.data.success) {
       userInfo = res.data.data.user;
+      userEvents = res.data.data.events;
+      eventPagination = res.data.data.eventPagination;
+      userPosts = res.data.data.posts;
       postPagination = res.data.data.postPagination;
       userDnft = res.data.data.dnft;
       userBadges = res.data.data.badges;
@@ -46,7 +80,7 @@ export const getServerSideProps = async (context: GetServerSidePropsContext) => 
       userDnft = {};
       userBadges = {};
     }
-    return { props: { userInfo, postPagination, userDnft, userBadges } };
+    return { props: { userInfo, userEvents, eventPagination, userPosts, postPagination, userDnft, userBadges } };
   } catch (error) {
     console.error('유저 정보를 가져오는데 실패했습니다:', error);
 
