@@ -350,8 +350,10 @@ const getReviews = async (last_id, limit, title, content, order) => {
       sort = { created_at: 1 };
       comparisonOperator = last_id ? { $gt: last_id } : undefined;
     } else if (order === 'view') {
-      sort = { 'view.count': -1 };
-      comparisonOperator = last_id ? { $lt: last_id } : undefined;
+      // 조회수를 기준으로 정렬하도록 변경
+      const viewData = await getPostsByViewCount(last_id, limit);
+      const viewIds = viewData.edges.map((item) => item._id.toString());
+      query._id = comparisonOperator = { $in: viewIds };
     }
 
     // last_id가 존재하면, 마지막 id 이후의 문서 조회
@@ -389,6 +391,34 @@ const getReviews = async (last_id, limit, title, content, order) => {
     console.error('Error:', err);
     throw Error(err);
   }
+};
+
+const getPostsByViewCount = async (next, PAGE_SIZE) => {
+  let query = {};
+
+  if (next) {
+    const [nextViewCount] = next.split('_');
+    query = { 'view.count': { $lt: parseInt(nextViewCount) } };
+  }
+
+  const posts = await PostModel.find(query)
+    .sort({ 'view.count': -1, _id: -1 }) // 조회수 내림차순으로 정렬
+    .limit(PAGE_SIZE + 1) // 한 페이지 크기보다 한 개 더 크게 조회
+    .exec();
+
+  const hasNextPage = posts.length > PAGE_SIZE;
+  const edges = hasNextPage ? posts.slice(0, -1) : posts;
+
+  const lastItem = edges[edges.length - 1];
+  const nextCursor = lastItem ? `${lastItem.view.count}_${lastItem._id}` : null;
+
+  return {
+    edges,
+    pageInfo: {
+      hasNextPage,
+      nextCursor: nextCursor,
+    },
+  };
 };
 
 module.exports = {

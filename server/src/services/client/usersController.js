@@ -7,6 +7,8 @@ const UserModel = require('../../models/Users');
 const PostModel = require('../../models/Posts');
 const EventModel = require('../../models/Events');
 const EventEntryModel = require('../../models/EventEntries');
+const dnftController = require('../contract/dnftController');
+const badgeController = require('../contract/badgeController');
 
 /**
  * 랜덤 인증코드 생성 (min ~ max)
@@ -309,6 +311,52 @@ const getEvents = async (userId, page, limit) => {
 };
 
 /**
+ * 사용자 프로필 조회 (user, dnft, badge, posts)
+ * @param {*} userId
+ * @returns 조회 결과
+ */
+const getProfile = async (userId) => {
+  try {
+    // 사용자 정보 조회
+    const user = await UserModel.findById(userId).select('-__v -hashed_pw');
+    if (!user) {
+      return { success: false, message: '존재하지 않는 사용자 입니다.' };
+    }
+
+    // dnft 정보 조회
+    const dnftData = await dnftController.userDnftData(userId);
+    if (!dnftData.success) {
+      return { success: false, message: 'dnft 정보를 조회할 수 없습니다.' };
+    }
+
+    // badge 정보 조회
+    const badges = await badgeController.userBadges(userId);
+    if (!badges.success) {
+      return { success: false, message: 'badge 정보를 조회할 수 없습니다.' };
+    }
+
+    // 사용자가 작성한 게시글 목록 조회 (review, general)
+    const posts = await getPosts(userId, 1, 5);
+    if (!posts) {
+      return { success: false, message: '게시글 정보를 조회할 수 없습니다.' };
+    }
+
+    return {
+      success: true,
+      data: {
+        user: user,
+        dnft: dnftData.data,
+        badges: badges.data,
+        posts: posts,
+      },
+    };
+  } catch (err) {
+    console.error('Error:', err);
+    throw Error(err);
+  }
+};
+
+/**
  * 사용자 닉네임 변경
  * @param {string} email
  * @param {string} nickname
@@ -395,4 +443,5 @@ module.exports = {
   getEvents,
   changeBanner,
   setTokenCookie,
+  getProfile,
 };
