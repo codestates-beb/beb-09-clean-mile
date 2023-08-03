@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useReducer, useRef, useState } from "react";
+import { useRouter } from "next/router";
 import PropTypes from "prop-types";
 import axios from "axios";
-import { ca } from "date-fns/locale";
 
 const HANDLERS = {
   INITIALIZE: "INITIALIZE",
@@ -65,9 +65,11 @@ export const AuthProvider = (props) => {
   const [refreshIntervalId, setRefreshIntervalId] = useState(null);
   const initialized = useRef(false);
 
+  const router = useRouter();
+
   const getAuthenticated = () => {
     try {
-      return window.sessionStorage.getItem("authenticated") === "true";
+      return window.localStorage.getItem("clean-mile-admin-authenticated") === "true";
     } catch (err) {
       throw err;
     }
@@ -75,7 +77,7 @@ export const AuthProvider = (props) => {
 
   const setAuthenticated = (authenticated) => {
     try {
-      window.sessionStorage.setItem("authenticated", authenticated);
+      window.localStorage.setItem("clean-mile-admin-authenticated", authenticated);
     } catch (err) {
       throw err;
     }
@@ -117,7 +119,17 @@ export const AuthProvider = (props) => {
   };
 
   const refresh = async () => {
+    let isAuthenticated = false;
+
+    console.log("refresh");
+
     try {
+      isAuthenticated = getAuthenticated();
+
+      if (!isAuthenticated) {
+        throw new Error("Not authenticated");
+      }
+
       const res = await axios.post("http://localhost:8080/admin/refresh", null, {
         withCredentials: true,
       });
@@ -132,18 +144,24 @@ export const AuthProvider = (props) => {
       dispatch({
         type: HANDLERS.INITIALIZE,
       });
+      router.push("/auth/login");
     }
   };
 
   const toggleRefresh = (flag) => {
     if (flag) {
       // Refresh every 10 minutes
-      const intervalId = setInterval(() => {
-        refresh();
+      const intervalId = setInterval(async () => {
+        try {
+          await refresh();
+        } catch (err) {
+          console.error(err);
+        }
       }, 10 * 60 * 1000);
 
       setRefreshIntervalId(intervalId);
     } else {
+      console.log("Clearing refresh interval", refreshIntervalId);
       clearInterval(refreshIntervalId);
       setRefreshIntervalId(null);
     }
@@ -177,7 +195,6 @@ export const AuthProvider = (props) => {
       };
 
       setAuthenticated(true);
-      toggleRefresh(true);
 
       dispatch({
         type: HANDLERS.SIGN_IN,
@@ -188,9 +205,9 @@ export const AuthProvider = (props) => {
     }
   };
 
-  const signOut = () => {
+  const signOut = async () => {
     try {
-      const res = axios.post("http://localhost:8080/admin/logout", null, {
+      const res = await axios.post("http://localhost:8080/admin/logout", null, {
         withCredentials: true,
       });
 
@@ -212,7 +229,6 @@ export const AuthProvider = (props) => {
   useEffect(() => {
     try {
       initialize();
-      toggleRefresh(state.isAuthenticated);
     } catch (err) {
       console.error(err);
     }
@@ -224,6 +240,7 @@ export const AuthProvider = (props) => {
         ...state,
         signIn,
         signOut,
+        toggleRefresh,
       }}
     >
       {children}
