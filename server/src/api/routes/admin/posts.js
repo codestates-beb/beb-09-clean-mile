@@ -3,7 +3,7 @@ const upload = require('../../../loaders/s3');
 const isAdminAuth = require('../../middlewares/isAdminAuth');
 const adminPostsController = require('../../../services/admin/postsController');
 const { getUser } = require('../../../services/client/usersController');
-const tokenController = require("../../../services/contract/tokenController");
+const tokenController = require('../../../services/contract/tokenController');
 
 const route = Router();
 
@@ -110,18 +110,28 @@ module.exports = (app) => {
     }
   });
 
-    /**
+  /**
    * @route POST /admin/posts/reward
    * @group Admin - Post
    * @summary 후기 작성 보상
    */
-  route.post('/reward', /*isAdminAuth*/ async (req ,res) => {
-    const {userId, eventId} = req.body;
-    
-    const tokenTransfer = await tokenController.mileageReward(userId, eventId);
-    if (!tokenTransfer.success){
-      return res.status(400).json({success: false, message: tokenTransfer.message});
+  route.post(
+    '/reward',
+    /*isAdminAuth*/ async (req, res) => {
+      const { userId, eventId } = req.body;
+
+      const tokenTransfer = await tokenController.mileageReward(
+        userId,
+        eventId
+      );
+      if (!tokenTransfer.success) {
+        return res
+          .status(400)
+          .json({ success: false, message: tokenTransfer.message });
+      }
+      return res
+        .status(200)
+        .json({ success: true, message: '토큰 보상 지급 성공' });
     }
-    return res.status(200).json({success:true, message: '토큰 보상 지급 성공'});
-  })
+  );
 };
