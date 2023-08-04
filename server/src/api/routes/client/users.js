@@ -590,11 +590,16 @@ route.get('/userInfo', isAuth, async (req, res) => {
      * @todo 사용자 배지, dnft 정보 조회 수정 필요
      */
     const dnftData = await dnftController.userDnftData(user_id);
-    if (!dnftData.success) return res.status(400).json({ success: false, message: dnftData.message });
+    if (!dnftData.success)
+      return res
+        .status(400)
+        .json({ success: false, message: dnftData.message });
 
     const badgeData = await badgeController.userBadges(user_id);
-    if (!badgeData.success) return res.status(400).json({ success: false, message: badgeData.message });
-
+    if (!badgeData.success)
+      return res
+        .status(400)
+        .json({ success: false, message: badgeData.message });
 
     // 사용자 작성한 General, Review Posts List 조회
     const posts = await usersController.getPosts(user_id);
@@ -693,27 +698,25 @@ route.post(
  * @group users - 사용자 관련
  * @summary 마일리지를 토큰으로 교환
  */
-route.post(
-  '/token-exchange',
-  /*isAuth*/ async (req, res) => {
-    try {
-      const { userId } = req.body;
+route.post('/token-exchange', isAuth, async (req, res) => {
+  try {
+    // const { userId } = req.body;
+    const userId = req.decoded.user_id;
 
-      const tokenExchange = await tokenController.tokenExchange(userId);
-      if (!tokenExchange.success)
-        return res
-          .status(400)
-          .json({ success: false, message: tokenExchange.message });
-
+    const tokenExchange = await tokenController.tokenExchange(userId);
+    if (!tokenExchange.success)
       return res
-        .status(200)
-        .json({ success: true, message: '토큰 교환에 성공했습니다.' });
-    } catch (err) {
-      console.error('Error:', err);
-      return res.status(500).json({
-        success: false,
-        message: '서버 오류',
-      });
-    }
+        .status(400)
+        .json({ success: false, message: tokenExchange.message });
+
+    return res
+      .status(200)
+      .json({ success: true, message: '토큰 교환에 성공했습니다.' });
+  } catch (err) {
+    console.error('Error:', err);
+    return res.status(500).json({
+      success: false,
+      message: '서버 오류',
+    });
   }
-);
+});
