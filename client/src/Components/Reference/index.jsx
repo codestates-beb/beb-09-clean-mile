@@ -5,7 +5,8 @@ import NewNotice from '../Common/NewNotice';
 import Footer from '../Common/Footer';
 import Login from '../Users/Login';
 import SignUp from '../Users/SignUp';
-import Profile from '../Users/Profile';
+import MyPage from '../Users/MyPage';
+import UserProfile from '../Users/UserProfile';
 import Notice from '../Notice/Notice';
 import NoticeDetail from '../Notice/NoticeDetail';
 import General from '../General/General';
@@ -38,7 +39,8 @@ export {
   Footer,
   Login,
   SignUp,
-  Profile,
+  MyPage,
+  UserProfile,
   Notice,
   NoticeDetail,
   General,

@@ -44,7 +44,7 @@ export const getServerSideProps = async (context: GetServerSidePropsContext) => 
     let postPagination;
     if (res.status === 200 && res.data.success) {
       postList = res.data.data.data;
-      postPagination = res.data.data.pagination.pagination;
+      postPagination = res.data.data.pagination;
     } else {
       // API 호출에 실패하면 오류 메시지를 출력하고 빈 객체를 반환합니다.
       console.error('API 호출 실패:', res.data.message);

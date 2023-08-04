@@ -5,6 +5,7 @@ const isAuth = require('../../middlewares/isAuth');
 const usersController = require('../../../services/client/usersController');
 const dnftController = require('../../../services/contract/dnftController');
 const badgeController = require('../../../services/contract/badgeController');
+const tokenController = require('../../../services/contract/tokenController');
 const {
   checkFileExistence,
   fileValidation,
@@ -677,6 +678,37 @@ route.post(
           message: 'DNFT 업그레이드에 실패하였습니다',
         });
       }
+    } catch (err) {
+      console.error('Error:', err);
+      return res.status(500).json({
+        success: false,
+        message: '서버 오류',
+      });
+    }
+  }
+);
+
+/**
+ * @todo DNFT 업그레이드 api 구현 필요
+ * @route POST /users/token-exchange
+ * @group users - 사용자 관련
+ * @summary 마일리지를 토큰으로 교환
+ */
+route.post(
+  '/token-exchange',
+  /*isAuth*/ async (req, res) => {
+    try {
+      const { userId } = req.body;
+
+      const tokenExchange = await tokenController.tokenExchange(userId);
+      if (!tokenExchange.success)
+        return res
+          .status(400)
+          .json({ success: false, message: tokenExchange.message });
+
+      return res
+        .status(200)
+        .json({ success: true, message: '토큰 교환에 성공했습니다.' });
     } catch (err) {
       console.error('Error:', err);
       return res.status(500).json({

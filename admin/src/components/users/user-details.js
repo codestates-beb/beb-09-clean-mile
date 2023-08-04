@@ -8,7 +8,7 @@ import {
   Unstable_Grid2 as Grid,
 } from "@mui/material";
 
-export const AccountProfileDetails = () => {
+export const UserDetails = () => {
   const [values, setValues] = useState({
     name: "엄준식",
     email: "um@cleanmile.com",

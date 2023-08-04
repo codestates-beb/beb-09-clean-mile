@@ -5,8 +5,6 @@ import { Post } from '../Interfaces';
 const NewNotice = ({ latestNotice }: { latestNotice: Post }) => {
   const router = useRouter();
 
-  console.log(latestNotice)
-
   return (
     <div className='w-full flex justify-center bg-green-700 text-white py-2 sticky top-[79px] z-10'>
       <p className='font-bold mr-4'>New</p>

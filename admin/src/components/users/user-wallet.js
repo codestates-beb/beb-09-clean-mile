@@ -12,7 +12,7 @@ const wallet = {
   token_amount: 1,
 };
 
-export const AccountWallet = () => (
+export const UserWallet = () => (
   <Card sx={{ p: 3 }}>
     <CardHeader title="Wallet" />
     <CardContent sx={{ pt: 0 }}>

@@ -119,11 +119,14 @@ module.exports = (app) => {
     /*isAdminAuth*/ async (req, res) => {
       const { userId, eventId } = req.body;
 
-      const tokenTransfer = await tokenController.tokenReward(userId, eventId);
+      const tokenTransfer = await tokenController.mileageReward(
+        userId,
+        eventId
+      );
       if (!tokenTransfer.success) {
         return res
           .status(400)
-          .json({ success: false, message: '토큰 보상 지급 실패' });
+          .json({ success: false, message: tokenTransfer.message });
       }
       return res
         .status(200)

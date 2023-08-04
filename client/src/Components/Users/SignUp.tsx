@@ -397,7 +397,7 @@ const SignUp = () => {
    */
   const getSigning = useCallback(() => {
     if (userAddressQuery.data) {
-      localStorage.setItem('Sign',
+      sessionStorage.setItem('Sign',
         `Welcome to Clean Mile! Click \"Sign\" to sign in. No password needed! I accept the MetaWis Terms of Service: Wallet address:${userAddressQuery.data ? userAddressQuery.data.toLowerCase() : ''}`,
       );
     }
@@ -449,7 +449,6 @@ const SignUp = () => {
     try {
       await window.ethereum.request({ method: 'eth_requestAccounts' });
     } catch (error) {
-      console.log(error);
       if (!window.ethereum) {
         // 메타마스크 설치가 안되어 있을 경우 설치 페이지로 이동
         if (agent.indexOf('chrome') != -1 || agent.indexOf('msie') != -1) {         // 크롬일 경우

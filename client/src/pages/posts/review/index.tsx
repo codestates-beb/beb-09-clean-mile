@@ -51,7 +51,7 @@ export const getServerSideProps = async (context: GetServerSidePropsContext) => 
       reviewList = {};
       lastId = '';
     }
-    return { props: { reviewList } };
+    return { props: { reviewList, lastId } };
   } catch (error) {
     console.error('이벤트 리스트를 가져오는데 실패했습니다:', error);
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -7,26 +7,26 @@ import { AxiosError } from 'axios';
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import { PostDetail, Comment, UserInfo } from '../Interfaces';
+import { PostDetail, Comment, User } from '../Interfaces';
 import { ApiCaller } from '../Utils/ApiCaller';
 import { Comments } from '../Reference';
 
 const GeneralDetail = ({ postDetail, comments }: { postDetail: PostDetail, comments: Comment[] }) => {
   const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+  const [userInfo, setUserInfo] = useState<User | null>(null);
 
-  const settings = {
+  const settings = useMemo(() => ({
     dots: true,
     infinite: false,
     speed: 500,
     slidesToShow: postDetail?.media.img.length > 2 ? 3 : postDetail?.media.img.length,
     slidesToScroll: postDetail?.media.img.length > 2 ? 3 : postDetail?.media.img.length,
-  };
+  }), [postDetail?.media.img.length]);
 
   useEffect(() => {
-    if (typeof window !== "undefined" && localStorage.getItem('user')) {
-      const userCache = JSON.parse(localStorage.getItem('user') || '');
+    if (typeof window !== "undefined" && sessionStorage.getItem('user')) {
+      const userCache = JSON.parse(sessionStorage.getItem('user') || '');
       setIsLoggedIn(userCache !== null);
       setUserInfo(userCache.queries[0]?.state.data)
     }
@@ -110,7 +110,7 @@ const GeneralDetail = ({ postDetail, comments }: { postDetail: PostDetail, comme
         <div className='w-full flex justify-between items-center border-b'>
           <p className='mb-3 font-bold text-2xl xs:text-xl'>{postDetail.title}</p>
           <div className='flex items-center gap-6 xs:gap-6 font-semibold text-xl xs:text-sm mb-3 xs:mb-1'>
-            <p className='cursor-pointer hover:underline' onClick={() => router.push(`/user/profile`)}>
+            <p className='cursor-pointer hover:underline' onClick={() => router.push(`/users/profile?id=${postDetail.user_id._id}`)}>
               {postDetail.user_id.nickname}
             </p>
             <p>{postDetail.updated_at.split('T')[0]} {postDetail.updated_at.substring(11, 19)}</p>
@@ -119,23 +119,29 @@ const GeneralDetail = ({ postDetail, comments }: { postDetail: PostDetail, comme
         </div>
         <div className='w-full max-h-full flex flex-col whitespace-pre-wrap'>
           <div className='w-[60%] h-[60%] mx-auto mb-10'>
-            {postDetail.media.img.length !== 0 || postDetail.media.video.length !== 0 ? (
-              <Slider {...settings} className='relative w-full h-full flex justify-center items-center'>
+            {postDetail.media.img.length === 0 ? (
+              null
+            ) : postDetail.media.img.length <= 2 ? (
+              postDetail.media.img.map((media, index) => (
+                <div key={index} className="w-full h-full flex justify-center">
+                  <Image src={media} width={400} height={100} key={index} alt='post media' />
+                </div>
+              ))
+            ) : (
+              <Slider {...settings} className='w-full h-full flex justify-center items-center'>
                 {postDetail.media.img.map((media, index) => (
                   <div key={index} className="w-full h-full">
-                    <Image src={media.url} layout="fill" objectFit="contain" key={index} alt='post media' />
+                    <img src={media} className='w-full h-full object-contain' key={index} alt='post media'/>
                   </div>
                 ))}
               </Slider>
-            ) : (
-              null
             )}
           </div>
           <div>
             <p>{postDetail.content}</p>
           </div>
         </div>
-        <Comments postDetail={postDetail} comments={comments} />
+        <Comments postDetailId={postDetail._id} comments={comments} />
         <div className='w-full flex gap-3 xs:gap-2 justify-end my-16'>
           {isLoggedIn && userInfo?._id === postDetail.user_id._id ? (
             <>

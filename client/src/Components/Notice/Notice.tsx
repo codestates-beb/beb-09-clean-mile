@@ -69,10 +69,14 @@ const Notice = ({ noticeList, noticePagination }: { noticeList: Post, noticePagi
                         <p className="text-xl sm:text-sm xs:text-xs font-semibold">{i + 1}</p>
                       </td>
                       <td className="border-b p-6 sm:p-3 xs:p-2">
-                        <p className="text-gray-600 sm:text-sm xs:text-xs"> {post.title}</p>
+                        <p className="text-gray-600 sm:text-sm xs:text-xs">
+                          {post.title.length >= 20 ? post.title.slice(0, 20) + '...' : post.title}
+                        </p>
                       </td>
                       <td className="border-b p-6 sm:p-3 xs:p-2">
-                        <p className="text-gray-600 sm:text-sm xs:text-xs"> {post.content}</p>
+                        <p className="text-gray-600 sm:text-sm xs:text-xs">
+                          {post.content.length >= 20 ? post.content.slice(0, 60) + '...' : post.content}
+                        </p>
                       </td>
                       <td className="border-b p-6 sm:p-3 xs:p-2">
                         <p className="text-gray-600 sm:text-sm xs:text-xs">

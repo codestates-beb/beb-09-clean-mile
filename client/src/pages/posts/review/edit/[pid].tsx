@@ -18,7 +18,6 @@ export default ReviewEditPage;
 
 export const getServerSideProps = async (context: GetServerSidePropsContext) => {
   const { pid } = context.query;
-  console.log(context.query);
 
   const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/posts/detail/${pid}`;
   const dataBody = null;
@@ -27,8 +26,6 @@ export const getServerSideProps = async (context: GetServerSidePropsContext) => 
   const isCookie = true;
 
   const res = await ApiCaller.get(URL, dataBody, isJSON, headers, isCookie);
-
-  console.log(res.data);
 
   let reviewDetailDefault;
   if (res.status === 200 && res.data.success) {
