@@ -17,7 +17,7 @@ module.exports = (app) => {
   route.get('/list', isAdminAuth, async (req, res) => {
     try {
       let {
-        category,
+        category = null,
         page = 1,
         title = null,
         content = null,
@@ -25,8 +25,8 @@ module.exports = (app) => {
         limit = 10,
       } = req.query;
 
-      if (category === 'all') {
-        category = null;
+      if (category === 'all' || !category) {
+        category = { $in: ['general', 'review'] };
       }
 
       // 게시물 정보 조회
