@@ -9,11 +9,13 @@ const postSchema = new mongoose.Schema({
     // users collection의 _id를 참조
     type: mongoose.Schema.Types.ObjectId,
     ref: 'user',
+    required: true
   },
   category: {
     // 게시글 카테고리
     type: String,
     enum: ['notice', 'general', 'review'],
+    required: true
   },
   event_id: {
     // events collection의 _id를 참조
@@ -23,6 +25,7 @@ const postSchema = new mongoose.Schema({
   title: {
     // 게시글 제목
     type: String,
+    required: true
   },
   content: {
     // 게시글 내용
