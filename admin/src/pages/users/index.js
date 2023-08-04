@@ -17,22 +17,6 @@ const Page = () => {
   const [filter, setFilter] = useState(filters[0]);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const handlePageChange = useCallback((event, value) => {
-    setPage(value);
-  }, []);
-
-  const handleSocialProviderChange = useCallback((event) => {
-    setSocialProvider(event.target.value);
-  }, []);
-
-  const handleFilterChange = useCallback((event) => {
-    setFilter(event.target.value);
-  }, []);
-
-  const handleSearchTermChange = useCallback((event) => {
-    setSearchTerm(event.target.value);
-  }, []);
-
   const searchUsers = useCallback(async (params) => {
     try {
       const res = await axios.get("http://localhost:8080/admin/users/list", {
@@ -47,13 +31,15 @@ const Page = () => {
       const data = res.data;
 
       if (data && data.data) {
-        const userData = data.data.data;
+        console.log(data);
+
+        const userData = data.data.users;
         const pagination = data.data.pagination;
 
         if (!userData) {
           setUsers([]);
-          setPageCount(pagination.totalPages);
-          setPage(pagination.currentPage);
+          setPageCount(1);
+          setPage(1);
           return;
         }
 
@@ -62,10 +48,6 @@ const Page = () => {
           setPageCount(1);
           setPage(1);
           return;
-        }
-
-        if (!userData || !pagination) {
-          throw new Error(data.message ? data.message : "Invalid response");
         }
 
         setUsers(userData);
@@ -80,6 +62,22 @@ const Page = () => {
       setPageCount(1);
       setPage(1);
     }
+  }, []);
+
+  const handlePageChange = useCallback((event, value) => {
+    setPage(value);
+  }, []);
+
+  const handleSocialProviderChange = useCallback((event) => {
+    setSocialProvider(event.target.value);
+  }, []);
+
+  const handleFilterChange = useCallback((event) => {
+    setFilter(event.target.value);
+  }, []);
+
+  const handleSearchTermChange = useCallback((event) => {
+    setSearchTerm(event.target.value);
   }, []);
 
   const handleSearchTermSubmit = useCallback(
@@ -122,8 +120,10 @@ const Page = () => {
       params.social_provider = socialProvider;
     }
 
+    params.page = page;
+
     searchUsers(params);
-  }, [socialProvider]);
+  }, [socialProvider, page]);
 
   return (
     <>

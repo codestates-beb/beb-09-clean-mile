@@ -3,56 +3,64 @@ import { Box, Container, Stack, Select, MenuItem, Typography } from "@mui/materi
 import { Layout as DashboardLayout } from "src/layouts/dashboard/layout";
 import { useCallback, useEffect, useState } from "react";
 import { SearchBar } from "src/components/search-bar";
-import { PostsTable } from 'src/components/posts/posts-table';
+import { PostsTable } from "src/components/posts/posts-table";
+import axios from "axios";
 
-const data = [
-  {
-    id: "2569ce0d517a7f06d3ea1f24",
-    title: "hic-modi-officia",
-    content: "Doloribus voluptatem voluptatem.",
-    writer: "Beatty",
-    view: 12,
-    createdAt: "27/03/2019",
-    category: "general",
-  },
-  {
-    id: "2569ce0d517a7f06d3ea1f24",
-    title: "hic-modi-officia",
-    content: "Doloribus voluptatem voluptatem.",
-    writer: "Beatty",
-    view: 12,
-    createdAt: "27/03/2019",
-    category: "review",
-  },
-  {
-    id: "2569ce0d517a7f06d3ea1f24",
-    title: "hic-modi-officia",
-    content: "Doloribus voluptatem voluptatem.",
-    writer: "Beatty",
-    view: 12,
-    createdAt: "27/03/2019",
-    category: "general",
-  },
-  {
-    id: "2569ce0d517a7f06d3ea1f24",
-    title: "hic-modi-officia",
-    content: "Doloribus voluptatem voluptatem.",
-    writer: "Beatty",
-    view: 12,
-    createdAt: "27/03/2019",
-    category: "general",
-  },
-];
 const categories = ["all", "general", "review"];
 const filters = ["all", "title", "content", "writer"];
 
 const Page = () => {
   const [page, setPage] = useState(1);
   const [pageCount, setPageCount] = useState(5);
-  const [posts, setPosts] = useState(data);
+  const [posts, setPosts] = useState([]);
   const [category, setCategory] = useState(categories[0]);
   const [filter, setFilter] = useState(filters[0]);
   const [searchTerm, setSearchTerm] = useState("");
+
+  const searchPosts = useCallback(async (params) => {
+    try {
+      const res = await axios.get("http://localhost:8080/admin/posts/list", {
+        withCredentials: true,
+        params,
+      });
+
+      if (!res || res.status !== 200) {
+        throw new Error("Invalid response");
+      }
+
+      const data = res.data;
+
+      if (data && data.data) {
+        const postData = data.data.data;
+        const pagination = data.data.pagination;
+
+        if (!postData) {
+          setPosts([]);
+          setPageCount(1);
+          setPage(1);
+          return;
+        }
+
+        if (!pagination) {
+          setPosts(postData);
+          setPageCount(1);
+          setPage(1);
+          return;
+        }
+
+        setPosts(postData);
+        setPageCount(pagination.totalPages);
+        setPage(pagination.currentPage);
+      } else {
+        throw new Error(data.message ? data.message : "Invalid response");
+      }
+    } catch (err) {
+      console.log(err);
+      setPosts([]);
+      setPageCount(1);
+      setPage(1);
+    }
+  }, []);
 
   const handlePageChange = useCallback((event, value) => {
     setPage(value);
@@ -71,20 +79,49 @@ const Page = () => {
   }, []);
 
   const handleSearchTermSubmit = useCallback(
-    (event) => {
+    async (event) => {
       event.preventDefault();
 
       if (!searchTerm) return;
 
-      console.log(filter, searchTerm);
+      const params = {};
+
+      if (category !== "all") {
+        params.category = category;
+      }
+
+      if (filter !== "all") {
+        switch (filter) {
+          case "title":
+            params.title = searchTerm;
+            break;
+          case "content":
+            params.content = searchTerm;
+            break;
+          case "writer":
+            params.writer = searchTerm;
+            break;
+          default:
+            throw new Error("Invalid filter");
+        }
+      }
+
+      await searchPosts(params);
     },
     [filter, searchTerm]
   );
 
   useEffect(() => {
-    const filteredPosts = category === "all" ? data : data.filter((e) => e.category === category);
-    setPosts(filteredPosts);
-  }, [category]);
+    const params = {};
+
+    if (category !== "all") {
+      params.category = category;
+    }
+
+    params.page = page;
+
+    searchPosts(params);
+  }, [category, page]);
 
   return (
     <>

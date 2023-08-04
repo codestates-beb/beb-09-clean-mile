@@ -1,24 +1,26 @@
 import PlusIcon from "@heroicons/react/24/solid/PlusIcon";
-import {
-  Avatar,
-  Box,
-  Card,
-  CardContent,
-  CardHeader,
-  TextField,
-  Unstable_Grid2 as Grid,
-  Typography,
-  Button,
-} from "@mui/material";
+import { Box, Card, CardContent, CardHeader, Typography, Button } from "@mui/material";
+import axios from "axios";
 import Image from "next/image";
 import { useState } from "react";
 
 export const EventQRCodeLoader = ({ eventId }) => {
-  const [qrCode, setQRCode] = useState(null);
+  const [qrCode, setQRCode] = useState("");
 
   const handleGenerateQRCode = async () => {
-    console.log("handleGenerateQRCode");
-    setQRCode("https://plohub-bucket.s3.ap-northeast-2.amazonaws.com/response.png");
+    try {
+      const res = await axios.post(`http://localhost:8080/admin/events/qrcode/${eventId}`, null, {
+        withCredentials: true,
+      });
+
+      if (res && res.status === 200) {
+        setQRCode(res.data.data);
+      } else {
+        throw new Error("Failed to generate QR Code");
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const QRCodeGenerator = () => {
@@ -47,7 +49,7 @@ export const EventQRCodeLoader = ({ eventId }) => {
           flexDirection: "column",
         }}
       >
-        <Image src={qrCode} width={300} height={300} />
+        <Image src={qrCode} width={400} height={400} alt="qrcode" />
       </Box>
     );
   };

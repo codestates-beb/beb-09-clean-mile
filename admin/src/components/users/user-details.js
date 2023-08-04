@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   Box,
   Card,
@@ -7,19 +6,10 @@ import {
   TextField,
   Unstable_Grid2 as Grid,
 } from "@mui/material";
+import { format } from "date-fns";
 
-export const UserDetails = () => {
-  const [values, setValues] = useState({
-    name: "엄준식",
-    email: "um@cleanmile.com",
-    nickname: "엄마가 준비한 식사",
-    phone_number: "010-xxxx-xxxx",
-    social_provider: "kakao",
-    user_type: 0,
-    created_at: "2021-10-01 00:00:00",
-    instagram_url: "",
-  });
-
+export const UserDetails = ({ user = {} }) => {
+  const createdAt = user.created_at ? format(new Date(user.created_at), "MM/dd/yyyy") : "N/A";
   return (
     <Card sx={{ p: 3 }}>
       <CardHeader title="Profile" />
@@ -31,7 +21,7 @@ export const UserDetails = () => {
                 fullWidth
                 label="Name"
                 name="name"
-                value={values.name}
+                value={user.name}
                 InputProps={{
                   readOnly: true,
                 }}
@@ -42,7 +32,7 @@ export const UserDetails = () => {
                 fullWidth
                 label="Nickname"
                 name="nickname"
-                value={values.nickname}
+                value={user.nickname}
                 InputProps={{
                   readOnly: true,
                 }}
@@ -53,7 +43,7 @@ export const UserDetails = () => {
                 fullWidth
                 label="Email"
                 name="email"
-                value={values.email}
+                value={user.email}
                 InputProps={{
                   readOnly: true,
                 }}
@@ -63,8 +53,8 @@ export const UserDetails = () => {
               <TextField
                 fullWidth
                 label="Phone Number"
-                name="phoneNumber"
-                value={values.phone_number}
+                name="phone_number"
+                value={user.phone_number}
                 InputProps={{
                   readOnly: true,
                 }}
@@ -74,8 +64,8 @@ export const UserDetails = () => {
               <TextField
                 fullWidth
                 label="Social Provider"
-                name="socialProvider"
-                value={values.social_provider}
+                name="social_provider"
+                value={user.social_provider}
                 InputProps={{
                   readOnly: true,
                 }}
@@ -85,8 +75,8 @@ export const UserDetails = () => {
               <TextField
                 fullWidth
                 label="User Type"
-                name="userType"
-                value={values.user_type === 0 ? "일반" : "관리자"}
+                name="user_type"
+                value={user.user_type ? user.user_type : "N/A"}
                 InputProps={{
                   readOnly: true,
                 }}
@@ -96,8 +86,8 @@ export const UserDetails = () => {
               <TextField
                 fullWidth
                 label="Sign Up"
-                name="signUp"
-                value={values.created_at}
+                name="sign_up"
+                value={createdAt}
                 InputProps={{
                   readOnly: true,
                 }}
@@ -108,7 +98,7 @@ export const UserDetails = () => {
                 fullWidth
                 label="Instagram"
                 name="instagram"
-                value={values.instagram_url ? values.instagram_url : "없음"}
+                value={user.instagram_url ? user.instagram_url : "없음"}
                 InputProps={{
                   readOnly: true,
                 }}

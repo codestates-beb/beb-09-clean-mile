@@ -9,8 +9,11 @@ import {
   Button,
   Typography,
 } from "@mui/material";
+import axios from "axios";
 import Image from "next/image";
+import { useRouter } from "next/router";
 import { useCallback, useRef, useState } from "react";
+import { object, string, number, date, array, mixed } from "yup";
 
 const types = [
   {
@@ -35,17 +38,61 @@ const initialValues = {
   preview: "",
 };
 
-export const EventBadgeMintForm = ({ handleMintBadge }) => {
+const badgeMintSchema = object({
+  name: string().required(),
+  description: string().required(),
+  type: number().min(0).max(2).required(),
+  image: mixed(),
+});
+
+export const EventBadgeMintForm = ({ eventId }) => {
   const [values, setValues] = useState(initialValues);
 
   const imageInputRef = useRef();
+
+  const router = useRouter();
+
+  const mintBadge = useCallback(async () => {
+    try {
+      console.log(values);
+      const validated = await badgeMintSchema.validate(values);
+
+      const formData = new FormData();
+
+      formData.append("name", validated.name);
+      formData.append("description", validated.description);
+      formData.append("type", validated.type);
+      formData.append("image", validated.image);
+      formData.append("event_id", eventId);
+
+      const res = await axios.post("http://localhost:8080/admin/events/createBadge", formData, {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      if (res && res.status === 200) {
+        router.reload();
+      } else {
+        throw new Error("Invalid response");
+      }
+    } catch (error) {
+      throw error;
+    }
+  }, []);
 
   const handleChange = useCallback((event) => {
     const { name, value } = event.target;
 
     if (name === "image") {
-      const reader = new FileReader();
       const file = event.target.files[0];
+
+      if (!file.type.startsWith("image/")) {
+        throw new Error("File is not an image");
+      }
+
+      const reader = new FileReader();
       reader.onloadend = () => {
         setValues((prev) => ({
           ...prev,
@@ -55,7 +102,6 @@ export const EventBadgeMintForm = ({ handleMintBadge }) => {
       };
 
       reader.readAsDataURL(file);
-
       return;
     }
 
@@ -69,9 +115,7 @@ export const EventBadgeMintForm = ({ handleMintBadge }) => {
     (event) => {
       event.preventDefault();
       try {
-        handleMintBadge(values);
-        setValues(initialValues);
-        imageInputRef.current.value = "";
+        mintBadge();
       } catch (error) {
         console.log(error);
       }
@@ -138,6 +182,9 @@ export const EventBadgeMintForm = ({ handleMintBadge }) => {
                   required
                   type="file"
                   inputRef={imageInputRef}
+                  inputProps={{
+                    accept: "image/*",
+                  }}
                 />
               </Grid>
               {values.preview && (

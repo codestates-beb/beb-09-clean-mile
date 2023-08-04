@@ -9,10 +9,16 @@ import { PostsTable } from "src/components/posts/posts-table";
 import { CommentsTable } from "src/components/comments/comments-table";
 import { EventsTable } from "src/components/events/events-table";
 import { TabContext, TabList, TabPanel } from "@mui/lab";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 
 const Page = () => {
   const [tabNum, setTabNum] = useState("1");
+  const [user, setUser] = useState({});
+  const [posts, setPosts] = useState([]);
+  const [comments, setComments] = useState([]);
+  const [events, setEvents] = useState([]);
+  const [dnft, setDNFT] = useState({});
 
   const router = useRouter();
   const { id } = router.query;
@@ -20,6 +26,56 @@ const Page = () => {
   const handleTabChange = (event, value) => {
     setTabNum(value);
   };
+
+  const searchUser = async (id) => {
+    try {
+      const res = await axios.get(`http://localhost:8080/admin/users/detail/${id}`, {
+        withCredentials: true,
+      });
+
+      if (!res || res.status !== 200) {
+        throw new Error("Invalid response");
+      }
+
+      const data = res.data;
+
+      if (data && data.data) {
+        const userData = data.data.user;
+        const postsData = data.data.posts;
+        const commentsData = data.data.comments;
+        const eventsData = data.data.events;
+        // const dnftData = data.data.dnft;
+
+        console.log(userData, postsData, commentsData, eventsData);
+
+        if (userData) {
+          setUser(userData);
+        }
+
+        if (postsData) {
+          setPosts(postsData);
+        }
+
+        if (commentsData) {
+          setComments(commentsData);
+        }
+
+        if (eventsData) {
+          setEvents(eventsData);
+        }
+
+        // TODO: DNFT
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    if (id) {
+      searchUser(id);
+    }
+  }, [id]);
 
   return (
     <>
@@ -54,13 +110,13 @@ const Page = () => {
                 <Tab label="Comments" value="6" />
               </TabList>
               <TabPanel value={"1"}>
-                <UserDetails />
+                <UserDetails user={user} />
               </TabPanel>
               <TabPanel value={"2"}>
-                <UserWallet />
+                <UserWallet wallet={user.wallet} />
               </TabPanel>
               <TabPanel value={"3"}>
-                <UserDNFT />
+                <UserDNFT dnft={dnft} />
               </TabPanel>
               <TabPanel value={"4"}>
                 <EventsTable />

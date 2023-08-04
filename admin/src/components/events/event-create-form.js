@@ -11,10 +11,12 @@ import {
 } from "@mui/material";
 import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import axios from "axios";
 import Image from "next/image";
 
 import { useRouter } from "next/router";
 import { useCallback, useRef, useState } from "react";
+import { object, string, number, date, array } from "yup";
 
 const types = [
   {
@@ -37,7 +39,7 @@ const initialValues = {
   content: "",
   location: "",
   capacity: 0,
-  event_type: types[0],
+  event_type: types[0].value,
   recruitment_start_at: new Date(),
   recruitment_end_at: new Date(),
   event_start_at: new Date(),
@@ -46,28 +48,92 @@ const initialValues = {
   preview: [],
 };
 
-export const EventCreateForm = ({ handleCreateEvent }) => {
+const createEventSchema = object({
+  name: string().required(),
+  email: string().email().required(),
+  phone_number: string().required(),
+  wallet_address: string().required(),
+  organization: string().required(),
+  title: string().required(),
+  content: string().required(),
+  location: string().required(),
+  capacity: number().positive().integer().required(),
+  event_type: string()
+    .oneOf(types.map((type) => type.value))
+    .required(),
+  recruitment_start_at: date().required(),
+  recruitment_end_at: date().required(),
+  event_start_at: date().required(),
+  event_end_at: date().required(),
+  poster_image: array().min(1).required(),
+});
+
+export const EventCreateForm = () => {
   const [values, setValues] = useState(initialValues);
   const router = useRouter();
   const imageInputRef = useRef();
+
+  const createEvent = async () => {
+    try {
+      const validated = await createEventSchema.validate(values);
+
+      const formData = new FormData();
+      for (const key in validated) {
+        if (key === "poster_image") {
+          for (const image of validated[key]) {
+            formData.append(key, image);
+          }
+          continue;
+        }
+        formData.append(key, validated[key]);
+      }
+
+      const res = await axios.post("http://localhost:8080/admin/events/create", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        withCredentials: true,
+      });
+
+      if (res && res.status === 200) {
+        router.push("/events");
+      }
+    } catch (error) {
+      throw error;
+    }
+  };
 
   const handleChange = useCallback((event) => {
     const { name, value } = event.target;
 
     if (name === "poster_image") {
-      const reader = new FileReader();
+      const poster_image = [];
+      const preview = [];
+      const files = [];
 
       for (const file of event.target.files) {
+        if (!file.type.startsWith("image/")) {
+          imageInputRef.current.value = "";
+          throw new Error("File type must be image");
+        }
+
+        const reader = new FileReader();
+
         reader.onloadend = () => {
-          setValues((prev) => ({
-            ...prev,
-            poster_image: [...prev.poster_image, file],
-            preview: [...prev.preview, reader.result],
-          }));
+          poster_image.push(file);
+          preview.push(reader.result);
         };
 
         reader.readAsDataURL(file);
+
+        files.push(file);
       }
+
+      setValues((prev) => ({
+        ...prev,
+        poster_image,
+        preview,
+      }));
 
       return;
     }
@@ -82,7 +148,7 @@ export const EventCreateForm = ({ handleCreateEvent }) => {
     (event) => {
       event.preventDefault();
       try {
-        handleCreateEvent(values);
+        createEvent();
         setValues(initialValues);
         if (imageInputRef.current) {
           imageInputRef.current.value = "";
@@ -99,7 +165,7 @@ export const EventCreateForm = ({ handleCreateEvent }) => {
   }, []);
 
   return (
-    <form autoComplete="off" noValidate onsubmit={handleSubmit}>
+    <form autoComplete="off" noValidate onSubmit={handleSubmit}>
       <Card sx={{ p: 3 }}>
         <CardHeader title="Host" />
         <CardContent sx={{ pt: 1 }}>
@@ -120,6 +186,7 @@ export const EventCreateForm = ({ handleCreateEvent }) => {
                   fullWidth
                   label="Host Email"
                   name="email"
+                  type="email"
                   onChange={handleChange}
                   required
                   value={values.email}
@@ -132,7 +199,6 @@ export const EventCreateForm = ({ handleCreateEvent }) => {
                   name="phone_number"
                   onChange={handleChange}
                   required
-                  type="number"
                   value={values.phone_number}
                 />
               </Grid>
@@ -296,6 +362,7 @@ export const EventCreateForm = ({ handleCreateEvent }) => {
                   inputRef={imageInputRef}
                   inputProps={{
                     multiple: true,
+                    accept: "image/*",
                   }}
                 />
               </Grid>

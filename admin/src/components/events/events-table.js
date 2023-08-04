@@ -1,4 +1,6 @@
 import PropTypes from "prop-types";
+import { format } from "date-fns";
+import { utcToZonedTime } from "date-fns-tz";
 import {
   Box,
   Card,
@@ -39,13 +41,15 @@ export const EventsTable = ({ items = [], pageCount, page, handlePageChange }) =
               </TableHead>
               <TableBody>
                 {items.map((event) => {
-                  const createdAt = event.createdAt ? event.createdAt : "N/A";
+                  const createdAt = event.created_at
+                    ? format(utcToZonedTime(new Date(event.created_at)), "MM/dd/yyyy")
+                    : "N/A";
 
                   return (
                     <TableRow
                       hover
-                      key={event.id}
-                      onClick={() => handleEventSelected(event.id)}
+                      key={event._id}
+                      onClick={() => handleEventSelected(event._id)}
                       sx={{
                         "&:hover": {
                           cursor: "pointer",
@@ -54,13 +58,21 @@ export const EventsTable = ({ items = [], pageCount, page, handlePageChange }) =
                     >
                       <TableCell>
                         <Stack alignItems="center" direction="row" spacing={2}>
-                          <Typography variant="subtitle2">{event.title}</Typography>
+                          <Typography variant="subtitle2">
+                            {event.title ? event.title : "N/A"}
+                          </Typography>
                         </Stack>
                       </TableCell>
-                      <TableCell>{event.type}</TableCell>
-                      <TableCell>{event.location}</TableCell>
-                      <TableCell>{event.organization}</TableCell>
-                      <TableCell>{event.status}</TableCell>
+                      <TableCell>{event.event_type ? event.event_type : "N/A"}</TableCell>
+                      <TableCell>{event.location ? event.location : "N/A"}</TableCell>
+                      <TableCell>
+                        {event.host_id
+                          ? event.host_id.organization
+                            ? event.host_id.organization
+                            : "N/A"
+                          : "N/A"}
+                      </TableCell>
+                      <TableCell>{event.status ? event.status : "N/A"}</TableCell>
                       <TableCell>{createdAt}</TableCell>
                     </TableRow>
                   );
