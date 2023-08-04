@@ -73,7 +73,7 @@ module.exports = (app) => {
         if (!decoded.success) {
           return res.status(401).json({
             success: false,
-            message: `Access Token : ${result.message}`,
+            message: `Access Token : ${decoded.message}`,
           });
         }
 
