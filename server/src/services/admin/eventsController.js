@@ -102,16 +102,11 @@ const getEvent = async (event_id) => {
     }
 
     // 배지 정보 조회
-    const badges = await BadgeModel.find({ event_id: event_id }).select('-__v');
-    if (!badges) {
-      return { success: false, message: '뱃지 정보를 가져올 수 없습니다.' };
-    }
+    const badge = await BadgeModel.findOne({ event_id: event_id }).select(
+      '-__v'
+    );
 
-    if (badges.length === 0) {
-      return { success: true, data: { event: event, badges: null } };
-    }
-
-    return { success: true, data: { event: event, badges: badges } };
+    return { success: true, data: { event: event, badge: badge } };
   } catch (err) {
     console.error('Error:', err);
     throw Error(err);
