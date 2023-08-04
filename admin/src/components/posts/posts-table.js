@@ -1,5 +1,6 @@
 import PropTypes from "prop-types";
 import { format } from "date-fns";
+import { utcToZonedTime } from "date-fns-tz";
 import {
   Box,
   Card,
@@ -43,11 +44,8 @@ export const PostsTable = ({ items = [], pageCount, page, handlePageChange, path
               <TableBody>
                 {items.map((post) => {
                   const createdAt = post.created_at
-                    ? format(new Date(post.created_at), "MM/dd/yyyy")
+                    ? format(utcToZonedTime(new Date(post.created_at)), "MM/dd/yyyy")
                     : "N/A";
-
-                  console.log(post.created_at, new Date(post.created_at));
-
                   return (
                     <TableRow
                       hover

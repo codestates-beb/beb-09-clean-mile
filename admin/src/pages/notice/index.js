@@ -17,51 +17,12 @@ import { SearchBar } from "src/components/search-bar";
 import { useRouter } from "next/router";
 import axios from "axios";
 
-const data = [
-  {
-    id: "2569ce0d517a7f06d3ea1f24",
-    title: "hic-modi-officia",
-    content: "Doloribus voluptatem voluptatem.",
-    writer: "Beatty",
-    view: 12,
-    createdAt: "27/03/2019",
-    category: "notice",
-  },
-  {
-    id: "2569ce0d517a7f06d3ea1f24",
-    title: "hic-modi-officia",
-    content: "Doloribus voluptatem voluptatem.",
-    writer: "Beatty",
-    view: 12,
-    createdAt: "27/03/2019",
-    category: "notice",
-  },
-  {
-    id: "2569ce0d517a7f06d3ea1f24",
-    title: "hic-modi-officia",
-    content: "Doloribus voluptatem voluptatem.",
-    writer: "Beatty",
-    view: 12,
-    createdAt: "27/03/2019",
-    category: "notice",
-  },
-  {
-    id: "2569ce0d517a7f06d3ea1f24",
-    title: "hic-modi-officia",
-    content: "Doloribus voluptatem voluptatem.",
-    writer: "Beatty",
-    view: 12,
-    createdAt: "27/03/2019",
-    category: "notice",
-  },
-];
-
 const filters = ["all", "title", "content"];
 
 const Page = () => {
   const [page, setPage] = useState(1);
   const [pageCount, setPageCount] = useState(5);
-  const [posts, setPosts] = useState(data);
+  const [posts, setPosts] = useState([]);
   const [filter, setFilter] = useState(filters[0]);
   const [searchTerm, setSearchTerm] = useState("");
 

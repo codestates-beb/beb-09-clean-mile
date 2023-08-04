@@ -1,5 +1,6 @@
 import PropTypes from "prop-types";
 import { format } from "date-fns";
+import { utcToZonedTime } from "date-fns-tz";
 import {
   Box,
   Card,
@@ -41,7 +42,7 @@ export const UsersTable = ({ items = [], pageCount, page, handlePageChange }) =>
               <TableBody>
                 {items.map((user) => {
                   const createdAt = user.created_at
-                    ? format(new Date(user.created_at), "MM/dd/yyyy")
+                    ? format(utcToZonedTime(new Date(user.created_at)), "MM/dd/yyyy")
                     : "N/A";
 
                   return (

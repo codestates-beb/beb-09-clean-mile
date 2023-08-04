@@ -2,7 +2,7 @@ import Head from "next/head";
 import { Box, Container, Stack, Typography, Button, Tab } from "@mui/material";
 import { Layout as DashboardLayout } from "src/layouts/dashboard/layout";
 import { useRouter } from "next/router";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { EventDetails } from "src/components/events/event-details";
 import { EventBadge } from "src/components/events/event-badge";
 import { EventHost } from "src/components/events/event-host";
@@ -10,6 +10,8 @@ import { EventBadgeMintForm } from "src/components/events/event-badge-mint-form"
 import { TabContext, TabList, TabPanel } from "@mui/lab";
 import { EventEntryTable } from "src/components/events/event-entry-table";
 import { EventQRCodeLoader } from "src/components/events/event-qr-code-loader";
+import axios from "axios";
+import { th } from "date-fns/locale";
 
 const dummy = {
   host: {
@@ -91,6 +93,24 @@ const Page = () => {
 
   const { id } = router.query;
 
+  const eventDetails = useCallback(async () => {
+    try {
+      const res = await axios.get(`http://localhost:8080/admin/events/detail/${id}`, {
+        withCredentials: true,
+      });
+
+      if (res && res.status === 200) {
+        const data = res.data;
+
+        console.log(data);
+      } else {
+        throw new Error("Invalid response");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }, []);
+
   const handleEntryPageChange = useCallback((event, value) => {
     setEntryPage(value);
   }, []);
@@ -122,6 +142,10 @@ const Page = () => {
   const handleTabChange = (event, value) => {
     setTabNum(value);
   };
+
+  useEffect(() => {
+    eventDetails();
+  }, [id]);
 
   return (
     <>
