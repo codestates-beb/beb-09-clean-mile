@@ -46,6 +46,8 @@ export const PostsTable = ({ items = [], pageCount, page, handlePageChange, path
                     ? format(new Date(post.created_at), "MM/dd/yyyy")
                     : "N/A";
 
+                  console.log(post.created_at, new Date(post.created_at));
+
                   return (
                     <TableRow
                       hover
