@@ -51,10 +51,6 @@ const userSchema = new mongoose.Schema({
       // 사용자 지갑 주소
       type: String,
     },
-    private_key: {
-      // 사용자 지갑 비밀키 (해시)
-      type: String,
-    },
     mileage_amount: {
       // 사용자 마일리지 수량
       type: Number,

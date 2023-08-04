@@ -591,12 +591,11 @@ route.get('/userInfo', isAuth, async (req, res) => {
      * @todo 사용자 배지, dnft 정보 조회 수정 필요
      */
     const dnftData = await dnftController.userDnftData(user_id);
-    if (!dnftData.success) return res.status(400).json({ success: false });
+    if (!dnftData.success) return res.status(400).json({ success: false, message: dnftData.message });
 
     const badgeData = await badgeController.userBadges(user_id);
-    if (!badgeData.success) return res.status(400).json({ success: false });
+    if (!badgeData.success) return res.status(400).json({ success: false, message: badgeData.message });
 
-    console.log(badgeData);
 
     // 사용자 작성한 General, Review Posts List 조회
     const posts = await usersController.getPosts(user_id);
