@@ -1,10 +1,16 @@
 const Router = require('express');
+const multer = require('multer');
 const jwtUtil = require('../../../utils/jwtUtil');
 const isAuth = require('../../middlewares/isAuth');
-const upload = require('../../../loaders/s3');
 const usersController = require('../../../services/client/usersController');
 const dnftController = require('../../../services/contract/dnftController');
 const badgeController = require('../../../services/contract/badgeController');
+const {
+  checkFileExistence,
+  fileValidation,
+} = require('../../middlewares/fileValidation');
+const storage = multer.memoryStorage(); // 이미지를 메모리에 저장
+const upload = multer({ storage: storage });
 
 const route = Router();
 
@@ -526,29 +532,22 @@ module.exports = (app) => {
   route.patch(
     '/change-banner',
     isAuth,
-    upload.single('imgFile'),
+    upload.single('imgFile'), // multer로 이미지 받음
+    checkFileExistence, // 파일 존재 여부 확인
+    fileValidation, // 파일 유효성 검사
     async (req, res) => {
       try {
         const email = req.decoded.email;
 
-        // S3 이미지 업로드
-        const imageData = req.file;
-        if (!imageData) {
-          return res.status(400).json({
-            success: false,
-            message: '이미지 업로드에 실패하였습니다.',
-          });
-        }
-
         // 사용자 배너 이미지 변경
         const chgBannerResult = await usersController.changeBanner(
           email,
-          imageData.location
+          req.file
         );
         if (!chgBannerResult.success) {
           return res.status(400).json({
             success: false,
-            message: '배너 이미지 변경에 실패했습니다.',
+            message: chgBannerResult.message,
           });
         }
 

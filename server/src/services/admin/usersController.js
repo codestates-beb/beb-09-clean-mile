@@ -21,39 +21,51 @@ const findUsers = async (
   social_provider,
   name,
   email,
-  wallet_address,
-  last_id
+  wallet_address
 ) => {
   try {
-    // 각 변수가 존재하는 경우 쿼리에 추가
-    const query = {
-      ...(social_provider && { social_provider }),
-      ...(name && { name }),
-      ...(email && { email }),
-      ...(wallet_address && { wallet_address }),
-      ...(last_id && { _id: { $lt: last_id } }),
-    };
+    // 페이지 번호와 페이지당 아이템 수로 스킵하는 개수 계산
+    const skip = (page - 1) * limit;
 
-    // 사용자 정보 조회
-    const usersResult = await UserModel.find(query)
-      .select('-password -__v ')
-      .sort({ _id: -1 })
-      .limit(limit);
+    let query = {};
 
-    if (!usersResult.length) {
-      // 더이상 결과가 없는 경우
-      return { data: null, last_id: null };
+    // 소셜 로그인 정보로 검색할 경우
+    if (social_provider) {
+      query.social_provider = social_provider;
     }
 
-    // 마지막 문서의 ID를 가져옴
-    const lastId = usersResult[usersResult.length - 1]._id.toString();
+    // 이름으로 검색할 경우
+    if (name) {
+      query.name = name;
+    }
+
+    // 이메일로 검색할 경우
+    if (email) {
+      query.email = email;
+    }
+
+    // 지갑 주소로 검색할 경우
+    if (wallet_address) {
+      query.wallet.address = wallet_address;
+    }
+
+    // 사용자 정보 조회
+    const users = await UserModel.find(query)
+      .select('-password -__v ')
+      .sort({ created_at: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    // 결과가 없는 경우
+    if (users.length === 0) {
+      return { data: null, pagination: null };
+    }
 
     // 전체 데이터 수 조회 후 페이징 계산
-    delete query._id;
     const total = await UserModel.countDocuments(query);
     const paginationResult = await calcPagination(total, limit, page);
 
-    return { data: usersResult, last_id: lastId, pagination: paginationResult };
+    return { data: users, pagination: paginationResult };
   } catch (err) {
     console.error('Error:', err);
     throw Error(err);

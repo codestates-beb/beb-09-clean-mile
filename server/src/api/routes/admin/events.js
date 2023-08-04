@@ -1,12 +1,20 @@
 const Router = require('express');
+const multer = require('multer');
 const QRCode = require('qrcode');
-const upload = require('../../../loaders/s3');
 const isAdminAuth = require('../../middlewares/isAdminAuth');
 const adminEventsController = require('../../../services/admin/eventsController');
 const badgeController = require('../../../services/contract/badgeController');
 const dnftController = require('../../../services/contract/dnftController');
 const { getUser } = require('../../../services/client/usersController');
 const { getEventById } = require('../../../services/client/eventsController');
+const { saveFiles } = require('../../../services/client/postsController');
+const {
+  checkFileExistence,
+  checkFilesExistence,
+  fileValidation,
+} = require('../../middlewares/fileValidation');
+const storage = multer.memoryStorage(); // 이미지를 메모리에 저장
+const upload = multer({ storage: storage });
 
 const route = Router();
 
@@ -157,22 +165,25 @@ module.exports = (app) => {
     '/createBadge',
     isAdminAuth,
     upload.single('image'),
+    checkFileExistence,
+    fileValidation,
     async (req, res) => {
       try {
         const { event_id, name, description, type } = req.body;
-
-        const imageData = req.file;
-        if (!imageData) {
-          return res.status(400).json({
-            success: false,
-            message: '이미지 업로드에 실패하였습니다.',
-          });
-        }
 
         if (!event_id || !name || !description || !type) {
           return res.status(400).json({
             success: false,
             message: '필수 정보를 입력해주세요.',
+          });
+        }
+
+        // 이미지 파일 저장
+        const saveImage = await adminEventsController.saveImage(req.file);
+        if (!saveImage) {
+          return res.status(400).json({
+            success: false,
+            message: '이미지 파일 저장 실패',
           });
         }
 
@@ -196,7 +207,7 @@ module.exports = (app) => {
         const createBadge = await badgeController.createBadge(
           name,
           description,
-          imageData.location,
+          saveImage,
           Number(type), // badgeType
           event.data.capacity, // amount
           event_id
@@ -305,7 +316,9 @@ module.exports = (app) => {
   route.post(
     '/create',
     isAdminAuth,
-    upload.single('poster_image'),
+    upload.array('poster_image'),
+    checkFilesExistence,
+    fileValidation,
     async (req, res) => {
       try {
         const {
@@ -357,11 +370,12 @@ module.exports = (app) => {
           });
         }
 
-        // 이미지 파일 체크
-        if (!req.file) {
+        // 이미지 파일 저장
+        const imageUrls = await adminEventsController.saveImages(req.files);
+        if (!imageUrls) {
           return res.status(400).json({
             success: false,
-            message: '이미지 파일을 첨부해주세요.',
+            message: '이미지 파일 저장 실패',
           });
         }
 
@@ -390,7 +404,7 @@ module.exports = (app) => {
         const eventData = {
           title: title,
           host_id: host.id,
-          poster_url: imageUrl.location,
+          poster_url: imageUrls,
           content: content,
           location: location,
           capacity: capacity,

@@ -84,7 +84,7 @@ const createBadge = async (
     // if (!event) return { success: false, message: '데이터 요청 실패' };
     // const eventId = event._id;
 
-    if (transaction && eventId) {
+    if (transaction && event_id) {
       const badgeData = new BadgeModel({
         badge_id: tokenId,
         name: name,

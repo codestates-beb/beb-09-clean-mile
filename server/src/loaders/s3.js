@@ -27,6 +27,17 @@ upload = multer({
   }),
   // 업로드 파일 용량 제한 (5MB)
   limits: { fileSize: 5 * 1024 * 1024 },
+
+  // 파일 검사
+  fileFilter: function (req, file, cb) {
+    const allowedMimeTypes = ['image/jpeg', 'image/png', 'video/*'];
+
+    if (allowedMimeTypes.includes(file.mimetype)) {
+      cb(null, true); // 유효한 파일 형식일 경우 업로드
+    } else {
+      cb(new Error('업로드 할 수 없는 파일 형식입니다.'), false);
+    }
+  },
 });
 
 module.exports = upload;

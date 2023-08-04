@@ -1,10 +1,12 @@
 const Router = require('express');
+const multer = require('multer');
 const jwtUtil = require('../../../utils/jwtAdminUtil');
 const jwt = require('jsonwebtoken');
 const userController = require('../../../services/client/usersController');
 const isAdminAuth = require('../../middlewares/isAdminAuth');
-const upload = require('../../../loaders/s3');
 const { getUser } = require('../../../services/client/usersController');
+const storage = multer.memoryStorage(); // 이미지를 메모리에 저장
+const upload = multer({ storage: storage });
 
 const route = Router();
 

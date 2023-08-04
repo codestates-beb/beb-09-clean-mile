@@ -1,6 +1,6 @@
 const XLSX = require('xlsx');
+const config = require('../../config');
 const calcPagination = require('../../utils/calcPagination');
-const { getKorDate, escapeRegexChars } = require('../../utils/common');
 const EventModel = require('../../models/Events');
 const EventHostModel = require('../../models/EventHosts');
 const EventEntryModel = require('../../models/EventEntries');
@@ -8,6 +8,13 @@ const BadgeModel = require('../../models/Badges');
 const UserModel = require('../../models/Users');
 const QRCodeModel = require('../../models/QRCode');
 const jwtUtil = require('../../utils/jwtAdminUtil');
+const {
+  getKorDate,
+  escapeRegexChars,
+  generateUniqueFileName,
+} = require('../../utils/common');
+const AWS = require('../../loaders/aws-s3');
+const s3 = new AWS.S3();
 
 /**
  * 이벤트 리스트 조회
@@ -334,6 +341,31 @@ const saveEvent = async (eventData) => {
   }
 };
 
+const saveImages = async (images) => {
+  try {
+    const imageUrls = [];
+
+    for (const file of images) {
+      const fileName = generateUniqueFileName(file.originalname);
+      const params = {
+        Bucket: config.awsS3.bucketName,
+        Key: fileName,
+        Body: file.buffer,
+        ContentType: file.mimetype,
+      };
+
+      // 파일 업로드
+      const uploadResult = await s3.upload(params).promise();
+
+      imageUrls.push(uploadResult.Location);
+    }
+    return imageUrls;
+  } catch (err) {
+    console.error('Error:', err);
+    throw Error(err);
+  }
+};
+
 /**
  * 이벤트 정보 수정
  * @param {*} event_id
@@ -512,6 +544,31 @@ const createQRcodeJWt = async (event_id) => {
   }
 };
 
+/**
+ * 단일 이미지 저장
+ * @param {*} image
+ * @returns s3에 저장된 Location
+ */
+const saveImage = async (image) => {
+  try {
+    // 새로운 이미지 업로드
+    const keyName = generateUniqueFileName(image.originalname);
+    const uploadParams = {
+      Bucket: config.awsS3.bucketName,
+      Key: keyName,
+      Body: image.buffer,
+    };
+
+    // S3 업로드 실행
+    const uploadResult = await s3.upload(uploadParams).promise();
+
+    return uploadResult.Location;
+  } catch (err) {
+    console.error('Error:', err);
+    throw Error(err);
+  }
+};
+
 module.exports = {
   getEvents,
   getEvent,
@@ -524,4 +581,6 @@ module.exports = {
   setEventStatusCanceled,
   deleteEvent,
   createQRcodeJWt,
+  saveImage,
+  saveImages,
 };

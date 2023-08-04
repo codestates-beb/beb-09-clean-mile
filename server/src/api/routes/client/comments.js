@@ -1,7 +1,10 @@
 const Router = require('express');
+const multer = require('multer');
 const isAuth = require('../../middlewares/isAuth');
 const commentsController = require('../../../services/client/commentsController');
-const upload = require('../../../loaders/s3');
+const storage = multer.memoryStorage(); // 이미지를 메모리에 저장
+const upload = multer({ storage: storage });
+
 const route = Router();
 
 module.exports = (app) => {

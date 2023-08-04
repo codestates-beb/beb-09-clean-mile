@@ -1,5 +1,4 @@
 const Router = require('express');
-const upload = require('../../../loaders/s3');
 const isAdminAuth = require('../../middlewares/isAdminAuth');
 const adminCommentController = require('../../../services/admin/commentsController');
 const { getUser } = require('../../../services/client/usersController');

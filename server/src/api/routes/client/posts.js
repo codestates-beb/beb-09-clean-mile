@@ -1,9 +1,12 @@
 const Router = require('express');
-const upload = require('../../../loaders/s3');
+const multer = require('multer');
 const isAuth = require('../../middlewares/isAuth');
 const jwtUtil = require('../../../utils/jwtUtil');
 const PostModel = require('../../../models/Posts');
 const postsController = require('../../../services/client/postsController');
+const { fileValidation } = require('../../middlewares/fileValidation');
+const storage = multer.memoryStorage(); // 이미지를 메모리에 저장
+const upload = multer({ storage: storage });
 
 const route = Router();
 
@@ -19,17 +22,9 @@ module.exports = (app) => {
     '/create',
     isAuth,
     upload.fields([{ name: 'image' }, { name: 'video' }]),
+    fileValidation,
     async (req, res) => {
       try {
-        // 이미지 파일
-        const imageUrls = req.files['image']
-          ? req.files['image'].map((file) => file.location)
-          : [];
-        // 비디오 파일
-        const videoUrls = req.files['video']
-          ? req.files['video'].map((file) => file.location)
-          : [];
-
         const postData = req.body;
         if (
           !postData.category ||
@@ -43,17 +38,20 @@ module.exports = (app) => {
           });
         }
 
-        // 미디어 파일
-        const media = {
-          img: imageUrls,
-          video: videoUrls,
-        };
+        // 파일 저장
+        const saveFiles = await postsController.saveFiles(req.files);
+        if (!saveFiles) {
+          return res.status(400).json({
+            success: false,
+            message: '파일 저장에 실패했습니다.',
+          });
+        }
 
         // 게시글 저장
         const result = await postsController.savePost(
           req.decoded.user_id,
           postData,
-          media
+          saveFiles
         );
         if (!result.success) {
           return res.status(400).json({
