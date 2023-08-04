@@ -1,4 +1,6 @@
 import React from 'react';
+import cookie from 'cookie';
+import axios from 'axios';
 import { GetServerSidePropsContext } from 'next';
 import { Header, UserProfile, Footer } from '../../Components/Reference'
 import { ApiCaller } from '../../Components/Utils/ApiCaller';
@@ -18,6 +20,16 @@ export default UserPage;
 
 export const getServerSideProps = async (context: GetServerSidePropsContext) => {
   const { id } = context.query;
+  const cookiesObj = cookie.parse(context.req.headers.cookie || '');
+
+  let cookiesStr = '';
+  if (context.req && cookiesObj) {
+    cookiesStr = Object.entries(cookiesObj)
+      .map(([key, value]) => `${key}=${value}`)
+      .join('; ');
+    axios.defaults.headers.Cookie = cookiesStr;
+  }
+
 
   try {
     const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/profile/${id}`;

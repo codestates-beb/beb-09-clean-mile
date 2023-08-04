@@ -36,7 +36,7 @@ export const getServerSideProps = async (context: GetServerSidePropsContext) => 
     const dataBody = null;
     const headers = {};
     const isJSON = false;
-    const isCookie = true;
+    const isCookie = false;
 
     const res = await ApiCaller.get(URL, dataBody, isJSON, headers, isCookie);
 
@@ -44,7 +44,7 @@ export const getServerSideProps = async (context: GetServerSidePropsContext) => 
     let noticePagination;
     if (res.status === 200 && res.data.success) {
       noticeList = res.data.data.data;
-      noticePagination = res.data.data.pagination.pagination;
+      noticePagination = res.data.data.pagination;
     } else {
       // API 호출에 실패하면 오류 메시지를 출력하고 빈 객체를 반환합니다.
       console.error('API 호출 실패:', res.data.message);

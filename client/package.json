@@ -42,5 +42,8 @@
     "tailwindcss": "3.3.3",
     "typescript": "5.1.6",
     "web3": "^4.0.3"
+  },
+  "devDependencies": {
+    "next-translate-plugin": "^2.5.2"
   }
 }

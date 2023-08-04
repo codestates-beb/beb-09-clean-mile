@@ -1,5 +1,7 @@
 import React from 'react';
 import { GetServerSidePropsContext } from 'next';
+import cookie from 'cookie';
+import axios from 'axios';
 import { Header, GeneralDetail, Footer } from '../../../Components/Reference'
 import { ApiCaller } from '../../../Components/Utils/ApiCaller';
 import { PostDetail, Comment } from '../../../Components/Interfaces';
@@ -24,7 +26,7 @@ export const getServerSideProps = async (context: GetServerSidePropsContext) => 
   const dataBody = null;
   const headers = {};
   const isJSON = false;
-  const isCookie = true;
+  const isCookie = false;
 
   // username과 다른 쿼리 파라미터를 사용하여 필요한 데이터를 가져옵니다.
   const res = await ApiCaller.get(URL, dataBody, isJSON, headers, isCookie);

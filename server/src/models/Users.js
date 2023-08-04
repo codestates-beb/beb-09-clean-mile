@@ -27,49 +27,56 @@ const userSchema = new mongoose.Schema({
     // 사용자 권한
     type: String,
     enum: ['user', 'admin'],
+    default: 'user',
   },
   hashed_pw: {
     // 사용자 비밀번호 (해시)
     type: String,
+    require: true,
   },
   nickname: {
     // 사용자 닉네임
     type: String,
     unique: true,
+    required: true,
   },
   social_provider: {
     // 소셜 로그인
     type: String,
+    default: 'none',
     enum: ['none', 'kakao', 'google'],
   },
   banner_img_url: {
     // 배너 이미지 URL
     type: String,
+    default: '',
   },
   wallet: {
     address: {
       // 사용자 지갑 주소
       type: String,
+      required: true,
+      unique: true,
     },
     mileage_amount: {
       // 사용자 마일리지 수량
       type: Number,
-    },
-    mileage_amount: {
-      // 사용자 마일리지 수량
-      type: Number,
+      default: 0
     },
     token_amount: {
       // 사용자 토큰 수량
       type: Number,
+      default: 0
     },
     badge_amount: {
       // 사용자 뱃지 수량
       type: Number,
+      default: 0
     },
     total_badge_score: {
       // 사용자 뱃지 총 점수
       type: Number,
+      default: 0
     },
   },
   created_at: {

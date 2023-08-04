@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/router';
+import useTranslation from 'next-translate/useTranslation';
 import Swal from 'sweetalert2';
 import { hydrate } from 'react-query';
 import { AxiosError } from 'axios';
@@ -12,6 +13,7 @@ interface IFile extends File {
 
 const ReviewEdit = ({ reviewDetailDefault }: { reviewDetailDefault: PostDetail }) => {
   const router = useRouter();
+  const { t } = useTranslation('common');
 
   const [selectCategory, setSelectCategory] = useState('');
   const [title, setTitle] = useState('');
@@ -78,7 +80,7 @@ const ReviewEdit = ({ reviewDetailDefault }: { reviewDetailDefault: PostDetail }
       const res = await ApiCaller.patch(URL, dataBody, isJSON, headers, isCookie);
       if (res.status === 200) {
         Swal.fire({
-          title: 'Success!',
+          title: t('common:Success'),
           text: res.data.message,
           icon: 'success',
           confirmButtonText: 'OK',
@@ -90,7 +92,7 @@ const ReviewEdit = ({ reviewDetailDefault }: { reviewDetailDefault: PostDetail }
 
       } else {
         Swal.fire({
-          title: 'Error',
+          title: t('common:Error'),
           text: res.data.message,
           icon: 'error',
           confirmButtonText: 'OK',
@@ -105,7 +107,7 @@ const ReviewEdit = ({ reviewDetailDefault }: { reviewDetailDefault: PostDetail }
       const data = err.response?.data as { message: string };
 
       Swal.fire({
-        title: 'Error',
+        title: t('common:Error'),
         text: data?.message,
         icon: 'error',
         confirmButtonText: 'OK',
@@ -120,7 +122,7 @@ const ReviewEdit = ({ reviewDetailDefault }: { reviewDetailDefault: PostDetail }
     <>
       <div className='w-[90%] min-h-screen mx-auto py-20 sm:py-10 xs:py-10 flex flex-col gap-12'>
         <div>
-          <p className='font-bold text-4xl sm:text-2xl xs:text-2xl'>Edit Review Posts</p>
+          <p className='font-bold text-4xl sm:text-2xl xs:text-2xl'>{t('common:Edit Review Posts')}</p>
         </div>
         <div className='w-1/5 lg:w-[50%] md:w-[50%] sm:w-[50%] xs:w-[50%]'>
           <select className="
@@ -137,10 +139,7 @@ const ReviewEdit = ({ reviewDetailDefault }: { reviewDetailDefault: PostDetail }
             value={selectCategory}
             onChange={(e) => setSelectCategory(e.target.value)}
             required>
-            {/* <option className="text-sm" value="" disabled>Please select a category.</option>
-            <option className="text-sm" value="general">General</option>
-            <option className="text-sm" value="review" selected>Review</option> */}
-            <option className="text-sm" defaultValue="review" selected>Review</option>
+            <option className="text-sm" defaultValue="review" selected>{t('common:Review')}</option>
           </select>
         </div>
         <div className='w-2/5 sm:w-full xs:w-full'>
@@ -165,13 +164,13 @@ const ReviewEdit = ({ reviewDetailDefault }: { reviewDetailDefault: PostDetail }
               {selectedFile.length > 0 ? (
                 selectedFile.map((file) => file.name + ', ')
               ) : (
-                '파일을 선택해 주세요.'
+                t('common:Please select a file')
               )}
             </p>
             <button 
               className='border rounded-lg p-2 bg-main-blue text-white hover:bg-blue-600 transition duration-300 xs:text-sm'
               onClick={handleFileSelect}>
-              파일 선택
+              {t('common:Select File')}
             </button>
           </div>
           <textarea className="
@@ -201,7 +200,7 @@ const ReviewEdit = ({ reviewDetailDefault }: { reviewDetailDefault: PostDetail }
             transition 
             duration-300'
             onClick={() => router.back()}>
-            Cancel
+            {t('common:Cancel')}
           </button>
           <button className='
             w-[15%]
@@ -216,7 +215,7 @@ const ReviewEdit = ({ reviewDetailDefault }: { reviewDetailDefault: PostDetail }
             transition 
             duration-300'
             onClick={editPost}>
-            Edit
+            {t('common:Edit')}
           </button>
         </div>
       </div>

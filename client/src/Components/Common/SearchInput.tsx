@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
+import useTranslation from 'next-translate/useTranslation';
 
 const SearchInput = () => {
   const router = useRouter();
+  const { t } = useTranslation('common');
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('title');
 
@@ -36,8 +38,8 @@ const SearchInput = () => {
   return (
     <div className='w-full flex justify-center items-center'>
       <select className="border border-black py-2 px-4 rounded mr-5 sm:mr-3 text-sm sm:text-xs xs:text-xs" onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFilter(e.target.value)}>
-        <option className="text-sm sm:text-xs" value="title">Title</option>
-        <option className="text-sm sm:text-xs" value="content">Content</option>
+        <option className="text-sm sm:text-xs" value="title">{t('common:Title')}</option>
+        <option className="text-sm sm:text-xs" value="content">{t('common:Content')}</option>
       </select>
       <input className='
         border rounded-lg 
@@ -50,7 +52,7 @@ const SearchInput = () => {
         xs:px-1 
         w-5/12'
         type="text"
-        placeholder='Search'
+        placeholder={t('common:Search')}
         value={search}
         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)} />
       <div className='ml-5 sm:ml-2 xs:ml-2'>
@@ -71,7 +73,7 @@ const SearchInput = () => {
           duration-300'
           type="button"
           onClick={handleSearch}>
-          Search
+          {t('common:Search')}
         </button>
       </div>
     </div>

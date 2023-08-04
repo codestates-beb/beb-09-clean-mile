@@ -1,10 +1,12 @@
 import React from 'react';
 import Image from 'next/image';
+import useTranslation from 'next-translate/useTranslation';
 import { useRouter } from 'next/router';
 import { hero_img, insta_icon, insta_logo } from '../Reference';
 
 const Main = () =>  {
   const router = useRouter();
+  const { t } = useTranslation('common');
 
   const dummy = [
     { id: 1, image: hero_img, insta_id: 'test1', insta_content: 'skfjklsfjklsjfkljsklf' },
@@ -28,13 +30,11 @@ const Main = () =>  {
           <div className='flex justify-end items-end w-full md:justify-center sm:justify-center xs:justify-center'>
             <button className='bg-main-blue hover:bg-blue-600 rounded-xl text-white font-semibold px-20 py-3 md:px-16 sm:px-12 xs:px-6 md:text-sm sm:text-sm xs:text-xs transition duration-300'
               onClick={() => router.push('/login')}>
-              Get Started
+              {t('common:Get Started')}
             </button>
           </div>
         </div>
       </div>
-      {/* <div className='w-full h-[50rem] bg-[20%] md:bg-[50%_20%] bg-no-repeat bg-[length:45%] lg:bg-[length:70%] md:bg-[length:90%] bg-hero-pattern px-44 lg:px-20 md:px-12 border-b'>
-      </div> */}
       <div className='my-12 flex flex-col items-center gap-12 xs:gap-6'>
         <div className='flex flex-col items-center gap-12'>
           <img src='/assets/images/insta_logo.png' alt='instagram logo' className='w-[65%] lg:w-[65%] md:w-[45%] sm:w-[35%] xs:w-[35%]' />
