@@ -37,13 +37,17 @@ const Create = () => {
     }
   }, [selectCategory]);
 
+  useEffect(() => {
+    if (eventData && eventData.length > 0) {
+      setSelectEvent(eventData[0]._id);
+    }
+  }, [eventData]);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = () => {
     fileInputRef.current?.click();
   };
-
-  console.log(eventData)
 
   const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedCategory = e.target.value;
@@ -81,6 +85,8 @@ const Create = () => {
     if (selectCategory === 'review') {
       formData.append('event_id', selectEvent);
     }
+
+    console.log(selectEvent)
 
     images.forEach((image) => {
       formData.append('image', image);
@@ -166,7 +172,7 @@ const Create = () => {
             <option className="text-sm" value="general">{t('common:General')}</option>
             <option className="text-sm" value="review">{t('common:Review')}</option>
           </select>
-          {isReview && eventData && (   // only show if isReview is true and eventData is not null
+          {isReview && eventData && (
             <select className="
               border-b 
               outline-none 
@@ -178,9 +184,14 @@ const Create = () => {
               w-full
               sm:text-sm
               xs:text-sm"
-              value={selectEvent}
               onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSelectEvent(e.target.value)}>
-              {eventData.map((event, i) => <option key={i} value={event._id}>{event.title}</option>)}
+              {eventData.map((event, i) => {
+                return (
+                  <>
+                    <option key={i} value={event._id}>{event.title}</option>
+                  </>
+                )
+              })}
             </select>
           )}
         </div>

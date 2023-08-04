@@ -297,7 +297,7 @@ const MyPage = ({
                 required />
             </label>
           ) : (
-            <Image src={!userInfo?.banner_img_url ? default_banner : userInfo?.banner_img_url} className="w-full h-full object-contain" alt="banner Image" />
+            <img src={!userInfo?.banner_img_url ? default_banner : userInfo?.banner_img_url} className="w-full h-full object-contain" alt="banner Image" />
           )}
         </div>
         <div className='
@@ -391,8 +391,13 @@ const MyPage = ({
             <p className='font-semibold sm:text-sm xs:text-xs cursor-pointer' onClick={copyAddr} title="Click to copy the address">
               {userInfo?.wallet?.address}
             </p>
-            <div>
-              <button className='px-3 py-2 sm:px-2 md:text-sm sm:text-sm xs:text-sm bg-[#FBA1B7] hover:bg-main-insta rounded-xl transition duration-300 text-white font-bold'>{t('common:Instagram Connect')}</button>
+            <div className='flex gap-2'>
+              <button className='px-3 py-2 sm:px-2 md:text-sm sm:text-sm xs:text-sm bg-[#FBA1B7] hover:bg-main-insta rounded-xl transition duration-300 text-white font-bold'>
+                {t('common:Instagram Connect')}
+              </button>
+              <button className='px-3 py-2 sm:px-2 md:text-sm sm:text-sm xs:text-sm bg-main-green hover:bg-green-500 rounded-xl transition duration-300 text-white font-bold'>
+                {t('common:DNFT Upgrade')}
+              </button>
             </div>
           </div>
           <div className={`w-full h-2/3 ${userBadges.length === 0 ? 'flex font-bold' : 'grid grid-cols-10'} lg:grid-cols-6 md:grid-cols-5 sm:grid-cols-3 xs:grid-cols-3 gap-4 justify-items-center bg-gray-200 rounded-xl px-6 py-6`}>
