@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   Box,
   Card,
@@ -7,46 +6,13 @@ import {
   TextField,
   Unstable_Grid2 as Grid,
 } from "@mui/material";
-import Slider from "react-slick";
-import Image from "next/image";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
-import ArrowLeftIcon from "@heroicons/react/24/solid/ArrowLeftIcon";
-import ArrowRightIcon from "@heroicons/react/24/solid/ArrowRightIcon";
-
-const PrevArrow = (props) => {
-  const { className, style, onClick } = props;
-  return (
-    <div className={className} style={{ ...style, display: "block" }} onClick={onClick}>
-      <ArrowLeftIcon style={{ color: "black" }} />
-    </div>
-  );
-};
-
-const NextArrow = (props) => {
-  const { className, style, onClick } = props;
-  return (
-    <div className={className} style={{ ...style, display: "block" }} onClick={onClick}>
-      <ArrowRightIcon style={{ color: "black" }} />
-    </div>
-  );
-};
+import { MediaSlider } from "../media-slider";
 
 export const EventDetails = ({ event }) => {
-  const settings = {
-    dots: true,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 1,
-    slidesToScroll: 1,
-    prevArrow: <PrevArrow />,
-    nextArrow: <NextArrow />,
-  };
-
   return (
     <Card sx={{ p: 3 }}>
       <CardHeader title="Detail" />
-      <CardContent sx={{ pt: 0 }}>
+      <CardContent sx={{ pt: 1 }}>
         <Box sx={{ m: -1.5 }}>
           <Grid container spacing={3}>
             <Grid xs={12} md={6}>
@@ -171,9 +137,6 @@ export const EventDetails = ({ event }) => {
                 }}
               />
             </Grid>
-            <Grid xs={12} md={12}>
-              <Image src={event.poster_url} layout="responsive" width={500} height={500} />
-            </Grid>
             <Grid xs={12} md={6}>
               <TextField
                 fullWidth
@@ -185,6 +148,25 @@ export const EventDetails = ({ event }) => {
                 }}
               ></TextField>
             </Grid>
+            {event.poster_url?.length && (
+              <Grid
+                sx={{
+                  justifyContent: "center",
+                  alignItems: "center",
+                  display: "flex",
+                }}
+              >
+                <Grid xs={12} sm={12} md={6} spacing={3}>
+                  <MediaSlider
+                    media={[
+                      ...event.poster_url.map((item) => {
+                        return { type: "image", src: item };
+                      }),
+                    ]}
+                  />
+                </Grid>
+              </Grid>
+            )}
           </Grid>
         </Box>
       </CardContent>

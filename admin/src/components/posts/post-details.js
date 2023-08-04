@@ -7,30 +7,7 @@ import {
   TextField,
   Unstable_Grid2 as Grid,
 } from "@mui/material";
-import Slider from "react-slick";
-import Image from "next/image";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
-import ArrowLeftIcon from "@heroicons/react/24/solid/ArrowLeftIcon";
-import ArrowRightIcon from "@heroicons/react/24/solid/ArrowRightIcon";
-
-const PrevArrow = (props) => {
-  const { className, style, onClick } = props;
-  return (
-    <div className={className} style={{ ...style, display: "block" }} onClick={onClick}>
-      <ArrowLeftIcon style={{ color: "black" }} />
-    </div>
-  );
-};
-
-const NextArrow = (props) => {
-  const { className, style, onClick } = props;
-  return (
-    <div className={className} style={{ ...style, display: "block" }} onClick={onClick}>
-      <ArrowRightIcon style={{ color: "black" }} />
-    </div>
-  );
-};
+import { MediaSlider } from "../media-slider";
 
 export const PostDetails = () => {
   const [values, setValues] = useState({
@@ -61,16 +38,6 @@ export const PostDetails = () => {
       ],
     },
   });
-
-  const settings = {
-    dots: true,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 1,
-    slidesToScroll: 1,
-    prevArrow: <PrevArrow />,
-    nextArrow: <NextArrow />,
-  };
 
   return (
     <Card sx={{ p: 3 }}>
@@ -178,34 +145,12 @@ export const PostDetails = () => {
                 }}
               >
                 <Grid xs={12} sm={12} md={6} spacing={3}>
-                  <Slider {...settings}>
-                    {[
+                  <MediaSlider
+                    media={[
                       ...values.media.img?.map((item) => ({ src: item, type: "image" })),
                       ...values.media.video?.map((item) => ({ src: item, type: "video" })),
-                    ].map((item, index) => {
-                      if (item.type === "image") {
-                        return (
-                          <Image
-                            key={index}
-                            src={item.src}
-                            height={320}
-                            width={320}
-                            alt={`image${index}`}
-                          />
-                        );
-                      }
-
-                      if (item.type === "video") {
-                        return (
-                          <video key={index} height={320} controls>
-                            <source src={item.src} />
-                          </video>
-                        );
-                      }
-
-                      return;
-                    })}
-                  </Slider>
+                    ]}
+                  />
                 </Grid>
               </Grid>
             )}
