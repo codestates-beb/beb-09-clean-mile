@@ -77,7 +77,7 @@ module.exports = (app) => {
         return res
           .status(400)
           .json({ success: false, message: '사용자 상세 정보 조회 실패' });
-      result.dnftData = dnftData.data;
+      result.data.dnftData = dnftData.data;
       if (!result) {
         return res.status(400).json({
           success: false,
