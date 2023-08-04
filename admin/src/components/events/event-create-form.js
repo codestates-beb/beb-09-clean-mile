@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import axios from "axios";
 import Image from "next/image";
 
 import { useRouter } from "next/router";
@@ -67,7 +68,7 @@ const createEventSchema = object({
   poster_image: array().min(1).required(),
 });
 
-export const EventCreateForm = ({}) => {
+export const EventCreateForm = () => {
   const [values, setValues] = useState(initialValues);
   const router = useRouter();
   const imageInputRef = useRef();
@@ -75,7 +76,28 @@ export const EventCreateForm = ({}) => {
   const createEvent = async () => {
     try {
       const validated = await createEventSchema.validate(values);
-      console.log(validated);
+
+      const formData = new FormData();
+      for (const key in validated) {
+        if (key === "poster_image") {
+          for (const image of validated[key]) {
+            formData.append(key, image);
+          }
+          continue;
+        }
+        formData.append(key, validated[key]);
+      }
+
+      const res = await axios.post("http://localhost:8080/admin/events/create", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        withCredentials: true,
+      });
+
+      if (res && res.status === 200) {
+        router.push("/events");
+      }
     } catch (error) {
       throw error;
     }
