@@ -51,7 +51,6 @@ const postSchema = new mongoose.Schema({
     viewers: {
       // 조회자
       type: Array,
-      default: 0
     },
   },
   created_at: {
