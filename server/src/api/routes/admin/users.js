@@ -1,5 +1,4 @@
 const Router = require('express');
-const upload = require('../../../loaders/s3');
 const isAdminAuth = require('../../middlewares/isAdminAuth');
 const clientUsersController = require('../../../services/client/usersController');
 const adminUsersController = require('../../../services/admin/usersController');
@@ -49,7 +48,10 @@ module.exports = (app) => {
       return res.status(200).json({
         success: true,
         message: '사용자 정보 조회 성공',
-        data: result,
+        data: {
+          users: result.data,
+          pagination: result.pagination,
+        },
       });
     } catch (err) {
       console.error('Error:', err);
@@ -72,18 +74,16 @@ module.exports = (app) => {
 
       // 사용자 상세 정보 조회
       const result = await adminUsersController.getUserDetail(id);
-      const dnftData = await dnftController.userDnftData(id);
-      if (!dnftData.success)
-        return res
-          .status(400)
-          .json({ success: false, message: '사용자 상세 정보 조회 실패' });
-      result.data.dnftData = dnftData.data;
       if (!result) {
         return res.status(400).json({
           success: false,
           message: '사용자 상세 정보 조회 실패',
         });
       }
+      
+      const dnftData = await dnftController.userDnftData(id);
+      if (!dnftData.success) return res.status(400).json({success: false,message: '사용자 상세 정보 조회 실패'});
+      result.data.dnft = dnftData.data;
 
       return res.status(200).json({
         success: true,

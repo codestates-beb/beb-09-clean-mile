@@ -1,8 +1,12 @@
 const Router = require('express');
-const upload = require('../../../loaders/s3');
+const multer = require('multer');
 const isAdminAuth = require('../../middlewares/isAdminAuth');
 const { getUser } = require('../../../services/client/usersController');
+const { saveFiles } = require('../../../services/client/postsController');
+const { fileValidation } = require('../../middlewares/fileValidation');
 const adminNoticesController = require('../../../services/admin/noticesController');
+const storage = multer.memoryStorage(); // 이미지를 메모리에 저장
+const upload = multer({ storage: storage });
 
 const route = Router();
 
@@ -28,7 +32,7 @@ module.exports = (app) => {
         category
       );
 
-      if(!notices) {
+      if (!notices) {
         return res.status(400).json({
           success: false,
           message: '공지사항 정보 조회 실패',
@@ -58,22 +62,9 @@ module.exports = (app) => {
     '/create',
     isAdminAuth,
     upload.fields([{ name: 'image' }, { name: 'video' }]),
+    fileValidation,
     async (req, res) => {
       try {
-        // 업로드한 이미지 파일 주소
-        const imageUrls = req.files['image']
-          ? req.files['image'].map((file) => file.location)
-          : [];
-        // 업로드한 이미지 파일 주소
-        const videoUrls = req.files['video']
-          ? req.files['video'].map((file) => file.location)
-          : [];
-
-        const media = {
-          images: imageUrls,
-          videos: videoUrls,
-        };
-
         const category = 'notice';
         const { title, content } = req.body;
         if (!title || !content) {
@@ -83,13 +74,22 @@ module.exports = (app) => {
           });
         }
 
+        // 파일 저장
+        const files = await saveFiles(req.files);
+        if (!files) {
+          return res.status(400).json({
+            success: false,
+            message: '파일 저장에 실패했습니다.',
+          });
+        }
+
         // 공지사항 생성
         const result = await adminNoticesController.saveNotice(
           title,
           content,
           req.decoded.user_id,
           category,
-          media
+          files
         );
 
         if (!result.success) {

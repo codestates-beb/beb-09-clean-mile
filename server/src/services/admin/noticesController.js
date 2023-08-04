@@ -89,8 +89,8 @@ const saveNotice = async (title, content, user_id, category, media) => {
       title: title,
       content: content,
       media: {
-        img: media.images,
-        video: media.videos,
+        img: media.imageUrls,
+        video: media.videoUrls,
       },
     });
 

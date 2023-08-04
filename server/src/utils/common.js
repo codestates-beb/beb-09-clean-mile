@@ -1,3 +1,5 @@
+const uuid = require('uuid');
+
 /**
  * 스키마에 저장할 때 한국 시간으로 저장하기 위한 함수
  * @returns {Date} 한국 시간을 반환합니다.
@@ -20,4 +22,15 @@ const escapeRegexChars = (str) => {
   return str.replace(specialCharsPattern, '\\$&');
 };
 
-module.exports = { getKorDate, escapeRegexChars };
+/**
+ * 고유한 파일 이름 생성
+ * @param {*} fileName
+ * @returns 고유한 파일 이름
+ */
+const generateUniqueFileName = (name) => {
+  const uniqueId = uuid.v4();
+  const fileName = `${uniqueId}_${name}`;
+  return fileName;
+};
+
+module.exports = { getKorDate, escapeRegexChars, generateUniqueFileName };

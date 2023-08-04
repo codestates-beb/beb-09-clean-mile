@@ -17,7 +17,7 @@ const eventSchema = new mongoose.Schema({
   },
   poster_url: {
     // 포스터 이미지 URL
-    type: String,
+    type: Array,
   },
   content: {
     // 이벤트 내용

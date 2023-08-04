@@ -55,6 +55,10 @@ const userSchema = new mongoose.Schema({
       // 사용자 마일리지 수량
       type: Number,
     },
+    mileage_amount: {
+      // 사용자 마일리지 수량
+      type: Number,
+    },
     token_amount: {
       // 사용자 토큰 수량
       type: Number,
