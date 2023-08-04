@@ -24,27 +24,45 @@ const getClientIP = (req) => {
 
 const saveFiles = async (files) => {
   try {
-    const allFiles = files.image.concat(files.video);
-
     const imageUrls = [];
     const videoUrls = [];
 
-    for (const file of allFiles) {
-      const fileName = generateUniqueFileName(file.originalname);
-      const params = {
-        Bucket: config.awsS3.bucketName,
-        Key: fileName,
-        Body: file.buffer,
-        ContentType: file.mimetype,
-      };
+    // files.image와 files.video가 존재하는지 확인 후 각각 처리
+    if (files.image) {
+      for (const file of files.image) {
+        const fileName = generateUniqueFileName(file.originalname);
+        const params = {
+          Bucket: config.awsS3.bucketName,
+          Key: fileName,
+          Body: file.buffer,
+          ContentType: file.mimetype,
+        };
 
-      // 파일 업로드
-      const uploadResult = await s3.upload(params).promise();
+        // 파일 업로드
+        const uploadResult = await s3.upload(params).promise();
 
-      if (file.mimetype.includes('image')) {
-        imageUrls.push(uploadResult.Location);
-      } else if (file.mimetype.includes('video')) {
-        videoUrls.push(uploadResult.Location);
+        if (file.mimetype.includes('image')) {
+          imageUrls.push(uploadResult.Location);
+        }
+      }
+    }
+
+    if (files.video) {
+      for (const file of files.video) {
+        const fileName = generateUniqueFileName(file.originalname);
+        const params = {
+          Bucket: config.awsS3.bucketName,
+          Key: fileName,
+          Body: file.buffer,
+          ContentType: file.mimetype,
+        };
+
+        // 파일 업로드
+        const uploadResult = await s3.upload(params).promise();
+
+        if (file.mimetype.includes('video')) {
+          videoUrls.push(uploadResult.Location);
+        }
       }
     }
 
@@ -65,7 +83,7 @@ const saveFiles = async (files) => {
  * @param {*} media
  * @returns 게시글 id
  */
-const savePost = async (user_id, postData, media) => {
+const savePost = async (user_id, postData, files) => {
   try {
     // 리뷰 게시글을 등록하려고 할 경우
     if (postData.category === 'review') {
@@ -94,14 +112,23 @@ const savePost = async (user_id, postData, media) => {
       }
     }
 
+    // 파일 저장
+    const saveFilesResult = await saveFiles(files);
+    if (!saveFilesResult) {
+      return res.status(400).json({
+        success: false,
+        message: '파일 저장에 실패했습니다.',
+      });
+    }
+
     const saveData = {
       user_id: user_id,
       category: postData.category,
       title: postData.title,
       content: postData.content,
       media: {
-        img: media.imageUrls,
-        video: media.videoUrls,
+        img: saveFilesResult.imageUrls,
+        video: saveFilesResult.videoUrls,
       },
     };
 

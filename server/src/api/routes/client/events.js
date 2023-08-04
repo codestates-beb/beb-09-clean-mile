@@ -71,10 +71,7 @@ module.exports = (app) => {
       if (req.cookies.accessToken) {
         const decoded = jwtUtil.verify(req.cookies.accessToken);
         if (!decoded.success) {
-          return res.status(401).json({
-            success: false,
-            message: `Access Token : ${decoded.message}`,
-          });
+          user_id = null;
         }
 
         user_id = decoded.decoded.user_id;
