@@ -16,7 +16,7 @@ import Image from "next/image";
 
 import { useRouter } from "next/router";
 import { useCallback, useRef, useState } from "react";
-import { object, string, number, date, InferType, array } from "yup";
+import { object, string, number, date, array } from "yup";
 
 const types = [
   {

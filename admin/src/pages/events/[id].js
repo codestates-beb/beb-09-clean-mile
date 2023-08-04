@@ -119,26 +119,6 @@ const Page = () => {
     console.log("handleEntryExport");
   }, []);
 
-  const handleMintBadge = useCallback((values) => {
-    setData((prev) => ({
-      ...prev,
-      badge: {
-        id: "3Rxv4WLTT5EqiBiVozgy4LZLW6ELRVM8",
-        image_url: "/assets/avatars/avatar-anika-visser.png",
-        badge_id: 1,
-        name: values.name,
-        description: values.description,
-        type: values.type,
-        token_uri: "https://badge.world/api/v1/badges/1",
-        initial_quantity: 10,
-        remaining_quantity: 10,
-        created_at: "2021-10-01T00:00:00.000000Z",
-        preview: values.preview,
-      },
-    }));
-    setTabNum("3");
-  }, []);
-
   const handleTabChange = (event, value) => {
     setTabNum(value);
   };
@@ -194,7 +174,7 @@ const Page = () => {
                 </TabPanel>
               ) : (
                 <TabPanel value={"4"}>
-                  <EventBadgeMintForm handleMintBadge={handleMintBadge} />
+                  <EventBadgeMintForm eventId={id} />
                 </TabPanel>
               )}
               <TabPanel value={"5"}>
