@@ -110,7 +110,7 @@ const Create = () => {
           confirmButtonColor: '#6BCB77'
         }).then(() => {
           Swal.close();
-          router.replace(`/users/profile?id=${userInfo?._id}`);
+          router.replace(`/users/mypage`);
         });
 
       } else {

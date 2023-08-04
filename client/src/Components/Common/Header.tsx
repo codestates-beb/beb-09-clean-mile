@@ -11,7 +11,7 @@ import { BiSolidDownArrow, BiSolidUser } from 'react-icons/bi';
 import { IoMdCreate } from 'react-icons/io';
 import { FiLogOut } from 'react-icons/fi';
 import { useMutation, useQueryClient, dehydrate } from 'react-query';
-import { Nav, NewNotice, hero_img , LanguageSwitch } from '../Reference';
+import { Nav, NewNotice, hero_img, LanguageSwitch } from '../Reference';
 import { User, UserInfo, Post, Dnft } from '../Interfaces';
 import { ApiCaller } from '../Utils/ApiCaller';
 
@@ -76,7 +76,14 @@ const Header = () => {
       queryClient.setQueryData('user_info', data);
 
       const dehydratedState = dehydrate(queryClient);
-      sessionStorage.setItem('user_info', JSON.stringify(dehydratedState));
+
+      // Copying the dehydrated state
+      let userInfoCache = { ...dehydratedState };
+
+      // Keeping only 'user_info' cache
+      userInfoCache.queries = dehydratedState.queries.filter((query) => query.queryKey === 'user_info');
+
+      sessionStorage.setItem('user_info', JSON.stringify(userInfoCache));
     },
     onError: (error) => {
       console.log('Mutation Error: ', error);
@@ -87,9 +94,10 @@ const Header = () => {
     const user = sessionStorage.getItem('user');
     const userInfo = sessionStorage.getItem('user_info');
     if (userInfo) {
-      const userCache = JSON.parse(sessionStorage.getItem('user') || '');
-      setUserInfoData(userCache.queries[0]?.state.data);
-      setDnftData(userCache.queries[0]?.state.data.dnftData.data);
+      const userCache = JSON.parse(sessionStorage.getItem('user_info') || '');
+      console.log(userCache)
+      setUserInfoData(userCache.queries[0]?.state.data.user);
+      setDnftData(userCache.queries[0]?.state.data.dnftData);
     }
     if (user) {
       setIsLoggedIn(true);
@@ -319,7 +327,7 @@ const Header = () => {
                 </div>
                 <p onClick={menuToggle}>{userInfoData?.nickname}</p>
                 <div className='relative cursor-pointer'>
-                  <BiSolidDownArrow className={`transform ${isUserMenuOpen ? 'rotate-180' : ''} transition-transform duration-400`} onClick={menuToggle}/>
+                  <BiSolidDownArrow className={`transform ${isUserMenuOpen ? 'rotate-180' : ''} transition-transform duration-400`} onClick={menuToggle} />
                 </div>
                 {isUserMenuOpen &&
                   <div className="

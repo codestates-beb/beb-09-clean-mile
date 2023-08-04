@@ -438,7 +438,6 @@ const MyPage = ({
                 </tr>
               </thead>
               <tbody>
-                {console.log(eventsData)}
                 {eventsData === null ? (
                   <tr>
                     <td colSpan={8} className="p-6 text-center">{t('common:No events participated')}</td>

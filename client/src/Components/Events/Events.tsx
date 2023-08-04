@@ -40,25 +40,28 @@ const Events = ({ eventList, lastId }: { eventList: EventList[], lastId: string 
     hasNextPage,
     isLoading,
     isFetchingNextPage,
-  } = useInfiniteQuery('reviews', fetchEvents, {
+  } = useInfiniteQuery('events', fetchEvents, {
     getNextPageParam: (lastPage, allPages) => {
       const lastItem = lastPage[lastPage.length - 1];
       return lastItem ? lastItem._id : null;
     }
   });
-
+  
   const observer = useRef();
-  const lastReviewElementRef = useCallback((node) => {
-    if (isLoading || isFetchingNextPage) return;
-    if (observer.current) observer.current.disconnect();
-    observer.current = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting && hasNextPage && !isLoading) {
-        fetchNextPage();
-      }
-    });
-    if (node) observer.current.observe(node);
-  },
-    [isLoading, isFetchingNextPage, hasNextPage, fetchNextPage]
+  const lastElementRef = useCallback(
+    (node) => {
+      if (isLoading || isFetchingNextPage) return;
+      if (observer.current) observer.current.disconnect();
+  
+      observer.current = new IntersectionObserver(entries => {
+        if (entries[0].isIntersecting && hasNextPage) {
+          fetchNextPage();
+        }
+      });
+  
+      if (node) observer.current.observe(node);
+    },
+    [isLoading, isFetchingNextPage, hasNextPage, fetchNextPage]  // 의존성 업데이트
   );
 
   // 필터 변경 핸들러
@@ -102,12 +105,12 @@ const Events = ({ eventList, lastId }: { eventList: EventList[], lastId: string 
                 hover:-translate-y-2 
                 cursor-pointer"
                   key={i}
-                  ref={lastReviewElementRef}
+                  ref={lastElementRef}
                   onClick={() => router.push(`/posts/events/${item._id}`)}>
                   <div className='border-b-2 relative pb-[65%] sm:pb-[90%] xs:pb-[90%]'>
                     <Image
                       className='rounded-t-3xl object-cover'
-                      src={item.poster_url}
+                      src={item.poster_url[0]}
                       layout='fill'
                       alt='event poster'
                     />
@@ -191,12 +194,12 @@ const Events = ({ eventList, lastId }: { eventList: EventList[], lastId: string 
                 hover:-translate-y-2 
                 cursor-pointer"
                   key={i}
-                  ref={lastReviewElementRef}
+                  ref={lastElementRef}
                   onClick={() => router.push(`/posts/events/${item._id}`)}>
                   <div className='border-b-2 relative pb-[65%] sm:pb-[90%] xs:pb-[90%]'>
                     <Image
                       className='rounded-t-3xl object-cover'
-                      src={item.poster_url}
+                      src={item.poster_url[0]}
                       layout='fill'
                       alt='event poster'
                     />

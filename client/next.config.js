@@ -1,3 +1,4 @@
+const path = require('path');
 const nextTranslate = require('next-translate-plugin');
 
 /** @type {import('next').NextConfig} */
@@ -16,6 +17,8 @@ const nextConfig = {
       // Only dev purpose
       config.devtool = 'cheap-module-source-map';
     }
+    // Alias 설정 추가
+    config.resolve.alias['@next-translate-root/locales'] = path.resolve(__dirname, 'locales');
     return config;
   },
 };
