@@ -1,11 +1,14 @@
 const smtpTransport = require('../../loaders/email');
 const config = require('../../config/index');
 const calcPagination = require('../../utils/calcPagination');
+const { getKorDate } = require('../../utils/common');
 const MailModel = require('../../models/Mails');
 const UserModel = require('../../models/Users');
 const PostModel = require('../../models/Posts');
 const EventModel = require('../../models/Events');
 const EventEntryModel = require('../../models/EventEntries');
+const dnftController = require('../contract/dnftController');
+const badgeController = require('../contract/badgeController');
 
 /**
  * 랜덤 인증코드 생성 (min ~ max)
@@ -26,13 +29,15 @@ const generateRandomCode = (min, max) => {
  */
 const saveAuthCode = async (email, authCode) => {
   try {
+    const expiryDate = new Date(getKorDate().getTime() + 1000 * 60 * 10); // 10분 뒤 시간
+
     // 기존에 존재하는 이메일인지 확인
     const chkEmailData = await MailModel.find({ email: email });
     if (chkEmailData.length === 0) {
       const mailData = new MailModel({
         email: email,
         code: authCode,
-        expiry: Date.now() + 1000 * 60 * 10, // 10분
+        expiry: expiryDate, // 10분
       });
       const result = await mailData.save(); // 데이터 저장
       return result._id;
@@ -41,7 +46,7 @@ const saveAuthCode = async (email, authCode) => {
         { email: email },
         {
           code: authCode,
-          expiry: Date.now() + 1000 * 60 * 10,
+          expiry: expiryDate,
           authenticated: false,
         }
       );
@@ -139,10 +144,12 @@ const checkNickName = async (nickname) => {
 const checkEmailAuthCode = async (email, code) => {
   try {
     const emailData = await MailModel.findOne({ email: email });
+    console.log(emailData.expiry);
+    console.log(getKorDate());
     if (
       emailData &&
       Number(emailData.code) === Number(code) &&
-      emailData.expiry >= Date.now()
+      emailData.expiry >= getKorDate()
     ) {
       await emailData.updateOne({ authenticated: true });
       return { success: true };
@@ -264,8 +271,8 @@ const getPosts = async (userId, page, limit) => {
 /**
  * 이벤트 참여 목록 조회
  * @param {*} userId
+ * @param {*} page
  * @param {*} limit
- * @param {*} last_id
  * @returns 조회 결과, last_id
  */
 const getEvents = async (userId, page, limit) => {
@@ -304,6 +311,52 @@ const getEvents = async (userId, page, limit) => {
 };
 
 /**
+ * 사용자 프로필 조회 (user, dnft, badge, posts)
+ * @param {*} userId
+ * @returns 조회 결과
+ */
+const getProfile = async (userId) => {
+  try {
+    // 사용자 정보 조회
+    const user = await UserModel.findById(userId).select('-__v -hashed_pw');
+    if (!user) {
+      return { success: false, message: '존재하지 않는 사용자 입니다.' };
+    }
+
+    // dnft 정보 조회
+    const dnftData = await dnftController.userDnftData(userId);
+    if (!dnftData.success) {
+      return { success: false, message: 'dnft 정보를 조회할 수 없습니다.' };
+    }
+
+    // badge 정보 조회
+    const badges = await badgeController.userBadges(userId);
+    if (!badges.success) {
+      return { success: false, message: 'badge 정보를 조회할 수 없습니다.' };
+    }
+
+    // 사용자가 작성한 게시글 목록 조회 (review, general)
+    const posts = await getPosts(userId, 1, 5);
+    if (!posts) {
+      return { success: false, message: '게시글 정보를 조회할 수 없습니다.' };
+    }
+
+    return {
+      success: true,
+      data: {
+        user: user,
+        dnft: dnftData.data,
+        badges: badges.data,
+        posts: posts,
+      },
+    };
+  } catch (err) {
+    console.error('Error:', err);
+    throw Error(err);
+  }
+};
+
+/**
  * 사용자 닉네임 변경
  * @param {string} email
  * @param {string} nickname
@@ -316,7 +369,7 @@ const changeNickname = async (email, nickname) => {
       return { success: false };
     } else {
       userData.nickname = nickname;
-      userData.updated_at = Date.now();
+      userData.updated_at = getKorDate();
       const result = await userData.save();
       return { success: true, data: result.nickname };
     }
@@ -340,7 +393,7 @@ const changeBanner = async (email, bannerUrl) => {
     }
 
     userData.banner_img_url = bannerUrl;
-    userData.updated_at = Date.now();
+    userData.updated_at = getKorDate();
     const result = await userData.save();
     if (!result) {
       return { success: false };
@@ -390,4 +443,5 @@ module.exports = {
   getEvents,
   changeBanner,
   setTokenCookie,
+  getProfile,
 };

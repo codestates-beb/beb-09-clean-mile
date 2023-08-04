@@ -130,7 +130,14 @@ module.exports = (app) => {
 
       //사용자 DNFT 발급
       const createDNFT = await dnftController.createDNFT(userData.email, 0);
-      if (!createDNFT.success) return res.status(400).json({success:false, message: '사용자 DNFT 발급 실패'});
+      if (!createDNFT.success)
+        return res
+          .status(400)
+          .json({ success: false, message: '사용자 DNFT 발급 실패' });
+      if (!createDNFT.success)
+        return res
+          .status(400)
+          .json({ success: false, message: '사용자 DNFT 발급 실패' });
 
       return res.status(200).json({
         success: true,
@@ -161,7 +168,10 @@ module.exports = (app) => {
       }
 
       // 이메일 인증 코드 검증
-      const chkMailAuthCode = await usersController.checkEmailAuthCode(email, email_verification_code);
+      const chkMailAuthCode = await usersController.checkEmailAuthCode(
+        email,
+        email_verification_code
+      );
       if (!chkMailAuthCode.success) {
         return res.status(400).json({
           success: false,
@@ -224,7 +234,7 @@ module.exports = (app) => {
       usersController.setTokenCookie(res, accessToken, refreshToken);
 
       const dnftData = await dnftController.userDnftData(user_id);
-      if (!dnftData.success) return res.status(500).json({success: false});
+      if (!dnftData.success) return res.status(500).json({ success: false });
 
       // 필요 없는 데이터 제거
       const userData = userResult.data.toObject();
@@ -319,67 +329,82 @@ module.exports = (app) => {
   });
 
   /**
+   * @route POST /users/myProfile
+   * @group users - 사용자 관련
+   * @summary 내 프로필 조회
+   */
+  route.get('/profile', isAuth, async (req, res) => {
+    try {
+      const user_id = req.decoded.user_id;
+
+      // 사용자 프로필 조회
+      const userProfile = await usersController.getProfile(user_id);
+      if (!userProfile.success) {
+        return res.status(400).json({
+          success: false,
+          message: userProfile.message,
+        });
+      }
+
+      // 사용자 참여 이벤트 정보 조회
+      const userEvent = await usersController.getEvents(user_id, 1, 5);
+      if (!userEvent) {
+        return res.status(400).json({
+          success: false,
+          message: '사용자가 참여한 이벤트 조회에 실패했습니다.',
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: '내 프로필 조회에 성공했습니다.',
+        data: {
+          user: userProfile.data.user,
+          dnft: userProfile.data.dnft,
+          badges: userProfile.data.badges,
+          events: userEvent.data,
+          eventPagination: userEvent.pagination,
+          posts: userProfile.data.posts.data,
+          postPagination: userProfile.data.posts.pagination,
+        },
+      });
+    } catch (err) {
+      console.error('Error:', err);
+      return res.status(500).json({
+        success: false,
+        message: '서버 오류',
+      });
+    }
+  });
+
+  /**
    * @route GET /users/profile/:id
    * @group users - 사용자 관련
-   * @summary 사용자 프로필 조회
+   * @summary 다른 사용자 프로필 조회
    */
   route.get('/profile/:id', async (req, res) => {
     try {
       const { id } = req.params;
-      const { page = 1, limit = 5 } = req.query;
 
-      // 사용자 정보 조회
-      const findUserData = await usersController.getUser(id);
-      if (!findUserData.success) {
+      // 사용자 프로필 조회
+      const userProfile = await usersController.getProfile(id);
+      if (!userProfile.success) {
         return res.status(400).json({
           success: false,
-          message: '존재하지 않는 사용자입니다.',
+          message: userProfile.message,
         });
       }
 
-      // 반환 데이터
-      const result = {
-        user: findUserData.data,
-      };
-
-      // 본인 마이페이지 인지 확인
-      const accessToken = req.cookies.accessToken;
-      if (accessToken) {
-        const verifyResult = jwtUtil.verify(accessToken); // 토큰 검증
-
-        if (!verifyResult.success) {
-          return res.status(401).json({
-            success: false,
-            message: `Access Token : ${verifyResult.message}`,
-          });
-        }
-
-        if (findUserData.data.email == verifyResult.decoded.email) {
-          // 본인 프로필 조회 -> 사용자가 참여한 이벤트 목록 조회
-          const events = await usersController.getEvents(id, page, limit);
-          result.events = events;
-        }
-      }
-
-      /**
-       * @todo dnft, badge 정보 추가 필요
-       */
-      const dnftData = await dnftController.userDnftData(id);
-      if (!dnftData.success) return res.status(400).json({success:false});
-      result.dnft = dnftData.data;
-
-      const badges = await badgeController.userBadges(id);
-      if (!badges.success) return res.status(400).json({success:false});
-      result.badges = badges.data;
-
-      // 사용자가 작성한 게시글 목록 조회 (review, general)
-      const posts = await usersController.getPosts(id, page, limit);
-      result.posts = posts;
-
       return res.status(200).json({
         success: true,
-        message: '사용자 프로필 조회에 성공',
-        data: result,
+        message: '사용자 프로필 조회에 성공했습니다.',
+        data: {
+          user: userProfile.data.user,
+          dnft: userProfile.data.dnft,
+          badges: userProfile.data.badges,
+          posts: userProfile.data.posts.data,
+          postPagination: userProfile.data.posts.pagination,
+        },
       });
     } catch (err) {
       console.error('Error:', err);
@@ -468,7 +493,10 @@ module.exports = (app) => {
       }
 
       // 닉네임 변경
-      const chgNicknameResult = await usersController.changeNickname(email, nickname);
+      const chgNicknameResult = await usersController.changeNickname(
+        email,
+        nickname
+      );
       if (!chgNicknameResult.success) {
         return res.status(400).json({
           success: false,
@@ -496,41 +524,49 @@ module.exports = (app) => {
    * @group users - 사용자 관련
    * @summary 사용자 배너 이미지 변경
    */
-  route.patch('/change-banner', isAuth, upload.single('imgFile'), async (req, res) => {
-    try {
-      const email = req.decoded.email;
+  route.patch(
+    '/change-banner',
+    isAuth,
+    upload.single('imgFile'),
+    async (req, res) => {
+      try {
+        const email = req.decoded.email;
 
-      // S3 이미지 업로드
-      const imageData = req.file;
-      if (!imageData) {
-        return res.status(400).json({
+        // S3 이미지 업로드
+        const imageData = req.file;
+        if (!imageData) {
+          return res.status(400).json({
+            success: false,
+            message: '이미지 업로드에 실패하였습니다.',
+          });
+        }
+
+        // 사용자 배너 이미지 변경
+        const chgBannerResult = await usersController.changeBanner(
+          email,
+          imageData.location
+        );
+        if (!chgBannerResult.success) {
+          return res.status(400).json({
+            success: false,
+            message: '배너 이미지 변경에 실패했습니다.',
+          });
+        }
+
+        return res.status(200).json({
+          success: true,
+          message: '배너 이미지 변경에 성공했습니다.',
+          imageUrl: chgBannerResult.data,
+        });
+      } catch (err) {
+        console.error('Error:', err);
+        return res.status(500).json({
           success: false,
-          message: '이미지 업로드에 실패하였습니다.',
+          message: '서버 오류',
         });
       }
-
-      // 사용자 배너 이미지 변경
-      const chgBannerResult = await usersController.changeBanner(email, imageData.location);
-      if (!chgBannerResult.success) {
-        return res.status(400).json({
-          success: false,
-          message: '배너 이미지 변경에 실패했습니다.',
-        });
-      }
-
-      return res.status(200).json({
-        success: true,
-        message: '배너 이미지 변경에 성공했습니다.',
-        imageUrl: chgBannerResult.data,
-      });
-    } catch (err) {
-      console.error('Error:', err);
-      return res.status(500).json({
-        success: false,
-        message: '서버 오류',
-      });
     }
-  });
+  );
 };
 
 /**
@@ -541,7 +577,7 @@ module.exports = (app) => {
 route.get('/userInfo', isAuth, async (req, res) => {
   try {
     const user_id = req.decoded.user_id;
-    
+
     // 사용자 정보 조회
     const user = await usersController.getUser(user_id);
     if (!user.success) {
@@ -554,11 +590,13 @@ route.get('/userInfo', isAuth, async (req, res) => {
     /**
      * @todo 사용자 배지, dnft 정보 조회 수정 필요
      */
-    const dnftData= await dnftController.userDnftData(user_id);
-    if (!dnftData.success)  return res.status(400).json({success:false});
+    const dnftData = await dnftController.userDnftData(user_id);
+    if (!dnftData.success) return res.status(400).json({ success: false });
 
     const badgeData = await badgeController.userBadges(user_id);
-    if (!badgeData.success) return res.status(400).json({success:false});
+    if (!badgeData.success) return res.status(400).json({ success: false });
+
+    console.log(badgeData);
 
     // 사용자 작성한 General, Review Posts List 조회
     const posts = await usersController.getPosts(user_id);
@@ -590,61 +628,66 @@ route.get('/userInfo', isAuth, async (req, res) => {
  * @group users - 사용자 관련
  * @summary DNFT 업그레이드
  */
-route.post('/updateDNFTName',/*isAuth*/ async(req,res) => {
-  try{
-    const {email, newName} = req.body;
+route.post(
+  '/updateDNFTName',
+  /*isAuth*/ async (req, res) => {
+    try {
+      const { email, newName } = req.body;
 
-    const updateName = await dnftController.updateName(email, newName);
+      const updateName = await dnftController.updateName(email, newName);
 
-    if (updateName.success){
-      return res.status(200).json({
-        success: true
-      })
-      }else{
+      if (updateName.success) {
+        return res.status(200).json({
+          success: true,
+        });
+      } else {
         return res.status(400).json({
           success: false,
-          message: "DNFT Name 업데이트에 실패하였습니다"
-        })
+          message: 'DNFT Name 업데이트에 실패하였습니다',
+        });
       }
-  } catch(err){
-    console.error('Error:', err);
-    return res.status(500).json({
-      success: false,
-      message: '서버 오류',
-    });
+    } catch (err) {
+      console.error('Error:', err);
+      return res.status(500).json({
+        success: false,
+        message: '서버 오류',
+      });
+    }
   }
-})
+);
 
 /**
- * @todo DNFT 업그레이드 api 구현 필요
  * @route POST /users/upgrade-dnft
  * @group users - 사용자 관련
  * @summary DNFT 업그레이드
  */
-route.post('/upgrade-dnft',/*isAuth*/ async (req, res) => {
-  try{
-    const {email} = req.body;
+route.post(
+  '/upgrade-dnft',
+  /*isAuth*/ async (req, res) => {
+    try {
+      const { email } = req.body;
 
-    const upgradeDNFT = await dnftController.upgradeDnft(email);
+      const upgradeDNFT = await dnftController.upgradeDnft(email);
 
-    if (upgradeDNFT.success){
-    return res.status(200).json({
-      success: true
-    })
-    }else{
-      return res.status(400).json({
+      if (upgradeDNFT.success) {
+        return res.status(200).json({
+          success: true,
+        });
+      } else {
+        return res.status(400).json({
+          success: false,
+          message: 'DNFT 업그레이드에 실패하였습니다',
+        });
+      }
+    } catch (err) {
+      console.error('Error:', err);
+      return res.status(500).json({
         success: false,
-        message: "DNFT 업그레이드에 실패하였습니다"
-      })
+        message: '서버 오류',
+      });
     }
-  }catch(err){
-    console.error('Error:', err);
-    return res.status(500).json({
-      success: false,
-      message: '서버 오류',
-    });
   }
-});
+);
 
 
 /**
@@ -668,4 +711,5 @@ route.post('/token-exchange', /*isAuth*/ async (req,res) => {
       message: '서버 오류',
     });
   }
-})
+});
+

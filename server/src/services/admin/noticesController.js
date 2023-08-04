@@ -1,5 +1,6 @@
 const PostModel = require('../../models/Posts');
 const calcPagination = require('../../utils/calcPagination');
+const { getKorDate, escapeRegexChars } = require('../../utils/common');
 
 /**
  * 공지사항 리스트 조회
@@ -19,12 +20,12 @@ const getNotices = async (page, limit, title, content, category) => {
 
     // 제목을 검색할 경우 정규표현식 사용 (대소문자 구분 없이 검색)
     if (title) {
-      query.title = { $regex: new RegExp(title, 'i') };
+      query.title = { $regex: new RegExp(escapeRegexChars(title), 'i') };
     }
 
     // 내용을 검색할 경우 정규표현식 사용 (대소문자 구분 없이 검색)
     if (content) {
-      query.content = { $regex: new RegExp(content, 'i') };
+      query.content = { $regex: new RegExp(escapeRegexChars(content), 'i') };
     }
 
     //  공지사항 리스트 조회
@@ -129,7 +130,7 @@ const updateNotice = async (notice_id, title, content) => {
       notice.content = content;
     }
 
-    notice.updated_at = Date.now();
+    notice.updated_at = getKorDate();
 
     const result = await notice.save();
     if (!result) {

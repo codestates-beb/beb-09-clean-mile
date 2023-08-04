@@ -4,30 +4,28 @@ import Image from 'next/image';
 import { useRouter } from 'next/router';
 import Swal from 'sweetalert2';
 import { AxiosError } from 'axios';
-import { useSelector, useDispatch } from 'react-redux';
 import { GiHamburgerMenu, GiToken } from 'react-icons/gi';
 import { IoCloseSharp } from 'react-icons/io5';
 import { BiSolidDownArrow, BiSolidUser } from 'react-icons/bi';
 import { IoMdCreate } from 'react-icons/io';
 import { FiLogOut } from 'react-icons/fi';
 import { useMutation, useQueryClient, dehydrate } from 'react-query';
-import { Nav, NewNotice, insta_icon } from '../Reference';
-import { UserInfo } from '../Interfaces';
+import { Nav, NewNotice, hero_img } from '../Reference';
+import { User, UserInfo, Post, Dnft } from '../Interfaces';
 import { ApiCaller } from '../Utils/ApiCaller';
-import { setLoggedIn} from '../Redux';
 
 const Header = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const dispatch = useDispatch();
 
   const [isOpen, setIsOpen] = useState(false);
   const [isMenu, setIsMenu] = useState(false);
   const [isUserMenuOpen, setUserMenuOpen] = useState(false);
   const [arrowRotation, setArrowRotation] = useState(0);
-  const [userInfoDetail, setUserInfoDetail] = useState<UserInfo | null>(null);
-
-  const isLoggedIn = useSelector(state => state.isLoggedIn)
+  const [userInfoData, setUserInfoData] = useState<User | null>(null);
+  const [dnftData, setDnftData] = useState<Dnft | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [latestNotice, setLatestNotice] = useState<Post | null>(null);
 
   /**
    * 특정 URI로 이동하는 함수
@@ -43,7 +41,6 @@ const Header = () => {
    */
   const menuToggle = () => {
     setUserMenuOpen(!isUserMenuOpen);
-    setArrowRotation(arrowRotation + 180);
   }
 
   const userInfo = async () => {
@@ -55,6 +52,7 @@ const Header = () => {
       const isCookie = true;
 
       const res = await ApiCaller.get(URL, dataBody, isJSON, headers, isCookie);
+
       return res.data.data
     } catch (error) {
       const err = error as AxiosError;
@@ -65,7 +63,7 @@ const Header = () => {
       throw err;
     }
   }
-  
+
   /**
    * loginMutation 함수는 useMutation hook을 사용하여 loginAPI를 호출하고, 요청의 결과에 따라 적절한 동작을 수행
    * 
@@ -73,15 +71,11 @@ const Header = () => {
    */
   const loginMutation = useMutation(userInfo, {
     onSuccess: (data: UserInfo) => {
-      queryClient.invalidateQueries('user');
-      queryClient.setQueryData('user', data);
+      queryClient.invalidateQueries('user_info');
+      queryClient.setQueryData('user_info', data);
 
       const dehydratedState = dehydrate(queryClient);
-      localStorage.setItem('user', JSON.stringify(dehydratedState));
-
-      // Move userInfoDetail setting logic here
-      dispatch(setLoggedIn(true));
-      setUserInfoDetail(data);
+      sessionStorage.setItem('user_info', JSON.stringify(dehydratedState));
     },
     onError: (error) => {
       console.log('Mutation Error: ', error);
@@ -89,7 +83,19 @@ const Header = () => {
   });
 
   useEffect(() => {
-    loginMutation.mutate();
+    const user = sessionStorage.getItem('user');
+    const userInfo = sessionStorage.getItem('user_info');
+    if (userInfo) {
+      const userCache = JSON.parse(sessionStorage.getItem('user_info') || '');
+      setUserInfoData(userCache.queries[0]?.state.data.user);
+      setDnftData(userCache.queries[0]?.state.data.dnftData);
+    }
+    if (user) {
+      setIsLoggedIn(true);
+      loginMutation.mutate();
+    } else {
+      setIsLoggedIn(false);
+    }
   }, []);
 
 
@@ -129,10 +135,11 @@ const Header = () => {
               router.replace('/');
 
               if (typeof window !== "undefined") {
-                localStorage.removeItem('user');
+                sessionStorage.removeItem('user');
+                sessionStorage.removeItem('user_info');
               }
               queryClient.removeQueries('user');
-              dispatch(setLoggedIn(false));
+              queryClient.removeQueries('user_info');
             });
           } else {
             Swal.fire({
@@ -176,13 +183,37 @@ const Header = () => {
     });
   }
 
+  const newNotice = async () => {
+    try {
+      const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/posts/notices_latest`;
+      const dataBody = null;
+      const isJSON = false;
+      const headers = {};
+      const isCookie = true;
+
+      const res = await ApiCaller.get(URL, dataBody, isJSON, headers, isCookie);
+      setLatestNotice(res.data.data);
+    } catch (error) {
+      const err = error as AxiosError;
+
+      const data = err.response?.data as { message: string };
+
+      console.log('New Notice Error: ', data?.message);
+      throw err;
+    }
+  }
+
+  useEffect(() => {
+    newNotice();
+  }, [])
+
   return (
     <>
-      <div className="w-full mx-auto sm:overflow-hidden h-20 flex items-center justify-between px-10 sm:px-3 xs:px-3 border-b bg-white md:gap-6 sm:gap-4 xs:gap-4 sticky top-0 z-50">
+      <div className="w-full mx-auto h-20 flex items-center justify-between px-10 sm:px-3 xs:px-3 border-b bg-white md:gap-6 sm:gap-4 xs:gap-4 sticky top-0 z-50">
         <div className="w-[15%] md:w-[30%] sm:w-full xs:w-[50%] h-full flex items-center sm:justify-start overflow-hidden">
           <img src='/assets/images/clean_mile_logo_2.png' className='w-[50%] lg:w-[90%] md:w-[90%] sm:w-[80%] xs:w-[100%] cursor-pointer' alt="logo" onClick={() => navigateTo('/')} />
         </div>
-        <div className="w-3/4 md:w-full sm:w-fullh-full flex justify-end items-center gap-20">
+        <div className="w-3/4 md:w-full sm:w-full h-full flex justify-end items-center gap-10">
           <nav className='flex justify-center items-center md:hidden sm:hidden xs:hidden relative'>
             <ul className="flex justify-center items-center gap-14">
               <li className={
@@ -263,22 +294,41 @@ const Header = () => {
           <div className="flex gap-5">
             {isLoggedIn ? (
               <div className='flex items-center gap-3'>
-                <Image src={insta_icon} width={50} height={100} alt='user profile image' />
-                <p>{userInfoDetail?.user.nickname}</p>
-                <div className='relative cursor-pointer' style={{ transform: `rotate(${arrowRotation}deg)`, transition: 'transform 0.4s' }}>
-                  <BiSolidDownArrow onClick={menuToggle} />
+                <div className='w-[3rem] 
+                  lg:w-[2rem] 
+                  md:w-[2rem] 
+                  sm:w-[2rem] 
+                  xs:w-[2rem] 
+                  h-[3rem] 
+                  lg:h-[2rem] 
+                  md:h-[2rem] 
+                  sm:h-[2rem] 
+                  xs:h-[2rem] 
+                  border-2 
+                  border-gray-200 
+                  rounded-full 
+                  relative 
+                  overflow-hidden'>
+                  {dnftData && dnftData.image_url ? (
+                    <Image src={dnftData.image_url} layout='fill' className='object-cover' alt='user profile image' />
+                  ) : (
+                    <Image src={hero_img} layout='fill' className='object-cover' alt='default profile image' />
+                  )}
+                </div>
+                <p onClick={menuToggle}>{userInfoData?.nickname}</p>
+                <div className='relative cursor-pointer'>
+                  <BiSolidDownArrow className={`transform ${isUserMenuOpen ? 'rotate-180' : ''} transition-transform duration-400`} onClick={menuToggle}/>
                 </div>
                 {isUserMenuOpen &&
                   <div className="
                     absolute 
                     top-16 
                     right-14 
-                    overflow-hidden 
                     bg-white 
                     text-black 
                     rounded 
-                    shadow-md"
-                  >
+                    shadow-md
+                    z-50">
                     <ul className="text-center">
                       <li className="
                         flex 
@@ -287,6 +337,9 @@ const Header = () => {
                         gap-2
                         border-b 
                         p-4 
+                        md:p-2
+                        sm:p-2
+                        xs:p-2
                         hover:bg-gray-300 
                         transition 
                         duration-300 
@@ -294,7 +347,7 @@ const Header = () => {
                         <GiToken size={20} />
                         50 CM
                       </li>
-                      <Link href={{ pathname: '/users/mypage', query: { id: userInfoDetail?.user._id } }}>
+                      <Link href='/users/mypage'>
                         <li className="
                           flex 
                           justify-center 
@@ -302,6 +355,9 @@ const Header = () => {
                           gap-2
                           border-b 
                           p-4 
+                          md:p-2
+                          sm:p-2
+                          xs:p-2
                           hover:bg-gray-300 
                           transition 
                           duration-300 
@@ -318,6 +374,9 @@ const Header = () => {
                           gap-2
                           border-b 
                           p-4 
+                          md:p-2
+                          sm:p-2
+                          xs:p-2
                           hover:bg-gray-300 
                           transition 
                           duration-300 
@@ -331,7 +390,10 @@ const Header = () => {
                         justify-center 
                         items-center 
                         gap-2
-                        p-4 
+                        p-4
+                        md:p-2
+                        sm:p-2
+                        xs:p-2 
                         hover:bg-gray-300 
                         transition 
                         duration-300 
@@ -387,7 +449,7 @@ const Header = () => {
           </div>
         </div>
       </div>
-      {router.pathname !== '/' && router.pathname !== '/user/mypage' && <NewNotice />}
+      {router.pathname !== '/' && router.pathname !== '/user/mypage' && <NewNotice latestNotice={latestNotice} />}
     </>
   );
 };

@@ -44,6 +44,11 @@ export const CommentsTable = ({ items = [], pageCount, page, handlePageChange })
                       hover
                       key={comment.id}
                       onClick={() => handleCommentSelected(comment.id)}
+                      sx={{
+                        "&:hover": {
+                          cursor: "pointer",
+                        },
+                      }}
                     >
                       <TableCell>
                         <Stack alignItems="center" direction="row" spacing={2}>
@@ -51,9 +56,11 @@ export const CommentsTable = ({ items = [], pageCount, page, handlePageChange })
                         </Stack>
                       </TableCell>
                       <TableCell>{comment.category}</TableCell>
-                      <TableCell>{comment.content ? `${comment.content.slice(0, 20)}...` : "N/A"}</TableCell>
+                      <TableCell>
+                        {comment.content ? `${comment.content.slice(0, 20)}...` : "N/A"}
+                      </TableCell>
                       <TableCell>{comment.writer}</TableCell>
-                   
+
                       <TableCell>{comment.likes}</TableCell>
                       <TableCell>{comment.createdAt}</TableCell>
                     </TableRow>

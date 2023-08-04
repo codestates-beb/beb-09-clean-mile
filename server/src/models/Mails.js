@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { getKorDate } = require('../utils/common');
 
 /**
  * Mails Collection Schema
@@ -24,7 +25,7 @@ const mailSchema = new mongoose.Schema({
   created_at: {
     // 데이터 생성일
     type: Date,
-    default: Date.now,
+    default: getKorDate,
   },
 });
 

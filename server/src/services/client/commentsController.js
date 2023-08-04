@@ -1,4 +1,5 @@
 const CommentModel = require('../../models/Comments');
+const { getKorDate } = require('../../utils/common');
 
 /**
  * 좋아요 여부 확인 및 수정
@@ -92,7 +93,7 @@ const editComment = async (commentId, content) => {
 
     // 댓글 수정
     comment.content = content;
-    comment.updated_at = new Date();
+    comment.updated_at = getKorDate();
 
     const result = await comment.save();
     if (!result) {

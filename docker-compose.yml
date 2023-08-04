@@ -14,7 +14,7 @@ services:
       - ./server/src:/usr/src/app/src:z
     environment:
       EXAMPLE_ENV: example
-  
+
   daemon:
     build:
       context: ./daemon

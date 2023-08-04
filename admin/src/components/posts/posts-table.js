@@ -40,7 +40,16 @@ export const PostsTable = ({ items = [], pageCount, page, handlePageChange, path
               <TableBody>
                 {items.map((post) => {
                   return (
-                    <TableRow hover key={post.id} onClick={() => handlePostSelected(post.id)}>
+                    <TableRow
+                      hover
+                      key={post.id}
+                      onClick={() => handlePostSelected(post.id)}
+                      sx={{
+                        "&:hover": {
+                          cursor: "pointer",
+                        },
+                      }}
+                    >
                       <TableCell>
                         <Stack alignItems="center" direction="row" spacing={2}>
                           <Typography variant="subtitle2">{post.title}</Typography>

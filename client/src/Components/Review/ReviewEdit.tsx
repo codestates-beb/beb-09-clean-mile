@@ -1,23 +1,40 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/router';
-import axios from 'axios';
+import Swal from 'sweetalert2';
+import { hydrate } from 'react-query';
+import { AxiosError } from 'axios';
+import { ApiCaller } from '../Utils/ApiCaller';
+import { UserInfo, PostDetail } from '../Interfaces';
 
-const ReviewEdit = () => {
+interface IFile extends File {
+  preview?: string;
+}
+
+const ReviewEdit = ({ reviewDetailDefault }: { reviewDetailDefault: PostDetail }) => {
   const router = useRouter();
 
   const [selectCategory, setSelectCategory] = useState('');
   const [title, setTitle] = useState('');
   const [content, setContent ] = useState('');
-  const [images, setImages] = useState<File[]>([]);
-  const [videos, setVideos] = useState<File[]>([]);
-  const [selectedFile, setSelectedFile] = useState<File[] | null>([]);
+  const [images, setImages] = useState<IFile[]>([]);
+  const [videos, setVideos] = useState<IFile[]>([]);
+  const [selectedFile, setSelectedFile] = useState<IFile[]>([]);
+  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  
+  useEffect(() => {
+    if (typeof window !== "undefined" && sessionStorage.getItem('user')) {
+      const userCache = JSON.parse(sessionStorage.getItem('user') || '');
+      setIsLoggedIn(userCache !== null);
+      setUserInfo(userCache.queries[0].state.data.data)
+    }
+  }, []);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    }
+    fileInputRef.current?.click();
   };
 
   /**
@@ -27,24 +44,77 @@ const ReviewEdit = () => {
    * @param {Event} e - 파일 입력 이벤트 객체
    */
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      const files = Array.from(e.target.files)
+    const files: IFile[] = Array.from(e.target.files!) as IFile[];
+
+    files.forEach((file) => {
+      const extension = file.name.split('.').pop()?.toLowerCase();
   
-      files.forEach((file) => {
-        // file.name이 정의되어 있는지 확인
-        if (file && file.name) {
-          const extension = file.name.split('.').pop().toLowerCase();
-    
-          if (extension === 'jpg' || extension === 'jpeg' || extension === 'png') {
-            setImages((prevImages) => [...prevImages, file]);
-          } else if (extension === 'mp4' || extension === 'avi' || extension === 'mov') {
-            setVideos((prevVideos) => [...prevVideos,   file]);
-          }
-        }
-      });
-      setSelectedFile(files);
-    }
+      if (['jpg', 'jpeg', 'png'].includes(extension || '')) {
+        setImages((prevImages) => [...prevImages, file]);
+      } else if (['mp4', 'avi', 'mov'].includes(extension || '')) {
+        setVideos((prevVideos) => [...prevVideos, file]);
+      }
+    });
+    setSelectedFile(files)
   };
+
+  const editPost = async () => {
+    const formData = new FormData();
+
+    formData.append('post_id', reviewDetailDefault._id);
+    formData.append('title', title);
+    formData.append('content', content);
+
+    try {
+      const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/posts/edit`;
+      const dataBody = formData;
+      const isJSON = false;
+      const headers = {
+        'Content-Type': 'multipart/form-data',
+        'Accept': 'application/json'  
+      };
+      const isCookie = true;
+
+      const res = await ApiCaller.patch(URL, dataBody, isJSON, headers, isCookie);
+      if (res.status === 200) {
+        Swal.fire({
+          title: 'Success!',
+          text: res.data.message,
+          icon: 'success',
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#6BCB77'
+        }).then(() => {
+          Swal.close();
+          router.replace(`/posts/review/${reviewDetailDefault._id}`);
+        });
+
+      } else {
+        Swal.fire({
+          title: 'Error',
+          text: res.data.message,
+          icon: 'error',
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#6BCB77'
+        }).then(() => {
+          Swal.close();
+        });
+      }
+    } catch (error) {
+      const err = error as AxiosError;
+
+      const data = err.response?.data as { message: string };
+
+      Swal.fire({
+        title: 'Error',
+        text: data?.message,
+        icon: 'error',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#6BCB77'
+      }).then(() => {
+        Swal.close();
+      });
+    }
+  }
 
   return (
     <>
@@ -63,23 +133,24 @@ const ReviewEdit = () => {
             px-4 
             w-full
             sm:text-sm
-            xs:text-sm"
+            xs:text-sm" 
             value={selectCategory}
             onChange={(e) => setSelectCategory(e.target.value)}
             required>
-            <option className="text-sm" value="" disabled>카테고리를 선택해 주세요.</option>
-            <option className="text-sm" value="eventinfo">행사 정보</option>
-            <option className="text-sm" value="courseinfo">코스 정보</option>
-            <option className="text-sm" value="review">참여 후기</option>
+            {/* <option className="text-sm" value="" disabled>Please select a category.</option>
+            <option className="text-sm" value="general">General</option>
+            <option className="text-sm" value="review" selected>Review</option> */}
+            <option className="text-sm" defaultValue="review" selected>Review</option>
           </select>
         </div>
         <div className='w-2/5 sm:w-full xs:w-full'>
-          <input
-            className='w-full sm:w-[50%] xs:w-[50%] border-b focus:border-black transition duration-300 py-2 px-3'
+          <input 
+            className='w-full sm:w-[50%] xs:w-[50%] border-b focus:border-black transition duration-300 py-2 px-3' 
             type="text"
-            name=""
-            placeholder='제목을 입력해 주세요'
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)} />
+            defaultValue={reviewDetailDefault.title} 
+            placeholder={reviewDetailDefault.title}
+            value={title}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)}/>
         </div>
         <div className='w-full h-[45rem]'>
           <input
@@ -88,22 +159,33 @@ const ReviewEdit = () => {
             className='w-full hidden'
             onChange={handleFileChange}
             multiple
-          />
+            />
           <div className='flex w-[30%] lg:w-[50%] md:w-[70%] sm:w-full xs:w-full justify-between mb-5'>
             <p className='border-b w-[60%] xs:text-sm m-0'>
-              {selectedFile?.length > 0 ? (
+              {selectedFile.length > 0 ? (
                 selectedFile.map((file) => file.name + ', ')
               ) : (
                 '파일을 선택해 주세요.'
               )}
             </p>
-            <button
+            <button 
               className='border rounded-lg p-2 bg-main-blue text-white hover:bg-blue-600 transition duration-300 xs:text-sm'
               onClick={handleFileSelect}>
               파일 선택
             </button>
           </div>
-          <textarea className="border border-gray-300 rounded-lg w-full h-full p-3 outline-none" onChange={(e) => setContent(e.target.value)} />
+          <textarea className="
+            border 
+            border-gray-300 
+            rounded-lg 
+            w-full 
+            h-full 
+            p-3 
+            outline-none" 
+            defaultValue={reviewDetailDefault.content}
+            placeholder={reviewDetailDefault.content}
+            value={content} 
+            onChange={(e) => setContent(e.target.value)} />
         </div>
         <div className='w-full flex gap-3 justify-end mt-16'>
           <button className='
@@ -118,7 +200,7 @@ const ReviewEdit = () => {
             hover:bg-red-500
             transition 
             duration-300'
-            onClick={() => router.push('/')}>
+            onClick={() => router.back()}>
             Cancel
           </button>
           <button className='
@@ -133,8 +215,8 @@ const ReviewEdit = () => {
             hover:bg-green-600
             transition 
             duration-300'
-          >
-            Create
+            onClick={editPost}>
+            Edit
           </button>
         </div>
       </div>

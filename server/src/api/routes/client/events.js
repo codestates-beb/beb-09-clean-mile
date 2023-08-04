@@ -22,6 +22,7 @@ module.exports = (app) => {
         limit = 10,
         title = null,
         content = null,
+        status = null,
       } = req.query;
 
       // 행사 리스트 조회
@@ -29,7 +30,8 @@ module.exports = (app) => {
         last_id, // 마지막 게시글 id
         limit,
         title,
-        content
+        content,
+        status
       );
 
       if (!result) {
@@ -42,18 +44,16 @@ module.exports = (app) => {
       return res.status(200).json({
         success: true,
         message: '행사 리스트 조회 성공',
-        data: result.data,
-        
+        data: result,
       });
-
-    }catch (err) {
+    } catch (err) {
       console.error('Error:', err);
       return res.status(500).json({
         success: false,
         message: '서버 오류',
       });
     }
-  })
+  });
 
   /**
    * @router POST /events/detail/:_id
@@ -105,9 +105,77 @@ module.exports = (app) => {
   });
 
   /**
-   * @router POST /events/subscribe
+   * @router POST /events//entry/:event_id
    * @group Events
-   * @Summary 행사 참여
+   * @Summary 행사 참여 신청
    */
-  route.post('/subscribe', isAuth, upload.none(), async (req, res) => {});
+  route.post('/entry/:event_id', isAuth, async (req, res) => {
+    try {
+      const { event_id } = req.params;
+
+      // 행사 참여 신청
+      const result = await eventsController.eventEntry(
+        event_id,
+        req.decoded.user_id
+      );
+      if (!result.success) {
+        return res.status(400).json({
+          success: false,
+          message: result.message,
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: '행사 참여 신청 성공',
+      });
+    } catch (err) {
+      console.error('Error:', err);
+      return res.status(500).json({
+        success: false,
+        message: '서버 오류',
+      });
+    }
+  });
+
+  /**
+   * @router POST /events/entry
+   * @group Events
+   * @Summary 행사 참여 인증
+   */
+  route.post('/verify', isAuth, upload.none(), async (req, res) => {
+    try {
+      const user_id = req.decoded.user_id;
+      const { token } = req.body;
+      if (!token) {
+        return res.status(400).json({
+          success: false,
+          message: '필수 입력 값이 없습니다.',
+        });
+      }
+
+      // 행사 참여 인증
+      const result = await eventsController.validateQRParticipation(
+        token,
+        user_id
+      );
+      if (!result.success) {
+        return res.status(400).json({
+          success: false,
+          message: result.message,
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: '행사 참여 인증 성공',
+      });
+    } catch (err) {
+      console.error('Error:', err);
+      return res.status(500).json({
+        success: false,
+        message: '서버 오류',
+      });
+    }
+  });
 };

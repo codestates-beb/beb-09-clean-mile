@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const eventHostSchema = require('./EventHosts');
+const { getKorDate } = require('../utils/common');
 
 /**
  * Events Collection Schema
@@ -38,6 +39,7 @@ const eventSchema = new mongoose.Schema({
     // 이벤트 진행 상태
     type: String,
     enum: ['created', 'recruiting', 'progressing', 'finished', 'canceled'],
+    default: 'created',
   },
   event_type: {
     // 이벤트 타입
@@ -75,12 +77,12 @@ const eventSchema = new mongoose.Schema({
   created_at: {
     // 이벤트 생성일
     type: Date,
-    default: Date.now,
+    default: getKorDate,
   },
   updated_at: {
     // 이벤트 정보 수정일
     type: Date,
-    default: Date.now,
+    default: getKorDate,
   },
 });
 

@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const userController = require('../../../services/client/usersController');
 const isAdminAuth = require('../../middlewares/isAdminAuth');
 const upload = require('../../../loaders/s3');
+const { getUser } = require('../../../services/client/usersController');
 
 const route = Router();
 
@@ -126,6 +127,38 @@ module.exports = (app) => {
       return res.status(200).json({
         success: true,
         message: '토큰이 갱신되었습니다.',
+      });
+    } catch (err) {
+      console.error('Error:', err);
+      return res.status(500).json({
+        success: false,
+        message: '서버 오류',
+      });
+    }
+  });
+
+  /**
+   * @route POST /admin/users/restore/:id
+   * @group Admin - User
+   * @summary admin 정보 조회
+   */
+  route.get('/info', isAdminAuth, async (req, res, next) => {
+    try {
+      const user_id = req.decoded.user_id;
+
+      // admin 정보 조회
+      const user = await getUser(user_id);
+      if (!user) {
+        return res.status(400).json({
+          success: false,
+          message: 'admin 정보 조회 실패',
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: 'admin 정보 조회 성공',
+        data: user.data,
       });
     } catch (err) {
       console.error('Error:', err);

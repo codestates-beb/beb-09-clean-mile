@@ -3,7 +3,7 @@ import qs from 'qs';
 
 const METHOD_GET: Method = 'get';
 const METHOD_POST: Method = 'post';
-const METHOD_UPDATE: Method = 'update';
+const METHOD_PATCH: Method = 'patch';
 const METHOD_DELETE: Method = 'delete';
 
 interface Headers {
@@ -19,7 +19,7 @@ function requestAPI(method: Method, url: string, _headers: Headers = {}, _dataBo
 		headers['Content-Type'] = 'application/json';
   }
   // isJSON === false
-  if (!isJSON && (method === METHOD_POST || method === METHOD_UPDATE)) {
+  if (!isJSON && (method === METHOD_POST || method === METHOD_PATCH)) {
 		headers['Content-Type'] = 'multipart/form-data';
 		dataBody = dataBody;
   }
@@ -54,8 +54,8 @@ const ApiCaller = {
 		return requestAPI(METHOD_POST, url, headers, dataBody, isJSON, isCookie);
   },
 
-  update(url: string, dataBody?: any, isJSON: boolean = false, headers: Headers = {}, isCookie: boolean = false): Promise<any> {
-		return requestAPI(METHOD_UPDATE, url, headers, dataBody, isJSON, isCookie);
+  patch(url: string, dataBody?: any, isJSON: boolean = false, headers: Headers = {}, isCookie: boolean = false): Promise<any> {
+		return requestAPI(METHOD_PATCH, url, headers, dataBody, isJSON, isCookie);
   },
 
   delete(url: string, dataBody?: any, isJSON: boolean = false, headers: Headers = {}, isCookie: boolean = false): Promise<any> {

@@ -8,7 +8,7 @@ const dnft = {
   description: "test account",
 };
 
-export const AccountDnft = () => (
+export const UserDNFT = () => (
   <Card sx={{ p: 3 }}>
     <CardContent>
       <Box

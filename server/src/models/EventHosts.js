@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { getKorDate } = require('../utils/common');
 
 /**
  * EventHosts Collection Schema
@@ -16,7 +17,7 @@ const eventHostSchema = new mongoose.Schema({
     // 주최측 전화번호
     type: String,
   },
-  wallet_addrss: {
+  wallet_address: {
     // 주최측 지갑 주소
     type: String,
   },
@@ -27,12 +28,12 @@ const eventHostSchema = new mongoose.Schema({
   created_at: {
     // 호스트 생성일
     type: Date,
-    default: Date.now,
+    default: getKorDate,
   },
   updated_at: {
     // 호스트 정보 수정일
     type: Date,
-    default: Date.now,
+    default: getKorDate,
   },
 });
 

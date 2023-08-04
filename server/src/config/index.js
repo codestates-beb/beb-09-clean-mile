@@ -31,6 +31,11 @@ module.exports = {
     aud: config.AUDIENCE,
   },
 
+  // QR code JWT
+  qrCodeJwt: {
+    jwtSecret: config.EVENT_QR_SECRET_CODE,
+  },
+
   // AWS - S3
   awsS3: {
     region: 'ap-northeast-2',

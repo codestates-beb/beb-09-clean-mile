@@ -35,7 +35,7 @@ module.exports = (app) => {
           !postData.category ||
           !postData.title ||
           !postData.content ||
-          (postData.category === 'Review' && !postData.event_id)
+          (postData.category === 'review' && !postData.event_id)
         ) {
           return res.status(400).json({
             success: false,
@@ -51,14 +51,14 @@ module.exports = (app) => {
 
         // 게시글 저장
         const result = await postsController.savePost(
-          req.decoded.email,
+          req.decoded.user_id,
           postData,
           media
         );
         if (!result.success) {
           return res.status(400).json({
             success: false,
-            message: '게시글을 저장에 실패했습니다.',
+            message: result.message,
           });
         }
 
@@ -239,7 +239,8 @@ module.exports = (app) => {
           last_id, // 마지막 게시글 id
           limit,
           title,
-          content
+          content,
+          order
         );
       }
 
@@ -281,7 +282,7 @@ module.exports = (app) => {
         content
       );
 
-      if(!result) {
+      if (!result) {
         return res.status(400).json({
           success: false,
           message: '공지사항 정보 조회 실패',

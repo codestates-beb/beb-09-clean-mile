@@ -3,10 +3,8 @@ const upload = require('../../../loaders/s3');
 const isAdminAuth = require('../../middlewares/isAdminAuth');
 const clientUsersController = require('../../../services/client/usersController');
 const adminUsersController = require('../../../services/admin/usersController');
-const dnftController = require("../../../services/contract/dnftController");
-const badgeController = require("../../../services/contract/badgeController");
-const EventEntryModel = require('../../../models/EventEntries');
-const PostModel = require('../../../models/Posts');
+const dnftController = require('../../../services/contract/dnftController');
+const badgeController = require('../../../services/contract/badgeController');
 
 const route = Router();
 
@@ -74,15 +72,16 @@ module.exports = (app) => {
 
       // 사용자 상세 정보 조회
       const result = await adminUsersController.getUserDetail(id);
-      const dnftData = await dnftController.userDnftData(id);
-      if (!dnftData.success) return res.status(400).json({success: false,message: '사용자 상세 정보 조회 실패'});
-      result.data.dnftData = dnftData.data;
       if (!result) {
         return res.status(400).json({
           success: false,
           message: '사용자 상세 정보 조회 실패',
         });
       }
+      
+      const dnftData = await dnftController.userDnftData(id);
+      if (!dnftData.success) return res.status(400).json({success: false,message: '사용자 상세 정보 조회 실패'});
+      result.data.dnft = dnftData.data;
 
       return res.status(200).json({
         success: true,

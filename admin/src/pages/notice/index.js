@@ -14,6 +14,7 @@ import { Layout as DashboardLayout } from "src/layouts/dashboard/layout";
 import { PostsTable } from "src/components/posts/posts-table";
 import { useCallback, useEffect, useState } from "react";
 import { SearchBar } from "src/components/search-bar";
+import { useRouter } from "next/router";
 
 const data = [
   {
@@ -54,14 +55,38 @@ const data = [
   },
 ];
 
+const filters = ["all", "title", "content"];
+
 const Page = () => {
   const [page, setPage] = useState(1);
   const [pageCount, setPageCount] = useState(5);
   const [posts, setPosts] = useState(data);
+  const [filter, setFilter] = useState(filters[0]);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const router = useRouter();
 
   const handlePageChange = useCallback((event, value) => {
     setPage(value);
   }, []);
+
+  const handleFilterChange = useCallback((event) => {
+    setFilter(event.target.value);
+  }, []);
+
+  const handleSearchTermChange = useCallback((event) => {
+    setSearchTerm(event.target.value);
+  }, []);
+
+  const handleSearchTermSubmit = useCallback(
+    (event) => {
+      event.preventDefault();
+
+      if (!searchTerm) return;
+      console.log(filter, searchTerm);
+    },
+    [filter, searchTerm]
+  );
 
   return (
     <>
@@ -89,6 +114,7 @@ const Page = () => {
                     </SvgIcon>
                   }
                   variant="contained"
+                  onClick={() => router.push("/notice/create")}
                 >
                   Add
                 </Button>
@@ -100,6 +126,15 @@ const Page = () => {
               pageCount={pageCount}
               handlePageChange={handlePageChange}
               path="/notice"
+            />
+            <SearchBar
+              filters={filters}
+              filter={filter}
+              handleFilterChange={handleFilterChange}
+              searchTerm={searchTerm}
+              handleSearchTermChange={handleSearchTermChange}
+              handleSearchTermSubmit={handleSearchTermSubmit}
+              placeholder={"Search Notice"}
             />
           </Stack>
         </Container>
