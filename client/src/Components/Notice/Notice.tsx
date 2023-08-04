@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
+import useTranslation from 'next-translate/useTranslation';
 import { SearchInput } from '../Reference';
 import { Post, Pagination } from '../../Components/Interfaces';
 
-const Notice = ({ noticeList, noticePagination }: { noticeList: Post, noticePagination: Pagination }) => {
+const Notice = ({ noticeList, noticePagination }: { noticeList: Post[], noticePagination: Pagination }) => {
   const router = useRouter();
+  const { t } = useTranslation('common');
+
   const [currentPage, setCurrentPage] = useState(1);
   const [filter, setFilter] = useState('newest');
   // 필터 변경 핸들러
@@ -17,7 +20,7 @@ const Notice = ({ noticeList, noticePagination }: { noticeList: Post, noticePagi
   const totalPages = noticePagination.totalPages;
 
   const handlePageChange = (pageNumber: number) => {
-      setCurrentPage(pageNumber);
+    setCurrentPage(pageNumber);
   };
 
   useEffect(() => {
@@ -28,33 +31,33 @@ const Notice = ({ noticeList, noticePagination }: { noticeList: Post, noticePagi
   return (
     <div className='w-full flex flex-col justify-center gap-12 px-24 sm:px-2 xs:px-2 py-14 lg:py-12 md:py-6 sm:py-6 xs:py-3'>
       <h1 className='font-bold text-5xl lg:text-4xl md:text-3xl sm:text-2xl xs:text-xl text-center'>
-        Notice
+        {t('common:Notice')}
       </h1>
       <div className='flex justify-center items-center w-full'>
         <div className={`w-full ${noticeList.length === 0 && 'min-h-screen items-center justify-around'}`}>
           <div className='flex justify-end mb-3'>
             <select className="border border-black py-2 px-4 pr-7 rounded-md text-sm" onChange={handleFilterChange}>
-              <option className="text-sm xs:text-xs" value="desc">최신 순</option>
-              <option className="text-sm xs:text-xs" value="asc">오래된 순</option>
-              <option className="text-sm xs:text-xs" value="view">조회수 순</option>
+              <option className="text-sm xs:text-xs" value="desc">{t('common:Latest order')}</option>
+              <option className="text-sm xs:text-xs" value="asc">{t('common:Old order')}</option>
+              <option className="text-sm xs:text-xs" value="view">{t('common:View order')}</option>
             </select>
           </div>
           <div className='w-full'>
             <table className="w-full text-center border-collapse sm:text-sm xs:text-xs overflow-x-scroll">
               <thead className='border-b'>
                 <tr>
-                  <th className="p-2">No.</th>
-                  <th className="p-2">Title</th>
-                  <th className="p-2">Content</th>
-                  <th className="p-2">Writer</th>
-                  <th className="p-2">Date</th>
-                  <th className="p-2">Views</th>
+                  <th className="p-2">{t('common:No')}</th>
+                  <th className="p-2">{t('common:Title')}</th>
+                  <th className="p-2">{t('common:Content')}</th>
+                  <th className="p-2">{t('common:Writer')}</th>
+                  <th className="p-2">{t('common:Date')}</th>
+                  <th className="p-2">{t('common:Views')}</th>
                 </tr>
               </thead>
               <tbody>
                 {noticeList.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="p-6 text-center">등록된 게시글이 없습니다.</td>
+                    <td colSpan={6} className="p-6 text-center">{t('common:There are no registered posts')}</td>
                   </tr>
                 ) : (
                   noticeList.map((post, i) => (
@@ -84,12 +87,12 @@ const Notice = ({ noticeList, noticePagination }: { noticeList: Post, noticePagi
                         </p>
                       </td>
                       <td className="border-b p-6 sm:p-3 xs:p-2">
-                        <p className="text-gray-600 sm:text-sm xs:text-xs"> 
+                        <p className="text-gray-600 sm:text-sm xs:text-xs">
                           {post.updated_at.split('T')[0]}<br />{post.updated_at.substring(11, 19)}
                         </p>
                       </td>
                       <td className="border-b p-6 sm:p-3 xs:p-2">
-                        <p className="text-gray-600"> 
+                        <p className="text-gray-600">
                           {post.view.count}
                         </p>
                       </td>

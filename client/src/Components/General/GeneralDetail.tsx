@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/router';
+import useTranslation from 'next-translate/useTranslation';
 import Link from 'next/link';
 import Image from 'next/image';
 import Swal from 'sweetalert2';
@@ -13,8 +14,12 @@ import { Comments } from '../Reference';
 
 const GeneralDetail = ({ postDetail, comments }: { postDetail: PostDetail, comments: Comment[] }) => {
   const router = useRouter();
+  const { t } = useTranslation('common');
+
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userInfo, setUserInfo] = useState<User | null>(null);
+
+  console.log(postDetail)
 
   const settings = useMemo(() => ({
     dots: true,
@@ -34,12 +39,12 @@ const GeneralDetail = ({ postDetail, comments }: { postDetail: PostDetail, comme
 
   const postDelete = async () => {
     Swal.fire({
-      title: '삭제 하시겠습니까?',
+      title: t('common:Are you sure you want to delete it'),
       icon: 'question',
       showCancelButton: true,
       confirmButtonText: 'OK',
       confirmButtonColor: '#6BCB77',
-      cancelButtonText: 'Cancel',
+      cancelButtonText: t('common:Cancel'),
       cancelButtonColor: '#FF6B6B'
     }).then(async (result) => {
       if (result.isConfirmed) {
@@ -53,7 +58,7 @@ const GeneralDetail = ({ postDetail, comments }: { postDetail: PostDetail, comme
           const res = await ApiCaller.delete(URL, dataBody, isJSON, headers, isCookie);
           if (res.status === 200) {
             Swal.fire({
-              title: 'Success!',
+              title: t('common:Success'),
               text: res.data.message,
               icon: 'success',
               confirmButtonText: 'OK',
@@ -65,7 +70,7 @@ const GeneralDetail = ({ postDetail, comments }: { postDetail: PostDetail, comme
 
           } else {
             Swal.fire({
-              title: 'Error',
+              title: t('common:Error'),
               text: res.data.message,
               icon: 'error',
               confirmButtonText: 'OK',
@@ -80,7 +85,7 @@ const GeneralDetail = ({ postDetail, comments }: { postDetail: PostDetail, comme
           const data = err.response?.data as { message: string };
 
           Swal.fire({
-            title: 'Error',
+            title: t('common:Error'),
             text: data?.message,
             icon: 'error',
             confirmButtonText: 'OK',
@@ -91,8 +96,8 @@ const GeneralDetail = ({ postDetail, comments }: { postDetail: PostDetail, comme
         }
       } else if (result.isDismissed) {
         Swal.fire({
-          title: 'Success!',
-          text: '게시글 삭제를 취소하셨습니다.',
+          title: t('common:Success'),
+          text: t('common:You have cancelled deleting the post'),
           icon: 'success',
           confirmButtonText: 'OK',
           confirmButtonColor: '#6BCB77',
@@ -101,17 +106,37 @@ const GeneralDetail = ({ postDetail, comments }: { postDetail: PostDetail, comme
     })
   }
 
+  const handleProfile = () => {
+    if (postDetail.user_id === null) {
+      Swal.fire({
+        title: t('common:Error'),
+        text: t('common:User does not exist'),
+        icon: 'error',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#6BCB77'
+      }).then(() => {
+        Swal.close();
+      });
+    } else {
+      if (postDetail.user_id._id === userInfo?._id) {
+        router.push(`/users/mypage`)
+      } else {
+        router.push(`/users/profile?id=${postDetail.user_id._id}`)
+      }
+    }
+  }
+
   return (
     <>
       <div className='w-[90%] min-h-screen mx-auto mt-20 flex flex-col gap-12'>
         <div className='flex justify-center w-full'>
-          <h1 className='font-bold text-5xl mb-5 xs:text-4xl'>General</h1>
+          <h1 className='font-bold text-5xl mb-5 xs:text-4xl'>{t('common:General')}</h1>
         </div>
         <div className='w-full flex justify-between items-center border-b'>
           <p className='mb-3 font-bold text-2xl xs:text-xl'>{postDetail.title}</p>
           <div className='flex items-center gap-6 xs:gap-6 font-semibold text-xl xs:text-sm mb-3 xs:mb-1'>
-            <p className='cursor-pointer hover:underline' onClick={() => router.push(`/users/profile?id=${postDetail.user_id._id}`)}>
-              {postDetail.user_id.nickname}
+            <p className='cursor-pointer hover:underline' onClick={handleProfile}>
+              {postDetail.user_id === null ? t('common:Unknown') : postDetail.user_id.nickname}
             </p>
             <p>{postDetail.updated_at.split('T')[0]} {postDetail.updated_at.substring(11, 19)}</p>
             <p>{postDetail.view?.count}</p>
@@ -131,7 +156,7 @@ const GeneralDetail = ({ postDetail, comments }: { postDetail: PostDetail, comme
               <Slider {...settings} className='w-full h-full flex justify-center items-center'>
                 {postDetail.media.img.map((media, index) => (
                   <div key={index} className="w-full h-full">
-                    <img src={media} className='w-full h-full object-contain' key={index} alt='post media'/>
+                    <img src={media} className='w-full h-full object-contain' key={index} alt='post media' />
                   </div>
                 ))}
               </Slider>
@@ -143,7 +168,7 @@ const GeneralDetail = ({ postDetail, comments }: { postDetail: PostDetail, comme
         </div>
         <Comments postDetailId={postDetail._id} comments={comments} />
         <div className='w-full flex gap-3 xs:gap-2 justify-end my-16'>
-          {isLoggedIn && userInfo?._id === postDetail.user_id._id ? (
+          {isLoggedIn && userInfo?._id === postDetail.user_id?._id ? (
             <>
               <button className='
                 w-[5%]
@@ -165,7 +190,7 @@ const GeneralDetail = ({ postDetail, comments }: { postDetail: PostDetail, comme
                 duration-300
                 text-center'
                 onClick={postDelete}>
-                Delete
+                {t('common:Delete')}
               </button>
               <Link
                 href={`/posts/general/edit/${postDetail._id}`}
@@ -189,7 +214,7 @@ const GeneralDetail = ({ postDetail, comments }: { postDetail: PostDetail, comme
                   duration-300
                   text-center'>
                 <button>
-                  Edit
+                  {t('common:Edit')}
                 </button>
               </Link>
               <Link href='/posts/general?page=1'
@@ -213,7 +238,7 @@ const GeneralDetail = ({ postDetail, comments }: { postDetail: PostDetail, comme
                 duration-300
                 text-center'>
                 <button>
-                  List
+                  {t('common:List')}
                 </button>
               </Link>
             </>
@@ -239,7 +264,7 @@ const GeneralDetail = ({ postDetail, comments }: { postDetail: PostDetail, comme
               duration-300
               text-center'>
               <button>
-                List
+                {t('common:List')}
               </button>
             </Link>
           )}

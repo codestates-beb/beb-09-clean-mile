@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useRouter } from 'next/router';
+import useTranslation from 'next-translate/useTranslation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { AiOutlineDelete, AiOutlineHeart, AiFillHeart } from 'react-icons/ai'
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -11,7 +11,7 @@ import { Comments } from '../../Components/Reference';
 
 
 const NoticeDetail = ({ noticeDetail, comments }: { noticeDetail: PostDetail, comments: Comment[] }) => {
-  const router = useRouter();
+  const { t } = useTranslation('common');
 
   const settings = {
     dots: true,
@@ -25,7 +25,7 @@ const NoticeDetail = ({ noticeDetail, comments }: { noticeDetail: PostDetail, co
     <>
       <div className='w-[90%] min-h-screen mx-auto mt-20 flex flex-col gap-12'>
         <div className='flex justify-center w-full'>
-          <h1 className='font-bold text-5xl mb-5 xs:text-4xl'>Notice</h1>
+          <h1 className='font-bold text-5xl mb-5 xs:text-4xl'>{t('common:Notice')}</h1>
         </div>
         <div className='w-full flex justify-between items-center border-b'>
           <p className='mb-3 font-bold text-2xl xs:text-xl'>{noticeDetail.title}</p>
@@ -85,7 +85,7 @@ const NoticeDetail = ({ noticeDetail, comments }: { noticeDetail: PostDetail, co
             duration-300
             text-center'>
             <button>
-              List
+              {t('common:List')}
             </button>
           </Link>
         </div>
