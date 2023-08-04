@@ -656,14 +656,20 @@ module.exports = (app) => {
         margin: 3, // QR 코드 주변의 여백 설정
       };
 
-      // 응답의 Content-Type 헤더를 설정
-      res.type('png');
-
-      // QR 코드 생성 옵션을 사용하여 이미지 파일로 변환하여 스트림으로 보내주는 역할
-      QRCode.toFileStream(res, qrCodeJwt.data, options, (err) => {
+      QRCode.toDataURL(qrCodeJwt.data, options, (err, url) => {
         if (err) {
-          console.error('Error:', err);
+          console.error(err);
+          return res.status(400).json({
+            success: false,
+            message: 'QR 코드 생성 실패',
+          });
         }
+
+        return res.status(200).json({
+          success: true,
+          message: 'QR 코드 생성 성공',
+          data: url,
+        });
       });
     } catch (err) {
       console.error('Error:', err);
