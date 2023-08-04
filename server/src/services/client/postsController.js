@@ -1,12 +1,16 @@
-const mongoose = require('mongoose');
+const config = require('../../config');
 const PostModel = require('../../models/Posts');
-const CommentModel = require('../../models/Comments');
 const EventModel = require('../../models/Events');
 const EventEntryModel = require('../../models/EventEntries');
-const UserModel = require('../../models/Users');
 const calcPagination = require('../../utils/calcPagination');
-const { getKorDate, escapeRegexChars } = require('../../utils/common');
 const { updateCommentLikes } = require('./commentsController');
+const {
+  getKorDate,
+  escapeRegexChars,
+  generateUniqueFileName,
+} = require('../../utils/common');
+const AWS = require('../../loaders/aws-s3');
+const s3 = new AWS.S3();
 
 /**
  * 클라이언트 IP 조회
@@ -16,6 +20,42 @@ const { updateCommentLikes } = require('./commentsController');
 const getClientIP = (req) => {
   // expressjs의 req.ip 사용
   return req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+};
+
+const saveFiles = async (files) => {
+  try {
+    const allFiles = files.image.concat(files.video);
+
+    const imageUrls = [];
+    const videoUrls = [];
+
+    for (const file of allFiles) {
+      const fileName = generateUniqueFileName(file.originalname);
+      const params = {
+        Bucket: config.awsS3.bucketName,
+        Key: fileName,
+        Body: file.buffer,
+        ContentType: file.mimetype,
+      };
+
+      // 파일 업로드
+      const uploadResult = await s3.upload(params).promise();
+
+      if (file.mimetype.includes('image')) {
+        imageUrls.push(uploadResult.Location);
+      } else if (file.mimetype.includes('video')) {
+        videoUrls.push(uploadResult.Location);
+      }
+    }
+
+    return {
+      imageUrls: imageUrls,
+      videoUrls: videoUrls,
+    };
+  } catch (err) {
+    console.error('Error:', err);
+    throw Error(err);
+  }
 };
 
 /**
@@ -55,11 +95,14 @@ const savePost = async (user_id, postData, media) => {
     }
 
     const saveData = {
-      user_id: userData.data._id,
+      user_id: user_id,
       category: postData.category,
       title: postData.title,
       content: postData.content,
-      media: media,
+      media: {
+        img: media.imageUrls,
+        video: media.videoUrls,
+      },
     };
 
     // 저장하려는 게시글의 카테고리가 리뷰인 경우 event_id 필드 추가
@@ -370,10 +413,6 @@ const getReviews = async (last_data, limit, title, content, order) => {
       }
     }
 
-    console.log('comparisonOperator:', comparisonOperator);
-    console.log('sort:', sort);
-    console.log('query:', query);
-
     // last_id가 존재하면, 마지막 id 이후의 문서 조회
     if (comparisonOperator !== undefined && order !== 'view') {
       query._id = comparisonOperator;
@@ -422,4 +461,5 @@ module.exports = {
   getPosts,
   getEvents,
   getReviews,
+  saveFiles,
 };

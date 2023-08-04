@@ -1,7 +1,7 @@
 const smtpTransport = require('../../loaders/email');
 const config = require('../../config/index');
 const calcPagination = require('../../utils/calcPagination');
-const { getKorDate } = require('../../utils/common');
+const { getKorDate, generateUniqueFileName } = require('../../utils/common');
 const MailModel = require('../../models/Mails');
 const UserModel = require('../../models/Users');
 const PostModel = require('../../models/Posts');
@@ -9,6 +9,8 @@ const EventModel = require('../../models/Events');
 const EventEntryModel = require('../../models/EventEntries');
 const dnftController = require('../contract/dnftController');
 const badgeController = require('../contract/badgeController');
+const AWS = require('../../loaders/aws-s3');
+const s3 = new AWS.S3();
 
 /**
  * 랜덤 인증코드 생성 (min ~ max)
@@ -382,24 +384,65 @@ const changeNickname = async (email, nickname) => {
 /**
  * 사용자 배너 이미지 변경
  * @param {*} email
- * @param {*} bannerUrl
+ * @param {*} image
  * @returns 성공여부
  */
-const changeBanner = async (email, bannerUrl) => {
+const changeBanner = async (email, image) => {
   try {
     const userData = await UserModel.findOne({ email: email });
     if (!userData) {
       return { success: false, message: '사용자를 찾을 수 없습니다.' };
     }
 
-    userData.banner_img_url = bannerUrl;
+    // 기존에 업로드한 이미지가 있다면 삭제
+    const currentBannerUrl = userData.banner_img_url;
+    if (currentBannerUrl) {
+      const key = currentBannerUrl.split('/').pop(); // URL에서 객체 키를 추출
+      const prefix = key.split('_')[0]; // 키에서 파일 이름을 제외한 고유한 아이디 추출
+
+      const listParams = {
+        Bucket: config.awsS3.bucketName,
+        Prefix: prefix,
+      };
+
+      // 객체의 키(Key) 목록 조회
+      // db에 저장된 이미지의 url에서 key 값을 추출해 바로 삭제하면 파일명이 한글인 파일은 삭제가 안되는 문제가 있어서 추가함
+      const listObjectsResult = await s3.listObjectsV2(listParams).promise();
+      const keysToDelete = listObjectsResult.Contents.map((obj) => ({
+        Key: obj.Key,
+      }));
+
+      const deleteParams = {
+        Bucket: config.awsS3.bucketName,
+        Delete: {
+          Objects: keysToDelete,
+          Quiet: false,
+        },
+      };
+
+      // 객체 삭제
+      await s3.deleteObjects(deleteParams).promise();
+    }
+
+    // 새로운 이미지 업로드
+    const keyName = generateUniqueFileName(image.originalname);
+    const uploadParams = {
+      Bucket: config.awsS3.bucketName,
+      Key: keyName,
+      Body: image.buffer,
+    };
+
+    // S3 업로드 실행
+    const uploadResult = await s3.upload(uploadParams).promise();
+    userData.banner_img_url = uploadResult.Location;
     userData.updated_at = getKorDate();
+
     const result = await userData.save();
     if (!result) {
-      return { success: false };
-    } else {
-      return { success: true, data: result.banner_img_url };
+      return { success: false, message: '사용자 정보 업데이트 실패' };
     }
+
+    return { success: true, data: result.banner_img_url };
   } catch (err) {
     console.error('Error:', err);
     throw Error(err);
