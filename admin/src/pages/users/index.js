@@ -36,8 +36,8 @@ const Page = () => {
 
         if (!userData) {
           setUsers([]);
-          setPageCount(pagination.totalPages);
-          setPage(pagination.currentPage);
+          setPageCount(1);
+          setPage(1);
           return;
         }
 
@@ -46,10 +46,6 @@ const Page = () => {
           setPageCount(1);
           setPage(1);
           return;
-        }
-
-        if (!userData || !pagination) {
-          throw new Error(data.message ? data.message : "Invalid response");
         }
 
         setUsers(userData);

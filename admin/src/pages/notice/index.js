@@ -15,6 +15,7 @@ import { PostsTable } from "src/components/posts/posts-table";
 import { useCallback, useEffect, useState } from "react";
 import { SearchBar } from "src/components/search-bar";
 import { useRouter } from "next/router";
+import axios from "axios";
 
 const data = [
   {
@@ -66,6 +67,51 @@ const Page = () => {
 
   const router = useRouter();
 
+  const searchNotice = useCallback(async (params) => {
+    try {
+      const res = await axios.get("http://localhost:8080/admin/notice/list", {
+        withCredentials: true,
+        params,
+      });
+
+      if (!res || res.status !== 200) {
+        throw new Error("Invalid response");
+      }
+
+      const data = res.data;
+
+      if (data && data.data) {
+        const noticeData = data.data.data;
+        const pagination = data.data.pagination;
+
+        if (!noticeData) {
+          setPosts([]);
+          setPageCount(1);
+          setPage(1);
+          return;
+        }
+
+        if (!pagination) {
+          setPosts(noticeData);
+          setPageCount(1);
+          setPage(1);
+          return;
+        }
+
+        setPosts(noticeData);
+        setPageCount(pagination.totalPages);
+        setPage(pagination.currentPage);
+      } else {
+        throw new Error(data.message ? data.message : "Invalid response");
+      }
+    } catch (error) {
+      console.log(error);
+      setPosts([]);
+      setPageCount(1);
+      setPage(1);
+    }
+  }, []);
+
   const handlePageChange = useCallback((event, value) => {
     setPage(value);
   }, []);
@@ -79,14 +125,37 @@ const Page = () => {
   }, []);
 
   const handleSearchTermSubmit = useCallback(
-    (event) => {
+    async (event) => {
       event.preventDefault();
 
       if (!searchTerm) return;
-      console.log(filter, searchTerm);
+
+      const params = {};
+
+      if (filter !== "all") {
+        switch (filter) {
+          case "title":
+            params.title = searchTerm;
+            break;
+          case "content":
+            params.content = searchTerm;
+            break;
+          default:
+            throw new Error("Invalid filter");
+        }
+      }
+
+      await searchNotice(params);
     },
     [filter, searchTerm]
   );
+
+  useEffect(() => {
+    const params = {};
+    params.page = page;
+
+    searchNotice(params);
+  }, [page]);
 
   return (
     <>
