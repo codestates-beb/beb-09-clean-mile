@@ -1,7 +1,8 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useCallback, useRef } from 'react';
 import { useInfiniteQuery } from 'react-query';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
+import useTranslation from 'next-translate/useTranslation';
 import { MdOutlineArrowForwardIos } from 'react-icons/md';
 import { SearchInput } from '../Reference';
 import { EventList } from '../Interfaces';
@@ -9,6 +10,7 @@ import { ApiCaller } from '../Utils/ApiCaller';
 
 const Events = ({ eventList, lastId }: { eventList: EventList[], lastId: string }) => {
   const router = useRouter();
+  const { t } = useTranslation('common');
 
   const getClassNameForStatus = (status: string) => {
     switch (status) {
@@ -67,18 +69,18 @@ const Events = ({ eventList, lastId }: { eventList: EventList[], lastId: string 
   return (
     <div className='w-full flex flex-col justify-center gap-12 px-24 sm:px-2 xs:px-2 py-14 lg:py-12 md:py-6 sm:py-6 xs:py-3'>
       <h1 className='font-bold text-5xl lg:text-4xl md:text-3xl sm:text-2xl xs:text-xl text-center'>
-        Events
+        {t('common:Events')}
       </h1>
       <div className='flex flex-col items-center gap-24 w-full min-h-screen'>
         <div className='w-full'>
           <div className='flex justify-end mb-3'>
             <SearchInput />
             <select className="border border-black py-2 px-4 pr-7 rounded-md text-sm" onChange={handleFilterChange}>
-              <option className="text-sm xs:text-xs" value="created">Before proceeding</option>
-              <option className="text-sm xs:text-xs" value="recruiting">Recruiting</option>
-              <option className="text-sm xs:text-xs" value="progressing">In progress</option>
-              <option className="text-sm xs:text-xs" value="finished">End of progress</option>
-              <option className="text-sm xs:text-xs" value="canceled">Cancel Progress</option>
+              <option className="text-sm xs:text-xs" value="created">{t('common:Before proceeding')}</option>
+              <option className="text-sm xs:text-xs" value="recruiting">{t('common:Recruiting')}</option>
+              <option className="text-sm xs:text-xs" value="progressing">{t('common:In progress')}</option>
+              <option className="text-sm xs:text-xs" value="finished">{t('common:End of progress')}</option>
+              <option className="text-sm xs:text-xs" value="canceled">{t('common:Cancel Progress')}</option>
             </select>
           </div>
         </div>
@@ -116,12 +118,12 @@ const Events = ({ eventList, lastId }: { eventList: EventList[], lastId: string 
                       <p className={`text-md font-bold sm:text-xs xs:text-xs text-white rounded-lg sm:rounded-md xs:rounded-md px-1 ${getClassNameForStatus(item.status)}`}>
                         {(() => {
                           switch (item.status) {
-                            case 'created': return 'Before proceeding';
-                            case 'recruiting': return 'Recruiting';
-                            case 'progressing': return 'In progress';
-                            case 'finished': return 'End of progress';
-                            case 'canceled': return 'Cancel Progress';
-                            default: return 'Unknown';
+                            case 'created': return t('common:Before proceeding');
+                            case 'recruiting': return t('common:Recruiting');
+                            case 'progressing': return t('common:In progress');
+                            case 'finished': return t('common:End of progress');
+                            case 'canceled': return t('common:Cancel Progress');
+                            default: return t('common:Unknown');
                           }
                         })()}
                       </p>
@@ -163,8 +165,8 @@ const Events = ({ eventList, lastId }: { eventList: EventList[], lastId: string 
                     font-semibold 
                     transition 
                     duration-300'
-                      onClick={() => router.push(`/posts/events/${item._id}`)}>
-                      Read more
+                    onClick={() => router.push(`/posts/events/${item._id}`)}>
+                      {t('common:Read more')}
                       <MdOutlineArrowForwardIos size={20} className='rounded-xl w-[10%]' />
                     </button>
                   </div>
@@ -205,12 +207,12 @@ const Events = ({ eventList, lastId }: { eventList: EventList[], lastId: string 
                       <p className={`text-md font-bold sm:text-xs xs:text-xs text-white rounded-lg sm:rounded-md xs:rounded-md px-1 ${getClassNameForStatus(item.status)}`}>
                         {(() => {
                           switch (item.status) {
-                            case 'created': return 'Before proceeding';
-                            case 'recruiting': return 'Recruiting';
-                            case 'progressing': return 'In progress';
-                            case 'finished': return 'End of progress';
-                            case 'canceled': return 'Cancel Progress';
-                            default: return 'Unknown';
+                            case 'created': return t('common:Before proceeding');
+                            case 'recruiting': return t('common:Recruiting');
+                            case 'progressing': return t('common:In progress');
+                            case 'finished': return t('common:End of progress');
+                            case 'canceled': return t('common:Cancel Progress');
+                            default: return t('common:Unknown');
                           }
                         })()}
                       </p>
@@ -252,8 +254,8 @@ const Events = ({ eventList, lastId }: { eventList: EventList[], lastId: string 
                     font-semibold 
                     transition 
                     duration-300'
-                      onClick={() => router.push(`/posts/events/${item._id}`)}>
-                      Read more
+                    onClick={() => router.push(`/posts/events/${item._id}`)}>
+                      {t('common:Read more')}
                       <MdOutlineArrowForwardIos size={20} className='rounded-xl w-[10%]' />
                     </button>
                   </div>

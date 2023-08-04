@@ -1,8 +1,15 @@
+const nextTranslate = require('next-translate-plugin');
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: false,
   images: {
-    domains: ['example.com', 'plohub-bucket.s3.ap-northeast-2.amazonaws.com', 'gold-cool-goat-213.mypinata.cloud', 'i.namu.wiki'],
+    domains: [
+      'example.com',
+      'plohub-bucket.s3.ap-northeast-2.amazonaws.com',
+      'gold-cool-goat-213.mypinata.cloud',
+      'i.namu.wiki',
+    ],
   },
   webpack: (config, { dev }) => {
     if (dev) {
@@ -13,4 +20,4 @@ const nextConfig = {
   },
 };
 
-module.exports = nextConfig;
+module.exports = nextTranslate(nextConfig);

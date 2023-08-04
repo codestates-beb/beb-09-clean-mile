@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { AxiosError } from 'axios';
 import Swal from 'sweetalert2';
+import useTranslation from 'next-translate/useTranslation';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
 import { useDispatch, useSelector } from 'react-redux';
@@ -23,6 +24,7 @@ const SignUp = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
   const userAddressQuery = useQuery('userAddress');
+  const { t } = useTranslation('common');
   let web3: Web3;
 
   if (typeof window !== 'undefined' && window.ethereum) {
@@ -45,12 +47,12 @@ const SignUp = () => {
   const [nicknameCheck, setNicknameCheck] = useState(false);
   const [emailCheck, setEmailCheck] = useState(false);
 
-   /**
-   * 이메일을 검증하는 함수
-   * 이메일은 특정 형식에 맞아야 함
-   * 만약 이메일이 이 형식에 맞지 않을 경우, `emailError` 상태를 오류 메시지로 업데이트
-   */
-   const validateEmail = () => {
+  /**
+  * 이메일을 검증하는 함수
+  * 이메일은 특정 형식에 맞아야 함
+  * 만약 이메일이 이 형식에 맞지 않을 경우, `emailError` 상태를 오류 메시지로 업데이트
+  */
+  const validateEmail = () => {
     const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!re.test(email)) {
       setEmailError('이메일 형식에 맞지 않습니다.');
@@ -102,10 +104,10 @@ const SignUp = () => {
    */
   const validateNickname = () => {
     if (nickname.length < 2) {
-      setErrorMessage('닉네임은 최소 2자 이상이어야 합니다.');
+      setErrorMessage(t('common:Nickname must be at least 2 characters long'));
       setNicknameCheck(false);
     } else if (nickname.length > 8) {
-      setErrorMessage('닉네임은 최대 8자 입니다.');
+      setErrorMessage(t('common:Nickname can be up to 8 characters'));
       setNicknameCheck(false);
     } else {
       setErrorMessage('');
@@ -125,9 +127,9 @@ const SignUp = () => {
   const validatePassword = () => {
     const passwordRegex = /^(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
     if (password.length < 8) {
-      setPasswordError('비밀번호는 최소 8자 이상이어야 합니다.');
+      setPasswordError(t('common:Password must be at least 8 characters long'));
     } else if (!passwordRegex.test(password)) {
-      setPasswordError('비밀번호는 영문 대문자, 영문 소문자, 숫자, 특수기호를 모두 포함해야 합니다.');
+      setPasswordError(t('common:Password must contain all English uppercase letters, lowercase letters, numbers, and special symbols'));
     } else {
       setPasswordError('');
     }
@@ -144,11 +146,11 @@ const SignUp = () => {
       setPwConfirmError('');
       setPwConfirmMessage('');
     } else if (password === pwConfirm) {
-      setPwConfirmMessage('비밀번호가 일치합니다.');
+      setPwConfirmMessage(t('common:Password matches'));
       // setSignUpDisabled(false);
       setPwConfirmError('');
     } else if (password !== pwConfirm) {
-      setPwConfirmError('비밀번호가 일치하지 않습니다.');
+      setPwConfirmError(t("common:Password doesn't match"));
       setPwConfirmMessage('');
     }
   }
@@ -187,38 +189,37 @@ const SignUp = () => {
       if (res.status === 200) {
 
         Swal.fire({
-          title: 'Success!',
-          text: '이메일 인증 코드가 발송되었습니다.',
+          title: t('common:Success'),
+          text: t('common:Your email verification code has been sent'),
           icon: 'success' as const,
-          confirmButtonText: 'OK',
+          confirmButtonText: t('common:OK'),
           confirmButtonColor: '#6BCB77'
         }).then(() => {
           Swal.fire({
-            title: 'Enter your verification code',
+            title: t('common:Enter your verification code'),
             input: 'text',
-            inputPlaceholder: 'Enter your code here',
-            confirmButtonText: 'Verify',
+            inputPlaceholder: t('common:Enter your code here'),
+            confirmButtonText: t('common:Verify'),
             showCancelButton: true
           }).then((result) => {
             if (result.isConfirmed) {
               verifyEmailCode(result.value).then(() => {
-                Swal.close();  
                 Swal.fire({
-                  title: 'Success!',
-                  text: '이메일이 성공적으로 인증되었습니다.',
+                  title: t('common:Success'),
+                  text: t('common:Your email has been successfully authenticated'),
                   icon: 'success',
-                  confirmButtonText: 'OK',
+                  confirmButtonText: t('common:OK'),
                   confirmButtonColor: '#6BCB77'
                 });
               }).catch((error) => {
                 Swal.fire({
-                  title: 'Error',
-                  text: error?.response?.data.message || 'An unexpected error occurred',
+                  title: t('common:Error'),
+                  text: error?.response?.data.message,
                   icon: 'error',
-                  confirmButtonText: 'OK',
+                  confirmButtonText: t('common:OK'),
                   confirmButtonColor: '#6BCB77'
                 });
-                Swal.close();  
+                Swal.close();
               });
             }
           });
@@ -226,10 +227,10 @@ const SignUp = () => {
       } else if (res.status === 400) {
 
         Swal.fire({
-          title: 'Error',
+          title: t('common:Error'),
           text: res.data.message,
           icon: 'error',
-          confirmButtonText: 'OK',
+          confirmButtonText: t('common:OK'),
           confirmButtonColor: '#6BCB77'
         }).then(() => {
           Swal.close();
@@ -241,10 +242,10 @@ const SignUp = () => {
 
 
       Swal.fire({
-        title: 'Error',
+        title: t('common:Error'),
         text: data?.message,
         icon: 'error',
-        confirmButtonText: 'OK',
+        confirmButtonText: t('common:OK'),
         confirmButtonColor: '#6BCB77'
       }).then(() => {
         Swal.close();
@@ -282,10 +283,10 @@ const SignUp = () => {
 
       if (res.status === 200) {
         Swal.fire({
-          title: 'Success!',
-          text: '이메일이 성공적으로 인증되었습니다.',
+          title: t('common:Success'),
+          text: t('common:Your email has been successfully authenticated'),
           icon: 'success',
-          confirmButtonText: 'OK',
+          confirmButtonText: t('common:OK'),
           confirmButtonColor: '#6BCB77'
         }).then(() => {
           Swal.close();
@@ -293,10 +294,10 @@ const SignUp = () => {
         });
       } else {
         Swal.fire({
-          title: 'Error',
+          title: t('common:Error'),
           text: res.data.message,
           icon: 'error',
-          confirmButtonText: 'OK',
+          confirmButtonText: t('common:OK'),
           confirmButtonColor: '#6BCB77'
         }).then(() => {
           Swal.close();
@@ -309,7 +310,7 @@ const SignUp = () => {
       const data = err.response?.data as { message: string };
 
       Swal.fire({
-        title: 'Error',
+        title: t('common:Error'),
         text: data?.message,
         icon: 'error',
         confirmButtonText: 'OK',
@@ -346,10 +347,10 @@ const SignUp = () => {
 
       if (res.status === 200) {
         Swal.fire({
-          title: 'Success!',
+          title: t('common:Success'),
           text: res.data.message,
           icon: 'success',
-          confirmButtonText: 'OK',
+          confirmButtonText: t('common:OK'),
           confirmButtonColor: '#6BCB77'
         }).then(() => {
           setNicknameCheck(false)
@@ -360,10 +361,10 @@ const SignUp = () => {
 
       } else {
         Swal.fire({
-          title: 'Error',
+          title: t('common:Error'),
           text: res.data.message,
           icon: 'error',
-          confirmButtonText: 'OK',
+          confirmButtonText: t('common:OK'),
           confirmButtonColor: '#6BCB77'
         }).then(() => {
           Swal.close();
@@ -376,10 +377,10 @@ const SignUp = () => {
       const data = err.response?.data as { message: string };
 
       Swal.fire({
-        title: 'Error',
+        title: t('common:Error'),
         text: data?.message,
         icon: 'error',
-        confirmButtonText: 'OK',
+        confirmButtonText: t('common:OK'),
         confirmButtonColor: '#6BCB77'
       }).then(() => {
         Swal.close();
@@ -404,7 +405,7 @@ const SignUp = () => {
   }, [userAddressQuery.data]);
 
   useEffect(() => {
-    getSigning(); 
+    getSigning();
   }, [getSigning]);
 
   /**
@@ -499,10 +500,10 @@ const SignUp = () => {
 
       if (res.status === 200) {
         Swal.fire({
-          title: 'Success!',
+          title: t('common:Success'),
           text: res.data.message,
           icon: 'success',
-          confirmButtonText: 'OK',
+          confirmButtonText: t('common:OK'),
           confirmButtonColor: '#6BCB77'
         }).then(() => {
           Swal.close();
@@ -516,10 +517,10 @@ const SignUp = () => {
       const data = err.response?.data as { message: string };
 
       Swal.fire({
-        title: 'Error',
+        title: (t('common:Error')),
         text: data?.message,
         icon: 'error',
-        confirmButtonText: 'OK',
+        confirmButtonText: t('common:OK'),
         confirmButtonColor: '#6BCB77'
       }).then(() => {
         Swal.close();
@@ -534,20 +535,20 @@ const SignUp = () => {
       <div className='flex flex-col items-center justify-center gap-48 lg:gap-24 sm:gap-20 xs:gap-12 py-6 lg:py-6'>
         <div className='flex flex-col items-center justify-center gap-6'>
           <Image src={logo} className='cursor-pointer md:w-1/2 sm:w-1/3 xs:w-1/2' width={150} height={100} alt='clean mile logo' onClick={() => router.push('/')} />
-          <h1 className='text-6xl lg:text-4xl md:text-4xl sm:text-3xl xs:text-3xl font-bold'>SignUp</h1>
+          <h1 className='text-6xl lg:text-4xl md:text-4xl sm:text-3xl xs:text-3xl font-bold'>{t('common:SignUp')}</h1>
         </div>
         <div className="w-[80%] lg:w-full flex flex-col items-center justify-center gap-12">
           <div className='w-full lg:w-[90%] md:w-full sm:w-full xs:w-full flex flex-col gap-12'>
             <div className='w-full h-full grid grid-cols-2 md:flex md:flex-col sm:flex sm:flex-col xs:flex xs:flex-col gap-12 md:gap-6 sm:gap-2 xs:gap-2 items-center justify-center'>
               <div className='w-full flex flex-col gap-12 sm:gap-6 xs:gap-2 items-center justify-center'>
                 <div className='w-full flex flex-col sm:gap-4 xs:gap-2 justify-center items-center -mb-[1rem]'>
-                  <label className='w-full sm:w-full xs:w-full font-semibold text-md lg:text-md md:text-md sm:text-base xs:text-sm' htmlFor='email'>E-Mail</label>
-                  <div className="w-full flex gap-4 sm:gap-2 xs:gap-2">
+                  <label className='w-full sm:w-full xs:w-full font-semibold text-md lg:text-md md:text-md sm:text-base xs:text-sm' htmlFor='email'>{t('common:E-Mail')}</label>
+                  <div className="w-full flex items-cneter gap-4 sm:gap-2 xs:gap-2">
                     <div className='w-full flex flex-col'>
                       <input className="w-full border border-gray-500 rounded-lg px-2 py-3 lg:py-2 md:py-2 sm:py-2 xs:py-1"
                         type='email'
                         id='email'
-                        placeholder='e-mail'
+                        placeholder={t('common:E-Mail')}
                         value={email}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)} />
                     </div>
@@ -567,19 +568,19 @@ const SignUp = () => {
                       `}
                       onClick={checkEmail}
                       disabled={!emailCheck}>
-                      Confirm
+                      {t('common:Confirm')}
                     </button>
                   </div>
                   <p className='w-full text-left font-normal text-xs text-red-500' style={{ minHeight: '1rem' }}>{email.length > 0 && emailError}</p>
                 </div>
                 <div className='w-full flex flex-col sm:gap-4 xs:gap-2 justify-center items-center -mb-[1rem]'>
-                  <label className='w-full sm:w-full xs:w-full font-semibold text-md lg:text-md md:text-md sm:text-base xs:text-sm' htmlFor='nickname'>Nickname</label>
-                  <div className='w-full flex gap-4 sm:gap-2 xs:gap-2'>
+                  <label className='w-full sm:w-full xs:w-full font-semibold text-md lg:text-md md:text-md sm:text-base xs:text-sm' htmlFor='nickname'>{t('common:Nickname')}</label>
+                  <div className='w-full flex items-center gap-4 sm:gap-2 xs:gap-2'>
                     <div className='w-full flex flex-col'>
                       <input className="w-full border border-gray-500 rounded-lg px-2 py-3 lg:py-2 md:py-2 sm:py-2 xs:py-1"
                         type='text'
                         id='nickname'
-                        placeholder='nickname'
+                        placeholder={t('common:Nickname')}
                         value={nickname}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNickname(e.target.value)} />
                     </div>
@@ -599,13 +600,13 @@ const SignUp = () => {
                       `}
                       onClick={checkNickname}
                       disabled={!nicknameCheck}>
-                      Confirm
+                      {t('common:Confirm')}
                     </button>
                   </div>
                   <p className='w-full text-left font-normal text-xs text-red-500' style={{ minHeight: '1rem' }}>{nickname.length > 0 && errorMessage}</p>
                 </div>
                 <div className='w-full flex flex-col sm:gap-4 xs:gap-2 justify-center items-center'>
-                  <label className='w-full sm:w-full xs:w-full font-semibold text-md lg:text-md md:text-md sm:text-base xs:text-sm' htmlFor='name'>Name</label>
+                  <label className='w-full sm:w-full xs:w-full font-semibold text-md lg:text-md md:text-md sm:text-base xs:text-sm' htmlFor='name'>{t('common:Name')}</label>
                   <input className="
                     w-full 
                     border 
@@ -626,7 +627,7 @@ const SignUp = () => {
               </div>
               <div className='w-full flex flex-col gap-12 sm:gap-6 xs:gap-2 items-center justify-center'>
                 <div className='w-full flex flex-col gap-2 sm:gap-4 xs:gap-2 justify-center items-center -mb-[1rem]'>
-                  <label className='w-full sm:w-full xs:w-full font-semibold text-md lg:text-md md:text-md sm:text-base xs:text-sm' htmlFor='phoneNumber'>Phone Number</label>
+                  <label className='w-full sm:w-full xs:w-full font-semibold text-md lg:text-md md:text-md sm:text-base xs:text-sm' htmlFor='phoneNumber'>{t('common:Phone Number')}</label>
                   <div className="w-full flex gap-4 sm:gap-2 xs:gap-2">
                     <input className="
                       w-full border 
@@ -641,21 +642,20 @@ const SignUp = () => {
                       type='text'
                       id='phoneNumber'
                       value={phoneNumber}
-                      onChange={phoneNumberChange} 
-                      maxLength={13}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPhoneNumber(e.target.value)} />
+                      onChange={phoneNumberChange}
+                      maxLength={13}/>
                   </div>
-                  <p className='w-full text-left font-normal text-xs' style={{ minHeight: '1rem' }}>'-'없이 번호만 입력해주세요.</p>
+                  <p className='w-full text-left font-normal text-xs' style={{ minHeight: '1rem' }}>{t("common:Please enter the number without '-'")}</p>
                 </div>
                 <div className='w-full flex flex-col sm:gap-4 xs:gap-2 justify-center items-center relative -mb-[1rem]'>
-                  <label className='w-full sm:w-full xs:w-full font-semibold text-md lg:text-md md:text-md sm:text-base xs:text-sm' htmlFor='password'>Password</label>
+                  <label className='w-full sm:w-full xs:w-full font-semibold text-md lg:text-md md:text-md sm:text-base xs:text-sm' htmlFor='password'>{t('common:Password')}</label>
                   <div className='w-full flex flex-col'>
                     <input className="w-full border border-gray-500 rounded-lg px-2 py-3 pr-10 lg:py-2 md:py-2 sm:py-2 xs:py-1"
                       type={isPwdVisible ? 'text' : 'password'}
                       id='password'
                       value={password}
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
-                      placeholder='password' />
+                      placeholder={t('common:Password')} />
                     <p className='font-normal text-xs text-red-500' style={{ minHeight: '1rem' }}>{password.length > 0 && passwordError}</p>
                   </div>
                   <button type="button" onClick={passwordVisibility} className="absolute right-3 top-1/2 md:top-[55%] sm:top-[60%] xs:top-[50%] transform -translate-y-1/2">
@@ -663,12 +663,12 @@ const SignUp = () => {
                   </button>
                 </div>
                 <div className='w-full flex flex-col sm:gap-4 xs:gap-2 justify-center items-center relative -mb-[1rem]'>
-                  <label className='w-full sm:w-full xs:w-full font-semibold text-md lg:text-md md:text-md sm:text-base xs:text-sm' htmlFor='passwordConfirm'>Password Confirm</label>
+                  <label className='w-full sm:w-full xs:w-full font-semibold text-md lg:text-md md:text-md sm:text-base xs:text-sm' htmlFor='passwordConfirm'>{t('common:Password Confirm')}</label>
                   <div className='w-full flex flex-col'>
                     <input className="w-full border border-gray-500 rounded-lg px-2 py-3 pr-10 lg:py-2 md:py-2 sm:py-2 xs:py-1"
                       type={isPwConfirmVisible ? 'text' : 'password'}
                       id='passwordConfirm'
-                      placeholder='password confirm'
+                      placeholder={t('common:Password Confirm')}
                       value={pwConfirm}
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPwConfirm(e.target.value)} />
                     <p className={`w-full text-left ${pwConfirmError.length > 0 ? 'text-red-600' : 'text-blue-600'} text-xs`} style={{ minHeight: '1rem' }}>{pwConfirmError.length > 0 ? pwConfirmError : pwConfirmMessage}</p>
@@ -682,7 +682,7 @@ const SignUp = () => {
             <div className='w-full flex flex-col justify-center items-center'>
               {userAddressQuery.data ? (
                 <p className='w-full flex justify-center items-center lg:items-start md:items-start sm:items-start xs:items-start flex-wrap lg:flex-col md:flex-col sm:flex-col xs:flex-col md:text-sm sm:text-sm xs:text-xs font-semibold'>
-                  MetaMask Address:
+                  {t('common:MetaMask Address')}:
                   <span className='lg:w-full md:w-full sm:w-full xs:w-full text-center lg:text-left md:text-left sm:text-left xs:text-left font-normal ml-1 break-words'>{userAddressQuery.data || 'Loading...'}</span>
                 </p>
               ) : (
@@ -720,13 +720,13 @@ const SignUp = () => {
                   duration-300'
                   onClick={loginWallet}>
                   <Image src={meta_mask_logo} width={100} height={100} alt='meta mask logo' className='w-[10%] lg:w-[15%] sm:w-[15%] xs:w-[15%]' />
-                  <span className='text-center w-[90%] lg:w-[80%] md:text-sm sm:text-xs xs:text-xs'>MetaMask Connect</span>
+                  <span className='text-center w-[90%] lg:w-[80%] md:text-sm sm:text-xs xs:text-xs'>{t('common:MetaMask Connect')}</span>
                 </button>
               )}
             </div>
             <div className='w-full flex flex-col justify-center items-center gap-5 mt-12'>
               <button className={`
-                ${email.length === 0 && name.length === 0 && phoneNumber.length === 0 && password.length === 0 && nickname.length === 0 && !userAddressQuery.data ? 'bg-main-green hover:bg-green-600' : 'bg-green-300'}
+                ${email.length === 0 && name.length === 0 && phoneNumber.length === 0 && password.length === 0 && nickname.length === 0 && !userAddressQuery.data ? 'bg-green-300 ' : 'bg-main-green hover:bg-green-600'}
                 w-[80%] 
                 lg:w-[70%] 
                 md:w-full 
@@ -743,8 +743,8 @@ const SignUp = () => {
                 font-semibold 
                 transition 
                 duration-300`}
-                disabled={!(email.length > 0 && name.length > 0 && phoneNumber.length > 0 && password.length > 0 && nickname.length > 0 && userAddressQuery.data)}                onClick={signUp}>
-                SignUp
+                disabled={!(email.length > 0 && name.length > 0 && phoneNumber.length > 0 && password.length > 0 && nickname.length > 0 && userAddressQuery.data)} onClick={signUp}>
+                {t('common:SignUp')}
               </button>
               <div className='w-[80%] lg:w-[70%] md:w-full sm:w-full xs:w-full flex sm:flex-col xs:flex-col sm:items-center xs:items-center gap-6'>
                 <button className='
@@ -765,11 +765,11 @@ const SignUp = () => {
                   transition 
                   duration-300'>
                   <RiKakaoTalkFill size={25} className='w-[30%]' />
-                  <span className='text-center w-[90%] md:text-sm sm:text-sm xs:text-sm'>KaKao</span>
+                  <span className='text-center w-[90%] md:text-sm sm:text-sm xs:text-sm'>{t('common:KaKao')}</span>
                 </button>
                 <button className='w-[80%] sm:w-full xs:w-full flex items-center justify-center bg-white hover:bg-gray-300 px-7 py-2 rounded-xl text-gray-700 border text-lg font-semibold transition duration-300'>
                   <FcGoogle size={25} className='w-[30%]' />
-                  <span className='text-center w-[90%] md:text-sm sm:text-sm xs:text-sm'>Google</span>
+                  <span className='text-center w-[90%] md:text-sm sm:text-sm xs:text-sm'>{t('common:Google')}</span>
                 </button>
               </div>
             </div>
@@ -777,7 +777,7 @@ const SignUp = () => {
           <div>
             <p className='text-lg md:text-base sm:text-base xs:text-base font-semibold hover:underline transition duration-200 cursor-pointer'
               onClick={() => router.push('/login')}>
-              Login
+              {t('common:Login')}
             </p>
           </div>
         </div>

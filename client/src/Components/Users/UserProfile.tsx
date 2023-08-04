@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
+import useTranslation from 'next-translate/useTranslation';
 import Swal from 'sweetalert2';
 import { AxiosError, AxiosResponse } from 'axios';
 import { BsFillImageFill } from 'react-icons/bs';
@@ -9,7 +10,8 @@ import { User, Pagination, Post, EventList, Dnft } from '../Interfaces';
 import { ApiCaller } from '../Utils/ApiCaller';
 
 const UserProfile =({ userInfo, postPagination, userDnft, userBadges }: { userInfo: User, postPagination: Pagination, userDnft: Dnft, userBadges: UserBadge[] }) => {
-  const router = useRouter()
+  const router = useRouter();
+  const { t } = useTranslation('common');
 
   const [currentPage, setCurrentPage] = useState(1);
   const [postData, setPostData] = useState<Post[]>([]);
@@ -49,10 +51,10 @@ const UserProfile =({ userInfo, postPagination, userDnft, userBadges }: { userIn
     try {
       await navigator.clipboard.writeText(userInfo.wallet.address);
       Swal.fire({
-        title: 'Success!',
-        text: '지갑주소가 복사되었습니다.',
+        title: t('common:Success'),
+        text: t('common:Your wallet address has been copied'),
         icon: 'success',
-        confirmButtonText: 'OK',
+        confirmButtonText: t('common:OK'),
         confirmButtonColor: '#6BCB77',
       }).then(() => {
         Swal.close();
@@ -60,10 +62,10 @@ const UserProfile =({ userInfo, postPagination, userDnft, userBadges }: { userIn
 
     } catch (err) {
       Swal.fire({
-        title: 'Error',
-        text: '지갑주소 복사가 실패되었습니다.',
+        title: t('common:Error'),
+        text: t('common:Failed to copy wallet address'),
         icon: 'error',
-        confirmButtonText: 'OK',
+        confirmButtonText: t('common:OK'),
         confirmButtonColor: '#6BCB77',
       }).then(() => {
         Swal.close();
@@ -119,7 +121,7 @@ const UserProfile =({ userInfo, postPagination, userDnft, userBadges }: { userIn
         </div>
         <div className={`w-full h-2/3 ${userBadges.length === 0 ? 'flex font-bold' : 'grid grid-cols-10'} lg:grid-cols-6 md:grid-cols-5 sm:grid-cols-3 xs:grid-cols-3 gap-4 justify-items-center bg-gray-200 rounded-xl px-6 py-6`}>
           {userBadges?.length === 0 ? (
-              <p className='w-full flex justify-center items-center'>There are no registered badges.</p>
+              <p className='w-full flex justify-center items-center'>{t('common:There are no registered badges')}</p>
             ) : (
               userBadges?.map((badge, i) => {
                 return (
@@ -145,16 +147,16 @@ const UserProfile =({ userInfo, postPagination, userDnft, userBadges }: { userIn
             )}
         </div>
         <div className='w-full h-2/3 flex flex-col gap-4 px-6 py-6 sm:px-2 xs:px-0'>
-          <h2 className='text-3xl sm:text-2xl xs:text-xl font-bold border-b border-black pb-2'>Posts created</h2>
+          <h2 className='text-3xl sm:text-2xl xs:text-xl font-bold border-b border-black pb-2'>{t('common:Posts created')}</h2>
           <table className="w-full text-center border-collapse ">
             <thead className='border-b'>
               <tr>
-                <th className="p-4 md:p-2 sm:p-2 xs:p-2">No.</th>
-                <th className="p-4 md:p-2 sm:p-2 xs:p-2">Title</th>
-                <th className="p-4 md:p-2 sm:p-2 xs:p-2">Content</th>
-                <th className="p-4 md:p-2 sm:p-2 xs:p-2">Writer</th>
-                <th className="p-4 md:p-2 sm:p-2 xs:p-2">Date</th>
-                <th className="p-4 md:p-2 sm:p-2 xs:p-2">View</th>
+                <th className="p-2">{t('common:No')}</th>
+                <th className="p-2">{t('common:Title')}</th>
+                <th className="p-2">{t('common:Content')}</th>
+                <th className="p-2">{t('common:Writer')}</th>
+                <th className="p-2">{t('common:Date')}</th>
+                <th className="p-2">{t('common:Views')}</th>
               </tr>
             </thead>
             <tbody>

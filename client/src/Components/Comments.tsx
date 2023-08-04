@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import useTranslation from 'next-translate/useTranslation';
 import Swal from 'sweetalert2';
 import { useRouter } from 'next/router';
 import { AxiosError } from 'axios';
@@ -7,10 +8,10 @@ import { MdOutlineCreate } from 'react-icons/md';
 import { ApiCaller } from './Utils/ApiCaller';
 import { Comment, User } from './Interfaces';
 
-
-
 const Comments = ({ postDetailId, comments }: { postDetailId: string, comments: Comment[] }) => {
   const router = useRouter();
+  const { t } = useTranslation('common');
+
   const [comment, setComment] = useState('');
   const [likedComments, setLikedComments] = useState<{ [key: string]: boolean }>({});
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -178,7 +179,7 @@ const Comments = ({ postDetailId, comments }: { postDetailId: string, comments: 
 
   const deleteComment = async (commentId: string) => {
     Swal.fire({
-      title: '삭제 하시겠습니까?',
+      title: 'Are you sure you want to delete it?',
       icon: 'question',
       showCancelButton: true,
       confirmButtonText: 'OK',
@@ -236,7 +237,7 @@ const Comments = ({ postDetailId, comments }: { postDetailId: string, comments: 
       } else if (result.isDismissed) {
         Swal.fire({
           title: 'Success!',
-          text: '게시글 삭제를 취소하셨습니다.',
+          text: 'You canceled deleting the comments.',
           icon: 'success',
           confirmButtonText: 'OK',
           confirmButtonColor: '#6BCB77',
@@ -248,7 +249,7 @@ const Comments = ({ postDetailId, comments }: { postDetailId: string, comments: 
   return (
     <>
       <div className='w-full flex flex-col gap-4'>
-          <h2 className='text-xl font-bold xs:text-base'>Comment</h2>
+          <h2 className='text-xl font-bold xs:text-base'>{t('common:Comment')}</h2>
           {comments.length !== 0 ? (
             comments.map((comment, i) => {
               return (
@@ -302,7 +303,7 @@ const Comments = ({ postDetailId, comments }: { postDetailId: string, comments: 
                             router.push(`/users/profile?id=${comment.user_id._id}`)
                           )
                         }}>
-                        {comment.user_id === null ? 'Unknown' : comment.user_id.nickname}
+                        {comment.user_id === null ? t('common:Unknown') : comment.user_id.nickname}
                       </p>
                       <div>
                         <p className='text-sm sm:text-xs xs:text-xs'>
@@ -334,7 +335,7 @@ const Comments = ({ postDetailId, comments }: { postDetailId: string, comments: 
           <textarea
             className='border border-gray-300 rounded-lg p-2 w-full outline-none'
             rows={4}
-            placeholder='댓글을 입력하세요.'
+            placeholder={t('common:Please enter comments')}
             value={comment}
             onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setComment(e.target.value)}
           />
@@ -354,7 +355,7 @@ const Comments = ({ postDetailId, comments }: { postDetailId: string, comments: 
               transition 
               duration-300'
               onClick={createComment}>
-              Create
+              {t('common:Create')}
             </button>
           </div>
         </div>

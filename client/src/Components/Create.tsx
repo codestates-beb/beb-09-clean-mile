@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/router';
+import useTranslation from 'next-translate/useTranslation';
 import Swal from 'sweetalert2';
 import { AxiosError } from 'axios';
 import { ApiCaller } from './Utils/ApiCaller';
-import { UserInfo, EventList } from './Interfaces';
+import { User, EventList } from './Interfaces';
 
 interface IFile extends File {
   preview?: string;
@@ -11,6 +12,7 @@ interface IFile extends File {
 
 const Create = () => {
   const router = useRouter();
+  const { t } = useTranslation('common');
 
   const [selectCategory, setSelectCategory] = useState('');
   const [title, setTitle] = useState('');
@@ -18,7 +20,7 @@ const Create = () => {
   const [images, setImages] = useState<IFile[]>([]);
   const [videos, setVideos] = useState<IFile[]>([]);
   const [selectedFile, setSelectedFile] = useState<IFile[]>([]);
-  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+  const [userInfo, setUserInfo] = useState<User | null>(null);
   const [eventData, setEventData] = useState<EventList[] | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isReview, setIsReview] = useState(false);
@@ -101,10 +103,10 @@ const Create = () => {
       const res = await ApiCaller.post(URL, dataBody, isJSON, headers, isCookie);
       if (res.status === 200) {
         Swal.fire({
-          title: 'Success!',
+          title: t('common:Success'),
           text: res.data.message,
           icon: 'success',
-          confirmButtonText: 'OK',
+          confirmButtonText: t('common:OK'),
           confirmButtonColor: '#6BCB77'
         }).then(() => {
           Swal.close();
@@ -113,10 +115,10 @@ const Create = () => {
 
       } else {
         Swal.fire({
-          title: 'Error',
+          title: t('common:Error'),
           text: res.data.message,
           icon: 'error',
-          confirmButtonText: 'OK',
+          confirmButtonText: t('common:OK'),
           confirmButtonColor: '#6BCB77'
         }).then(() => {
           Swal.close();
@@ -128,10 +130,10 @@ const Create = () => {
       const data = err.response?.data as { message: string };
 
       Swal.fire({
-        title: 'Error',
+        title: t('common:Error'),
         text: data?.message,
         icon: 'error',
-        confirmButtonText: 'OK',
+        confirmButtonText: t('common:OK'),
         confirmButtonColor: '#6BCB77'
       }).then(() => {
         Swal.close();
@@ -143,7 +145,7 @@ const Create = () => {
     <>
       <div className='w-[90%] min-h-screen mx-auto py-20 sm:py-10 xs:py-10 flex flex-col gap-12'>
         <div>
-          <p className='font-bold text-4xl sm:text-2xl xs:text-2xl'>Create Posts</p>
+          <p className='font-bold text-4xl sm:text-2xl xs:text-2xl'>{t('common:Create Posts')}</p>
         </div>
         <div className='flex gap-5 w-1/5 lg:w-[50%] md:w-[50%] sm:w-[50%] xs:w-[50%]'>
           <select className="
@@ -160,9 +162,9 @@ const Create = () => {
             value={selectCategory}
             onChange={handleCategoryChange}
             required>
-            <option className="text-sm" value="" disabled>Please select a category.</option>
-            <option className="text-sm" value="general">General</option>
-            <option className="text-sm" value="review">Review</option>
+            <option className="text-sm" value="" disabled>{t('common:Please select a category')}</option>
+            <option className="text-sm" value="general">{t('common:General')}</option>
+            <option className="text-sm" value="review">{t('common:Review')}</option>
           </select>
           {isReview && eventData && (   // only show if isReview is true and eventData is not null
             <select className="
@@ -177,7 +179,7 @@ const Create = () => {
               sm:text-sm
               xs:text-sm"
               value={selectEvent}
-              onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>  setSelectEvent(e.target.value)}>
+              onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSelectEvent(e.target.value)}>
               {eventData.map((event, i) => <option key={i} value={event._id}>{event.title}</option>)}
             </select>
           )}
@@ -186,7 +188,7 @@ const Create = () => {
           <input
             className='w-full sm:w-[50%] xs:w-[50%] border-b focus:border-black transition duration-300 py-2 px-3'
             type="text"
-            placeholder='제목을 입력해 주세요'
+            placeholder={t('common:Please enter the title')}
             value={title}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)} />
         </div>
@@ -203,13 +205,13 @@ const Create = () => {
               {selectedFile.length > 0 ? (
                 selectedFile.map((file) => file.name + ', ')
               ) : (
-                '파일을 선택해 주세요.'
+                t('common:Please select a file')
               )}
             </p>
             <button
               className='border rounded-lg p-2 bg-main-blue text-white hover:bg-blue-600 transition duration-300 xs:text-sm'
               onClick={handleFileSelect}>
-              파일 선택
+              {t('common:Select File')}
             </button>
           </div>
           <textarea className="border border-gray-300 rounded-lg w-full h-full p-3 outline-none" value={content} onChange={(e) => setContent(e.target.value)} />
@@ -228,7 +230,7 @@ const Create = () => {
             transition 
             duration-300'
             onClick={() => router.push('/')}>
-            Cancel
+            {t('common:Cancel')}
           </button>
           <button className='
             w-[15%]
@@ -243,7 +245,7 @@ const Create = () => {
             transition 
             duration-300'
             onClick={createPost}>
-            Create
+            {(t('common:Create'))}
           </button>
         </div>
       </div>

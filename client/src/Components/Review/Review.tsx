@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useInfiniteQuery } from 'react-query';
 import { useRouter } from 'next/router';
+import useTranslation from 'next-translate/useTranslation';
 import Image from 'next/image';
 import Link from 'next/link';
 import Swal from 'sweetalert2';
@@ -11,6 +12,8 @@ import { ApiCaller } from '../Utils/ApiCaller';
 
 const Review = ({ reviewList, lastId }: { reviewList: Post[], lastId: string }) => {
   const router = useRouter();
+  const { t } = useTranslation('common');
+
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userInfo, setUserInfo] = useState<User | null>(null);
 
@@ -61,21 +64,21 @@ const Review = ({ reviewList, lastId }: { reviewList: Post[], lastId: string }) 
   return (
     <div className='w-full flex flex-col justify-center gap-12 px-24 md:px-12 sm:px-2 xs:px-2 py-14 lg:py-12 md:py-6 sm:py-6 xs:py-3'>
       <h1 className='font-bold text-5xl lg:text-4xl md:text-3xl sm:text-2xl xs:text-xl text-center'>
-        Review
+        {t('common:Review')}
       </h1>
       <div className='flex flex-col items-center gap-12 w-full min-h-screen'>
         <SearchInput />
         <div className='w-full flex justify-end gap-4'>
           <select className="border border-black py-2 px-4 pr-7 rounded-md text-sm">
-            <option className="text-sm xs:text-xs" value="desc">Latest order</option>
-            <option className="text-sm xs:text-xs" value="asc">Old order</option>
-            <option className="text-sm xs:text-xs" value="view">View order</option>
+            <option className="text-sm xs:text-xs" value="desc">{t('common:Latest order')}</option>
+            <option className="text-sm xs:text-xs" value="asc">{t('common:Old order')}</option>
+            <option className="text-sm xs:text-xs" value="view">{t('common:View order')}</option>
           </select>
           <Link className='
             w-[10%] sm:w-[20%] xs:w-[20%] flex items-center justify-center border rounded-lg py-2 xs:py-3 px-6 sm:px-2 xs:px-1 sm:text-sm xs:text-xs bg-main-blue text-white hover:bg-blue-600 transition duration-300'
             href='/posts/create'>
             <button className='w-full flex justify-center items-center text-center' type="button">
-              Write
+              {t('common:Write')}
             </button>
           </Link>
         </div>
@@ -112,7 +115,7 @@ const Review = ({ reviewList, lastId }: { reviewList: Post[], lastId: string }) 
                     <p className='text-lg font-bold hover:underline sm:text-lg xs:text-sm'>
                       {item.title}
                     </p>
-                    <h2 className="text-lg font-semibold hover:underline sm:text-lg xs:text-sm" 
+                    <h2 className="text-lg font-semibold hover:underline sm:text-lg xs:text-sm"
                       onClick={() => {
                         item.user_id === null ? (
                           Swal.fire({
@@ -132,49 +135,49 @@ const Review = ({ reviewList, lastId }: { reviewList: Post[], lastId: string }) 
                           )
                         )
                       }}>
-                      {item.user_id === null ? 'Unknown' : item.user_id.nickname}
+                      {item.user_id === null ? t('common:Unknown') : item.user_id.nickname}
                     </h2>
                   </div>
                   <p className="text-gray-700 font-semibold lg:text-sm sm:text-xs xs:text-xs overflow-ellipsis overflow-hidden h-[20px] whitespace-nowrap">
                     {item.content}
                   </p>
                   <button className='
-                  w-3/5 
-                  lg:w-full 
-                  md:w-full 
-                  sm:w-full 
-                  xs:w-full 
-                  flex 
-                  items-center 
-                  justify-around 
-                  gap-6 
-                  lg:gap-4 
-                  md:gap-4 
-                  sm:gap-2 
-                  xs:gap-2 
-                  bg-main-blue 
-                  hover:bg-blue-600 
-                  rounded-xl 
-                  lg:rounded-lg 
-                  px-3 
-                  lg:px-2 
-                  md:px-2 
-                  sm:px-2 
-                  xs:px-2 
-                  py-2 
-                  lg:py-1 
-                  md:py-1 
-                  sm:py-1 
-                  xs:py-1 
-                  text-white 
-                  lg:text-sm 
-                  md:text-sm 
-                  sm:text-sm 
-                  font-semibold 
-                  transition 
-                  duration-300'
+                    w-3/5 
+                    lg:w-full 
+                    md:w-full 
+                    sm:w-full 
+                    xs:w-full 
+                    flex 
+                    items-center 
+                    justify-around 
+                    gap-6 
+                    lg:gap-4 
+                    md:gap-4 
+                    sm:gap-2 
+                    xs:gap-2 
+                    bg-main-blue 
+                    hover:bg-blue-600 
+                    rounded-xl 
+                    lg:rounded-lg 
+                    px-3 
+                    lg:px-2 
+                    md:px-2 
+                    sm:px-2 
+                    xs:px-2 
+                    py-2 
+                    lg:py-1 
+                    md:py-1 
+                    sm:py-1 
+                    xs:py-1 
+                    text-white 
+                    lg:text-sm 
+                    md:text-sm 
+                    sm:text-sm 
+                    font-semibold 
+                    transition 
+                    duration-300'
                     onClick={() => router.push(`/posts/review/${item._id}`)}>
-                    Read more
+                    {t('common:Read more')}
                     <MdOutlineArrowForwardIos size={20} className='rounded-xl w-[10%]' />
                   </button>
                 </div>
@@ -215,49 +218,49 @@ const Review = ({ reviewList, lastId }: { reviewList: Post[], lastId: string }) 
                         {item.title}
                       </p>
                       <h2 className="text-lg font-semibold hover:underline sm:text-lg xs:text-sm" onClick={() => router.push(`/user/profile`)}>
-                        {item.user_id === null ? 'Unknown' : item.user_id.nickname}
+                        {item.user_id === null ? t('common:Unknown') : item.user_id.nickname}
                       </h2>
                     </div>
                     <p className="text-gray-700 font-semibold lg:text-sm sm:text-xs xs:text-xs overflow-ellipsis overflow-hidden h-[20px] whitespace-nowrap">
                       {item.content}
                     </p>
                     <button className='
-                  w-3/5 
-                  lg:w-full 
-                  md:w-full 
-                  sm:w-full 
-                  xs:w-full 
-                  flex 
-                  items-center 
-                  justify-around 
-                  gap-6 
-                  lg:gap-4 
-                  md:gap-4 
-                  sm:gap-2 
-                  xs:gap-2 
-                  bg-main-blue 
-                  hover:bg-blue-600 
-                  rounded-xl 
-                  lg:rounded-lg 
-                  px-3 
-                  lg:px-2 
-                  md:px-2 
-                  sm:px-2 
-                  xs:px-2 
-                  py-2 
-                  lg:py-1 
-                  md:py-1 
-                  sm:py-1 
-                  xs:py-1 
-                  text-white 
-                  lg:text-sm 
-                  md:text-sm 
-                  sm:text-sm 
-                  font-semibold 
-                  transition 
-                  duration-300'
+                      w-3/5 
+                      lg:w-full 
+                      md:w-full 
+                      sm:w-full 
+                      xs:w-full 
+                      flex 
+                      items-center 
+                      justify-around 
+                      gap-6 
+                      lg:gap-4 
+                      md:gap-4 
+                      sm:gap-2 
+                      xs:gap-2 
+                      bg-main-blue 
+                      hover:bg-blue-600 
+                      rounded-xl 
+                      lg:rounded-lg 
+                      px-3 
+                      lg:px-2 
+                      md:px-2 
+                      sm:px-2 
+                      xs:px-2 
+                      py-2 
+                      lg:py-1 
+                      md:py-1 
+                      sm:py-1 
+                      xs:py-1 
+                      text-white 
+                      lg:text-sm 
+                      md:text-sm 
+                      sm:text-sm 
+                      font-semibold 
+                      transition 
+                      duration-300'
                       onClick={() => router.push(`/posts/review/${item._id}`)}>
-                      Read more
+                      {t('common:Read more')}
                       <MdOutlineArrowForwardIos size={20} className='rounded-xl w-[10%]' />
                     </button>
                   </div>

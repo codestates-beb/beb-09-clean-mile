@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import useTranslation from 'next-translate/useTranslation'
 import Link from 'next/link';
 import { SearchInput } from '../Reference';
 import { Post, Pagination } from '../Interfaces';
 
 const General = ({ postList, postPagination }: { postList: Post[], postPagination: Pagination }) => {
   const router = useRouter();
+  const { t } = useTranslation('common');
+
   const [currentPage, setCurrentPage] = useState(Number(router.query.page || 1));
 
   const totalPages = postPagination.totalPages;
@@ -27,15 +30,15 @@ const General = ({ postList, postPagination }: { postList: Post[], postPaginatio
   return (
     <div className='w-full flex flex-col justify-center gap-12 px-24 sm:px-2 xs:px-2 py-14 lg:py-12 md:py-6 sm:py-6 xs:py-3'>
       <h1 className='font-bold text-5xl lg:text-4xl md:text-3xl sm:text-2xl xs:text-xl text-center'>
-        General
+        {t('common:General')}
       </h1>
       <div className={`flex justify-center items-center w-full`}>
         <div className={`w-full ${postList.length <= 4 && 'min-h-screen items-center justify-around'}`}>
           <div className='flex justify-end mb-3 gap-3'>
             <select className="border border-black py-2 px-4 pr-7 rounded-md text-sm" onChange={handleFilterChange}>
-              <option className="text-sm xs:text-xs" value="desc">Latest order</option>
-              <option className="text-sm xs:text-xs" value="asc">Old order</option>
-              <option className="text-sm xs:text-xs" value="view">View order</option>
+              <option className="text-sm xs:text-xs" value="desc">{t('common:Latest order')}</option>
+              <option className="text-sm xs:text-xs" value="asc">{t('common:Old order')}</option>
+              <option className="text-sm xs:text-xs" value="view">{t('common:View order')}</option>
             </select>
             <Link className='
               border 
@@ -50,9 +53,9 @@ const General = ({ postList, postPagination }: { postList: Post[], postPaginatio
               duration-300 
               text-md
               text-center' 
-              href='/posts/general/create'>
+              href='/posts/create'>
               <button type="button">
-                Write
+                {t('common:Write')}
               </button>
             </Link>
           </div>
@@ -60,18 +63,18 @@ const General = ({ postList, postPagination }: { postList: Post[], postPaginatio
             <table className="w-full text-center border-collapse sm:text-sm xs:text-xs overflow-x-scroll">
               <thead className='border-b'>
                 <tr>
-                  <th className="p-2">No.</th>
-                  <th className="p-2">Title</th>
-                  <th className="p-2">Content</th>
-                  <th className="p-2">Writer</th>
-                  <th className="p-2">Date</th>
-                  <th className="p-2">Views</th>
+                  <th className="p-2">{t('common:No')}</th>
+                  <th className="p-2">{t('common:Title')}</th>
+                  <th className="p-2">{t('common:Content')}</th>
+                  <th className="p-2">{t('common:Writer')}</th>
+                  <th className="p-2">{t('common:Date')}</th>
+                  <th className="p-2">{t('common:Views')}</th>
                 </tr>
               </thead>
               <tbody>
                 {postList?.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="p-6 text-center">등록된 게시글이 없습니다.</td>
+                    <td colSpan={6} className="p-6 text-center">{t('common:There are no registered posts')}</td>
                   </tr>
                 ) : (
                   postList?.map((post, i) => (
@@ -97,7 +100,7 @@ const General = ({ postList, postPagination }: { postList: Post[], postPaginatio
                       </td>
                       <td className="border-b p-6 sm:p-3 xs:p-2">
                         <p className="text-gray-600 sm:text-sm xs:text-xs">
-                          {post.user_id === null ? 'Unknown' : post.user_id.nickname}
+                          {post.user_id === null ? t('common:Unknown') : post.user_id.nickname}
                         </p>
                       </td>
                       <td className="border-b p-6 sm:p-3 xs:p-2">

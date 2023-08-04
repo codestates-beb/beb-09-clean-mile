@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
+import useTranslation from 'next-translate/useTranslation';
 import Swal from 'sweetalert2';
 import { AxiosError, AxiosResponse } from 'axios';
 import { BsFillImageFill } from 'react-icons/bs';
-import { UserProfile, hero_img } from '../Reference';
-import { UserInfo, User, Pagination, Post, EventList, Dnft, UserBadge } from '../Interfaces';
+import { User, Pagination, Post, EventList, Dnft, UserBadge } from '../Interfaces';
+import { default_banner } from '../Reference';
 import { ApiCaller } from '../Utils/ApiCaller';
 
 const EXTENSIONS = [
@@ -30,6 +31,8 @@ const MyPage = ({
   userBadges: UserBadge[]
 }) => {
   const router = useRouter()
+  const { t } = useTranslation('common');
+
   const [fileUrl, setFileUrl] = useState<string | null>(null);
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -173,10 +176,10 @@ const MyPage = ({
       const data = err.response?.data as { message: string };
 
       Swal.fire({
-        title: 'Error',
+        title: t('common:Error'),
         text: data?.message,
         icon: 'error',
-        confirmButtonText: 'OK',
+        confirmButtonText: t('common:OK'),
         confirmButtonColor: '#6BCB77'
       }).then(() => {
         Swal.close();
@@ -188,10 +191,10 @@ const MyPage = ({
   const handleResponse = (res: AxiosResponse) => {
     if (res.status === 200) {
       Swal.fire({
-        title: 'Success!',
-        text: '프로필 변경이 성공되었습니다.',
+        title: t('common:Success'),
+        text: t('common:Profile change was successful'),
         icon: 'success',
-        confirmButtonText: 'OK',
+        confirmButtonText: t('common:OK'),
         confirmButtonColor: '#6BCB77'
       }).then(() => {
         Swal.close();
@@ -201,10 +204,10 @@ const MyPage = ({
 
     } else {
       Swal.fire({
-        title: 'Error',
+        title: t('common:Error'),
         text: res.data.message,
         icon: 'error',
-        confirmButtonText: 'OK',
+        confirmButtonText: t('common:OK'),
         confirmButtonColor: '#6BCB77'
       }).then(() => {
         Swal.close();
@@ -221,10 +224,10 @@ const MyPage = ({
     try {
       await navigator.clipboard.writeText(userInfo.wallet.address);
       Swal.fire({
-        title: 'Success!',
-        text: '지갑주소가 복사되었습니다.',
+        title: t('common:Success'),
+        text: t('common:Your wallet address has been copied'),
         icon: 'success',
-        confirmButtonText: 'OK',
+        confirmButtonText: t('common:OK'),
         confirmButtonColor: '#6BCB77',
       }).then(() => {
         Swal.close();
@@ -232,10 +235,10 @@ const MyPage = ({
 
     } catch (err) {
       Swal.fire({
-        title: 'Error',
-        text: '지갑주소 복사가 실패되었습니다.',
+        title: (t('common:Error')),
+        text: t('commonFailed to copy wallet address'),
         icon: 'error',
-        confirmButtonText: 'OK',
+        confirmButtonText: t('common:OK'),
         confirmButtonColor: '#6BCB77',
       }).then(() => {
         Swal.close();
@@ -294,7 +297,7 @@ const MyPage = ({
                 required />
             </label>
           ) : (
-            <img src={!userInfo?.banner_img_url ? undefined : userInfo?.banner_img_url} className="w-full h-full object-contain" alt="banner Image" />
+            <Image src={!userInfo?.banner_img_url ? default_banner : userInfo?.banner_img_url} className="w-full h-full object-contain" alt="banner Image" />
           )}
         </div>
         <div className='
@@ -359,28 +362,28 @@ const MyPage = ({
                   type="button"
                   onClick={profileChange}
                   disabled={errorMessage !== ''}
-                >
-                  Save
+                  >
+                  {t('common:Save')}
                 </button>
               ) : (
                 <button className='
-                    text-white 
-                    font-semibold 
-                    bg-main-yellow 
-                    hover:bg-yellow-400 
-                    px-8 
-                    lg:px-6
-                    xs:px-4
-                    xs:text-sm
-                    py-1 
-                    rounded-lg 
-                    transition 
-                    duration-300
-                    cursor-pointer'
+                  text-white 
+                  font-semibold 
+                  bg-main-yellow 
+                  hover:bg-yellow-400 
+                  px-8 
+                  lg:px-6
+                  xs:px-4
+                  xs:text-sm
+                  py-1 
+                  rounded-lg 
+                  transition 
+                  duration-300
+                  cursor-pointer'
                   type="button"
                   onClick={myPageEdit}
-                >
-                  Edit
+                  >
+                  {t('common:Edit')}
                 </button>
               )}
             </div>
@@ -389,12 +392,12 @@ const MyPage = ({
               {userInfo?.wallet?.address}
             </p>
             <div>
-              <button className='px-3 py-2 sm:px-2 md:text-sm sm:text-sm xs:text-sm bg-[#FBA1B7] hover:bg-main-insta rounded-xl transition duration-300 text-white font-bold'>instagram connect</button>
+              <button className='px-3 py-2 sm:px-2 md:text-sm sm:text-sm xs:text-sm bg-[#FBA1B7] hover:bg-main-insta rounded-xl transition duration-300 text-white font-bold'>{t('common:Instagram Connect')}</button>
             </div>
           </div>
           <div className={`w-full h-2/3 ${userBadges.length === 0 ? 'flex font-bold' : 'grid grid-cols-10'} lg:grid-cols-6 md:grid-cols-5 sm:grid-cols-3 xs:grid-cols-3 gap-4 justify-items-center bg-gray-200 rounded-xl px-6 py-6`}>
             {userBadges.length === 0 ? (
-              <p className='w-full flex justify-center items-center'>There are no registered badges.</p>
+              <p className='w-full flex justify-center items-center'>{t('common:There are no registered badges')}</p>
             ) : (
               userBadges.map((badge, i) => {
                 return (
@@ -420,24 +423,25 @@ const MyPage = ({
             )}
           </div>
           <div className='w-full h-2/3 flex flex-col gap-4 px-6 py-6 sm:px-2 xs:px-0'>
-            <h2 className='text-3xl sm:text-2xl xs:text-xl font-bold border-b border-black pb-2'>Participated Events</h2>
+            <h2 className='text-3xl sm:text-2xl xs:text-xl font-bold border-b border-black pb-2'>{t('common:Participated Events')}</h2>
             <table className="w-full text-center border-collapse ">
               <thead className='border-b sm:text-sm xs:text-xs'>
                 <tr>
-                  <th className="p-4 md:p-2 sm:p-1 xs:p-1">No.</th>
-                  <th className="p-4 md:p-2 sm:p-1 xs:p-1">Title</th>
-                  <th className="p-4 md:p-2 sm:p-1 xs:p-1">Content</th>
-                  <th className="p-4 md:p-2 sm:p-1 xs:p-1">Writer</th>
-                  <th className="p-4 md:p-2 sm:p-1 xs:p-1">Event Type</th>
-                  <th className="p-4 md:p-2 sm:p-1 xs:p-1">Status</th>
-                  <th className="p-4 md:p-2 sm:p-1 xs:p-1">Date</th>
-                  <th className="p-4 md:p-2 sm:p-1 xs:p-1">View</th>
+                  <th className="p-4 md:p-2 sm:p-1 xs:p-1">{t('common:No')}</th>
+                  <th className="p-4 md:p-2 sm:p-1 xs:p-1">{t('common:Title')}</th>
+                  <th className="p-4 md:p-2 sm:p-1 xs:p-1">{t('common:Content')}</th>
+                  <th className="p-4 md:p-2 sm:p-1 xs:p-1">{t('common:Writer')}</th>
+                  <th className="p-4 md:p-2 sm:p-1 xs:p-1">{t('common:Event Type')}</th>
+                  <th className="p-4 md:p-2 sm:p-1 xs:p-1">{t('common:Status')}</th>
+                  <th className="p-4 md:p-2 sm:p-1 xs:p-1">{t('common:Date')}</th>
+                  <th className="p-4 md:p-2 sm:p-1 xs:p-1">{t('common:Views')}</th>
                 </tr>
               </thead>
               <tbody>
-                {eventsData?.length === 0 ? (
+                {console.log(eventsData)}
+                {eventsData === null ? (
                   <tr>
-                    <td colSpan={6} className="p-6 text-center">No events participated.</td>
+                    <td colSpan={8} className="p-6 text-center">{t('common:No events participated')}</td>
                   </tr>
                 ) : (
                   eventsData?.map((event, i) => (
@@ -467,8 +471,8 @@ const MyPage = ({
                         <p className={`sm:text-xs xs:text-xs rounded-lg text-white font-semibold py-1 ${getClassNameForType(event.event_type)}`}>
                           {(() => {
                             switch (event.event_type) {
-                              case 'fcfs': return 'First come, first served';
-                              case 'random': return 'Draw lots';
+                              case 'fcfs': return t('common:First come, first served');
+                              case 'random': return t('common:Draw lots');
                               default: return '';
                             }
                           })()}
@@ -478,12 +482,12 @@ const MyPage = ({
                         <p className={`sm:text-xs xs:text-xs rounded-lg text-white font-semibold py-1 ${getClassNameForStatus(event.status)}`}>
                           {(() => {
                             switch (event.status) {
-                              case 'created': return 'Before proceeding';
-                              case 'recruiting': return 'Recruiting';
-                              case 'progressing': return 'In progress';
-                              case 'finished': return 'End of progress';
-                              case 'canceled': return 'Cancel Progress';
-                              default: return 'Unknown';
+                              case 'created': return t('common:Before proceeding');
+                              case 'recruiting': return t('common:Recruiting');
+                              case 'progressing': return t('common:In progress');
+                              case 'finished': return t('common:End of progress');
+                              case 'canceled': return t('common:Cancel Progress');
+                              default: return t('common:Unknown');
                             }
                           })()}
                         </p>
@@ -518,22 +522,22 @@ const MyPage = ({
             </div>
           </div>
           <div className='w-full h-2/3 flex flex-col gap-4 px-6 py-6 sm:px-2 xs:px-0'>
-            <h2 className='text-3xl sm:text-2xl xs:text-xl font-bold border-b border-black pb-2'>Posts created</h2>
+            <h2 className='text-3xl sm:text-2xl xs:text-xl font-bold border-b border-black pb-2'>{t('common:Posts created')}</h2>
             <table className="w-full text-center border-collapse ">
               <thead className='border-b'>
                 <tr>
-                  <th className="p-4 md:p-2 sm:p-2 xs:p-2">No.</th>
-                  <th className="p-4 md:p-2 sm:p-2 xs:p-2">Title</th>
-                  <th className="p-4 md:p-2 sm:p-2 xs:p-2">Content</th>
-                  <th className="p-4 md:p-2 sm:p-2 xs:p-2">Writer</th>
-                  <th className="p-4 md:p-2 sm:p-2 xs:p-2">Date</th>
-                  <th className="p-4 md:p-2 sm:p-2 xs:p-2">View</th>
+                  <th className="p-2">{t('common:No')}</th>
+                  <th className="p-2">{t('common:Title')}</th>
+                  <th className="p-2">{t('common:Content')}</th>
+                  <th className="p-2">{t('common:Writer')}</th>
+                  <th className="p-2">{t('common:Date')}</th>
+                  <th className="p-2">{t('common:Views')}</th>
                 </tr>
               </thead>
               <tbody>
                 {postData === null ? (
                   <tr>
-                    <td colSpan={6} className="p-6 text-center">No post was created.</td>
+                    <td colSpan={6} className="p-6 text-center">{t('common:No post was created')}</td>
                   </tr>
                 ) : (
                   postData?.map((post, i) => (

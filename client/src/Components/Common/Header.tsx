@@ -3,6 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import Swal from 'sweetalert2';
+import useTranslation from 'next-translate/useTranslation';
 import { AxiosError } from 'axios';
 import { GiHamburgerMenu, GiToken } from 'react-icons/gi';
 import { IoCloseSharp } from 'react-icons/io5';
@@ -10,18 +11,18 @@ import { BiSolidDownArrow, BiSolidUser } from 'react-icons/bi';
 import { IoMdCreate } from 'react-icons/io';
 import { FiLogOut } from 'react-icons/fi';
 import { useMutation, useQueryClient, dehydrate } from 'react-query';
-import { Nav, NewNotice, hero_img } from '../Reference';
+import { Nav, NewNotice, hero_img , LanguageSwitch } from '../Reference';
 import { User, UserInfo, Post, Dnft } from '../Interfaces';
 import { ApiCaller } from '../Utils/ApiCaller';
 
 const Header = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const { t } = useTranslation('common');
 
   const [isOpen, setIsOpen] = useState(false);
   const [isMenu, setIsMenu] = useState(false);
   const [isUserMenuOpen, setUserMenuOpen] = useState(false);
-  const [arrowRotation, setArrowRotation] = useState(0);
   const [userInfoData, setUserInfoData] = useState<User | null>(null);
   const [dnftData, setDnftData] = useState<Dnft | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -102,7 +103,7 @@ const Header = () => {
   const logout = async () => {
 
     Swal.fire({
-      title: '로그아웃 하시겠습니까?',
+      title: 'Do you want to log out?',
       icon: 'question',
       showCancelButton: true,
       confirmButtonText: 'OK',
@@ -174,7 +175,7 @@ const Header = () => {
       } else if (result.isDismissed) {
         Swal.fire({
           title: 'Success!',
-          text: '로그아웃을 취소하셨습니다.',
+          text: 'You have cancelled your logout.',
           icon: 'success',
           confirmButtonText: 'OK',
           confirmButtonColor: '#6BCB77',
@@ -228,7 +229,7 @@ const Header = () => {
                 ${router.pathname === '/' ? 'text-green-600' : null}`}
               >
                 <Link href='/'>
-                  Info
+                  {t('common:Info')}
                 </Link>
               </li>
               <li className={
@@ -243,7 +244,7 @@ const Header = () => {
                 ${router.pathname === '/notice' ? 'text-green-600' : null}`}
               >
                 <Link href='/notice'>
-                  Notice
+                  {t('common:Notice')}
                 </Link>
               </li>
               <li className={
@@ -258,7 +259,7 @@ const Header = () => {
                 ${router.pathname === '/posts/events' ? 'text-green-600' : null}`}
               >
                 <Link href='/posts/events'>
-                  Events
+                  {t('common:Events')}
                 </Link>
               </li>
               <li className={
@@ -272,23 +273,24 @@ const Header = () => {
                 duration-200 
                 ${router.pathname === '/posts/general' || router.pathname === '/posts/review' ? 'text-green-600' : null}`}
                 onClick={() => setIsMenu(!isMenu)}>
-                Community
+                {t('common:Community')}
               </li>
               {isMenu && (
                 <ul className="w-[30%] bg-white flex flex-col justify-center items-center border rounded-xl absolute z-50"
-                  style={{ top: '150%', right: -15 }}>
+                  style={{ top: '150%', right: 80 }}>
                   <li className='w-full text-center list-none cursor-pointer px-5 py-3 font-semibold hover:bg-green-600 hover:text-white hover:rounded-xl'>
                     <Link href='/posts/general'>
-                      General
+                      {t('common:General')}
                     </Link>
                   </li>
                   <li className='w-full text-center list-none cursor-pointer px-5 py-3 font-semibold hover:bg-green-600 hover:text-white hover:rounded-xl'>
                     <Link href='/posts/review'>
-                      Review
+                      {t('common:Review')}
                     </Link>
                   </li>
                 </ul>
               )}
+              <LanguageSwitch />
             </ul>
           </nav>
           <div className="flex gap-5">
@@ -363,7 +365,7 @@ const Header = () => {
                           duration-300 
                           cursor-pointer">
                           <BiSolidUser size={20} />
-                          Profile
+                          {t('common:Profile')}
                         </li>
                       </Link>
                       <Link href='/posts/create'>
@@ -382,7 +384,7 @@ const Header = () => {
                           duration-300 
                           cursor-pointer">
                           <IoMdCreate size={20} />
-                          Write
+                          {t('common:Write')}
                         </li>
                       </Link>
                       <li className="
@@ -400,7 +402,7 @@ const Header = () => {
                         cursor-pointer"
                         onClick={logout}>
                         <FiLogOut size={20} />
-                        Logout
+                        {t('common:Logout')}
                       </li>
                     </ul>
                   </div>
@@ -419,7 +421,7 @@ const Header = () => {
                   duration-300
                   sm:text-sm"
                   onClick={() => router.push('/login')}>
-                  Login
+                  {t('common:Login')}
                 </button>
                 <button className="
                   bg-main-green 
@@ -436,7 +438,7 @@ const Header = () => {
                   sm:text-sm
                   "
                   onClick={() => router.push('/signup')}>
-                  Register
+                  {t('common:Register')}
                 </button>
               </>
             )}

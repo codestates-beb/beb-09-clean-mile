@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import Image from 'next/image';
+import useTranslation from 'next-translate/useTranslation';
 import Swal from 'sweetalert2';
 import { AxiosError } from 'axios';
 import Slider from "react-slick";
@@ -13,6 +14,8 @@ import { Comments } from '../Reference';
 
 const ReviewDetail = ({ reviewDetail, comments }: { reviewDetail: PostDetail, comments: Comment[] }) => {
   const router = useRouter();
+  const { t } = useTranslation('common');
+
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userInfo, setUserInfo] = useState<User | null>(null);
 
@@ -34,12 +37,12 @@ const ReviewDetail = ({ reviewDetail, comments }: { reviewDetail: PostDetail, co
 
   const postDelete = async () => {
     Swal.fire({
-      title: '삭제 하시겠습니까?',
+      title: t('common:Are you sure you want to delete it'),
       icon: 'question',
       showCancelButton: true,
-      confirmButtonText: 'OK',
+      confirmButtonText: t('common:OK'),
       confirmButtonColor: '#6BCB77',
-      cancelButtonText: 'Cancel',
+      cancelButtonText: t('common:Cancel'),
       cancelButtonColor: '#FF6B6B'
     }).then(async (result) => {
       if (result.isConfirmed) {
@@ -53,22 +56,22 @@ const ReviewDetail = ({ reviewDetail, comments }: { reviewDetail: PostDetail, co
           const res = await ApiCaller.delete(URL, dataBody, isJSON, headers, isCookie);
           if (res.status === 200) {
             Swal.fire({
-              title: 'Success!',
+              title: t('common:Success'),
               text: res.data.message,
               icon: 'success',
-              confirmButtonText: 'OK',
+              confirmButtonText: t('common:OK'),
               confirmButtonColor: '#6BCB77'
             }).then(() => {
               Swal.close();
-              router.reload();
+              router.push('/posts/review');
             });
 
           } else {
             Swal.fire({
-              title: 'Error',
+              title: t('common:Error'),
               text: res.data.message,
               icon: 'error',
-              confirmButtonText: 'OK',
+              confirmButtonText: t('common:OK'),
               confirmButtonColor: '#6BCB77'
             }).then(() => {
               Swal.close();
@@ -80,10 +83,10 @@ const ReviewDetail = ({ reviewDetail, comments }: { reviewDetail: PostDetail, co
           const data = err.response?.data as { message: string };
 
           Swal.fire({
-            title: 'Error',
+            title: t('common:Error'),
             text: data?.message,
             icon: 'error',
-            confirmButtonText: 'OK',
+            confirmButtonText: t('common:OK'),
             confirmButtonColor: '#6BCB77'
           }).then(() => {
             Swal.close();
@@ -91,10 +94,10 @@ const ReviewDetail = ({ reviewDetail, comments }: { reviewDetail: PostDetail, co
         }
       } else if (result.isDismissed) {
         Swal.fire({
-          title: 'Success!',
-          text: '게시글 삭제를 취소하셨습니다.',
+          title: t('common:Success'),
+          text: t('common:You have cancelled deleting the post'),
           icon: 'success',
-          confirmButtonText: 'OK',
+          confirmButtonText: t('common:OK'),
           confirmButtonColor: '#6BCB77',
         })
       }
@@ -104,10 +107,10 @@ const ReviewDetail = ({ reviewDetail, comments }: { reviewDetail: PostDetail, co
   const handleProfile = () => {
     if (reviewDetail.user_id === null) {
       Swal.fire({
-        title: 'Error',
-        text: 'User does not exist.',
+        title: t('common:Error'),
+        text: t('common:User does not exist'),
         icon: 'error',
-        confirmButtonText: 'OK',
+        confirmButtonText: t('common:OK'),
         confirmButtonColor: '#6BCB77'
       }).then(() => {
         Swal.close();
@@ -125,7 +128,7 @@ const ReviewDetail = ({ reviewDetail, comments }: { reviewDetail: PostDetail, co
     <>
       <div className='w-[90%] min-h-screen mx-auto mt-20 flex flex-col gap-12'>
         <div className='flex justify-center w-full'>
-          <h1 className='font-bold text-5xl mb-5 xs:text-4xl'>Review</h1>
+          <h1 className='font-bold text-5xl mb-5 xs:text-4xl'>{t('common:Review')}</h1>
         </div>
         <div className='w-full flex justify-between items-center border-b'>
           <p className='mb-3 font-bold text-2xl xs:text-xl'>{reviewDetail.title}</p>
@@ -185,7 +188,7 @@ const ReviewDetail = ({ reviewDetail, comments }: { reviewDetail: PostDetail, co
                 duration-300
                 text-center'
                 onClick={postDelete}>
-                Delete
+                {t('common:Delete')}
               </button>
               <Link
                 href={`/posts/review/edit/${reviewDetail._id}`}
@@ -209,7 +212,7 @@ const ReviewDetail = ({ reviewDetail, comments }: { reviewDetail: PostDetail, co
                   duration-300
                   text-center'>
                 <button>
-                  Edit
+                  {t('common:Edit')}
                 </button>
               </Link>
               <Link href='/posts/review'
@@ -233,7 +236,7 @@ const ReviewDetail = ({ reviewDetail, comments }: { reviewDetail: PostDetail, co
                 duration-300
                 text-center'>
                 <button>
-                  List
+                  {t('common:List')}
                 </button>
               </Link>
             </>
@@ -259,7 +262,7 @@ const ReviewDetail = ({ reviewDetail, comments }: { reviewDetail: PostDetail, co
               duration-300
               text-center'>
               <button>
-                List
+                {t('common:List')}
               </button>
             </Link>
           )}
