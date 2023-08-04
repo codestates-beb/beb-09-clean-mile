@@ -33,7 +33,6 @@ export const SearchBar = ({
         ))}
       </Select>
       <OutlinedInput
-        defaultValue=""
         value={searchTerm}
         onChange={handleSearchTermChange}
         fullWidth
