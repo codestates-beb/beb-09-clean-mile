@@ -31,7 +31,9 @@ const Page = () => {
       const data = res.data;
 
       if (data && data.data) {
-        const userData = data.data.data;
+        console.log(data);
+
+        const userData = data.data.users;
         const pagination = data.data.pagination;
 
         if (!userData) {
@@ -118,10 +120,7 @@ const Page = () => {
       params.social_provider = socialProvider;
     }
 
-    // TODO: check if pagination works with page param
     params.page = page;
-
-    console.log(params);
 
     searchUsers(params);
   }, [socialProvider, page]);
