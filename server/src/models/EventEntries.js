@@ -9,11 +9,13 @@ const eventEntrySchema = new mongoose.Schema({
     // 이벤트 ID
     type: mongoose.Schema.Types.ObjectId,
     ref: 'event',
+    required: true
   },
   user_id: {
     // 사용자 ID
     type: mongoose.Schema.Types.ObjectId,
     ref: 'user',
+    required: true
   },
   is_confirmed: {
     // 참가 인증 여부

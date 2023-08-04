@@ -8,6 +8,7 @@ const eventHostSchema = new mongoose.Schema({
   name: {
     // 주최측 이름
     type: String,
+    required: true
   },
   email: {
     // 주최측 이메일
