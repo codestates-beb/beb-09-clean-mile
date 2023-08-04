@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
 import useTranslation from 'next-translate/useTranslation';
 import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
+import { QrReader } from 'react-qr-reader';
 import { AxiosError, AxiosResponse } from 'axios';
 import { BsFillImageFill } from 'react-icons/bs';
 import { User, Pagination, Post, EventList, Dnft, UserBadge } from '../Interfaces';
@@ -42,6 +45,7 @@ const MyPage = ({
   const [eventCurrentPage, setEventCurrentPage] = useState(1);
   const [postData, setPostData] = useState<Post[]>([]);
   const [eventsData, setEventsData] = useState<EventList[] | null>(null);
+  const [isQrVisible, setIsQrVisible] = useState(false);
 
   /**
    * 파일 업로드 이벤트를 처리
@@ -149,10 +153,7 @@ const MyPage = ({
       const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/change-nickname`;
       const URL2 = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/change-banner`;
       const isJSON = false;
-      const headers = {
-        'Content-Type': 'application/form-data',
-        'Accept': 'application/json',
-      }
+      const headers = {}
       const isCookie = true;
 
       if (hasNicknameChange) {
@@ -215,7 +216,6 @@ const MyPage = ({
     }
   }
 
-
   /**
    * 클립보드에 작성자의 지갑 주소를 복사하는 함수
    * 복사가 성공하면 성공 메시지를, 실패하면 에러 메시지를 모달로 표시
@@ -246,6 +246,111 @@ const MyPage = ({
     }
   }
 
+  const tokenExchange = async () => {
+    const formData = new FormData();
+    
+    formData.append('userId', userInfo._id);
+
+    try {
+      const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/token-exchange`;
+      const dataBody = formData;
+      const isJSON = true;
+      const headers = {}
+      const isCookie = true;
+
+      const res = await ApiCaller.post(URL, dataBody, isJSON, headers, isCookie);
+      if(res.status === 200) {
+        Swal.fire({
+          title: t('common:Success'),
+          text: res.data?.message,
+          icon: 'success',
+          confirmButtonText: t('common:OK'),
+          confirmButtonColor: '#6BCB77'
+        }).then(() => {
+          Swal.close();
+        });
+      } else {
+        Swal.fire({
+          title: t('common:Error'),
+          text: res.data?.message,
+          icon: 'error',
+          confirmButtonText: t('common:OK'),
+          confirmButtonColor: '#6BCB77'
+        }).then(() => {
+          Swal.close();
+        });
+      }
+    } catch (error) {
+      const err = error as AxiosError;
+
+      const data = err.response?.data as { message: string };
+
+      Swal.fire({
+        title: t('common:Error'),
+        text: data?.message,
+        icon: 'error',
+        confirmButtonText: t('common:OK'),
+        confirmButtonColor: '#6BCB77'
+      }).then(() => {
+        Swal.close();
+      });
+    }
+  }
+
+  const upgradeDnft = async () => {
+    const formData = new FormData();
+
+    formData.append('email', userInfo.email);
+    try {
+      const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/upgrade-dnft`;
+      const dataBody = formData;
+      const isJSON = false;
+      const headers = {
+        'Content-Type': 'multipart/form-data',
+        'Accept': 'application/json',
+      }
+      const isCookie = true;
+  
+      const res = await ApiCaller.post(URL, dataBody, isJSON, headers, isCookie);
+
+      if(res.status === 200) {
+        Swal.fire({
+          title: t('common:Success'),
+          text: res.data?.message,
+          icon: 'success',
+          confirmButtonText: t('common:OK'),
+          confirmButtonColor: '#6BCB77'
+        }).then(() => {
+          Swal.close();
+        });
+      } else {
+        Swal.fire({
+          title: t('common:Error'),
+          text: res.data?.message,
+          icon: 'error',
+          confirmButtonText: t('common:OK'),
+          confirmButtonColor: '#6BCB77'
+        }).then(() => {
+          Swal.close();
+        });
+      }
+    } catch (error) {
+      const err = error as AxiosError;
+
+      const data = err.response?.data as { message: string };
+
+      Swal.fire({
+        title: t('common:Error'),
+        text: data?.message,
+        icon: 'error',
+        confirmButtonText: t('common:OK'),
+        confirmButtonColor: '#6BCB77'
+      }).then(() => {
+        Swal.close();
+      });
+    }
+  }
+
   const getClassNameForStatus = (status: string) => {
     switch (status) {
       case 'created': return 'bg-main-insta';
@@ -264,11 +369,36 @@ const MyPage = ({
       default: return 'bg-gray-500';
     }
   }
+  const handleScan = data => {
+    if (data) {
+      console.log('QR Code data:', data);
+      // You can close the SweetAlert2 modal when the QR code is successfully scanned.
+      setIsQrVisible(false);
+      Swal.close();
+    }
+  }
+
+  const handleError = err => {
+    console.error(err);
+  }
+
+  const handleShowQr = () => {
+    Swal.fire({
+      title: 'Scan the QR Code!',
+      didOpen: () => {
+        setIsQrVisible(true);
+      },
+      willClose: () => {
+        setIsQrVisible(false);
+      }
+    });
+  }
+
 
   return (
     <>
       <div className="w-full min-h-screen">
-        <div className="w-full h-[30rem] md:h-[25rem] sm:h-[20rem] xs:h-[15rem] border-2 border-dashed rounded-xl">
+        <div className={`w-full h-[30rem] md:h-[25rem] sm:h-[20rem] xs:h-[15rem] ${isEditing ? 'border-2 border-dashed' : 'border-2'} rounded-xl`}>
           {isEditing ? (
             <label className="
               h-full 
@@ -283,7 +413,7 @@ const MyPage = ({
               htmlFor="nft-file">
               {fileUrl ? (
                 <div className="w-full h-full">
-                  <img src={fileUrl} className="w-full h-full object-contain" alt="banner Image" />
+                  <Image src={fileUrl} width={1500} height={100} className="w-full h-full object-contain" alt="banner Image" />
                 </div>
               ) : (
                 <BsFillImageFill size={80} />
@@ -297,7 +427,7 @@ const MyPage = ({
                 required />
             </label>
           ) : (
-            <img src={!userInfo?.banner_img_url ? default_banner : userInfo?.banner_img_url} className="w-full h-full object-contain" alt="banner Image" />
+            <Image src={!userInfo?.banner_img_url ? default_banner : userInfo?.banner_img_url} width={1500} height={100} className="w-full h-full object-contain" alt="banner Image" />
           )}
         </div>
         <div className='
@@ -362,7 +492,7 @@ const MyPage = ({
                   type="button"
                   onClick={profileChange}
                   disabled={errorMessage !== ''}
-                  >
+                >
                   {t('common:Save')}
                 </button>
               ) : (
@@ -382,7 +512,7 @@ const MyPage = ({
                   cursor-pointer'
                   type="button"
                   onClick={myPageEdit}
-                  >
+                >
                   {t('common:Edit')}
                 </button>
               )}
@@ -391,13 +521,99 @@ const MyPage = ({
             <p className='font-semibold sm:text-sm xs:text-xs cursor-pointer' onClick={copyAddr} title="Click to copy the address">
               {userInfo?.wallet?.address}
             </p>
+            <div className='flex items-center justify-center gap-2'>
+              <p className='font-semibold sm:text-sm xs:text-xs cursor-pointer' onClick={copyAddr} title="Click to copy the address">
+                {t('common:Mileage')}: {userInfo?.wallet?.mileage_amount}
+              </p>
+              <p className='font-semibold sm:text-sm xs:text-xs cursor-pointer' onClick={copyAddr} title="Click to copy the address">
+                |
+              </p>
+              <p className='font-semibold sm:text-sm xs:text-xs cursor-pointer' onClick={copyAddr} title="Click to copy the address">
+                {t('common:Token')}: {userInfo?.wallet?.token_amount} CM
+              </p>
+              <p className='font-semibold sm:text-sm xs:text-xs cursor-pointer' onClick={copyAddr} title="Click to copy the address">
+                |
+              </p>
+              <p className='font-semibold sm:text-sm xs:text-xs cursor-pointer' onClick={copyAddr} title="Click to copy the address">
+                {t('common:Total Badge Score')}: {userInfo?.wallet?.total_badge_score}
+              </p>
+            </div>
             <div className='flex gap-2'>
-              <button className='px-3 py-2 sm:px-2 md:text-sm sm:text-sm xs:text-sm bg-[#FBA1B7] hover:bg-main-insta rounded-xl transition duration-300 text-white font-bold'>
+              <button className='
+                px-3 
+                py-2 
+                sm:px-2 
+                md:text-sm 
+                sm:text-sm 
+                xs:text-sm 
+                bg-[#FBA1B7] 
+                hover:bg-main-insta 
+                rounded-xl 
+                transition 
+                duration-300 
+                text-white 
+                font-bold'>
                 {t('common:Instagram Connect')}
               </button>
-              <button className='px-3 py-2 sm:px-2 md:text-sm sm:text-sm xs:text-sm bg-main-green hover:bg-green-500 rounded-xl transition duration-300 text-white font-bold'>
+              <button className='
+                px-3 
+                py-2 
+                sm:px-2 
+                md:text-sm 
+                sm:text-sm 
+                xs:text-sm 
+                bg-main-green 
+                hover:bg-green-500 
+                rounded-xl 
+                transition 
+                duration-300 
+                text-white 
+                font-bold'
+                onClick={upgradeDnft}>
                 {t('common:DNFT Upgrade')}
               </button>
+              <button className='
+                px-3 
+                py-2 
+                sm:px-2 
+                md:text-sm 
+                sm:text-sm 
+                xs:text-sm 
+                bg-main-blue 
+                hover:bg-blue-500 
+                rounded-xl 
+                transition 
+                duration-300 
+                text-white 
+                font-bold'
+                onClick={tokenExchange}>
+                {t('common:Token Exchange')}
+              </button>
+              <button className='
+                px-3 
+                py-2 
+                sm:px-2 
+                md:text-sm 
+                sm:text-sm 
+                xs:text-sm 
+                bg-main-yellow 
+                hover:bg-yellow-500 
+                rounded-xl 
+                transition 
+                duration-300 
+                text-white 
+                font-bold'
+                onClick={handleShowQr}>
+                {t('common:QR Code Scan')}
+              </button>
+              {isQrVisible && (
+                <QrReader
+                  delay={300}
+                  onError={handleError}
+                  onResult={handleScan}
+                  style={{ width: '100%' }}
+                />
+              )}
             </div>
           </div>
           <div className={`w-full h-2/3 ${userBadges.length === 0 ? 'flex font-bold' : 'grid grid-cols-10'} lg:grid-cols-6 md:grid-cols-5 sm:grid-cols-3 xs:grid-cols-3 gap-4 justify-items-center bg-gray-200 rounded-xl px-6 py-6`}>

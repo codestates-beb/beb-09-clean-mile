@@ -40,13 +40,13 @@ export const getServerSideProps = async (context: GetServerSidePropsContext) => 
 
     const res = await ApiCaller.get(URL, dataBody, isJSON, headers, isCookie);
 
-    console.log(res.data.data.last_item)
+    console.log(res.data.data.last_id)
 
     let reviewList;
     let lastId;
     if (res.status === 200 && res.data.success) {
       reviewList = res.data.data.data;
-      lastId = res.data.data.last_item;
+      lastId = res.data.data.last_id;
     } else {
       // API 호출에 실패하면 오류 메시지를 출력하고 빈 객체를 반환합니다.
       console.error('API 호출 실패:', res.data.message);
