@@ -7,12 +7,7 @@ import {
   Unstable_Grid2 as Grid,
 } from "@mui/material";
 
-const wallet = {
-  address: "0xd1fb56c9bde306e59ce78d7bdfec017eb31ccd11",
-  token_amount: 1,
-};
-
-export const UserWallet = () => (
+export const UserWallet = ({ wallet = {} }) => (
   <Card sx={{ p: 3 }}>
     <CardHeader title="Wallet" />
     <CardContent sx={{ pt: 0 }}>
@@ -23,7 +18,7 @@ export const UserWallet = () => (
               fullWidth
               label="Address"
               name="address"
-              value={wallet.address}
+              value={wallet.address ? wallet.address : "N/A"}
               InputProps={{
                 readOnly: true,
               }}
@@ -34,7 +29,7 @@ export const UserWallet = () => (
               fullWidth
               label="Token Amount"
               name="tokenAmount"
-              value={wallet.token_amount}
+              value={wallet.token_amount ? wallet.token_amount : 0}
               InputProps={{
                 readOnly: true,
               }}

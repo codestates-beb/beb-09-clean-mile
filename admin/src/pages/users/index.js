@@ -17,22 +17,6 @@ const Page = () => {
   const [filter, setFilter] = useState(filters[0]);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const handlePageChange = useCallback((event, value) => {
-    setPage(value);
-  }, []);
-
-  const handleSocialProviderChange = useCallback((event) => {
-    setSocialProvider(event.target.value);
-  }, []);
-
-  const handleFilterChange = useCallback((event) => {
-    setFilter(event.target.value);
-  }, []);
-
-  const handleSearchTermChange = useCallback((event) => {
-    setSearchTerm(event.target.value);
-  }, []);
-
   const searchUsers = useCallback(async (params) => {
     try {
       const res = await axios.get("http://localhost:8080/admin/users/list", {
@@ -82,6 +66,22 @@ const Page = () => {
     }
   }, []);
 
+  const handlePageChange = useCallback((event, value) => {
+    setPage(value);
+  }, []);
+
+  const handleSocialProviderChange = useCallback((event) => {
+    setSocialProvider(event.target.value);
+  }, []);
+
+  const handleFilterChange = useCallback((event) => {
+    setFilter(event.target.value);
+  }, []);
+
+  const handleSearchTermChange = useCallback((event) => {
+    setSearchTerm(event.target.value);
+  }, []);
+
   const handleSearchTermSubmit = useCallback(
     async (event) => {
       event.preventDefault();
@@ -122,8 +122,13 @@ const Page = () => {
       params.social_provider = socialProvider;
     }
 
+    // TODO: check if pagination works with page param
+    params.page = page;
+
+    console.log(params);
+
     searchUsers(params);
-  }, [socialProvider]);
+  }, [socialProvider, page]);
 
   return (
     <>
