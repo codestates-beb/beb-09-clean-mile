@@ -71,13 +71,10 @@ module.exports = (app) => {
       if (req.cookies.accessToken) {
         const decoded = jwtUtil.verify(req.cookies.accessToken);
         if (!decoded.success) {
-          return res.status(401).json({
-            success: false,
-            message: `Access Token : ${decoded.message}`,
-          });
+          user_id = null;
+        } else {
+          user_id = decoded.decoded.user_id;
         }
-
-        user_id = decoded.decoded.user_id;
       }
 
       // 행사 상세 조회

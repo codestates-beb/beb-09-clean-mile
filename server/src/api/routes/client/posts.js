@@ -38,20 +38,11 @@ module.exports = (app) => {
           });
         }
 
-        // 파일 저장
-        const saveFiles = await postsController.saveFiles(req.files);
-        if (!saveFiles) {
-          return res.status(400).json({
-            success: false,
-            message: '파일 저장에 실패했습니다.',
-          });
-        }
-
         // 게시글 저장
         const result = await postsController.savePost(
           req.decoded.user_id,
           postData,
-          saveFiles
+          req.files
         );
         if (!result.success) {
           return res.status(400).json({
