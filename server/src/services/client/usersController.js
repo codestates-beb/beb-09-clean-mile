@@ -175,11 +175,16 @@ const saveUserData = async (userData) => {
       email: userData.email,
       name: userData.name,
       phone_number: userData.phone_number,
+      user_type: userData.user_type,
       hashed_pw: userData.password,
       nickname: userData.nickname,
       social_provider: userData.social_provider,
       wallet: {
         address: userData.wallet_address,
+        token_amount: 0,
+        badge_amount: 0,
+        total_badge_score:0,
+        mileage_amount:0
       },
     });
 
