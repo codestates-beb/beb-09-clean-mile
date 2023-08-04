@@ -27,18 +27,18 @@ const userSchema = new mongoose.Schema({
     // 사용자 권한
     type: String,
     enum: ['user', 'admin'],
-    required: true
+    default: 'user',
   },
   hashed_pw: {
     // 사용자 비밀번호 (해시)
     type: String,
     require: true,
-    unique: true
   },
   nickname: {
     // 사용자 닉네임
     type: String,
-    required: true
+    unique: true,
+    required: true,
   },
   social_provider: {
     // 소셜 로그인
@@ -49,22 +49,19 @@ const userSchema = new mongoose.Schema({
   banner_img_url: {
     // 배너 이미지 URL
     type: String,
-    default: 'none'
+    default: '',
   },
   wallet: {
     address: {
       // 사용자 지갑 주소
       type: String,
-      required: true
+      required: true,
+      unique: true,
     },
     mileage_amount: {
       // 사용자 마일리지 수량
       type: Number,
       default: 0
-    },
-    mileage_amount: {
-      // 사용자 마일리지 수량
-      type: Number,
     },
     token_amount: {
       // 사용자 토큰 수량
