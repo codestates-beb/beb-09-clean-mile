@@ -16,10 +16,12 @@ const Page = () => {
   const [host, setHost] = useState(null);
   const [event, setEvent] = useState(null);
   const [badge, setBadge] = useState(null);
+  const [entries, setEntries] = useState([]);
+  const [entryPage, setEntryPage] = useState(1);
+  const [entryPageCount, setEntryPageCount] = useState(1);
 
   const [tabNum, setTabNum] = useState("1");
-  const [entryPage, setEntryPage] = useState(1);
-  const [entryPageCount, setEntryPageCount] = useState(5);
+
   const router = useRouter();
 
   const { id } = router.query;
@@ -68,6 +70,47 @@ const Page = () => {
     }
   }, []);
 
+  const eventEntries = useCallback(async () => {
+    try {
+      const params = {};
+      params.page = entryPage;
+
+      const res = await axios.get(`http://localhost:8080/admin/events/detail/entry/${id}`, {
+        withCredentials: true,
+      });
+
+      if (res && res.status === 200) {
+        const data = res.data;
+
+        if (data && data.data) {
+          const entriesData = data.data.data;
+          const pagination = data.data.pagination;
+
+          console.log(entriesData, pagination);
+
+          if (!entriesData) {
+            setEntries([]);
+            setEntryPageCount(1);
+            setEntryPage(1);
+            return;
+          }
+
+          setEntries(entriesData);
+
+          if (pagination) {
+            setEntryPageCount(pagination.totalPages);
+            setEntryPage(pagination.currentPage);
+          }
+        } else {
+          throw new Error("Invalid response");
+        }
+      }
+    } catch (error) {
+      console.log(error);
+      setEntries([]);
+    }
+  }, []);
+
   const handleEntryPageChange = useCallback((event, value) => {
     setEntryPage(value);
   }, []);
@@ -103,6 +146,10 @@ const Page = () => {
   useEffect(() => {
     eventDetails();
   }, [id]);
+
+  useEffect(() => {
+    eventEntries();
+  }, [entryPage]);
 
   return (
     <>
@@ -156,22 +203,7 @@ const Page = () => {
                   pageCount={entryPageCount}
                   handlePageChange={handleEntryPageChange}
                   handleEntryExport={handleEntryExport}
-                  items={[
-                    {
-                      _id: "3Rxv4WLTT5EqiBiVozgy4LZLW6ELRVM8",
-                      user_id: {
-                        name: "초전도체",
-                        email: "chogeondochi@hotmail.com",
-                        wallet: {
-                          address: "0xdefe6c0baf788845b9a59f42fdc1ccc85f3cf2cd",
-                        },
-                      },
-                      is_confirmed: true,
-                      is_nft_issued: true,
-                      is_token_rewarded: false,
-                      created_at: "2021-10-01T00:00:00.000000Z",
-                    },
-                  ]}
+                  items={entries}
                 />
               </TabPanel>
               <TabPanel value={"6"}>
