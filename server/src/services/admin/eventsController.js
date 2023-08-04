@@ -341,6 +341,11 @@ const saveEvent = async (eventData) => {
   }
 };
 
+/**
+ * 이미지 파일들 업로드
+ * @param {*} images
+ * @returns
+ */
 const saveImages = async (images) => {
   try {
     const imageUrls = [];

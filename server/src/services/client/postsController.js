@@ -458,7 +458,7 @@ const getReviews = async (last_data, limit, title, content, order) => {
 
     // 결과가 없는 경우
     if (result.length === 0) {
-      return { data: null, last_id: null };
+      return { data: null, last_item: null };
     }
 
     // 마지막 문서의 ID를 가져옴
