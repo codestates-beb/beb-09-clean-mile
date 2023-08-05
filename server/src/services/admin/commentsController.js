@@ -90,7 +90,7 @@ const getComment = async (comment_id) => {
     const comment = await CommentModel.findById(comment_id)
       .select('-__v -likes.likers')
       .populate('user_id', ['nickname'])
-      .populate('post_id', ['title']);
+      .populate('post_id', ['title', 'category']);
     if (!comment) {
       return { success: false };
     }
