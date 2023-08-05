@@ -16,13 +16,7 @@ const findEventDetail = async (req, event_id, user_id) => {
   try {
     // 이벤트 정보 조회
     const eventResult = await EventModel.findById(event_id)
-      .populate('host_id', [
-        'name',
-        'email',
-        'phone_number',
-        'wallet_address',
-        'organization',
-      ])
+      .populate('host_id', ['name', 'email', 'phone_number', 'wallet_address', 'organization'])
       .select('-__v');
     if (!eventResult) {
       return { success: false };
@@ -155,6 +149,7 @@ const getEventById = async (event_id) => {
 const validateQRParticipation = async (token, user_id) => {
   try {
     // 토큰 유효성 확인
+    console.log(token);
     const tokenResult = jwtAdminUtil.qrVerify(token);
     if (!tokenResult.success) {
       return { success: false, message: '유효하지 않은 토큰입니다.' };

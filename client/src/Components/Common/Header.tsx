@@ -95,7 +95,6 @@ const Header = () => {
     const userInfo = sessionStorage.getItem('user_info');
     if (userInfo) {
       const userCache = JSON.parse(sessionStorage.getItem('user_info') || '');
-      console.log(userCache)
       setUserInfoData(userCache.queries[0]?.state.data.user);
       setDnftData(userCache.queries[0]?.state.data.dnftData);
     }

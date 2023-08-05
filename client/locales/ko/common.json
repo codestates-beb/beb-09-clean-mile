@@ -98,5 +98,7 @@
   "Success": "성공",
   "Error": "오류",
   "Cancel": "취소",
+  "Back": "뒤로가기",
+  "Please scan the QR code": "QR 코드를 스캔해주세요.",
   "QR Code Scan": "QR 코드 스캔"
 }

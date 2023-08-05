@@ -10,6 +10,20 @@ import { SearchInput } from '../Reference';
 import { Post, User } from '../Interfaces';
 import { ApiCaller } from '../Utils/ApiCaller';
 
+interface Item {
+  _id: string;
+  media: {
+    img: string[];
+    video: string[];
+  };
+  title: string;
+  user_id: {
+    _id: string;
+    nickname: string;
+  };
+  content: string;
+}
+
 const Review = ({ reviewList, lastId }: { reviewList: Post[], lastId: string }) => {
   const router = useRouter();
   const { t } = useTranslation('common');
@@ -46,18 +60,21 @@ const Review = ({ reviewList, lastId }: { reviewList: Post[], lastId: string }) 
     }
   });
 
-  const observer = useRef();
-  const lastReviewElementRef = useCallback((node) => {
-    if (isLoading || isFetchingNextPage) return;
-    if (observer.current) observer.current.disconnect();
-    observer.current = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting && hasNextPage && !isLoading) {
-        fetchNextPage();
-      }
-    });
-    if (node) observer.current.observe(node);
-  },
-    [isLoading, isFetchingNextPage, hasNextPage, fetchNextPage]
+  const observer = useRef<IntersectionObserver | null>();
+  const lastElementRef = useCallback(
+    (node: HTMLElement | null) => {
+      if (isLoading || isFetchingNextPage) return;
+      if (observer.current) observer.current.disconnect();
+  
+      observer.current = new IntersectionObserver(entries => {
+        if (entries[0].isIntersecting && hasNextPage) {
+          fetchNextPage();
+        }
+      });
+  
+      if (node) observer.current.observe(node);
+    },
+    [isLoading, isFetchingNextPage, hasNextPage, fetchNextPage]  // 의존성 업데이트
   );
 
 
@@ -103,7 +120,7 @@ const Review = ({ reviewList, lastId }: { reviewList: Post[], lastId: string }) 
                   hover:-translate-y-2 
                   cursor-pointer"
                   key={i}
-                  ref={lastReviewElementRef}
+                  ref={lastElementRef}
                   onClick={() => router.push(`/posts/review/${item._id}`)}>
                   <div className='border-b-2 relative pb-[65%] sm:pb-[90%] xs:pb-[90%]'>
                     <Image
@@ -189,7 +206,7 @@ const Review = ({ reviewList, lastId }: { reviewList: Post[], lastId: string }) 
             })
           )}
           {data?.pages.map((group, i) => (
-            group.map((item, i) => {
+            group.map((item: Item, i: number) => {
               return (
                 <div className="
                   w-full
@@ -206,7 +223,7 @@ const Review = ({ reviewList, lastId }: { reviewList: Post[], lastId: string }) 
                   hover:-translate-y-2 
                   cursor-pointer"
                   key={i}
-                  ref={lastReviewElementRef}
+                  ref={lastElementRef}
                   onClick={() => router.push(`/posts/review/${item._id}`)}>
                   <div className='border-b-2 relative pb-[65%] sm:pb-[90%] xs:pb-[90%]'>
                     <Image

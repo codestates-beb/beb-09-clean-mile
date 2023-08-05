@@ -98,5 +98,7 @@
   "Success": "Success!",
   "Error": "Error",
   "Cancel": "Cancel",
+  "Back": "Back",
+  "Please scan the QR code": "Please scan the QR code.",
   "QR Code Scan": "QR Code Scan"
 }
