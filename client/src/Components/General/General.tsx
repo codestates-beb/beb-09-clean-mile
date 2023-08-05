@@ -11,7 +11,7 @@ const General = ({ postList, postPagination }: { postList: Post[], postPaginatio
 
   const [currentPage, setCurrentPage] = useState(Number(router.query.page || 1));
 
-  const totalPages = postPagination.totalPages;
+  const totalPages = postPagination?.totalPages;
 
   const handlePageChange = (pageNumber: number) => {
       setCurrentPage(pageNumber);
@@ -33,7 +33,7 @@ const General = ({ postList, postPagination }: { postList: Post[], postPaginatio
         {t('common:General')}
       </h1>
       <div className={`flex justify-center items-center w-full`}>
-        <div className={`w-full ${postList.length <= 4 && 'min-h-screen items-center justify-around'}`}>
+        <div className={`w-full ${postList?.length <= 4 || postList === null && 'min-h-screen items-center justify-around'}`}>
           <div className='flex justify-end mb-3 gap-3'>
             <select className="border border-black py-2 px-4 pr-7 rounded-md text-sm" onChange={handleFilterChange}>
               <option className="text-sm xs:text-xs" value="desc">{t('common:Latest order')}</option>
@@ -72,7 +72,7 @@ const General = ({ postList, postPagination }: { postList: Post[], postPaginatio
                 </tr>
               </thead>
               <tbody>
-                {postList?.length === 0 ? (
+                {postList === null ? (
                   <tr>
                     <td colSpan={6} className="p-6 text-center">{t('common:There are no registered posts')}</td>
                   </tr>

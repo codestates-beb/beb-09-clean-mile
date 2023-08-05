@@ -9,7 +9,7 @@ import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { Comments } from '../Reference';
-import { EventDetailType, Comment } from '../Interfaces';
+import { EventDetailType, Comment, User } from '../Interfaces';
 import { ApiCaller } from '../Utils/ApiCaller';
 
 const EventDetail = ({ eventDetail, comments }: { eventDetail: EventDetailType, comments: Comment[] }) => {
@@ -18,7 +18,7 @@ const EventDetail = ({ eventDetail, comments }: { eventDetail: EventDetailType, 
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userInfoData, setUserInfoData] = useState<User | null>(null);
-  const [userEventData, setUserEventData] = useState<EventDetailType | null>(null);
+  const [userEventData, setUserEventData] = useState<EventDetailType[] | null>(null);
 
   const settings = useMemo(() => ({
     dots: true,
@@ -172,58 +172,53 @@ const EventDetail = ({ eventDetail, comments }: { eventDetail: EventDetailType, 
         </div>
         <Comments postDetailId={eventDetail._id} comments={comments} />
         <div className='w-full flex gap-3 xs:gap-2 justify-end my-16'>
-          {userEventData?.map((eventData, i) => {
-            return (
-
-              eventData._id === eventDetail._id ? (
-                <button className='
-                  w-[5%]
-                  lg:w-[15%]
-                  md:w-[15%]
-                  sm:w-[25%]
-                  xs:w-[30%] 
-                  border 
-                  rounded-2xl 
-                  xs:rounded-lg
-                  p-3
-                  sm:p-2 
-                  xs:p-1
-                  text-white 
-                  xs:text-sm
-                  transition 
-                  duration-300
-                  text-center
-                  bg-yellow-500'
-                  disabled>
-                  {t('common:Completed application')}
-                </button>
-              ) : (
-                <button className={`
-                  w-[5%]
-                  lg:w-[15%]
-                  md:w-[15%]
-                  sm:w-[25%]
-                  xs:w-[30%] 
-                  border 
-                  rounded-2xl 
-                  xs:rounded-lg
-                  p-3
-                  sm:p-2 
-                  xs:p-1
-                  text-white 
-                  xs:text-sm
-                  transition 
-                  duration-300
-                  text-center
-                  ${eventDetail.status !== 'recruiting' ? 'bg-yellow-400' : 'bg-main-yellow hover:bg-yellow-500 '}`}
-                  disabled={eventDetail.status !== 'recruiting'}
-                  onClick={entryEvent}>
-                  {t('common:Entry')}
-                </button>
-              )
+          {userEventData?.some(eventData => eventData._id === eventDetail._id) ? (
+              <button className='
+                w-[5%]
+                lg:w-[15%]
+                md:w-[15%]
+                sm:w-[25%]
+                xs:w-[30%] 
+                border 
+                rounded-2xl 
+                xs:rounded-lg
+                p-3
+                sm:p-2 
+                xs:p-1
+                text-white 
+                xs:text-sm
+                transition 
+                duration-300
+                text-center
+                bg-yellow-500'
+                disabled>
+                {t('common:Completed application')}
+              </button>
+            ) : (
+              <button className={`
+                w-[5%]
+                lg:w-[15%]
+                md:w-[15%]
+                sm:w-[25%]
+                xs:w-[30%] 
+                border 
+                rounded-2xl 
+                xs:rounded-lg
+                p-3
+                sm:p-2 
+                xs:p-1
+                text-white 
+                xs:text-sm
+                transition 
+                duration-300
+                text-center
+                ${eventDetail.status !== 'recruiting' ? 'bg-yellow-400' : 'bg-main-yellow hover:bg-yellow-500 '}`}
+                disabled={eventDetail.status !== 'recruiting'}
+                onClick={entryEvent}>
+                {t('common:Entry')}
+              </button>
             )
-          })}
-
+          }
           <Link href='/posts/events'
             className='
             w-[5%]

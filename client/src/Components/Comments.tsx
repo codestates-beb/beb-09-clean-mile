@@ -25,7 +25,7 @@ const Comments = ({ postDetailId, comments }: { postDetailId: string, comments: 
     if (typeof window !== "undefined" && sessionStorage.getItem('user_info')) {
       const userCache = JSON.parse(sessionStorage.getItem('user_info') || '');
       setIsLoggedIn(userCache !== null);
-      setUserInfo(userCache.user)
+      setUserInfo(userCache.queries[0]?.state.data.user);
     }
   }, []);
   
@@ -39,10 +39,7 @@ const Comments = ({ postDetailId, comments }: { postDetailId: string, comments: 
       const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/comments/create`;
       const dataBody = formData;
       const isJSON = false;
-      const headers = {
-        'Content-Type': 'multipart/form-data',
-        'Accept': 'application/json'
-      };
+      const headers = {};
       const isCookie = true;
 
       const res = await ApiCaller.post(URL, dataBody, isJSON, headers, isCookie);
@@ -131,10 +128,7 @@ const Comments = ({ postDetailId, comments }: { postDetailId: string, comments: 
       const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/comments/edit`;
       const dataBody = formData;
       const isJSON = false;
-      const headers = {
-        'Content-Type': 'multipart/form-data',
-        'Accept': 'application/json'
-      };
+      const headers = {};
       const isCookie = true;
 
       const res = await ApiCaller.patch(URL, dataBody, isJSON, headers, isCookie);
