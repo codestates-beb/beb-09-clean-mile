@@ -8,7 +8,7 @@ import {
 } from "@mui/material";
 import { format } from "date-fns";
 
-export const UserDetails = ({ user = {} }) => {
+export const UserDetails = ({ user }) => {
   const createdAt = user.created_at ? format(new Date(user.created_at), "MM/dd/yyyy") : "N/A";
   return (
     <Card sx={{ p: 3 }}>
@@ -102,7 +102,7 @@ export const UserDetails = ({ user = {} }) => {
                   readOnly: true,
                 }}
                 InputLabelProps={{
-                  shirink: true,
+                  shrink: true,
                 }}
               />
             </Grid>
@@ -117,7 +117,7 @@ export const UserDetails = ({ user = {} }) => {
                   readOnly: true,
                 }}
                 InputLabelProps={{
-                  shirink: true,
+                  shrink: true,
                 }}
               />
             </Grid>
@@ -132,7 +132,7 @@ export const UserDetails = ({ user = {} }) => {
                   readOnly: true,
                 }}
                 InputLabelProps={{
-                  shirink: true,
+                  shrink: true,
                 }}
               />
             </Grid>

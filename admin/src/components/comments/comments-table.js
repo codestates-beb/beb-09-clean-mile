@@ -29,43 +29,51 @@ export const CommentsTable = ({ items = [], pageCount, page, handlePageChange })
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>Post Title</TableCell>
-                  <TableCell>Post Category</TableCell>
-                  <TableCell>Content</TableCell>
-                  <TableCell>Writer</TableCell>
-                  <TableCell>Likes</TableCell>
-                  <TableCell>Created At</TableCell>
+                  <TableCell align="center">Post Title</TableCell>
+                  <TableCell align="center">Post Category</TableCell>
+                  <TableCell align="center">Content</TableCell>
+                  <TableCell align="center">Writer</TableCell>
+                  <TableCell align="center">Likes</TableCell>
+                  <TableCell align="center">Created At</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {items.map((comment) => {
-                  return (
-                    <TableRow
-                      hover
-                      key={comment.id}
-                      onClick={() => handleCommentSelected(comment.id)}
-                      sx={{
-                        "&:hover": {
-                          cursor: "pointer",
-                        },
-                      }}
-                    >
-                      <TableCell>
-                        <Stack alignItems="center" direction="row" spacing={2}>
-                          <Typography variant="subtitle2">{comment.title}</Typography>
-                        </Stack>
-                      </TableCell>
-                      <TableCell>{comment.category}</TableCell>
-                      <TableCell>
-                        {comment.content ? `${comment.content.slice(0, 20)}...` : "N/A"}
-                      </TableCell>
-                      <TableCell>{comment.writer}</TableCell>
+                {items.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={6} align="center">
+                      등록된 댓글이 없습니다.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  items.map((comment) => {
+                    return (
+                      <TableRow
+                        hover
+                        key={comment.id}
+                        onClick={() => handleCommentSelected(comment.id)}
+                        sx={{
+                          "&:hover": {
+                            cursor: "pointer",
+                          },
+                        }}
+                      >
+                        <TableCell>
+                          <Stack alignItems="center" direction="row" spacing={2}>
+                            <Typography variant="subtitle2">{comment.title}</Typography>
+                          </Stack>
+                        </TableCell>
+                        <TableCell>{comment.category}</TableCell>
+                        <TableCell>
+                          {comment.content ? `${comment.content.slice(0, 20)}...` : "N/A"}
+                        </TableCell>
+                        <TableCell>{comment.writer}</TableCell>
 
-                      <TableCell>{comment.likes}</TableCell>
-                      <TableCell>{comment.createdAt}</TableCell>
-                    </TableRow>
-                  );
-                })}
+                        <TableCell>{comment.likes}</TableCell>
+                        <TableCell>{comment.createdAt}</TableCell>
+                      </TableRow>
+                    );
+                  })
+                )}
               </TableBody>
             </Table>
           </Box>

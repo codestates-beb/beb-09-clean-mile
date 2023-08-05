@@ -31,12 +31,13 @@ export const UsersTable = ({ items = [], pageCount, page, handlePageChange }) =>
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>Name</TableCell>
-                  <TableCell>Email</TableCell>
-                  <TableCell>Wallet Address</TableCell>
-                  <TableCell>User Type</TableCell>
-                  <TableCell>Social Provider</TableCell>
-                  <TableCell>Signed Up</TableCell>
+                  <TableCell align="center">Id</TableCell>
+                  <TableCell align="center">Name</TableCell>
+                  <TableCell align="center">Email</TableCell>
+                  <TableCell align="center">Wallet Address</TableCell>
+                  <TableCell align="center">User Type</TableCell>
+                  <TableCell align="center">Social Provider</TableCell>
+                  <TableCell align="center">Signed Up</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -56,24 +57,25 @@ export const UsersTable = ({ items = [], pageCount, page, handlePageChange }) =>
                         },
                       }}
                     >
-                      <TableCell>
-                        <Stack alignItems="center" direction="row" spacing={2}>
-                          <Typography variant="subtitle2">{user.name}</Typography>
-                        </Stack>
+                      <TableCell align="center">
+                        <Typography variant="subtitle2">
+                          {user._id.slice(0, 6) + "..." + user._id.slice(-4)}
+                        </Typography>
                       </TableCell>
-                      <TableCell>{user.email}</TableCell>
-                      <TableCell>
-                        {user.wallet
-                          ? user.wallet.address
-                            ? user.wallet.address.slice(0, 6) +
-                              "..." +
-                              user.wallet.address.slice(-4)
-                            : "N/A"
-                          : "N/A"}
+                      <TableCell align="center">
+                        <Typography variant="subtitle2">{user.name}</Typography>
                       </TableCell>
-                      <TableCell>{user.user_type ? user.user_type : "N/A"}</TableCell>
-                      <TableCell>{user.social_provider ? user.social_provider : "N/A"}</TableCell>
-                      <TableCell>{createdAt}</TableCell>
+                      <TableCell align="center">{user.email}</TableCell>
+                      <TableCell align="center">
+                        {user.wallet.address.slice(0, 6) + "..." + user.wallet.address.slice(-4)}
+                      </TableCell>
+                      <TableCell align="center">
+                        {user.user_type ? user.user_type : "N/A"}
+                      </TableCell>
+                      <TableCell align="center">
+                        {user.social_provider ? user.social_provider : "N/A"}
+                      </TableCell>
+                      <TableCell align="center">{createdAt}</TableCell>
                     </TableRow>
                   );
                 })}

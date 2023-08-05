@@ -31,8 +31,6 @@ const Page = () => {
       const data = res.data;
 
       if (data && data.data) {
-        console.log(data);
-
         const userData = data.data.users;
         const pagination = data.data.pagination;
 

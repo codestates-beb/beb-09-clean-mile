@@ -44,9 +44,9 @@ const Page = () => {
         const postsData = data.data.posts;
         const commentsData = data.data.comments;
         const eventsData = data.data.events;
-        // const dnftData = data.data.dnft;
+        const dnftData = data.data.dnft;
 
-        console.log(userData, postsData, commentsData, eventsData);
+        console.log(userData, postsData, commentsData, eventsData, dnftData);
 
         if (userData) {
           setUser(userData);
@@ -64,7 +64,9 @@ const Page = () => {
           setEvents(eventsData);
         }
 
-        // TODO: DNFT
+        if (dnftData) {
+          setDNFT(dnftData);
+        }
       }
     } catch (error) {
       console.log(error);
