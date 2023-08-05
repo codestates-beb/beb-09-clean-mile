@@ -1,2 +1,3 @@
 .terraform*
 terraform*
+private_key.pem

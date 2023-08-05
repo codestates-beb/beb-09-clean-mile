@@ -47,3 +47,9 @@ variable "s3_bucket_name" {
   description = "Name of the S3 bucket to create"
   default     = "clean-mile"
 }
+
+variable "key_pair_name" {
+  type        = string
+  description = "Name of the key pair to create"
+  default     = "clean-mile-key-pair"
+}
