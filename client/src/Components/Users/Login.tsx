@@ -77,15 +77,6 @@ const Login = () => {
    * @throws {AxiosError} 네트워크 에러 또는 서버에서 보내는 에러 응답
    */
   const loginAPI  = async ({ email, password }: LoginAPIInput): Promise<LoginAPIOutput> => {
-    Swal.fire({
-      title: 'Loading...',
-      allowEscapeKey: false,
-      allowOutsideClick: false,
-      onBeforeOpen: () => {
-        Swal.showLoading();
-      }
-    })
-
     const formData = new FormData();
 
     formData.append('email', email);

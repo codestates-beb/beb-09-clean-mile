@@ -9,7 +9,7 @@ import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { Comments } from '../Reference';
-import { EventDetailType, Comment } from '../Interfaces';
+import { EventDetailType, Comment, User } from '../Interfaces';
 import { ApiCaller } from '../Utils/ApiCaller';
 
 const EventDetail = ({ eventDetail, comments }: { eventDetail: EventDetailType, comments: Comment[] }) => {
@@ -18,7 +18,7 @@ const EventDetail = ({ eventDetail, comments }: { eventDetail: EventDetailType, 
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userInfoData, setUserInfoData] = useState<User | null>(null);
-  const [userEventData, setUserEventData] = useState<EventDetailType | null>(null);
+  const [userEventData, setUserEventData] = useState<EventDetailType[] | null>(null);
 
   const settings = useMemo(() => ({
     dots: true,

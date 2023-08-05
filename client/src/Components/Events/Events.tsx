@@ -8,6 +8,15 @@ import { SearchInput } from '../Reference';
 import { EventList } from '../Interfaces';
 import { ApiCaller } from '../Utils/ApiCaller';
 
+interface Item {
+  _id: string;
+  poster_url: string[];
+  title: string;
+  status: 'created' | 'recruiting' | 'progressing' | 'finished' | 'canceled';
+  content: string;
+  // 필요한 경우 기타 속성들을 추가합니다.
+}
+
 const Events = ({ eventList, lastId }: { eventList: EventList[], lastId: string }) => {
   const router = useRouter();
   const { t } = useTranslation('common');
@@ -47,9 +56,9 @@ const Events = ({ eventList, lastId }: { eventList: EventList[], lastId: string 
     }
   });
   
-  const observer = useRef();
+  const observer = useRef<IntersectionObserver | null>();
   const lastElementRef = useCallback(
-    (node) => {
+    (node: HTMLElement | null) => {
       if (isLoading || isFetchingNextPage) return;
       if (observer.current) observer.current.disconnect();
   
@@ -181,7 +190,7 @@ const Events = ({ eventList, lastId }: { eventList: EventList[], lastId: string 
             })
           )}
           {data?.pages.map((group, i) => (
-            group.map((item, i) => {
+            group.map((item: Item, i: number) => {
               return (
                 <div className="
                   w-full

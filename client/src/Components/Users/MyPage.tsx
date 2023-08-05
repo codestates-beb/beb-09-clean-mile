@@ -4,8 +4,6 @@ import { useRouter } from 'next/router';
 import Image from 'next/image';
 import useTranslation from 'next-translate/useTranslation';
 import Swal from 'sweetalert2';
-import withReactContent from 'sweetalert2-react-content';
-import { QrReader } from 'react-qr-reader';
 import { AxiosError, AxiosResponse } from 'axios';
 import { BsFillImageFill } from 'react-icons/bs';
 import { User, Pagination, Post, EventList, Dnft, UserBadge } from '../Interfaces';
@@ -369,31 +367,6 @@ const MyPage = ({
       default: return 'bg-gray-500';
     }
   }
-  const handleScan = data => {
-    if (data) {
-      console.log('QR Code data:', data);
-      // You can close the SweetAlert2 modal when the QR code is successfully scanned.
-      setIsQrVisible(false);
-      Swal.close();
-    }
-  }
-
-  const handleError = err => {
-    console.error(err);
-  }
-
-  const handleShowQr = () => {
-    Swal.fire({
-      title: 'Scan the QR Code!',
-      didOpen: () => {
-        setIsQrVisible(true);
-      },
-      willClose: () => {
-        setIsQrVisible(false);
-      }
-    });
-  }
-
 
   return (
     <>
@@ -603,17 +576,9 @@ const MyPage = ({
                 duration-300 
                 text-white 
                 font-bold'
-                onClick={handleShowQr}>
+                onClick={() => router.push('/qrscan')}>
                 {t('common:QR Code Scan')}
               </button>
-              {isQrVisible && (
-                <QrReader
-                  delay={300}
-                  onError={handleError}
-                  onResult={handleScan}
-                  style={{ width: '100%' }}
-                />
-              )}
             </div>
           </div>
           <div className={`w-full h-2/3 ${userBadges.length === 0 ? 'flex font-bold' : 'grid grid-cols-10'} lg:grid-cols-6 md:grid-cols-5 sm:grid-cols-3 xs:grid-cols-3 gap-4 justify-items-center bg-gray-200 rounded-xl px-6 py-6`}>

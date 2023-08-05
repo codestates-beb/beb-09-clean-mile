@@ -25,7 +25,7 @@ const Comments = ({ postDetailId, comments }: { postDetailId: string, comments: 
     if (typeof window !== "undefined" && sessionStorage.getItem('user_info')) {
       const userCache = JSON.parse(sessionStorage.getItem('user_info') || '');
       setIsLoggedIn(userCache !== null);
-      setUserInfo(userCache.user)
+      setUserInfo(userCache.queries[0]?.state.data.user);
     }
   }, []);
   

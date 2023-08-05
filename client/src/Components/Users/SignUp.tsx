@@ -389,26 +389,6 @@ const SignUp = () => {
   }
 
   /**
-   * 유저의 지갑 주소를 이용해 로그인 메시지를 로컬 스토리지에 저장하는 함수
-   * 
-   * @function getSigning
-   * @callback useCallback
-   * @param {null}
-   * @returns {void} 아무것도 반환하지 않음
-   */
-  const getSigning = useCallback(() => {
-    if (userAddressQuery.data) {
-      sessionStorage.setItem('Sign',
-        `Welcome to Clean Mile! Click \"Sign\" to sign in. No password needed! I accept the MetaWis Terms of Service: Wallet address:${userAddressQuery.data ? userAddressQuery.data.toLowerCase() : ''}`,
-      );
-    }
-  }, [userAddressQuery.data]);
-
-  useEffect(() => {
-    getSigning();
-  }, [getSigning]);
-
-  /**
    * 유저의 Ethereum 계정 주소를 가져오는 함수
    * 
    * @returns {Promise<string>} 첫 번째 Ethereum 계정 주소를 반환
@@ -461,7 +441,6 @@ const SignUp = () => {
     }
 
     fetchAccountInfo.mutate();
-    getSigning();
   };
 
   /**
@@ -683,7 +662,9 @@ const SignUp = () => {
               {userAddressQuery.data ? (
                 <p className='w-full flex justify-center items-center lg:items-start md:items-start sm:items-start xs:items-start flex-wrap lg:flex-col md:flex-col sm:flex-col xs:flex-col md:text-sm sm:text-sm xs:text-xs font-semibold'>
                   {t('common:MetaMask Address')}:
-                  <span className='lg:w-full md:w-full sm:w-full xs:w-full text-center lg:text-left md:text-left sm:text-left xs:text-left font-normal ml-1 break-words'>{userAddressQuery.data || 'Loading...'}</span>
+                  <span className='lg:w-full md:w-full sm:w-full xs:w-full text-center lg:text-left md:text-left sm:text-left xs:text-left font-normal ml-1 break-words'>
+                    {userAddressQuery.data ? JSON.stringify(userAddressQuery.data) : 'Loading...'}
+                  </span>
                 </p>
               ) : (
                 <button className='
