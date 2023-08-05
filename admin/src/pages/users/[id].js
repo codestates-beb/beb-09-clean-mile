@@ -29,7 +29,7 @@ const Page = () => {
 
   const searchUser = async (id) => {
     try {
-      const res = await axios.get(`http://localhost:8080/admin/users/detail/${id}`, {
+      const res = await axios.get(`http://localhost:7000/admin/users/detail/${id}`, {
         withCredentials: true,
       });
 

@@ -35,7 +35,6 @@ const EventDetail = ({ eventDetail, comments }: { eventDetail: EventDetailType, 
       const userCache = JSON.parse(sessionStorage.getItem('user_info') || '');
       setUserInfoData(userCache.queries[0]?.state.data.user);
       setUserEventData(userCache.queries[0]?.state.data.events);
-      console.log(userEventData)
     }
     if (user) {
       setIsLoggedIn(true);

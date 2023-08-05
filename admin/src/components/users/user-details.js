@@ -22,8 +22,12 @@ export const UserDetails = ({ user = {} }) => {
                 label="Name"
                 name="name"
                 value={user.name}
+                variant="filled"
                 InputProps={{
                   readOnly: true,
+                }}
+                InputLabelProps={{
+                  shrink: true,
                 }}
               />
             </Grid>
@@ -33,8 +37,12 @@ export const UserDetails = ({ user = {} }) => {
                 label="Nickname"
                 name="nickname"
                 value={user.nickname}
+                variant="filled"
                 InputProps={{
                   readOnly: true,
+                }}
+                InputLabelProps={{
+                  shrink: true,
                 }}
               />
             </Grid>
@@ -44,8 +52,12 @@ export const UserDetails = ({ user = {} }) => {
                 label="Email"
                 name="email"
                 value={user.email}
+                variant="filled"
                 InputProps={{
                   readOnly: true,
+                }}
+                InputLabelProps={{
+                  shrink: true,
                 }}
               />
             </Grid>
@@ -55,8 +67,12 @@ export const UserDetails = ({ user = {} }) => {
                 label="Phone Number"
                 name="phone_number"
                 value={user.phone_number}
+                variant="filled"
                 InputProps={{
                   readOnly: true,
+                }}
+                InputLabelProps={{
+                  shrink: true,
                 }}
               />
             </Grid>
@@ -66,8 +82,12 @@ export const UserDetails = ({ user = {} }) => {
                 label="Social Provider"
                 name="social_provider"
                 value={user.social_provider}
+                variant="filled"
                 InputProps={{
                   readOnly: true,
+                }}
+                InputLabelProps={{
+                  shrink: true,
                 }}
               />
             </Grid>
@@ -77,10 +97,14 @@ export const UserDetails = ({ user = {} }) => {
                 label="User Type"
                 name="user_type"
                 value={user.user_type ? user.user_type : "N/A"}
+                variant="filled"
                 InputProps={{
                   readOnly: true,
                 }}
-              ></TextField>
+                InputLabelProps={{
+                  shirink: true,
+                }}
+              />
             </Grid>
             <Grid xs={12} md={6}>
               <TextField
@@ -88,10 +112,14 @@ export const UserDetails = ({ user = {} }) => {
                 label="Sign Up"
                 name="sign_up"
                 value={createdAt}
+                variant="filled"
                 InputProps={{
                   readOnly: true,
                 }}
-              ></TextField>
+                InputLabelProps={{
+                  shirink: true,
+                }}
+              />
             </Grid>
             <Grid xs={12} md={6}>
               <TextField
@@ -99,10 +127,14 @@ export const UserDetails = ({ user = {} }) => {
                 label="Instagram"
                 name="instagram"
                 value={user.instagram_url ? user.instagram_url : "없음"}
+                variant="filled"
                 InputProps={{
                   readOnly: true,
                 }}
-              ></TextField>
+                InputLabelProps={{
+                  shirink: true,
+                }}
+              />
             </Grid>
           </Grid>
         </Box>

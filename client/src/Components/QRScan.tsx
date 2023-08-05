@@ -82,10 +82,7 @@ const QRScan = () => {
   }
 
   const handleScan = (scanData: any) => {
-    console.log(`loaded data`, scanData);
     if (scanData) {
-      console.log(`loaded >>>`, scanData.data);
-
       verifyEvent(scanData.data);
     }
   };

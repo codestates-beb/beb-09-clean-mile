@@ -65,7 +65,7 @@ export const EventBadgeMintForm = ({ eventId }) => {
       formData.append("image", validated.image);
       formData.append("event_id", eventId);
 
-      const res = await axios.post("http://localhost:8080/admin/events/createBadge", formData, {
+      const res = await axios.post("http://localhost:7000/admin/events/createBadge", formData, {
         withCredentials: true,
         headers: {
           "Content-Type": "multipart/form-data",
