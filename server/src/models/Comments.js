@@ -9,11 +9,13 @@ const commentSchema = new mongoose.Schema({
     // users collection의 _id를 참조
     type: mongoose.Schema.Types.ObjectId,
     ref: 'user',
+    required: true
   },
   post_id: {
     // posts collection의 _id를 참조
     type: mongoose.Schema.Types.ObjectId,
     ref: 'post',
+    required: true
   },
   content: {
     // 댓글 내용
