@@ -40,6 +40,11 @@ resource "aws_subnet" "private_subnets" {
 resource "aws_route_table" "public_route_table" {
   vpc_id = aws_vpc.main_vpc.id
 
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.main_internet_gateway.id
+  }
+
   tags = merge(
     var.common_tags,
     {
@@ -50,6 +55,11 @@ resource "aws_route_table" "public_route_table" {
 
 resource "aws_route_table" "private_route_table" {
   vpc_id = aws_vpc.main_vpc.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.main_internet_gateway.id
+  }
 
   tags = merge(
     var.common_tags,
@@ -71,3 +81,13 @@ resource "aws_route_table_association" "private_route_table_associations" {
   route_table_id = aws_route_table.private_route_table.id
 }
 
+resource "aws_internet_gateway" "main_internet_gateway" {
+  vpc_id = aws_vpc.main_vpc.id
+
+  tags = merge(
+    var.common_tags,
+    {
+      Name = "Clean Mile Internet Gateway"
+    }
+  )
+}
