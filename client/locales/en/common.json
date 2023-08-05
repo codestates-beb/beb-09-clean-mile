@@ -86,10 +86,19 @@
   "DNFT Upgrade": "DNFT Upgrade",
   "Are you sure you want to delete it": "Are you sure you want to delete it?",
   "Completed application": "Completed application",
+  "Do you want to log out": "Do you want to log out?",
+  "You have cancelled your logout": "You have cancelled your logout.",
   "Verify": "Verify",
+  "Token Exchange": "Mileage Exchange",
+  "Mileage": "Mileage",
+  "Token": "Token",
+  "Total Badge Score": "Total Badge Score",
   "OK": "OK",
   "Entry": "Entry",
   "Success": "Success!",
   "Error": "Error",
-  "Cancel": "Cancel"
+  "Cancel": "Cancel",
+  "Back": "Back",
+  "Please scan the QR code": "Please scan the QR code.",
+  "QR Code Scan": "QR Code Scan"
 }

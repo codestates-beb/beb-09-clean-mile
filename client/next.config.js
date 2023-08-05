@@ -21,6 +21,7 @@ const nextConfig = {
     config.resolve.alias['@next-translate-root/locales'] = path.resolve(__dirname, 'locales');
     return config;
   },
+  output: 'standalone',
 };
 
 module.exports = nextTranslate(nextConfig);

@@ -95,7 +95,6 @@ const Header = () => {
     const userInfo = sessionStorage.getItem('user_info');
     if (userInfo) {
       const userCache = JSON.parse(sessionStorage.getItem('user_info') || '');
-      console.log(userCache)
       setUserInfoData(userCache.queries[0]?.state.data.user);
       setDnftData(userCache.queries[0]?.state.data.dnftData);
     }
@@ -111,12 +110,12 @@ const Header = () => {
   const logout = async () => {
 
     Swal.fire({
-      title: 'Do you want to log out?',
+      title: t('common: Do you want to log out'),
       icon: 'question',
       showCancelButton: true,
-      confirmButtonText: 'OK',
+      confirmButtonText: t('common:OK'),
       confirmButtonColor: '#6BCB77',
-      cancelButtonText: 'Cancel',
+      cancelButtonText: t('common:Cancel'),
       cancelButtonColor: '#FF6B6B'
     }).then(async (result) => {
       if (result.isConfirmed) {
@@ -134,10 +133,10 @@ const Header = () => {
           const res = await ApiCaller.post(URL, dataBody, isJSON, headers, isCookie);
           if (res.status === 200) {
             Swal.fire({
-              title: 'Success!',
+              title: t('common:Success'),
               text: res.data.message,
               icon: 'success',
-              confirmButtonText: 'OK',
+              confirmButtonText: t('common:OK'),
               confirmButtonColor: '#6BCB77',
             }).then(() => {
               Swal.close();
@@ -152,10 +151,10 @@ const Header = () => {
             });
           } else {
             Swal.fire({
-              title: 'Error',
+              title: t('common:Error'),
               text: res.data.message,
               icon: 'error',
-              confirmButtonText: 'OK',
+              confirmButtonText: t('common:OK'),
               confirmButtonColor: '#6BCB77'
             }).then(() => {
               Swal.close();
@@ -168,10 +167,10 @@ const Header = () => {
           const data = err.response?.data as { message: string };
 
           Swal.fire({
-            title: 'Error',
+            title: t('common:Error'),
             text: data?.message,
             icon: 'error',
-            confirmButtonText: 'OK',
+            confirmButtonText: t('common:OK'),
             confirmButtonColor: '#6BCB77'
           }).then(() => {
             Swal.close();
@@ -182,10 +181,10 @@ const Header = () => {
         }
       } else if (result.isDismissed) {
         Swal.fire({
-          title: 'Success!',
-          text: 'You have cancelled your logout.',
+          title: t('common:Success'),
+          text: t('common:You have cancelled your logout'),
           icon: 'success',
-          confirmButtonText: 'OK',
+          confirmButtonText: t('common:OK'),
           confirmButtonColor: '#6BCB77',
         })
       }
@@ -352,10 +351,9 @@ const Header = () => {
                         xs:p-2
                         hover:bg-gray-300 
                         transition 
-                        duration-300 
-                        cursor-pointer">
+                        duration-300">
                         <GiToken size={20} />
-                        50 CM
+                        {userInfoData?.wallet.token_amount} CM
                       </li>
                       <Link href='/users/mypage'>
                         <li className="
@@ -459,7 +457,7 @@ const Header = () => {
           </div>
         </div>
       </div>
-      {router.pathname !== '/' && router.pathname !== '/user/mypage' && <NewNotice latestNotice={latestNotice} />}
+      {router.pathname !== '/' && router.pathname !== '/user/mypage' && latestNotice && <NewNotice latestNotice={latestNotice} />}
     </>
   );
 };

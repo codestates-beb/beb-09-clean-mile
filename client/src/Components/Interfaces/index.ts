@@ -5,6 +5,10 @@ interface LoginAPIInput {
 
 interface Wallet {
   address: string;
+  mileage_amount: number;
+  token_amount: number;
+  badge_amount: number;
+  total_badge_score: number;
 }
 
 interface LoginAPIOutput {
@@ -184,7 +188,7 @@ type Dnft = {
 type UserBadge = {
   name: string;
   description: string;
-  image: string;
+  image_url: string;
   badge_type: string;
 }
 

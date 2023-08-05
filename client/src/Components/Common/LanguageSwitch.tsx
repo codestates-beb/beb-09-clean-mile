@@ -3,11 +3,11 @@ import { useRouter } from 'next/router';
 import useTranslation from 'next-translate/useTranslation';
 
 const LanguageSwitch = () => {
-  const { locale, push } = useRouter();
+  const { locale, asPath, push } = useRouter();
   const { t } = useTranslation('common');
 
-  const switchToEnglish = () => push('/', '/', { locale: 'en' });
-  const switchToKorean = () => push('/', '/', { locale: 'ko' });
+  const switchToEnglish = () => push(asPath, asPath, { locale: 'en' });
+  const switchToKorean = () => push(asPath, asPath, { locale: 'ko' });
 
   return (
     <div className='flex gap-2 items-center justify-center'>

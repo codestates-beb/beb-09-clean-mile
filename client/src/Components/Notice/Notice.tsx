@@ -17,7 +17,7 @@ const Notice = ({ noticeList, noticePagination }: { noticeList: Post[], noticePa
   };
 
 
-  const totalPages = noticePagination.totalPages;
+  const totalPages = noticePagination?.totalPages;
 
   const handlePageChange = (pageNumber: number) => {
     setCurrentPage(pageNumber);
@@ -29,12 +29,12 @@ const Notice = ({ noticeList, noticePagination }: { noticeList: Post[], noticePa
   }, [currentPage]);
 
   return (
-    <div className='w-full flex flex-col justify-center gap-12 px-24 sm:px-2 xs:px-2 py-14 lg:py-12 md:py-6 sm:py-6 xs:py-3'>
+  <div className='w-full flex flex-col justify-center gap-12 px-24 sm:px-2 xs:px-2 py-14 lg:py-12 md:py-6 sm:py-6 xs:py-3'>
       <h1 className='font-bold text-5xl lg:text-4xl md:text-3xl sm:text-2xl xs:text-xl text-center'>
         {t('common:Notice')}
       </h1>
       <div className='flex justify-center items-center w-full'>
-        <div className={`w-full ${noticeList.length === 0 && 'min-h-screen items-center justify-around'}`}>
+        <div className={`w-full ${noticeList === null && 'min-h-screen items-center justify-around'}`}>
           <div className='flex justify-end mb-3'>
             <select className="border border-black py-2 px-4 pr-7 rounded-md text-sm" onChange={handleFilterChange}>
               <option className="text-sm xs:text-xs" value="desc">{t('common:Latest order')}</option>
@@ -55,7 +55,7 @@ const Notice = ({ noticeList, noticePagination }: { noticeList: Post[], noticePa
                 </tr>
               </thead>
               <tbody>
-                {noticeList.length === 0 ? (
+                {noticeList === null ? (
                   <tr>
                     <td colSpan={6} className="p-6 text-center">{t('common:There are no registered posts')}</td>
                   </tr>
