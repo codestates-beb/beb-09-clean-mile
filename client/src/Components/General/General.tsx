@@ -128,6 +128,9 @@ const General = ({
                           {post.content.length >= 20
                             ? post.content.slice(0, 60) + '...'
                             : post.content}
+                      <td className="border-b p-6 sm:p-3 xs:p-2">
+                        <p className="text-gray-600 sm:text-sm xs:text-xs">
+                          {post.user_id === null ? t('common:Unknown') : post.user_id?.nickname}
                         </p>
                       </td>
                       <td className='border-b p-6 sm:p-3 xs:p-2'>

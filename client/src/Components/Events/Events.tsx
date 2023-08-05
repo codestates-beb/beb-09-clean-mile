@@ -36,7 +36,6 @@ const Events = ({ eventList, lastId }: { eventList: EventList[], lastId: string 
     let URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/events/list?last_id=${pageParam}`;
 
     const res = await ApiCaller.get(URL, null, false, {}, true);
-    console.log(res.data)
     if (res.status === 200 && res.data.data.data) {
       return res.data.data.data;
     }

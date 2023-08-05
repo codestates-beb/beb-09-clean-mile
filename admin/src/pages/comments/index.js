@@ -10,59 +10,52 @@ import {
   SvgIcon,
   Typography,
 } from "@mui/material";
+import axios from "axios";
 import { Layout as DashboardLayout } from "src/layouts/dashboard/layout";
 import { useCallback, useEffect, useState } from "react";
 import { SearchBar } from "src/components/search-bar";
 import { CommentsTable } from "src/components/comments/comments-table";
 
-const data = [
-  {
-    id: "2569ce0d517a7f06d3ea1f24",
-    title: "hic-modi-officia",
-    content: "Doloribus voluptatem voluptatem.",
-    writer: "Beatty",
-    likes: 12,
-    createdAt: "27/03/2019",
-    category: "notice",
-  },
-  {
-    id: "2569ce0d517a7f06d3ea1f24",
-    title: "hic-modi-officia",
-    content: "Doloribus voluptatem voluptatem.",
-    writer: "Beatty",
-    likes: 12,
-    createdAt: "27/03/2019",
-    category: "review",
-  },
-  {
-    id: "2569ce0d517a7f06d3ea1f24",
-    title: "hic-modi-officia",
-    content: "Doloribus voluptatem voluptatem.",
-    writer: "Beatty",
-    likes: 12,
-    createdAt: "27/03/2019",
-    category: "general",
-  },
-  {
-    id: "2569ce0d517a7f06d3ea1f24",
-    title: "hic-modi-officia",
-    content: "Doloribus voluptatem voluptatem.",
-    writer: "Beatty",
-    likes: 12,
-    createdAt: "27/03/2019",
-    category: "notice",
-  },
-];
 const categories = ["all", "notice", "general", "review"];
 const filters = ["all", "title", "content", "writer"];
 
 const Page = () => {
   const [page, setPage] = useState(1);
   const [pageCount, setPageCount] = useState(5);
-  const [comments, setComments] = useState(data);
+  const [comments, setComments] = useState([]);
   const [category, setCategory] = useState(categories[0]);
   const [filter, setFilter] = useState(filters[0]);
   const [searchTerm, setSearchTerm] = useState("");
+
+  const searchComments = useCallback(async (params) => {
+    try {
+      const res = await axios.get("http://localhost:7000/admin/comments/list", {
+        withCredentials: true,
+        params,
+      });
+
+      if (!res || res.status !== 200) {
+        throw new Error("Invalid response");
+      }
+
+      const data = res.data;
+
+      let commentData = [];
+      let pagination = {};
+
+      if (data && data.data) {
+        commentData = data.data.data ? data.data.data : [];
+        pagination = data.data.pagination ? data.data.pagination : {};
+      }
+
+      return {
+        comments: commentData,
+        pagination: pagination,
+      };
+    } catch (err) {
+      throw err;
+    }
+  }, []);
 
   const handlePageChange = useCallback((event, value) => {
     setPage(value);
@@ -81,21 +74,72 @@ const Page = () => {
   }, []);
 
   const handleSearchTermSubmit = useCallback(
-    (event) => {
+    async (event) => {
       event.preventDefault();
 
       if (!searchTerm) return;
 
-      console.log(filter, searchTerm);
+      const params = {};
+
+      if (category !== "all") {
+        params.category = category;
+      }
+
+      if (filter !== "all") {
+        switch (filter) {
+          case "title":
+            params.title = searchTerm;
+            break;
+          case "content":
+            params.content = searchTerm;
+            break;
+          case "writer":
+            params.writer = searchTerm;
+            break;
+          default:
+            throw new Error("Invalid filter");
+        }
+      }
+
+      await searchComments(params);
     },
     [filter, searchTerm]
   );
 
   useEffect(() => {
-    const filteredComments =
-      category === "all" ? data : data.filter((e) => e.category === category);
-    setComments(filteredComments);
-  }, [category]);
+    const params = {};
+
+    if (category !== "all") {
+      params.category = category;
+    }
+
+    params.page = page;
+
+    searchComments(params);
+  }, [category, page]);
+
+  useEffect(() => {
+    const params = {};
+
+    if (category !== "all") {
+      params.category = category;
+    }
+
+    params.page = page;
+
+    searchComments(params)
+      .then((res) => {
+        setComments(res.comments);
+        setPageCount(res.pagination.totalPages);
+        setPage(res.pagination.currentPage);
+      })
+      .catch((err) => {
+        console.log(err);
+        setComments([]);
+        setPageCount(1);
+        setPage(1);
+      });
+  }, [category, page]);
 
   return (
     <>

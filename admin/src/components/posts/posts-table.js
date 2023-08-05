@@ -33,55 +33,55 @@ export const PostsTable = ({ items = [], pageCount, page, handlePageChange, path
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>Title</TableCell>
-                  <TableCell>Content</TableCell>
-                  <TableCell>Writer</TableCell>
-                  <TableCell>Category</TableCell>
-                  <TableCell>View</TableCell>
-                  <TableCell>Created At</TableCell>
+                  <TableCell align="center">Title</TableCell>
+                  <TableCell align="center">Content</TableCell>
+                  <TableCell align="center">Writer</TableCell>
+                  <TableCell align="center">Category</TableCell>
+                  <TableCell align="center">View</TableCell>
+                  <TableCell align="center">Created At</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {items.map((post) => {
-                  const createdAt = post.created_at
-                    ? format(utcToZonedTime(new Date(post.created_at)), "MM/dd/yyyy")
-                    : "N/A";
-                  return (
-                    <TableRow
-                      hover
-                      key={post._id}
-                      onClick={() => handlePostSelected(post._id)}
-                      sx={{
-                        "&:hover": {
-                          cursor: "pointer",
-                        },
-                      }}
-                    >
-                      <TableCell>
-                        <Stack alignItems="center" direction="row" spacing={2}>
+                {items.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={6} align="center">
+                      등록된 게시글이 없습니다.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  items.map((post) => {
+                    const createdAt = post.created_at
+                      ? format(utcToZonedTime(new Date(post.created_at)), "MM/dd/yyyy")
+                      : "N/A";
+                    return (
+                      <TableRow
+                        hover
+                        key={post._id}
+                        onClick={() => handlePostSelected(post._id)}
+                        sx={{
+                          "&:hover": {
+                            cursor: "pointer",
+                          },
+                        }}
+                      >
+                        <TableCell align="center">
                           <Typography variant="subtitle2">
                             {post.title ? post.title : "N/A"}
                           </Typography>
-                        </Stack>
-                      </TableCell>
-                      <TableCell>
-                        {post.content ? `${post.content.slice(0, 20)}...` : "N/A"}
-                      </TableCell>
-                      <TableCell>
-                        {post.user_id
-                          ? post.user_id.nickname
-                            ? post.user_id.nickname
-                            : "N/A"
-                          : "N/A"}
-                      </TableCell>
-                      <TableCell>{post.category ? post.category : "N/A"}</TableCell>
-                      <TableCell>
-                        {post.view ? (post.view.count ? post.view.count : 0) : 0}
-                      </TableCell>
-                      <TableCell>{createdAt}</TableCell>
-                    </TableRow>
-                  );
-                })}
+                        </TableCell>
+                        <TableCell align="center">
+                          {post.content ? `${post.content.slice(0, 20)}...` : "N/A"}
+                        </TableCell>
+                        <TableCell align="center">{post.user_id.nickname}</TableCell>
+                        <TableCell align="center">{post.category ? post.category : "N/A"}</TableCell>
+                        <TableCell align="center">
+                          {post.view.count}
+                        </TableCell>
+                        <TableCell align="center">{createdAt}</TableCell>
+                      </TableRow>
+                    );
+                  })
+                )}
               </TableBody>
             </Table>
           </Box>

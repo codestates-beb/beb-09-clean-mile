@@ -15,14 +15,14 @@ export const AuthGuard = (props) => {
   // triggered and will automatically redirect to sign-in page.
 
   useEffect(() => {
-    if (!router.isReady) {
-      return;
-    }
+    // if (!router.isReady) {
+    //   return;
+    // }
 
     // Prevent from calling twice in development mode with React.StrictMode enabled
-    if (ignore.current) {
-      return;
-    }
+    // if (ignore.current) {
+    //   return;
+    // }
 
     ignore.current = true;
 
@@ -35,6 +35,8 @@ export const AuthGuard = (props) => {
         })
         .catch(console.error);
     } else {
+      {
+      }
       setChecked(true);
       toggleRefresh(true);
     }

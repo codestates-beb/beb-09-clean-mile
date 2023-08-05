@@ -1,4 +1,6 @@
 import PropTypes from "prop-types";
+import { format } from "date-fns";
+import { utcToZonedTime } from "date-fns-tz";
 import {
   Box,
   Card,
@@ -17,10 +19,6 @@ import { useRouter } from "next/router";
 export const CommentsTable = ({ items = [], pageCount, page, handlePageChange }) => {
   const router = useRouter();
 
-  const handleCommentSelected = (commentId) => {
-    router.push(`/comments/${commentId}`);
-  };
-
   return (
     <Stack spacing={3}>
       <Card>
@@ -29,43 +27,51 @@ export const CommentsTable = ({ items = [], pageCount, page, handlePageChange })
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>Post Title</TableCell>
-                  <TableCell>Post Category</TableCell>
-                  <TableCell>Content</TableCell>
-                  <TableCell>Writer</TableCell>
-                  <TableCell>Likes</TableCell>
-                  <TableCell>Created At</TableCell>
+                  <TableCell align="center">Post Title</TableCell>
+                  <TableCell align="center">Post Category</TableCell>
+                  <TableCell align="center">Content</TableCell>
+                  <TableCell align="center">Writer</TableCell>
+                  <TableCell align="center">Likes</TableCell>
+                  <TableCell align="center">Created At</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {items.map((comment) => {
-                  return (
-                    <TableRow
-                      hover
-                      key={comment.id}
-                      onClick={() => handleCommentSelected(comment.id)}
-                      sx={{
-                        "&:hover": {
-                          cursor: "pointer",
-                        },
-                      }}
-                    >
-                      <TableCell>
-                        <Stack alignItems="center" direction="row" spacing={2}>
-                          <Typography variant="subtitle2">{comment.title}</Typography>
-                        </Stack>
-                      </TableCell>
-                      <TableCell>{comment.category}</TableCell>
-                      <TableCell>
-                        {comment.content ? `${comment.content.slice(0, 20)}...` : "N/A"}
-                      </TableCell>
-                      <TableCell>{comment.writer}</TableCell>
-
-                      <TableCell>{comment.likes}</TableCell>
-                      <TableCell>{comment.createdAt}</TableCell>
-                    </TableRow>
-                  );
-                })}
+                {items.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={6} align="center">
+                      등록된 댓글이 없습니다.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  items.map((comment, i) => {
+                    const createdAt = comment.created_at
+                      ? format(utcToZonedTime(new Date(comment.created_at)), "MM/dd/yyyy")
+                      : "N/A";
+                    return (
+                      <TableRow
+                        hover
+                        key={i}
+                        onClick={() => router.push(`/comments/${comment._id}`)}
+                        sx={{
+                          "&:hover": {
+                            cursor: "pointer",
+                          },
+                        }}
+                      >
+                        <TableCell align="center">
+                          <Typography variant="subtitle2">{comment.post_id.title}</Typography>
+                        </TableCell>
+                        <TableCell align="center">{comment.post_id.category}</TableCell>
+                        <TableCell align="center">
+                          {comment.content ? `${comment.content.slice(0, 20)}...` : "N/A"}
+                        </TableCell>
+                        <TableCell align="center">{comment.user_id.nickname}</TableCell>
+                        <TableCell align="center">{comment.likes.count}</TableCell>
+                        <TableCell align="center">{createdAt}</TableCell>
+                      </TableRow>
+                    );
+                  })
+                )}
               </TableBody>
             </Table>
           </Box>

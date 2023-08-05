@@ -1,15 +1,8 @@
 import { Avatar, Box, Card, CardContent, Typography } from "@mui/material";
 
-const dnft = {
-  image_url: "/assets/avatars/avatar-anika-visser.png",
-  token_id: 1,
-  name: "Lee",
-  dnft_level: 0,
-  description: "test account",
-};
-
-export const UserDNFT = () => (
+export const UserDNFT = ({ dnft }) => (
   <Card sx={{ p: 3 }}>
+    {console.log("dnft", dnft)}
     <CardContent>
       <Box
         sx={{

@@ -28,7 +28,7 @@ const Page = () => {
 
   const eventDetails = useCallback(async () => {
     try {
-      const res = await axios.get(`http://localhost:8080/admin/events/detail/${id}`, {
+      const res = await axios.get(`http://localhost:7000/admin/events/detail/${id}`, {
         withCredentials: true,
       });
 
@@ -75,7 +75,7 @@ const Page = () => {
       const params = {};
       params.page = entryPage;
 
-      const res = await axios.get(`http://localhost:8080/admin/events/detail/entry/${id}`, {
+      const res = await axios.get(`http://localhost:7000/admin/events/detail/entry/${id}`, {
         withCredentials: true,
       });
 

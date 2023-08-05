@@ -19,7 +19,7 @@ const Page = () => {
 
   const searchPosts = useCallback(async (params) => {
     try {
-      const res = await axios.get("http://localhost:8080/admin/posts/list", {
+      const res = await axios.get("http://localhost:7000/admin/posts/list", {
         withCredentials: true,
         params,
       });
