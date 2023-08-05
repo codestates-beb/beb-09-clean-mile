@@ -15,66 +15,50 @@ import { EventsTable } from "src/components/events/events-table";
 import { useCallback, useEffect, useState } from "react";
 import { SearchBar } from "src/components/search-bar";
 import { useRouter } from "next/router";
+import axios from "axios";
 
-const data = [
-  {
-    id: "2569ce0d517a7f06d3ea1f24",
-    title: "세기말 플로깅",
-    type: "FirstComeFirstServe",
-    location: "경기도 부천시",
-    organization: "부천시청",
-    status: "Progressing",
-    createdAt: "27/03/2019",
-  },
-  {
-    id: "ed2b900870ceba72d203ec15",
-    createdAt: "31/03/2019",
-    title: "비치 코밍 페스티벌",
-    type: "RandomDraw",
-    location: "강원도 속초시",
-    organization: "속초시청",
-    status: "Finished",
-  },
-  {
-    id: "a033e38768c82fca90df3db7",
-    createdAt: "03/04/2019",
-    title: "서울 시민 플로깅 대회",
-    type: "FirstComeFirstServe",
-    location: "서울특별시",
-    organization: "서울시청",
-    status: "Created",
-  },
-  {
-    id: "1efecb2bf6a51def9869ab0f",
-    createdAt: "04/04/2019",
-    title: "코드스테이츠 플로깅 해커톤",
-    type: "RandomDraw",
-    location: "서울특별시",
-    organization: "코드스테이츠",
-    status: "Recruiting",
-  },
-  {
-    id: "1ed68149f65fbc6089b5fd07",
-    createdAt: "04/04/2019",
-    title: "깃허브 개발자 밋업 with 플로깅",
-    type: "FirstComeFirstServe",
-    location: "샌프란시스코",
-    organization: "깃허브",
-    status: "Progressing",
-  },
-];
 const filters = ["all", "title", "content", "organization"];
 const statuses = ["all", "created", "recruiting", "progressing", "finished", "canceled"];
 
 const Page = () => {
   const [page, setPage] = useState(1);
-  const [pageCount, setPageCount] = useState(5);
-  const [events, setEvents] = useState(data);
+  const [pageCount, setPageCount] = useState(1);
+  const [events, setEvents] = useState([]);
   const [status, setStatus] = useState(statuses[0]);
   const [filter, setFilter] = useState(filters[0]);
   const [searchTerm, setSearchTerm] = useState("");
 
   const router = useRouter();
+
+  const searchEvents = useCallback(async (params) => {
+    try {
+      const res = await axios.get("http://localhost:8080/admin/events/list", {
+        withCredentials: true,
+        params,
+      });
+
+      if (!res || res.status !== 200) {
+        throw new Error("Invalid response");
+      }
+
+      const data = res.data;
+
+      let eventData = [];
+      let pagination = {};
+
+      if (data && data.data) {
+        eventData = data.data.data ? data.data.data : [];
+        pagination = data.data.pagination ? data.data.pagination : {};
+      }
+
+      return {
+        events: eventData,
+        pagination: pagination,
+      };
+    } catch (err) {
+      throw err;
+    }
+  }, []);
 
   const handlePageChange = useCallback((event, value) => {
     setPage(value);
@@ -93,21 +77,66 @@ const Page = () => {
   }, []);
 
   const handleSearchTermSubmit = useCallback(
-    (event) => {
+    async (event) => {
       event.preventDefault();
 
-      if (!searchTerm) return;
+      const params = {};
 
-      console.log(filter, searchTerm);
+      if (status !== "all") {
+        params.status = status;
+      }
+
+      switch (filter) {
+        case "title":
+          params.title = searchTerm;
+          break;
+        case "content":
+          params.content = searchTerm;
+          break;
+        case "organization":
+          params.organization = searchTerm;
+          break;
+        default:
+          break;
+      }
+
+      try {
+        const res = await searchEvents(params);
+        setEvents(res.events);
+        setPageCount(res.pagination.totalPages);
+        setPage(res.pagination.currentPage);
+      } catch (err) {
+        console.log(err);
+        setEvents([]);
+        setPageCount(1);
+        setPage(1);
+      }
     },
     [filter, searchTerm]
   );
 
   useEffect(() => {
-    const filteredEvents =
-      status === "all" ? data : data.filter((e) => e.status.toLowerCase() === status);
-    setEvents(filteredEvents);
-  }, [status]);
+    const params = {};
+
+    if (status !== "all") {
+      params.status = status;
+    }
+
+    params.page = page;
+
+    searchEvents(params)
+      .then((res) => {
+        setEvents(res.events);
+        setPageCount(res.pagination.totalPages);
+        setPage(res.pagination.currentPage);
+      })
+      .catch((err) => {
+        console.log(err);
+        setEvents([]);
+        setPageCount(1);
+        setPage(1);
+      });
+  }, [status, page]);
 
   return (
     <>
