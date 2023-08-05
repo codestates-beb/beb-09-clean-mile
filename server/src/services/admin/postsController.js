@@ -1,5 +1,6 @@
 const PostModel = require('../../models/Posts');
 const UserModel = require('../../models/Users');
+const CommentModel = require('../../models/Comments');
 const calcPagination = require('../../utils/calcPagination');
 const { escapeRegexChars } = require('../../utils/common');
 
@@ -77,7 +78,7 @@ const getPosts = async (category, page, title, content, writer, limit) => {
 const getPost = async (post_id) => {
   try {
     // 게시글 조회
-    const post = await PostModel.findById(post_id).select('-__v');
+    const post = await PostModel.findById(post_id);
 
     // 게시글이 없는 경우
     if (!post) {
@@ -85,6 +86,34 @@ const getPost = async (post_id) => {
     }
 
     return { success: true, data: post };
+  } catch (err) {
+    console.error('Error:', err);
+    throw Error(err);
+  }
+};
+
+const getPostWithComments = async (post_id) => {
+  try {
+    // 게시글 조회
+    const post = await PostModel.findById(post_id)
+      .populate('user_id', ['nickname'])
+      .select('-__v -view.viewers');
+
+    // 게시글이 없는 경우
+    if (!post) {
+      return { success: false, message: '게시글 조회에 실패했습니다.' };
+    }
+
+    // 댓글 조회
+    const comments = await CommentModel.find({ post_id: post_id })
+      .populate('user_id', ['nickname'])
+      .select('-__v -post_id -likes.likers');
+
+    if (!comments) {
+      return { success: false, message: '댓글 조회에 실패했습니다.' };
+    }
+
+    return { success: true, data: { post, comments } };
   } catch (err) {
     console.error('Error:', err);
     throw Error(err);
@@ -111,4 +140,4 @@ const deletePost = async (post_id) => {
   }
 };
 
-module.exports = { getPosts, getPost, deletePost };
+module.exports = { getPosts, getPost, deletePost, getPostWithComments };
