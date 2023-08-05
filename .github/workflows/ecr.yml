@@ -55,7 +55,7 @@ jobs:
           CLIENT_REPOSITORY: ${{ secrets.CLIENT_REPOSITORY }}
           CLIENT_IMAGE_TAG: ${{ secrets.CLIENT_IMAGE_TAG }}
         run: |
-          docker build -t $ECR_REGISTRY/$CLIENT_REPOSITORY:$CLIENT_IMAGE_TAG ./client -f ./client/Dockerfile.prod
+          docker build -t $ECR_REGISTRY/$CLIENT_REPOSITORY:$CLIENT_IMAGE_TAG ./client -f ./client/Dockerfile
           docker push $ECR_REGISTRY/$CLIENT_REPOSITORY:$CLIENT_IMAGE_TAG
 
       - name: Build, tag, and push admin image to Amazon ECR
