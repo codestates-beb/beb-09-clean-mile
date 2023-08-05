@@ -7,18 +7,9 @@ import {
   TextField,
   Unstable_Grid2 as Grid,
 } from "@mui/material";
+import axios from "axios";
 
-export const CommentDetails = () => {
-  const [values, setValues] = useState({
-    id: "1tACdzxeYHM5kNWLfLmKQjeTM",
-    post_id: "1tACdzxeYHM5kNWLfLmKQjeTM",
-    category: "한식",
-    title: "엄마가 준비한 식사",
-    likes: 50000000000000,
-    content: "엄마가 준비한 식사입니다. 맛있게 드세요.",
-    created_at: "2021-10-01 00:00:00",
-  });
-
+export const CommentDetails = ({ comment = {} }) => {
   return (
     <Card sx={{ p: 3 }}>
       <CardHeader title="Detail" />
@@ -30,9 +21,13 @@ export const CommentDetails = () => {
                 fullWidth
                 label="ID"
                 name="id"
-                value={values.id}
+                value={comment._id}
+                variant="filled"
                 InputProps={{
                   readOnly: true,
+                }}
+                InputLabelProps={{
+                  shrink: true,
                 }}
               />
             </Grid>
@@ -41,9 +36,13 @@ export const CommentDetails = () => {
                 fullWidth
                 label="Post ID"
                 name="post_id"
-                value={values.post_id}
+                value={comment._id}
+                variant="filled"
                 InputProps={{
                   readOnly: true,
+                }}
+                InputLabelProps={{
+                  shrink: true,
                 }}
               />
             </Grid>
@@ -52,9 +51,13 @@ export const CommentDetails = () => {
                 fullWidth
                 label="Post Title"
                 name="post title"
-                value={values.title}
+                value={comment.post_id.title}
+                variant="filled"
                 InputProps={{
                   readOnly: true,
+                }}
+                InputLabelProps={{
+                  shrink: true,
                 }}
               />
             </Grid>
@@ -63,9 +66,13 @@ export const CommentDetails = () => {
                 fullWidth
                 label="Post Category"
                 name="post category"
-                value={values.category}
+                value={comment.post_id.category}
+                variant="filled"
                 InputProps={{
                   readOnly: true,
+                }}
+                InputLabelProps={{
+                  shrink: true,
                 }}
               />
             </Grid>
@@ -74,9 +81,13 @@ export const CommentDetails = () => {
                 fullWidth
                 label="Likes"
                 name="likes"
-                value={values.likes}
+                value={comment.likes.count}
+                variant="filled"
                 InputProps={{
                   readOnly: true,
+                }}
+                InputLabelProps={{
+                  shrink: true,
                 }}
               />
             </Grid>
@@ -85,11 +96,18 @@ export const CommentDetails = () => {
                 fullWidth
                 label="Created At"
                 name="created_at"
-                value={values.created_at}
+                value={`${comment.updated_at.split("T")[0]} ${comment.updated_at.substring(
+                  11,
+                  19
+                )}`}
+                variant="filled"
                 InputProps={{
                   readOnly: true,
                 }}
-              ></TextField>
+                InputLabelProps={{
+                  shrink: true,
+                }}
+              />
             </Grid>
             <Grid xs={12} md={12}>
               <TextField
@@ -98,11 +116,15 @@ export const CommentDetails = () => {
                 minRows={4}
                 label="Content"
                 name="content"
-                value={values.content}
+                value={comment.content}
+                variant="filled"
                 InputProps={{
                   readOnly: true,
                 }}
-              ></TextField>
+                InputLabelProps={{
+                  shrink: true,
+                }}
+              />
             </Grid>
           </Grid>
         </Box>

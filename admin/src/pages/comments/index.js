@@ -73,50 +73,50 @@ const Page = () => {
     setSearchTerm(event.target.value);
   }, []);
 
-  // const handleSearchTermSubmit = useCallback(
-  //   async (event) => {
-  //     event.preventDefault();
+  const handleSearchTermSubmit = useCallback(
+    async (event) => {
+      event.preventDefault();
 
-  //     if (!searchTerm) return;
+      if (!searchTerm) return;
 
-  //     const params = {};
+      const params = {};
 
-  //     if (category !== "all") {
-  //       params.category = category;
-  //     }
+      if (category !== "all") {
+        params.category = category;
+      }
 
-  //     if (filter !== "all") {
-  //       switch (filter) {
-  //         case "title":
-  //           params.title = searchTerm;
-  //           break;
-  //         case "content":
-  //           params.content = searchTerm;
-  //           break;
-  //         case "writer":
-  //           params.writer = searchTerm;
-  //           break;
-  //         default:
-  //           throw new Error("Invalid filter");
-  //       }
-  //     }
+      if (filter !== "all") {
+        switch (filter) {
+          case "title":
+            params.title = searchTerm;
+            break;
+          case "content":
+            params.content = searchTerm;
+            break;
+          case "writer":
+            params.writer = searchTerm;
+            break;
+          default:
+            throw new Error("Invalid filter");
+        }
+      }
 
-  //     await searchComments(params);
-  //   },
-  //   [filter, searchTerm]
-  // );
+      await searchComments(params);
+    },
+    [filter, searchTerm]
+  );
 
-  // useEffect(() => {
-  //   const params = {};
+  useEffect(() => {
+    const params = {};
 
-  //   if (category !== "all") {
-  //     params.category = category;
-  //   }
+    if (category !== "all") {
+      params.category = category;
+    }
 
-  //   params.page = page;
+    params.page = page;
 
-  //   searchComments(params);
-  // }, [category, page]);
+    searchComments(params);
+  }, [category, page]);
 
   useEffect(() => {
     const params = {};
@@ -167,7 +167,6 @@ const Page = () => {
                 ))}
               </Select>
             </Stack>
-            {console.log("items", comments)}
             <CommentsTable
               items={comments}
               page={page}
@@ -180,7 +179,7 @@ const Page = () => {
               handleFilterChange={handleFilterChange}
               searchTerm={searchTerm}
               handleSearchTermChange={handleSearchTermChange}
-              // handleSearchTermSubmit={handleSearchTermSubmit}
+              handleSearchTermSubmit={handleSearchTermSubmit}
               placeholder={"Search Post"}
             />
           </Stack>

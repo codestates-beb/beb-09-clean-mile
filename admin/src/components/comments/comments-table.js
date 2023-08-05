@@ -19,10 +19,6 @@ import { useRouter } from "next/router";
 export const CommentsTable = ({ items = [], pageCount, page, handlePageChange }) => {
   const router = useRouter();
 
-  const handleCommentSelected = (commentId) => {
-    router.push(`/comments/${commentId}`);
-  };
-
   return (
     <Stack spacing={3}>
       <Card>
@@ -40,7 +36,6 @@ export const CommentsTable = ({ items = [], pageCount, page, handlePageChange })
                 </TableRow>
               </TableHead>
               <TableBody>
-                {console.log("comment", items)}
                 {items.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={6} align="center">
@@ -56,7 +51,7 @@ export const CommentsTable = ({ items = [], pageCount, page, handlePageChange })
                       <TableRow
                         hover
                         key={i}
-                        onClick={() => handleCommentSelected(comment._id)}
+                        onClick={() => router.push(`/comments/${comment._id}`)}
                         sx={{
                           "&:hover": {
                             cursor: "pointer",
