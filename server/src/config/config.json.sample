@@ -23,5 +23,6 @@
   "SENDER_PRIVATE_KEY":
   "PINATA_API": 
   "PINATA_SECRET":
+  "TEST_MONGO_URL": 
 }
   

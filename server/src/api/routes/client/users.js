@@ -240,7 +240,10 @@ module.exports = (app) => {
       usersController.setTokenCookie(res, accessToken, refreshToken);
 
       const dnftData = await dnftController.userDnftData(user_id);
-      if (!dnftData.success) return res.status(500).json({ success: false });
+      if (!dnftData.success)
+        return res
+          .status(500)
+          .json({ success: false, message: 'DNFT 데이터 조회 실패' });
 
       // 필요 없는 데이터 제거
       const userData = userResult.data.toObject();

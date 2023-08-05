@@ -51,6 +51,33 @@ module.exports = (app) => {
     }
   });
 
+  route.get('/detail/:comment_id', isAdminAuth, async (req, res) => {
+    try {
+      const { comment_id } = req.params;
+
+      // 댓글 조회
+      const comment = await adminCommentController.getComment(comment_id);
+      if (!comment.success) {
+        return res.status(400).json({
+          success: false,
+          message: '존재하지 않는 댓글입니다.',
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: '댓글 조회 성공',
+        data: comment.data,
+      });
+    } catch (err) {
+      console.error('Error:', err);
+      return res.status(500).json({
+        success: false,
+        message: '서버 오류',
+      });
+    }
+  });
+
   route.delete('/delete/:comment_id', isAdminAuth, async (req, res) => {
     try {
       const { comment_id } = req.params;
