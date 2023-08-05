@@ -1,62 +1,3 @@
-module "ecr" {
-  source = "./modules/ecr"
-
-  for_each = var.ecr_repos
-
-  name                 = each.value.name
-  environment          = each.value.environment
-  image_tag_mutability = each.value.image_tag_mutability
-  scan_on_push         = each.value.scan_on_push
-  common_tags          = var.common_tags
-}
-
-output "ecr_repo_names" {
-  value = {
-    for k, v in module.ecr : k => v.ecr_repo_name
-  }
-}
-
-output "ecr_repo_arns" {
-  value = {
-    for k, v in module.ecr : k => v.ecr_repo_arn
-  }
-}
-
-output "ecr_repo_registry_ids" {
-  value = {
-    for k, v in module.ecr : k => v.ecr_repo_registry_id
-  }
-}
-
-output "ecr_repo_repository_url" {
-  value = {
-    for k, v in module.ecr : k => v.ecr_repo_repository_url
-  }
-}
-
-resource "aws_s3_bucket" "s3_bucket" {
-  bucket        = var.s3_bucket_name
-  force_destroy = true
-  tags          = var.common_tags
-}
-
-resource "aws_s3_bucket_public_access_block" "s3_bucket_public_access_block" {
-  bucket = aws_s3_bucket.s3_bucket.id
-
-  block_public_acls       = true
-  block_public_policy     = true
-  ignore_public_acls      = true
-  restrict_public_buckets = true
-}
-
-output "s3_bucket_domain_name" {
-  value = aws_s3_bucket.s3_bucket.bucket_domain_name
-}
-
-output "s3_bucket_regional_domain_name" {
-  value = aws_s3_bucket.s3_bucket.bucket_regional_domain_name
-}
-
 resource "aws_cloudfront_origin_access_identity" "s3_bucket_origin_access_identity" {
   comment = "Access identity for S3 bucket"
 }
@@ -130,22 +71,4 @@ data "aws_iam_policy_document" "allow_cloudfront_access_to_s3_bucket" {
 
 output "cloudfront_distribution_domain_name" {
   value = aws_cloudfront_distribution.cloudfront_distribution.domain_name
-}
-
-resource "tls_private_key" "private_key" {
-  algorithm = "RSA"
-  rsa_bits  = 4096
-}
-
-resource "local_file" "private_key_pem" {
-  content         = tls_private_key.private_key.private_key_openssh
-  filename        = "private_key.pem"
-  file_permission = "0400"
-}
-
-resource "aws_key_pair" "key_pair" {
-  key_name   = var.key_pair_name
-  public_key = tls_private_key.private_key.public_key_openssh
-
-  tags = var.common_tags
 }
