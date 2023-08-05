@@ -2,11 +2,7 @@ name: Dockerize and Push to ECR
 
 on:
   push:
-    branches:
-      - dev
-  pull_request:
-    branches:
-      - dev
+    branches: ['dev', 'feat/130']
 
 jobs:
   build:
@@ -48,16 +44,6 @@ jobs:
           docker build -t $ECR_REGISTRY/$DAEMON_REPOSITORY:$DAEMON_IMAGE_TAG ./daemon -f ./daemon/Dockerfile
           docker push $ECR_REGISTRY/$DAEMON_REPOSITORY:$DAEMON_IMAGE_TAG
 
-      - name: Build, tag, and push client image to Amazon ECR
-        id: build-client-image
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          CLIENT_REPOSITORY: ${{ secrets.CLIENT_REPOSITORY }}
-          CLIENT_IMAGE_TAG: ${{ secrets.CLIENT_IMAGE_TAG }}
-        run: |
-          docker build -t $ECR_REGISTRY/$CLIENT_REPOSITORY:$CLIENT_IMAGE_TAG ./client -f ./client/Dockerfile
-          docker push $ECR_REGISTRY/$CLIENT_REPOSITORY:$CLIENT_IMAGE_TAG
-
       - name: Build, tag, and push admin image to Amazon ECR
         id: build-admin-image
         env:
@@ -67,3 +53,13 @@ jobs:
         run: |
           docker build -t $ECR_REGISTRY/$ADMIN_REPOSITORY:$ADMIN_IMAGE_TAG ./admin -f ./admin/Dockerfile
           docker push $ECR_REGISTRY/$ADMIN_REPOSITORY:$ADMIN_IMAGE_TAG
+
+      - name: Build, tag, and push client image to Amazon ECR
+        id: build-client-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          CLIENT_REPOSITORY: ${{ secrets.CLIENT_REPOSITORY }}
+          CLIENT_IMAGE_TAG: ${{ secrets.CLIENT_IMAGE_TAG }}
+        run: |
+          docker build -t $ECR_REGISTRY/$CLIENT_REPOSITORY:$CLIENT_IMAGE_TAG ./client -f ./client/Dockerfile
+          docker push $ECR_REGISTRY/$CLIENT_REPOSITORY:$CLIENT_IMAGE_TAG
