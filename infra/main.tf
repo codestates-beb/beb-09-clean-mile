@@ -33,3 +33,12 @@ output "ecr_repo_repository_url" {
     for k, v in module.ecr : k => v.ecr_repo_repository_url
   }
 }
+
+resource "aws_s3_bucket" "s3_bucket" {
+  bucket = var.s3_bucket_name
+  tags   = var.common_tags
+}
+
+output "s3_bucket_domain_name" {
+  value = aws_s3_bucket.s3_bucket.bucket_domain_name
+}

@@ -41,3 +41,9 @@ variable "ecr_repos" {
     }
   }
 }
+
+variable "s3_bucket_name" {
+  type        = string
+  description = "Name of the S3 bucket to create"
+  default     = "clean-mile"
+}
