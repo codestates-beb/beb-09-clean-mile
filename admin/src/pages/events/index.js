@@ -32,7 +32,7 @@ const Page = () => {
 
   const searchEvents = useCallback(async (params) => {
     try {
-      const res = await axios.get("http://localhost:8080/admin/events/list", {
+      const res = await axios.get("http://localhost:7000/admin/events/list", {
         withCredentials: true,
         params,
       });

@@ -19,8 +19,6 @@ const GeneralDetail = ({ postDetail, comments }: { postDetail: PostDetail, comme
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userInfo, setUserInfo] = useState<User | null>(null);
 
-  console.log(postDetail)
-
   const settings = useMemo(() => ({
     dots: true,
     infinite: false,

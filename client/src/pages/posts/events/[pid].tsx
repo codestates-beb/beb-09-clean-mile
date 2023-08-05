@@ -39,7 +39,6 @@ export const getServerSideProps = async (context: GetServerSidePropsContext) => 
 
   // username과 다른 쿼리 파라미터를 사용하여 필요한 데이터를 가져옵니다.
   const res = await ApiCaller.get(URL, dataBody, isJSON, headers, isCookie);
-  console.log(res.data)
 
   let eventDetail;
   let comments;

@@ -86,8 +86,6 @@ const Create = () => {
       formData.append('event_id', selectEvent);
     }
 
-    console.log(selectEvent)
-
     images.forEach((image) => {
       formData.append('image', image);
     });

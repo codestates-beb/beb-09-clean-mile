@@ -25,6 +25,7 @@
     "@mui/x-date-pickers": "5.0.19",
     "apexcharts": "3.37.0",
     "axios": "^1.4.0",
+    "cookie": "^0.5.0",
     "date-fns": "2.29.3",
     "date-fns-tz": "^2.0.0",
     "formik": "2.2.9",

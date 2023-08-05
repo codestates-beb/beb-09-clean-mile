@@ -19,7 +19,7 @@ const Page = () => {
 
   const searchUsers = useCallback(async (params) => {
     try {
-      const res = await axios.get("http://localhost:8080/admin/users/list", {
+      const res = await axios.get("http://localhost:7000/admin/users/list", {
         withCredentials: true,
         params,
       });
@@ -31,8 +31,6 @@ const Page = () => {
       const data = res.data;
 
       if (data && data.data) {
-        console.log(data);
-
         const userData = data.data.users;
         const pagination = data.data.pagination;
 
