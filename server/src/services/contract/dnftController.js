@@ -33,14 +33,11 @@ const setBadge = async () => {
 const createDNFT = async (email, userType) => {
   try { 
     const user = await UserModel.findOne({ email : email });
+    if(!user) return ({success: false, message: "데이터 요청 실패"});
     let description;
-    let tokenId;
-    const dnftLen = await DnftModel.find();
-    tokenId = dnftLen.length;
     if (userType == 0) {
       // 일반 사용자
-      console.log(transaction);
-      description = "";
+      description = "---Events---";
     } else if (userType == 1) {
       // 관리자
       description = "Administrator";
@@ -50,18 +47,22 @@ const createDNFT = async (email, userType) => {
     const transaction = await dnftContract.connect(signer).mintDNFT(user.wallet.address, user.name, description, userType);
     await transaction.wait();
 
+    const eventFilter = dnftContract.filters.Transfer(null, user.wallet.address);
+    const events = await dnftContract.queryFilter(eventFilter);
+    const tokenId = Number(events[0].args.tokenId);
+
     const tokenUri = await dnftContract.connect(signer).tokenURI(tokenId);
     const dnftLevel = await dnftContract.connect(signer).dnftLevel(tokenId);
-    const dnftId = await DnftModel.countDocuments();
 
     const dnftData = new DnftModel({
-      token_id: dnftId,
+      token_id: tokenId,
       user_id: user._id,
       name: user.nickname,
       description: description,
       token_uri: tokenUri,
       dnft_level: dnftLevel,
     });
+    if (!dnftData) return ({success: false, message: "데이터 요청 실패"});
     const result = await dnftData.save();
     if (!result) return { success: false };
     else return { success: true };
@@ -82,10 +83,12 @@ const updateName = async (email, newName) => {
     //업데이트는 token owner만 가능하다
     
     const user = await UserModel.findOne({email: email});
-    const ownerPK = user.wallet.private_key;
-    let owner =  new ethers.Wallet(ownerPK, provider);
+    if(!user) return ({success: false, message: "데이터 요청 실패"});
+    // const ownerPK = user.wallet.private_key;
+    // let owner =  new ethers.Wallet(ownerPK, provider);
     const dnft = await DnftModel.findOne({user_id: user._id});
-    const transaction = await dnftContract.connect(owner).updateName(dnft.token_id, newName);
+    if(!dnft) return ({success: false, message: "데이터 요청 실패"});
+    const transaction = await dnftContract.connect(signer).updateName(dnft.token_id, newName);
     await transaction.wait();
     if (transaction){
       dnft.name = newName;
@@ -108,15 +111,18 @@ const updateName = async (email, newName) => {
  * @param {string} newDescription
  * @returns 성공여부
  */
-const updateDescription = async (email,newDescription) => {
+const updateDescription = async (userId,newEvent) => {
   try{
-    //업데이트는 token owner만 가능하다
-    const user = await UserModel.findOne({email: email});
-    const ownerPK = user.wallet.private_key;
-    let owner =  new ethers.Wallet(ownerPK, provider);
-    const dnft = await DnftModel.findOne({user_id: user._id});
-    const transaction = await dnftContract.connect(owner).updateName(dnft.token_id, newDescription);
-    await transaction.wait();
+    // const ownerPK = user.wallet.private_key;
+    // let owner =  new ethers.Wallet(ownerPK, provider);
+    const dnft = await DnftModel.findOne({user_id: userId});
+    if(!dnft) return ({success: false, message: "데이터 요청 실패"});
+
+    const currentDescription = await dnftContract.connect(signer).dnftDescription(dnft.token_id);
+
+    const newDescription = `${currentDescription}\n${newEvent}`;
+
+    const transaction = await dnftContract.connect(signer).updateDescription(dnft.token_id, newDescription);
     if (transaction){
       dnft.description = newDescription;
       const result = await dnft.save();
@@ -132,22 +138,28 @@ const updateDescription = async (email,newDescription) => {
 }
 
 /**
- * DNFT Data 요청(굳이 필요한가?)
+ * DNFT Data 요청
  * @param {string} email
  * @returns 사용자 DNFT 데이터
  */
-const userDnftData = async (email) => {
+const userDnftData = async (userId) => {
   try{
-    const user = await UserModel.findOne({email: email });
-    const dnft = await DnftModel.findOne({user_id: user._id});
+    const user = await UserModel.findById(userId);
+    if(!user) return ({success: false, message: "데이터 요청 실패"});
+    const dnft = await DnftModel.findOne({user_id: userId});
+    if(!dnft) return ({success: false, message: "데이터 요청 실패"});
     
-    return {
-      owner: user.nickname,
-      tokenId: dnft.token_id,
-      name: dnft.name,
-      imageUrl: dnft.token_uri,
-      description: dnft.description
-    }
+    return ({
+      success: true,
+      data:
+      {
+        owner: user.nickname,
+        token_id: dnft.token_id,
+        name: dnft.name,
+        image_url: dnft.token_uri,
+        description: dnft.description
+      }
+    })
   }catch(err){
     console.error("Error:", err);
     throw new Error(err);
@@ -162,13 +174,15 @@ const userDnftData = async (email) => {
 const upgradeDnft = async (email) => {
   try{
     const user = await UserModel.findOne({ email: email });
-    const ownerPK = user.wallet.private_key;
-    let owner = new ethers.Wallet(ownerPK, provider);
+    if(!user) return ({success: false, message: "데이터 요청 실패"});
+    // const ownerPK = user.wallet.private_key;
+    // let owner = new ethers.Wallet(ownerPK, provider);
     const dnft = await DnftModel.findOne({user_id: user._id});
+    if(!dnft) return ({success: false, message: "데이터 요청 실패"});
     const tokenId = dnft.token_id;
-    const gasPrice = ethers.utils.parseUnits('50', 'gwei');
-    const gasLimit = 1000000;
-    const transaction = await dnftContract.connect(owner).upgradeDNFT(tokenId,{ gasPrice,gasLimit});
+    const gasPrice = ethers.utils.parseUnits('10', 'gwei');
+    const gasLimit =  500000;
+    const transaction = await dnftContract.connect(signer).upgradeDNFT(tokenId,{ gasPrice,gasLimit});
     await transaction.wait();
 
     if (transaction) {

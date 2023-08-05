@@ -1,0 +1,5 @@
+{
+    "remappings": [ "@openzeppelin/contracts/token/ERC1155/=node_modules/@openzeppelin/contracts/token/ERC1155/" ,
+    "@openzeppelin/contracts/access/Ownable.sol=node_modules/@openzeppelin/contracts/access/Ownable.sol",
+    "@openzeppelin/contracts/utils/Counters.sol=node_modules/@openzeppelin/contracts/utils/Counters.sol"]
+}

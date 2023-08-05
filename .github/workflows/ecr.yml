@@ -1,0 +1,66 @@
+name: Dockerize and Push to ECR
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build, tag, and push server image to Amazon ECR
+        id: build-server-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          SERVER_REPOSITORY: ${{ secrets.SERVER_REPOSITORY }}
+          SERVER_IMAGE_TAG: ${{ secrets.SERVER_IMAGE_TAG }}
+        run: |
+          docker build -t $ECR_REGISTRY/$SERVER_REPOSITORY:$SERVER_IMAGE_TAG ./server -f ./server/Dockerfile.prod
+          docker push $ECR_REGISTRY/$SERVER_REPOSITORY:$SERVER_IMAGE_TAG
+
+      - name: Build, tag, and push daemon image to Amazon ECR
+        id: build-daemon-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          DAEMON_REPOSITORY: ${{ secrets.DAEMON_REPOSITORY }}
+          DAEMON_IMAGE_TAG: ${{ secrets.DAEMON_IMAGE_TAG }}
+        run: |
+          docker build -t $ECR_REGISTRY/$DAEMON_REPOSITORY:$DAEMON_IMAGE_TAG ./daemon -f ./daemon/Dockerfile
+          docker push $ECR_REGISTRY/$DAEMON_REPOSITORY:$DAEMON_IMAGE_TAG
+
+      - name: Build, tag, and push admin image to Amazon ECR
+        id: build-admin-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ADMIN_REPOSITORY: ${{ secrets.ADMIN_REPOSITORY }}
+          ADMIN_IMAGE_TAG: ${{ secrets.ADMIN_IMAGE_TAG }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ADMIN_REPOSITORY:$ADMIN_IMAGE_TAG ./admin -f ./admin/Dockerfile
+          docker push $ECR_REGISTRY/$ADMIN_REPOSITORY:$ADMIN_IMAGE_TAG
+
+      - name: Build, tag, and push client image to Amazon ECR
+        id: build-client-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          CLIENT_REPOSITORY: ${{ secrets.CLIENT_REPOSITORY }}
+          CLIENT_IMAGE_TAG: ${{ secrets.CLIENT_IMAGE_TAG }}
+        run: |
+          docker build -t $ECR_REGISTRY/$CLIENT_REPOSITORY:$CLIENT_IMAGE_TAG ./client -f ./client/Dockerfile
+          docker push $ECR_REGISTRY/$CLIENT_REPOSITORY:$CLIENT_IMAGE_TAG

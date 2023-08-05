@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { getKorDate } = require('../utils/common');
 
 /**
  * Posts Collection Schema
@@ -8,10 +9,13 @@ const postSchema = new mongoose.Schema({
     // users collection의 _id를 참조
     type: mongoose.Schema.Types.ObjectId,
     ref: 'user',
+    required: true
   },
   category: {
     // 게시글 카테고리
     type: String,
+    enum: ['notice', 'general', 'review'],
+    required: true
   },
   event_id: {
     // events collection의 _id를 참조
@@ -21,6 +25,7 @@ const postSchema = new mongoose.Schema({
   title: {
     // 게시글 제목
     type: String,
+    required: true
   },
   content: {
     // 게시글 내용
@@ -51,12 +56,12 @@ const postSchema = new mongoose.Schema({
   created_at: {
     // 게시글 생성일
     type: Date,
-    default: Date.now,
+    default: getKorDate,
   },
   updated_at: {
     // 게시글 수정일
     type: Date,
-    default: Date.now,
+    default: getKorDate,
   },
 });
 

@@ -1,4 +1,4 @@
-const jwtController = require('../../services/jwtController');
+const jwtUtil = require('../../utils/jwtUtil');
 
 /**
  * jwt 인증 미들웨어
@@ -13,7 +13,7 @@ const verifyToken = async (req, res, next) => {
   }
 
   // 토큰 검증
-  const result = jwtController.verify(accessToken);
+  const result = jwtUtil.verify(accessToken);
   if (!result.success) {
     return res.status(401).json({
       success: false,

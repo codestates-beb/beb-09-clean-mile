@@ -29,7 +29,7 @@ interface ICleanMileBadge {
         BadgeType badgeType,
         uint256 amount,
         string memory uri
-    ) external;
+    ) external returns (uint256);
 
     // 뱃지를 전송하는 함수 (한명에게 한개씩)
     function transferBadge(
@@ -55,7 +55,7 @@ interface ICleanMileBadge {
         string _uri
     );
 
-    event TransferBatch(
+    event TransferMultiple(
         address indexed sender,
         address[] recipients,
         uint256 tokenId,

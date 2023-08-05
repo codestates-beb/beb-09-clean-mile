@@ -1,84 +1,65 @@
-import ChartBarIcon from '@heroicons/react/24/solid/ChartBarIcon';
-import CogIcon from '@heroicons/react/24/solid/CogIcon';
-import LockClosedIcon from '@heroicons/react/24/solid/LockClosedIcon';
-import ShoppingBagIcon from '@heroicons/react/24/solid/ShoppingBagIcon';
-import UserIcon from '@heroicons/react/24/solid/UserIcon';
-import UserPlusIcon from '@heroicons/react/24/solid/UserPlusIcon';
-import UsersIcon from '@heroicons/react/24/solid/UsersIcon';
-import XCircleIcon from '@heroicons/react/24/solid/XCircleIcon';
-import { SvgIcon } from '@mui/material';
+import ChartBarIcon from "@heroicons/react/24/solid/ChartBarIcon";
+import TicketIcon from "@heroicons/react/24/solid/TicketIcon";
+import UsersIcon from "@heroicons/react/24/solid/UsersIcon";
+import UserIcon from "@heroicons/react/24/solid/UserIcon";
+import MegaphoneIcon from "@heroicons/react/24/solid/MegaphoneIcon";
+import ChatBubbleBottomCenterIcon from "@heroicons/react/24/solid/ChatBubbleBottomCenterIcon";
+
+import { SvgIcon } from "@mui/material";
 
 export const items = [
   {
-    title: 'Overview',
-    path: '/',
+    title: "Dashboard",
+    path: "/",
     icon: (
       <SvgIcon fontSize="small">
         <ChartBarIcon />
       </SvgIcon>
-    )
+    ),
   },
   {
-    title: 'Customers',
-    path: '/customers',
+    title: "Events",
+    path: "/events",
     icon: (
       <SvgIcon fontSize="small">
-        <UsersIcon />
+        <TicketIcon />
       </SvgIcon>
-    )
+    ),
   },
   {
-    title: 'Companies',
-    path: '/companies',
-    icon: (
-      <SvgIcon fontSize="small">
-        <ShoppingBagIcon />
-      </SvgIcon>
-    )
-  },
-  {
-    title: 'Account',
-    path: '/account',
+    title: "Users",
+    path: "/users",
     icon: (
       <SvgIcon fontSize="small">
         <UserIcon />
       </SvgIcon>
-    )
+    ),
   },
   {
-    title: 'Settings',
-    path: '/settings',
+    title: "Notice",
+    path: "/notice",
     icon: (
       <SvgIcon fontSize="small">
-        <CogIcon />
+        <MegaphoneIcon />
       </SvgIcon>
-    )
+    ),
   },
   {
-    title: 'Login',
-    path: '/auth/login',
+    title: "Community",
+    path: "/community",
     icon: (
       <SvgIcon fontSize="small">
-        <LockClosedIcon />
+        <UsersIcon />
       </SvgIcon>
-    )
+    ),
   },
   {
-    title: 'Register',
-    path: '/auth/register',
+    title: "Comments",
+    path: "/comments",
     icon: (
       <SvgIcon fontSize="small">
-        <UserPlusIcon />
+        <ChatBubbleBottomCenterIcon />
       </SvgIcon>
-    )
+    ),
   },
-  {
-    title: 'Error',
-    path: '/404',
-    icon: (
-      <SvgIcon fontSize="small">
-        <XCircleIcon />
-      </SvgIcon>
-    )
-  }
 ];

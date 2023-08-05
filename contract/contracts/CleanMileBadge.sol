@@ -42,7 +42,7 @@ contract CleanMileBadge is ERC1155, ICleanMileBadge, Ownable {
         BadgeType _badgeType,
         uint256 amount,
         string memory _uri
-    ) external onlyOwner {
+    ) external onlyOwner returns (uint256) {
         if (amount <= 0) revert ZeroAmount();
 
         uint256 tokenId = _tokenIdCounter.current();
@@ -51,6 +51,8 @@ contract CleanMileBadge is ERC1155, ICleanMileBadge, Ownable {
         _mintBadge(account, _badgeType, amount, _uri, tokenId);
 
         emit MintBadge(msg.sender, account, _badgeType, amount, _uri);
+
+        return tokenId;
     }
 
     function _mintBadge(
@@ -105,7 +107,7 @@ contract CleanMileBadge is ERC1155, ICleanMileBadge, Ownable {
 
             _transferBadge(from, to, tokenId, amount);
         }
-        emit TransferBatch(from, recipients, tokenId, amount);
+        emit TransferMultiple(from, recipients, tokenId, amount);
     }
 
     function _transferBadge(

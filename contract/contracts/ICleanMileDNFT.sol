@@ -18,12 +18,20 @@ interface ICleanMileDNFT {
     }
 
     struct DNFTData {
+        uint256 token_id;
         string name;
         string description;
         DNFTLevel level;
     }
 
     event UpgradeDNFT(address indexed sender, uint256 tokenId);
+
+    event MintDNFT(
+        address _to,
+        string _name,
+        string _description,
+        UserType userType
+    );
 
     function dnftName(uint256 _tokenId) external view returns (string memory);
 
@@ -40,7 +48,7 @@ interface ICleanMileDNFT {
         string calldata _name,
         string calldata _description,
         UserType userType
-    ) external;
+    ) external returns (uint256);
 
     function updateName(uint256 _tokenId, string calldata _name) external;
 

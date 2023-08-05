@@ -1,8 +1,14 @@
 import React, { useState, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
+import useTranslation from 'next-translate/useTranslation';
+import Swal from 'sweetalert2';
+import { AxiosError, AxiosResponse } from 'axios';
 import { BsFillImageFill } from 'react-icons/bs';
-import { hero_img } from '../Reference';
+import { User, Pagination, Post, EventList, Dnft, UserBadge } from '../Interfaces';
+import { default_banner } from '../Reference';
+import { ApiCaller } from '../Utils/ApiCaller';
 
 const EXTENSIONS = [
   { type: 'gif' },
@@ -12,15 +18,32 @@ const EXTENSIONS = [
   { type: 'mp4' },
 ];
 
-const MyPage = () => {
+const MyPage = ({
+  userInfo,
+  eventPagination,
+  postPagination,
+  userDnft,
+  userBadges
+}: {
+  userInfo: User,
+  eventPagination: Pagination,
+  postPagination: Pagination,
+  userDnft: Dnft,
+  userBadges: UserBadge[]
+}) => {
   const router = useRouter()
+  const { t } = useTranslation('common');
+
   const [fileUrl, setFileUrl] = useState<string | null>(null);
-  const [fileType, setFileType] = useState<string | null>(null);
   const [uploadFile, setUploadFile] = useState<File | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
   const [isEditing, setIsEditing] = useState(false);
-  const [nickname, setNickname] = useState('admin');
+  const [nickname, setNickname] = useState(userInfo?.nickname);
   const [errorMessage, setErrorMessage] = useState('');
+  const [postCurrentPage, setPostCurrentPage] = useState(1);
+  const [eventCurrentPage, setEventCurrentPage] = useState(1);
+  const [postData, setPostData] = useState<Post[]>([]);
+  const [eventsData, setEventsData] = useState<EventList[] | null>(null);
+  const [isQrVisible, setIsQrVisible] = useState(false);
 
   /**
    * 파일 업로드 이벤트를 처리
@@ -39,7 +62,6 @@ const MyPage = () => {
           if (e.type === TYPE) {
             const objectURL = URL.createObjectURL(FILE);
             setFileUrl(objectURL);
-            setFileType(TYPE);
             setUploadFile(FILE);
           }
         });
@@ -47,45 +69,59 @@ const MyPage = () => {
     }
   }
 
-  const dummyNotice = [
-    { id: 1, title: 'general1', content: 'general111', writer: 'admin', date: '2023-07-26', views: 0 },
-    { id: 2, title: 'general2', content: 'general222', writer: 'admin', date: '2023-07-25', views: 0 },
-    { id: 3, title: 'general3', content: 'general333', writer: 'admin', date: '2023-07-24', views: 0 },
-    { id: 4, title: 'general4', content: 'general444', writer: 'admin', date: '2023-07-23', views: 0 },
-    { id: 5, title: 'general5', content: 'general555', writer: 'admin', date: '2023-07-22', views: 0 },
-    { id: 6, title: 'general6', content: 'general666', writer: 'admin', date: '2023-07-21', views: 0 },
-    { id: 7, title: 'general7', content: 'general777', writer: 'admin', date: '2023-07-20', views: 0 },
-    { id: 8, title: 'general8', content: 'general888', writer: 'admin', date: '2023-07-19', views: 0 },
-    { id: 9, title: 'general9', content: 'general999', writer: 'admin', date: '2023-07-18', views: 0 },
-    { id: 10, title: 'general10', content: 'general1010', writer: 'admin', date: '2023-07-17', views: 0 },
-    { id: 11, title: 'general1', content: 'general111', writer: 'admin', date: '2023-07-16', views: 0 },
-    { id: 12, title: 'general2', content: 'general222', writer: 'admin', date: '2023-07-15', views: 0 },
-    { id: 13, title: 'general3', content: 'general333', writer: 'admin', date: '2023-07-14', views: 0 },
-    { id: 14, title: 'general4', content: 'general444', writer: 'admin', date: '2023-07-13', views: 0 },
-    { id: 15, title: 'general5', content: 'general555', writer: 'admin', date: '2023-07-12', views: 0 },
-    { id: 16, title: 'general6', content: 'general666', writer: 'admin', date: '2023-07-11', views: 0 },
-    { id: 17, title: 'general7', content: 'general777', writer: 'admin', date: '2023-07-10', views: 0 },
-    { id: 18, title: 'general8', content: 'general888', writer: 'admin', date: '2023-07-09', views: 0 },
-    { id: 19, title: 'general9', content: 'general999', writer: 'admin', date: '2023-07-08', views: 0 },
-    { id: 20, title: 'general10', content: 'general1010', writer: 'admin', date: '2023-07-07', views: 0 },
-  ]
+  const postTotalPages = postPagination?.totalPages;
+  const eventTotalPages = eventPagination?.totalPages;
 
-  const postsPerPage = 5;
-  const totalPages = Math.ceil(dummyNotice.length / postsPerPage);
+  const handlePostPageChange = async (pageNumber: number) => {
+    try {
+      const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/profile/postPagination/${userInfo._id}?page=${pageNumber}`;
+      const dataBody = null;
+      const isJSON = false;
+      const headers = {};
+      const isCookie = true;
 
-  const handlePageChange = (pageNumber: number) => {
-    setCurrentPage(pageNumber);
+      const res = await ApiCaller.get(URL, dataBody, isJSON, headers, isCookie);
+
+      setPostData(res.data.data.data);
+      setPostCurrentPage(pageNumber);
+
+    } catch (error) {
+      console.log(error)
+    }
   };
 
-  // useEffect(() => {
-  //   // URL query에 page 번호를 기록하려면 아래 코드를 활성화하세요.
-  //   router.push(`/user/mypage?page=${currentPage}`);
-  // }, [currentPage]);
+  useEffect(() => {
+    (async () => {
+      await handlePostPageChange(postCurrentPage);
+    })();
+  }, []);
 
-  // 기존 dummyNotice를 sortedPosts로 교체
-  const currentPosts = dummyNotice.slice((currentPage - 1) * postsPerPage, currentPage * postsPerPage);
+  const handleEventPageChange = async (pageNumber: number) => {
+    try {
+      const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/profile/eventPagination/${userInfo._id}?page=${pageNumber}`;
+      const dataBody = null;
+      const isJSON = false;
+      const headers = {};
+      const isCookie = true;
 
-  const nicknameEdit = () => {
+      const res = await ApiCaller.get(URL, dataBody, isJSON, headers, isCookie);
+
+      setEventsData(res.data.data.data);
+      setEventCurrentPage(pageNumber);
+
+    } catch (error) {
+      console.log(error)
+    }
+  };
+
+  useEffect(() => {
+    (async () => {
+      await handleEventPageChange(eventCurrentPage);
+    })();
+  }, []);
+
+
+  const myPageEdit = () => {
     setIsEditing(true);
   };
 
@@ -94,9 +130,9 @@ const MyPage = () => {
    * 입력한 닉네임이 유효한지 확인하고, 유효하지 않은 경우 에러 메시지를 설정 
    */
   const validateNickname = () => {
-    if (nickname.length < 2) {
+    if (nickname?.length < 2) {
       setErrorMessage('닉네임은 최소 2자 이상이어야 합니다.');
-    } else if (nickname.length > 8) {
+    } else if (nickname?.length > 8) {
       setErrorMessage('닉네임은 최대 8자 입니다.');
     } else {
       setErrorMessage('');
@@ -107,9 +143,75 @@ const MyPage = () => {
     validateNickname();
   }, [nickname]);
 
-  const changeNickname = () => {
-    setNickname(nickname);
-    setIsEditing(false);
+  const profileChange = async () => {
+    const hasNicknameChange = nickname !== userInfo.nickname;
+    const hasImageChange = uploadFile !== null;
+
+    try {
+      const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/change-nickname`;
+      const URL2 = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/change-banner`;
+      const isJSON = false;
+      const headers = {}
+      const isCookie = true;
+
+      if (hasNicknameChange) {
+        const formData = new FormData();
+        formData.append('nickname', nickname);
+        const res = await ApiCaller.patch(URL, formData, isJSON, headers, isCookie);
+        handleResponse(res);
+      }
+
+      if (hasImageChange) {
+        const formData = new FormData();
+        formData.append('imgFile', uploadFile);
+        const res = await ApiCaller.patch(URL2, formData, isJSON, headers, isCookie);
+        handleResponse(res);
+        setFileUrl(res.data.imageUrl);
+      }
+
+    } catch (error) {
+      const err = error as AxiosError;
+
+      const data = err.response?.data as { message: string };
+
+      Swal.fire({
+        title: t('common:Error'),
+        text: data?.message,
+        icon: 'error',
+        confirmButtonText: t('common:OK'),
+        confirmButtonColor: '#6BCB77'
+      }).then(() => {
+        Swal.close();
+      });
+
+    }
+  }
+
+  const handleResponse = (res: AxiosResponse) => {
+    if (res.status === 200) {
+      Swal.fire({
+        title: t('common:Success'),
+        text: t('common:Profile change was successful'),
+        icon: 'success',
+        confirmButtonText: t('common:OK'),
+        confirmButtonColor: '#6BCB77'
+      }).then(() => {
+        Swal.close();
+        router.reload();
+      });
+      setIsEditing(false);
+
+    } else {
+      Swal.fire({
+        title: t('common:Error'),
+        text: res.data.message,
+        icon: 'error',
+        confirmButtonText: t('common:OK'),
+        confirmButtonColor: '#6BCB77'
+      }).then(() => {
+        Swal.close();
+      });
+    }
   }
 
   /**
@@ -118,124 +220,235 @@ const MyPage = () => {
    */
   const copyAddr = async () => {
     try {
-      // await navigator.clipboard.writeText(postDetail.post_info.author.address);
-      // setIsModalOpen(true);
-      // setModalTitle('Success');
-      // setModalBody('지갑주소가 복사되었습니다.');
-      alert('지갑주소가 복사되었습니다.');
+      await navigator.clipboard.writeText(userInfo.wallet.address);
+      Swal.fire({
+        title: t('common:Success'),
+        text: t('common:Your wallet address has been copied'),
+        icon: 'success',
+        confirmButtonText: t('common:OK'),
+        confirmButtonColor: '#6BCB77',
+      }).then(() => {
+        Swal.close();
+      });
 
-      // setTimeout(() => {
-      //   setIsModalOpen(false);
-      // }, 3000);
     } catch (err) {
-      //   setIsModalOpen(true);
-      // setModalTitle('Error');
-      // setModalBody('지갑주소 복사가 실패되었습니다.');
-      alert('지갑주소 복사가 실패되었습니다.');
+      Swal.fire({
+        title: (t('common:Error')),
+        text: t('commonFailed to copy wallet address'),
+        icon: 'error',
+        confirmButtonText: t('common:OK'),
+        confirmButtonColor: '#6BCB77',
+      }).then(() => {
+        Swal.close();
+      });
+    }
+  }
 
-      // setTimeout(() => {
-      //   setIsModalOpen(false);
-      // }, 3000);
+  const tokenExchange = async () => {
+    const formData = new FormData();
+    
+    formData.append('userId', userInfo._id);
+
+    try {
+      const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/token-exchange`;
+      const dataBody = formData;
+      const isJSON = true;
+      const headers = {}
+      const isCookie = true;
+
+      const res = await ApiCaller.post(URL, dataBody, isJSON, headers, isCookie);
+      if(res.status === 200) {
+        Swal.fire({
+          title: t('common:Success'),
+          text: res.data?.message,
+          icon: 'success',
+          confirmButtonText: t('common:OK'),
+          confirmButtonColor: '#6BCB77'
+        }).then(() => {
+          Swal.close();
+        });
+      } else {
+        Swal.fire({
+          title: t('common:Error'),
+          text: res.data?.message,
+          icon: 'error',
+          confirmButtonText: t('common:OK'),
+          confirmButtonColor: '#6BCB77'
+        }).then(() => {
+          Swal.close();
+        });
+      }
+    } catch (error) {
+      const err = error as AxiosError;
+
+      const data = err.response?.data as { message: string };
+
+      Swal.fire({
+        title: t('common:Error'),
+        text: data?.message,
+        icon: 'error',
+        confirmButtonText: t('common:OK'),
+        confirmButtonColor: '#6BCB77'
+      }).then(() => {
+        Swal.close();
+      });
+    }
+  }
+
+  const upgradeDnft = async () => {
+    const formData = new FormData();
+
+    formData.append('email', userInfo.email);
+    try {
+      const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/upgrade-dnft`;
+      const dataBody = formData;
+      const isJSON = false;
+      const headers = {
+        'Content-Type': 'multipart/form-data',
+        'Accept': 'application/json',
+      }
+      const isCookie = true;
+  
+      const res = await ApiCaller.post(URL, dataBody, isJSON, headers, isCookie);
+
+      if(res.status === 200) {
+        Swal.fire({
+          title: t('common:Success'),
+          text: res.data?.message,
+          icon: 'success',
+          confirmButtonText: t('common:OK'),
+          confirmButtonColor: '#6BCB77'
+        }).then(() => {
+          Swal.close();
+        });
+      } else {
+        Swal.fire({
+          title: t('common:Error'),
+          text: res.data?.message,
+          icon: 'error',
+          confirmButtonText: t('common:OK'),
+          confirmButtonColor: '#6BCB77'
+        }).then(() => {
+          Swal.close();
+        });
+      }
+    } catch (error) {
+      const err = error as AxiosError;
+
+      const data = err.response?.data as { message: string };
+
+      Swal.fire({
+        title: t('common:Error'),
+        text: data?.message,
+        icon: 'error',
+        confirmButtonText: t('common:OK'),
+        confirmButtonColor: '#6BCB77'
+      }).then(() => {
+        Swal.close();
+      });
+    }
+  }
+
+  const getClassNameForStatus = (status: string) => {
+    switch (status) {
+      case 'created': return 'bg-main-insta';
+      case 'recruiting': return 'bg-main-blue';
+      case 'progressing': return 'bg-main-green';
+      case 'finished': return 'bg-main-red';
+      case 'canceled': return 'bg-gray-500';
+      default: return 'bg-gray-500';
+    }
+  }
+
+  const getClassNameForType = (type: string) => {
+    switch (type) {
+      case 'fcfs': return 'bg-main-yellow';
+      case 'random': return 'bg-main-green';
+      default: return 'bg-gray-500';
     }
   }
 
   return (
-    <div className="w-full min-h-screen">
-      <div className="w-full h-[30rem] md:h-[25rem] sm:h-[20rem] xs:h-[15rem] border-2 border-dashed rounded-xl">
-        <label className="
-          h-full 
-          text-gray-400 
-          flex 
-          items-center 
-          justify-center 
-          cursor-pointer
-          hover:bg-gray-300
-          transition
-          duration-300"
-          htmlFor="nft-file">
-          {fileUrl ? (
-            <div className="w-full h-full">
-              <img src={fileUrl} className="w-full h-full object-contain" alt="NFT" />
-            </div>
-          ) : (
-            <BsFillImageFill size={80} />
-          )}
-          <input
-            className="hidden"
-            id="nft-file"
-            type="file"
-            accept="image/*,video/*"
-            onChange={fileUpload}
-            required />
-        </label>
-      </div>
-      <div className='
-        w-[15rem] 
-        lg:w-[10rem] 
-        md:w-[9rem] 
-        sm:w-[9rem] 
-        xs:w-[8rem] 
-        h-[15rem] 
-        lg:h-[10rem] 
-        md:h-[9rem] 
-        sm:h-[9rem] 
-        xs:h-[8rem] 
-        border-2 
-        border-gray-200 
-        rounded-full 
-        absolute 
-        top-[430px] 
-        lg:top-[470px] 
-        md:top-[400px] 
-        sm:top-[335px] 
-        xs:top-[240px] 
-        left-[5%] 
-        sm:left-[130px] 
-        xs:left-[115px] 
-        overflow-hidden
-        shadow-lg'>
-        <Image src={hero_img} layout='fill' objectFit='cover' alt='profile image' />
-      </div>
-      <div className='w-full h-full flex flex-col sm:items-center xs:items-center justify-center gap-6 px-12 sm:px-2 xs:px-2'>
-        <div className='w-[10%] md:w-[80%] sm:w-full xs:w-full flex flex-col items-start sm:items-center xs:items-center gap-3 ml-[14%] lg:ml-[18%] md:ml-[20%] sm:ml-0 xs:ml-0 my-2 mt-5 sm:mt-24 xs:mt-20'>
-          <div className='flex gap-12 sm:gap-4 xs:gap-2'>
-            {isEditing ? (
+    <>
+      <div className="w-full min-h-screen">
+        <div className={`w-full h-[30rem] md:h-[25rem] sm:h-[20rem] xs:h-[15rem] ${isEditing ? 'border-2 border-dashed' : 'border-2'} rounded-xl`}>
+          {isEditing ? (
+            <label className="
+              h-full 
+              text-gray-400 
+              flex 
+              items-center 
+              justify-center 
+              cursor-pointer
+              hover:bg-gray-300
+              transition
+              duration-300"
+              htmlFor="nft-file">
+              {fileUrl ? (
+                <div className="w-full h-full">
+                  <Image src={fileUrl} width={1500} height={100} className="w-full h-full object-contain" alt="banner Image" />
+                </div>
+              ) : (
+                <BsFillImageFill size={80} />
+              )}
               <input
-                type="text"
-                value={nickname}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNickname(e.target.value)}
-                className="border rounded-xl px-2 py-1 w-32"
-              />
-            ) : (
-              <>
-                <p className='font-bold text-3xl lg:text-2xl md:text-xl sm:text-lg xs:text-lg'>
-                  {nickname}
-                </p>
-              </>
-            )}
-            {isEditing ? (
-              <button className='
-                text-white 
-                font-semibold 
-                bg-main-yellow 
-                hover:bg-yellow-400 
-                px-8 
-                lg:px-6
-                xs:px-4
-                xs:text-sm
-                py-1 
-                rounded-lg 
-                transition 
-                duration-300
-                cursor-pointer'
-                type="button"
-                onClick={changeNickname}
-                disabled={errorMessage !== ''}
-              >
-                Save
-              </button>
-            ) : (
-              <button className='
+                className="hidden"
+                id="nft-file"
+                type="file"
+                accept="image/*,video/*"
+                onChange={fileUpload}
+                required />
+            </label>
+          ) : (
+            <Image src={!userInfo?.banner_img_url ? default_banner : userInfo?.banner_img_url} width={1500} height={100} className="w-full h-full object-contain" alt="banner Image" />
+          )}
+        </div>
+        <div className='
+          w-[15rem] 
+          lg:w-[10rem] 
+          md:w-[9rem] 
+          sm:w-[9rem] 
+          xs:w-[8rem] 
+          h-[15rem] 
+          lg:h-[10rem] 
+          md:h-[9rem] 
+          sm:h-[9rem] 
+          xs:h-[8rem] 
+          border-2 
+          border-gray-200 
+          rounded-full 
+          absolute 
+          top-[430px] 
+          lg:top-[470px] 
+          md:top-[400px] 
+          sm:top-[335px] 
+          xs:top-[280px] 
+          left-[5%] 
+          sm:left-[130px] 
+          xs:left-[115px] 
+          overflow-hidden
+          shadow-lg'>
+          <Image src={userDnft.image_url} layout='fill' className='object-cover' alt='profile image' />
+        </div>
+        <div className='w-full h-full flex flex-col sm:items-center xs:items-center justify-center gap-6 px-12 sm:px-2 xs:px-2'>
+          <div className='w-[80%] md:w-[80%] sm:w-full xs:w-full flex flex-col items-start sm:items-center xs:items-center gap-3 ml-[14%] lg:ml-[18%] md:ml-[20%] sm:ml-0 xs:ml-0 my-2 mt-5 sm:mt-24 xs:mt-20'>
+            <div className='w-full flex justify-between sm:justify-center xs:justify-center gap-12 sm:gap-4 xs:gap-2'>
+              {isEditing ? (
+                <input
+                  type="text"
+                  value={nickname}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNickname(e.target.value)}
+                  className="border rounded-xl px-2 py-1 w-32"
+                />
+              ) : (
+                <>
+                  <p className='font-bold text-3xl lg:text-2xl md:text-xl sm:text-lg xs:text-lg'>
+                    {userInfo?.nickname}
+                  </p>
+                </>
+              )}
+              {isEditing ? (
+                <button className='
                   text-white 
                   font-semibold 
                   bg-main-yellow 
@@ -249,181 +462,324 @@ const MyPage = () => {
                   transition 
                   duration-300
                   cursor-pointer'
-                type="button"
-                onClick={nicknameEdit}
-              >
-                Edit
-              </button>
-            )}
-          </div>
-          <p className='font-normal text-xs text-red-500'>{errorMessage}</p>
-          <p className='font-semibold sm:text-sm xs:text-xs' onClick={copyAddr} title="Click to copy the address">
-            0x3557db220dbfdBbB8Cf5489495Bf02AAC9A889ED
-          </p>
-          <div>
-            <button className='px-3 py-2 sm:px-2 md:text-sm sm:text-sm xs:text-sm bg-[#FBA1B7] hover:bg-main-insta rounded-xl transition duration-300 text-white font-bold'>instagram connect</button>
-          </div>
-        </div>
-        <div className='w-full h-2/3 grid grid-cols-10 lg:grid-cols-6 md:grid-cols-5 sm:grid-cols-3 xs:grid-cols-3 gap-4 justify-items-center bg-gray-200 rounded-xl px-6 py-6'>
-          <div className='w-[10rem] lg:w-[8rem] md:w-[6rem] sm:w-[6rem] xs:w-[5rem] h-[10rem] lg:h-[8rem] md:h-[6rem] sm:h-[6rem] xs:h-[5rem] border rounded-full overflow-hidden relative'>
-            <Image src={hero_img} layout='fill' objectFit='cover' alt='profile image' />
-          </div>
-          <div className='w-[10rem] lg:w-[8rem] md:w-[6rem] sm:w-[6rem] xs:w-[5rem] h-[10rem] lg:h-[8rem] md:h-[6rem] sm:h-[6rem] xs:h-[5rem] border rounded-full overflow-hidden relative'>
-            <Image src={hero_img} layout='fill' objectFit='cover' alt='profile image' />
-          </div>
-          <div className='w-[10rem] lg:w-[8rem] md:w-[6rem] sm:w-[6rem] xs:w-[5rem] h-[10rem] lg:h-[8rem] md:h-[6rem] sm:h-[6rem] xs:h-[5rem] border rounded-full overflow-hidden relative'>
-            <Image src={hero_img} layout='fill' objectFit='cover' alt='profile image' />
-          </div>
-          <div className='w-[10rem] lg:w-[8rem] md:w-[6rem] sm:w-[6rem] xs:w-[5rem] h-[10rem] lg:h-[8rem] md:h-[6rem] sm:h-[6rem] xs:h-[5rem] border rounded-full overflow-hidden relative'>
-            <Image src={hero_img} layout='fill' objectFit='cover' alt='profile image' />
-          </div>
-          <div className='w-[10rem] lg:w-[8rem] md:w-[6rem] sm:w-[6rem] xs:w-[5rem] h-[10rem] lg:h-[8rem] md:h-[6rem] sm:h-[6rem] xs:h-[5rem] border rounded-full overflow-hidden relative'>
-            <Image src={hero_img} layout='fill' objectFit='cover' alt='profile image' />
-          </div>
-        </div>
-        <div className='w-full h-2/3 flex flex-col gap-4 px-6 py-6 sm:px-2 xs:px-0'>
-          <h2 className='text-3xl sm:text-2xl xs:text-xl font-bold border-b border-black pb-2'>Participated Events</h2>
-          <table className="w-full text-center border-collapse ">
-            <thead className='border-b sm:text-sm'>
-              <tr>
-                <th className="p-4 sm:p-2 xs:p-2">No.</th>
-                <th className="p-4 sm:p-2 xs:p-2">Title</th>
-                <th className="p-4 sm:p-2 xs:p-2">Content</th>
-                <th className="p-4 sm:p-2 xs:p-2">Writer</th>
-                <th className="p-4 sm:p-2 xs:p-2">Date</th>
-                <th className="p-4 sm:p-2 xs:p-2">View</th>
-              </tr>
-            </thead>
-            <tbody>
-              {currentPosts.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="p-6 text-center">작성한 게시글이 없습니다.</td>
-                </tr>
-              ) : (
-                currentPosts.map((post) => (
-                  <tr className="
-                    hover:bg-gray-200 
-                    transition-all 
-                    duration-300 
-                    cursor-pointer
-                    sm:text-sm"
-                    key={post.id}
-                    onClick={() => router.push(`/posts/${post.id}`)}>
-                    <td className="border-b p-6 sm:p-2 xs:p-2">
-                      <p className="text-xl sm:text-sm xs:text-xs font-semibold">{post.id}</p>
-                    </td>
-                    <td className="border-b p-6 sm:p-2 xs:p-2">
-                      <p className="text-gray-600 sm:text-sm xs:text-xs"> {post.title}</p>
-                    </td>
-                    <td className="border-b p-6 sm:p-2 xs:p-2">
-                      <p className="text-gray-600 sm:text-sm xs:text-xs"> {post.content}</p>
-                    </td>
-                    <td className="border-b p-6 sm:p-2 xs:p-2">
-                      <p className="text-gray-600 sm:text-sm xs:text-xs">
-                        {post.writer}
-                      </p>
-                    </td>
-                    <td className="border-b p-6 sm:p-2 xs:p-2">
-                      <p className="text-gray-600 sm:text-sm xs:text-xs">
-                        {post.date}
-                      </p>
-                    </td>
-                    <td className="border-b p-6 sm:p-3 xs:p-2">
-                      <p className="text-gray-600">
-                        {post.views}
-                      </p>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-          <div className='w-full mt-6 sm:mt-10 xs:mt-5 mb-5 flex justify-center'>
-            <div className='flex items-center'>
-              {Array.from({ length: totalPages }, (_, i) => (
-                <button
-                  key={i + 1}
-                  className={`px-2 py-2 mx-1 xs:text-sm ${currentPage === i + 1 ? 'font-bold' : ''}`}
-                  onClick={() => handlePageChange(i + 1)}
+                  type="button"
+                  onClick={profileChange}
+                  disabled={errorMessage !== ''}
                 >
-                  {i + 1}
+                  {t('common:Save')}
                 </button>
-              ))}
+              ) : (
+                <button className='
+                  text-white 
+                  font-semibold 
+                  bg-main-yellow 
+                  hover:bg-yellow-400 
+                  px-8 
+                  lg:px-6
+                  xs:px-4
+                  xs:text-sm
+                  py-1 
+                  rounded-lg 
+                  transition 
+                  duration-300
+                  cursor-pointer'
+                  type="button"
+                  onClick={myPageEdit}
+                >
+                  {t('common:Edit')}
+                </button>
+              )}
+            </div>
+            {isEditing && <p className='font-normal text-xs text-red-500'>{errorMessage}</p>}
+            <p className='font-semibold sm:text-sm xs:text-xs cursor-pointer' onClick={copyAddr} title="Click to copy the address">
+              {userInfo?.wallet?.address}
+            </p>
+            <div className='flex items-center justify-center gap-2'>
+              <p className='font-semibold sm:text-sm xs:text-xs cursor-pointer' onClick={copyAddr} title="Click to copy the address">
+                {t('common:Mileage')}: {userInfo?.wallet?.mileage_amount}
+              </p>
+              <p className='font-semibold sm:text-sm xs:text-xs cursor-pointer' onClick={copyAddr} title="Click to copy the address">
+                |
+              </p>
+              <p className='font-semibold sm:text-sm xs:text-xs cursor-pointer' onClick={copyAddr} title="Click to copy the address">
+                {t('common:Token')}: {userInfo?.wallet?.token_amount} CM
+              </p>
+              <p className='font-semibold sm:text-sm xs:text-xs cursor-pointer' onClick={copyAddr} title="Click to copy the address">
+                |
+              </p>
+              <p className='font-semibold sm:text-sm xs:text-xs cursor-pointer' onClick={copyAddr} title="Click to copy the address">
+                {t('common:Total Badge Score')}: {userInfo?.wallet?.total_badge_score}
+              </p>
+            </div>
+            <div className='flex gap-2'>
+              <button className='
+                px-3 
+                py-2 
+                sm:px-2 
+                md:text-sm 
+                sm:text-sm 
+                xs:text-sm 
+                bg-[#FBA1B7] 
+                hover:bg-main-insta 
+                rounded-xl 
+                transition 
+                duration-300 
+                text-white 
+                font-bold'>
+                {t('common:Instagram Connect')}
+              </button>
+              <button className='
+                px-3 
+                py-2 
+                sm:px-2 
+                md:text-sm 
+                sm:text-sm 
+                xs:text-sm 
+                bg-main-green 
+                hover:bg-green-500 
+                rounded-xl 
+                transition 
+                duration-300 
+                text-white 
+                font-bold'
+                onClick={upgradeDnft}>
+                {t('common:DNFT Upgrade')}
+              </button>
+              <button className='
+                px-3 
+                py-2 
+                sm:px-2 
+                md:text-sm 
+                sm:text-sm 
+                xs:text-sm 
+                bg-main-blue 
+                hover:bg-blue-500 
+                rounded-xl 
+                transition 
+                duration-300 
+                text-white 
+                font-bold'
+                onClick={tokenExchange}>
+                {t('common:Token Exchange')}
+              </button>
+              <button className='
+                px-3 
+                py-2 
+                sm:px-2 
+                md:text-sm 
+                sm:text-sm 
+                xs:text-sm 
+                bg-main-yellow 
+                hover:bg-yellow-500 
+                rounded-xl 
+                transition 
+                duration-300 
+                text-white 
+                font-bold'
+                onClick={() => router.push('/qrscan')}>
+                {t('common:QR Code Scan')}
+              </button>
             </div>
           </div>
-        </div>
-        <div className='w-full h-2/3 flex flex-col gap-4 px-6 py-6 sm:px-2 xs:px-0'>
-          <h2 className='text-3xl sm:text-2xl xs:text-xl font-bold border-b border-black pb-2'>Posts created</h2>
-          <table className="w-full text-center border-collapse ">
-            <thead className='border-b'>
-              <tr>
-                <th className="p-4 sm:p-2 xs:p-2">No.</th>
-                <th className="p-4 sm:p-2 xs:p-2">Title</th>
-                <th className="p-4 sm:p-2 xs:p-2">Content</th>
-                <th className="p-4 sm:p-2 xs:p-2">Writer</th>
-                <th className="p-4 sm:p-2 xs:p-2">Date</th>
-                <th className="p-4 sm:p-2 xs:p-2">View</th>
-              </tr>
-            </thead>
-            <tbody>
-              {currentPosts.length === 0 ? (
+          <div className={`w-full h-2/3 ${userBadges.length === 0 ? 'flex font-bold' : 'grid grid-cols-10'} lg:grid-cols-6 md:grid-cols-5 sm:grid-cols-3 xs:grid-cols-3 gap-4 justify-items-center bg-gray-200 rounded-xl px-6 py-6`}>
+            {userBadges.length === 0 ? (
+              <p className='w-full flex justify-center items-center'>{t('common:There are no registered badges')}</p>
+            ) : (
+              userBadges.map((badge, i) => {
+                return (
+                  <div className='w-[10rem] 
+                    lg:w-[8rem] 
+                    md:w-[6rem] 
+                    sm:w-[6rem] 
+                    xs:w-[5rem] 
+                    h-[10rem] 
+                    lg:h-[8rem] 
+                    md:h-[6rem] 
+                    sm:h-[6rem] 
+                    xs:h-[5rem] 
+                    border 
+                    rounded-full 
+                    overflow-hidden 
+                    relative'
+                    key={i}>
+                    <Image src={badge.image_url} layout='fill' className='object-cover' alt='profile image' />
+                  </div>
+                )
+              })
+            )}
+          </div>
+          <div className='w-full h-2/3 flex flex-col gap-4 px-6 py-6 sm:px-2 xs:px-0'>
+            <h2 className='text-3xl sm:text-2xl xs:text-xl font-bold border-b border-black pb-2'>{t('common:Participated Events')}</h2>
+            <table className="w-full text-center border-collapse ">
+              <thead className='border-b sm:text-sm xs:text-xs'>
                 <tr>
-                  <td colSpan={6} className="p-6 text-center">작성한 게시글이 없습니다.</td>
+                  <th className="p-4 md:p-2 sm:p-1 xs:p-1">{t('common:No')}</th>
+                  <th className="p-4 md:p-2 sm:p-1 xs:p-1">{t('common:Title')}</th>
+                  <th className="p-4 md:p-2 sm:p-1 xs:p-1">{t('common:Content')}</th>
+                  <th className="p-4 md:p-2 sm:p-1 xs:p-1">{t('common:Writer')}</th>
+                  <th className="p-4 md:p-2 sm:p-1 xs:p-1">{t('common:Event Type')}</th>
+                  <th className="p-4 md:p-2 sm:p-1 xs:p-1">{t('common:Status')}</th>
+                  <th className="p-4 md:p-2 sm:p-1 xs:p-1">{t('common:Date')}</th>
+                  <th className="p-4 md:p-2 sm:p-1 xs:p-1">{t('common:Views')}</th>
                 </tr>
-              ) : (
-                currentPosts.map((post) => (
-                  <tr className="
-                    hover:bg-gray-200 
-                    transition-all 
-                    duration-300 
-                    cursor-pointer"
-                    key={post.id}
-                    onClick={() => router.push(`/posts/${post.id}`)}>
-                    <td className="border-b p-6 sm:p-2 xs:p-2">
-                      <p className="text-xl sm:text-sm xs:text-xs font-semibold">{post.id}</p>
-                    </td>
-                    <td className="border-b p-6 sm:p-2 xs:p-2">
-                      <p className="text-gray-600 sm:text-sm xs:text-xs"> {post.title}</p>
-                    </td>
-                    <td className="border-b p-6 sm:p-2 xs:p-2">
-                      <p className="text-gray-600 sm:text-sm xs:text-xs"> {post.content}</p>
-                    </td>
-                    <td className="border-b p-6 sm:p-2 xs:p-2">
-                      <p className="text-gray-600 sm:text-sm xs:text-xs">
-                        {post.writer}
-                      </p>
-                    </td>
-                    <td className="border-b p-6 sm:p-2 xs:p-2">
-                      <p className="text-gray-600 sm:text-sm xs:text-xs">
-                        {post.date}
-                      </p>
-                    </td>
-                    <td className="border-b p-6 sm:p-2 xs:p-2">
-                      <p className="text-gray-600">
-                        {post.views}
-                      </p>
-                    </td>
+              </thead>
+              <tbody>
+                {eventsData === null ? (
+                  <tr>
+                    <td colSpan={8} className="p-6 text-center">{t('common:No events participated')}</td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-          <div className='w-full mt-6 sm:mt-10 xs:mt-5 mb-5 flex justify-center'>
-            <div className='flex items-center'>
-              {Array.from({ length: totalPages }, (_, i) => (
-                <button
-                  key={i + 1}
-                  className={`px-2 py-2 mx-1 xs:text-sm ${currentPage === i + 1 ? 'font-bold' : ''}`}
-                  onClick={() => handlePageChange(i + 1)}
-                >
-                  {i + 1}
-                </button>
-              ))}
+                ) : (
+                  eventsData?.map((event, i) => (
+                    <tr className="
+                      hover:bg-gray-200 
+                      transition-all 
+                      duration-300 
+                      cursor-pointer
+                      sm:text-sm"
+                      key={i}
+                      onClick={() => router.push(`/posts/events/${event._id}`)}>
+                      <td className="border-b p-6 md:p-2 sm:p-1 xs:p-1">
+                        <p className="text-xl sm:text-xs xs:text-xs font-semibold">{i + 1}</p>
+                      </td>
+                      <td className="border-b p-6 md:p-2 sm:p-1 xs:p-1">
+                        <p className="text-gray-600 sm:text-xs xs:text-xs">{event.title}</p>
+                      </td>
+                      <td className="border-b p-6 md:p-2 sm:p-1 xs:p-1">
+                        <p className="text-gray-600 sm:text-xs xs:text-xs">{event.content.length >= 10 ? event.content.slice(0, 10) + '...' : event.content}</p>
+                      </td>
+                      <td className="border-b p-6 md:p-2 sm:p-1 xs:p-1">
+                        <p className="text-gray-600 sm:text-xs xs:text-xs">
+                          {event.host_id.name}
+                        </p>
+                      </td>
+                      <td className="border-b p-6 md:p-2 sm:p-1 xs:p-1">
+                        <p className={`sm:text-xs xs:text-xs rounded-lg text-white font-semibold py-1 ${getClassNameForType(event.event_type)}`}>
+                          {(() => {
+                            switch (event.event_type) {
+                              case 'fcfs': return t('common:First come, first served');
+                              case 'random': return t('common:Draw lots');
+                              default: return '';
+                            }
+                          })()}
+                        </p>
+                      </td>
+                      <td className="border-b p-6 md:p-2 sm:p-1 xs:p-1">
+                        <p className={`sm:text-xs xs:text-xs rounded-lg text-white font-semibold py-1 ${getClassNameForStatus(event.status)}`}>
+                          {(() => {
+                            switch (event.status) {
+                              case 'created': return t('common:Before proceeding');
+                              case 'recruiting': return t('common:Recruiting');
+                              case 'progressing': return t('common:In progress');
+                              case 'finished': return t('common:End of progress');
+                              case 'canceled': return t('common:Cancel Progress');
+                              default: return t('common:Unknown');
+                            }
+                          })()}
+                        </p>
+                      </td>
+                      <td className="border-b p-6 md:p-2 sm:p-1 xs:p-1">
+                        <p className="text-gray-600 sm:text-xs xs:text-xs">
+                          {event.updated_at.split('T')[0]}<br />{event.updated_at.substring(11, 19)}
+                        </p>
+                      </td>
+                      <td className="border-b p-6 md:p-2 sm:p-1 xs:p-1">
+                        <p className="text-gray-600 sm:text-xs xs:text-xs">
+                          {event.view.count}
+                        </p>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+            <div className='w-full mt-6 sm:mt-10 xs:mt-5 mb-5 flex justify-center'>
+              <div className='flex items-center'>
+                {Array.from({ length: eventTotalPages }, (_, i) => (
+                  <button
+                    key={i + 1}
+                    className={`px-2 py-2 mx-1 xs:text-sm ${eventCurrentPage === i + 1 ? 'font-bold' : ''}`}
+                    onClick={() => handleEventPageChange(i + 1)}
+                  >
+                    {i + 1}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+          <div className='w-full h-2/3 flex flex-col gap-4 px-6 py-6 sm:px-2 xs:px-0'>
+            <h2 className='text-3xl sm:text-2xl xs:text-xl font-bold border-b border-black pb-2'>{t('common:Posts created')}</h2>
+            <table className="w-full text-center border-collapse ">
+              <thead className='border-b'>
+                <tr>
+                  <th className="p-2">{t('common:No')}</th>
+                  <th className="p-2">{t('common:Title')}</th>
+                  <th className="p-2">{t('common:Content')}</th>
+                  <th className="p-2">{t('common:Writer')}</th>
+                  <th className="p-2">{t('common:Date')}</th>
+                  <th className="p-2">{t('common:Views')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {postData === null ? (
+                  <tr>
+                    <td colSpan={6} className="p-6 text-center">{t('common:No post was created')}</td>
+                  </tr>
+                ) : (
+                  postData?.map((post, i) => (
+                    <tr className="
+                      hover:bg-gray-200 
+                      transition-all 
+                      duration-300 
+                      cursor-pointer"
+                      key={i}
+                      onClick={() => router.push(`/posts/general/${post._id}`)}>
+                      <td className="border-b p-6 md:p-2 sm:p-2 xs:p-2">
+                        <p className="text-xl sm:text-xs xs:text-xs font-semibold">{i + 1}</p>
+                      </td>
+                      <td className="border-b p-6 md:p-2 sm:p-2 xs:p-2">
+                        <p className="text-gray-600 sm:text-xs xs:text-xs">{post.title.length >= 10 ? post.title.slice(0, 10) + '...' : post.title}</p>
+                      </td>
+                      <td className="border-b p-6 md:p-2 sm:p-2 xs:p-2">
+                        <p className="text-gray-600 sm:text-xs xs:text-xs">{post.content.length >= 20 ? post.content.slice(0, 20) + '...' : post.content}</p>
+                      </td>
+                      <td className="border-b p-6 md:p-2 sm:p-2 xs:p-2">
+                        <p className="text-gray-600 sm:text-xs xs:text-xs">
+                          {post.user_id?.nickname}
+                        </p>
+                      </td>
+                      <td className="border-b p-6 md:p-2 sm:p-2 xs:p-2">
+                        <p className="text-gray-600 sm:text-xs xs:text-xs">
+                          {post.updated_at.split('T')[0]}<br />{post.updated_at.substring(11, 19)}
+                        </p>
+                      </td>
+                      <td className="border-b p-6 md:p-2 sm:p-2 xs:p-2">
+                        <p className="text-gray-600 sm:text-xs xs:text-xs">
+                          {post.view.count}
+                        </p>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+            <div className='w-full mt-6 sm:mt-10 xs:mt-5 mb-5 flex justify-center'>
+              <div className='flex items-center'>
+                {Array.from({ length: postTotalPages }, (_, i) => (
+                  <button
+                    key={i + 1}
+                    className={`px-2 py-2 mx-1 xs:text-sm ${postCurrentPage === i + 1 ? 'font-bold' : ''}`}
+                    onClick={() => handlePostPageChange(i + 1)}
+                  >
+                    {i + 1}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+
+    </>
   )
 }
 

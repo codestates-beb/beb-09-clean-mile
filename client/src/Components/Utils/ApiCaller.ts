@@ -3,7 +3,7 @@ import qs from 'qs';
 
 const METHOD_GET: Method = 'get';
 const METHOD_POST: Method = 'post';
-const METHOD_PUT: Method = 'put';
+const METHOD_PATCH: Method = 'patch';
 const METHOD_DELETE: Method = 'delete';
 
 interface Headers {
@@ -11,22 +11,17 @@ interface Headers {
 	[header: string]: any;
 }
 
-function requestAPI(method: Method, url: string, _headers: Headers = {}, _dataBody?: any, isJSON: boolean = false): Promise<any> {
+function requestAPI(method: Method, url: string, _headers: Headers = {}, _dataBody?: any, isJSON: boolean = false, isCookie: boolean = false): Promise<any> {
   const headers: Headers = _headers;
   let dataBody = _dataBody;
 
   if (isJSON) {
 		headers['Content-Type'] = 'application/json';
   }
-  // isJSON === true
-  if (isJSON && (method === METHOD_POST || method === METHOD_PUT)) {
+  // isJSON === false
+  if (!isJSON && (method === METHOD_POST || method === METHOD_PATCH)) {
 		headers['Content-Type'] = 'multipart/form-data';
 		dataBody = dataBody;
-  }
-  // isJSON === false
-  else if (method === METHOD_POST || method === METHOD_PUT) {
-		headers['Content-Type'] = 'application/x-www-form-urlencoded';
-		dataBody = qs.stringify(dataBody);
   }
 
   const config: AxiosRequestConfig = {
@@ -34,6 +29,11 @@ function requestAPI(method: Method, url: string, _headers: Headers = {}, _dataBo
 		headers,
 		method,
 		validateStatus: () => true
+  }
+
+  // if isCookie is true, set withCredentials to true
+  if (isCookie) {
+    config.withCredentials = true;
   }
 
   if (method === METHOD_GET) {
@@ -46,20 +46,20 @@ function requestAPI(method: Method, url: string, _headers: Headers = {}, _dataBo
 }
 
 const ApiCaller = {
-  get(url: string, dataBody?: any, isJSON: boolean = false, headers: Headers = {}): Promise<any> {
-		return requestAPI(METHOD_GET, url, headers, dataBody, isJSON);
+  get(url: string, dataBody?: any, isJSON: boolean = false, headers: Headers = {}, isCookie: boolean = false): Promise<any> {
+		return requestAPI(METHOD_GET, url, headers, dataBody, isJSON, isCookie);
   },
 
-  post(url: string, dataBody?: any, isJSON: boolean = false, headers: Headers = {}): Promise<any> {
-		return requestAPI(METHOD_POST, url, headers, dataBody, isJSON);
+  post(url: string, dataBody?: any, isJSON: boolean = false, headers: Headers = {}, isCookie: boolean = false): Promise<any> {
+		return requestAPI(METHOD_POST, url, headers, dataBody, isJSON, isCookie);
   },
 
-  update(url: string, dataBody?: any, isJSON: boolean = false, headers: Headers = {}): Promise<any> {
-		return requestAPI(METHOD_PUT, url, headers, dataBody, isJSON);
+  patch(url: string, dataBody?: any, isJSON: boolean = false, headers: Headers = {}, isCookie: boolean = false): Promise<any> {
+		return requestAPI(METHOD_PATCH, url, headers, dataBody, isJSON, isCookie);
   },
 
-  delete(url: string, dataBody?: any, isJSON: boolean = false, headers: Headers = {}): Promise<any> {
-		return requestAPI(METHOD_DELETE, url, headers, dataBody, isJSON);
+  delete(url: string, dataBody?: any, isJSON: boolean = false, headers: Headers = {}, isCookie: boolean = false): Promise<any> {
+		return requestAPI(METHOD_DELETE, url, headers, dataBody, isJSON, isCookie);
   }
 }
 

@@ -1,52 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { AxiosError } from 'axios';
 import Swal from 'sweetalert2';
+import useTranslation from 'next-translate/useTranslation';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
-import { useDispatch, useSelector } from 'react-redux';
-import { useMutation, useQueryClient, useQuery } from 'react-query';
+import { useMutation, useQueryClient, dehydrate } from 'react-query';
 import { RiKakaoTalkFill } from 'react-icons/ri';
 import { FcGoogle } from 'react-icons/fc';
 import { IoEyeSharp, IoEyeOffSharp } from 'react-icons/io5';
 import { Three, logo } from '../Reference';
-import { showAlert } from '../Redux/store';
-import { AlertState } from '../Interfaces';
 import { ApiCaller } from '../Utils/ApiCaller';
-
-interface LoginAPIInput {
-  email: string;
-  password: string;
-}
-
-interface Wallet {
-  address: string;
-}
-
-interface LoginAPIOutput {
-    wallet: Wallet;
-    _id: string;
-    name: string;
-    email: string;
-    phone_number: string;
-    user_type: number;
-    nickname: string;
-    social_type: string;
-    created_at: string;
-    updated_at: string;
-}
+import { LoginAPIInput, LoginAPIOutput } from '../Interfaces';
 
 
 const Login = () => {
   const router = useRouter();
-  const dispatch = useDispatch();
   const queryClient = useQueryClient();
+  const { t } = useTranslation('common');
+
   const [isPwdVisible, setPwVisible] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
-
-  const { title, text, icon, confirmButtonText, confirmButtonColor } = useSelector((state: AlertState) => state.alert);
 
   /**
    * 비밀번호 가시성 상태를 전환하는 함수
@@ -63,9 +39,9 @@ const Login = () => {
   const validatePassword = () => {
     const passwordRegex = /^(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
     if (password.length < 8) {
-      setPasswordError('비밀번호는 최소 8자 이상이어야 합니다.');
+      setPasswordError(t('common:Password must be at least 8 characters long'));
     } else if (!passwordRegex.test(password)) {
-      setPasswordError('비밀번호는 영문 대문자, 영문 소문자, 숫자, 특수기호를 모두 포함해야 합니다.');
+      setPasswordError(t('common:Password must contain all English uppercase letters, lowercase letters, numbers, and special symbols'));
     } else {
       setPasswordError('');
     }
@@ -83,7 +59,7 @@ const Login = () => {
   const validateEmail = () => {
     const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!re.test(email)) {
-      setEmailError('이메일 형식에 맞지 않습니다.');
+      setEmailError(t('common:Invalid email format'));
     } else {
       setEmailError('');
     }
@@ -110,71 +86,47 @@ const Login = () => {
       const dataBody = formData;
       const headers = {
         'Content-Type': 'application/form-data',
-        'Accept': 'application/json'
+        'Accept': 'application/json',
       }
+      const isJSON = false;
+      const isCookie = true;
 
-      const isJSON = true;
-
-      const res = await ApiCaller.post(URL, dataBody, isJSON, headers);
+      const res = await ApiCaller.post(URL, dataBody, isJSON, headers, isCookie);
       if (res.status === 200) {
-        dispatch(showAlert({
-          title: 'Success!',
+        Swal.fire({
+          title: t('common:Success'),
           text: res.data.message,
           icon: 'success',
           confirmButtonText: 'OK',
           confirmButtonColor: '#6BCB77'
-        }));
-
-        Swal.fire({
-          title,
-          text,
-          icon,
-          confirmButtonText,
-          confirmButtonColor
         }).then(() => {
           Swal.close();
           router.push('/');
         });
 
       } else {
-        dispatch(showAlert({
-          title: 'Error',
+        Swal.fire({
+          title: t('common:Error'),
           text: res.data.message,
           icon: 'error',
           confirmButtonText: 'OK',
           confirmButtonColor: '#6BCB77'
-        }));
-
-        Swal.fire({
-          title,
-          text,
-          icon,
-          confirmButtonText,
-          confirmButtonColor,
         }).then(() => {
           Swal.close();
         });
       }
-      return res.data;
+      return res.data.data
     } catch (error) {
       const err = error as AxiosError;
 
       const data = err.response?.data as { message: string };
 
-      dispatch(showAlert({
-        title: 'Error',
+      Swal.fire({
+        title: t('common:Error'),
         text: data?.message,
         icon: 'error',
         confirmButtonText: 'OK',
         confirmButtonColor: '#6BCB77'
-      }));
-
-      Swal.fire({
-        title,
-        text,
-        icon,
-        confirmButtonText,
-        confirmButtonColor,
       }).then(() => {
         Swal.close();
       });
@@ -192,6 +144,9 @@ const Login = () => {
     onSuccess: (data: LoginAPIOutput) => {
       queryClient.invalidateQueries('user');
       queryClient.setQueryData('user', data);
+
+      const dehydratedState = dehydrate(queryClient);
+      sessionStorage.setItem('user', JSON.stringify(dehydratedState));
     },
     onError: (error) => {
       console.log('Mutation Error: ', error);
@@ -211,31 +166,31 @@ const Login = () => {
       <div className='flex flex-col items-center justify-center gap-40 lg:gap-24 sm:gap-20 xs:gap-12 lg:py-6'>
         <div className='flex flex-col items-center justify-center gap-6'>
           <Image src={logo} className='cursor-pointer md:w-1/2 sm:w-1/3 xs:w-1/2' width={150} height={100} alt='clean mile logo' onClick={() => router.push('/')} />
-          <h1 className='text-6xl lg:text-4xl md:text-4xl sm:text-3xl xs:text-3xl font-bold'>Login</h1>
+          <h1 className='text-6xl lg:text-4xl md:text-4xl sm:text-3xl xs:text-3xl font-bold'>{t('common:Login')}</h1>
         </div>
         <div className="w-[80%] flex flex-col items-center justify-center gap-12">
           <div className='w-[50%] lg:w-[90%] md:w-full sm:w-full xs:w-full flex flex-col gap-12'>
             <div className='w-full flex flex-col sm:gap-4 xs:gap-2 justify-center items-center'>
-              <label className='w-full sm:w-full xs:w-full font-semibold text-md lg:text-lg md:text-lg sm:text-base xs:text-sm' htmlFor='email'>E-Mail</label>
+              <label className='w-full sm:w-full xs:w-full font-semibold text-md lg:text-lg md:text-lg sm:text-base xs:text-sm' htmlFor='email'>{t('common:E-Mail')}</label>
               <div className="w-full flex flex-col">
                 <input className="w-full border border-gray-500 rounded-lg px-2 py-3 pr-10 lg:py-2 md:py-2 sm:py-2 xs:py-1" 
                   type='email' 
                   id='email' 
-                  placeholder='e-mail'
+                  placeholder={t('common:E-Mail')}
                   value={email}
                   onChange={(e:React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)} />
                 <p className='font-normal text-xs text-red-500' style={{ minHeight: '1rem' }}>{email.length > 0 && emailError}</p>
               </div>
             </div>
             <div className='w-full flex flex-col sm:gap-4 xs:gap-2 justify-center items-center relative mb-5'>
-              <label className='w-full sm:w-full xs:w-full font-semibold text-md lg:text-lg md:text-lg sm:text-base xs:text-sm' htmlFor='password'>Password</label>
+              <label className='w-full sm:w-full xs:w-full font-semibold text-md lg:text-lg md:text-lg sm:text-base xs:text-sm' htmlFor='password'>{t('common:Password')}</label>
               <div className='w-full flex flex-col'>
                 <input className="w-full border border-gray-500 rounded-lg px-2 py-3 pr-10 lg:py-2 md:py-2 sm:py-2 xs:py-1" 
                   type={isPwdVisible ? 'text' : 'password'}   
                   id='password' 
                   value={password}
                   onChange={(e:React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)} 
-                  placeholder='password' />
+                  placeholder={t('common:Password')} />
                 <p className='w-full text-left text-red-600 text-xs' style={{ minHeight: '1rem'}}>{password.length > 0 && passwordError}</p>
               </div>
               <button type="button" onClick={passwordVisibility} className="absolute right-3 top-1/2 md:top-[55%] sm:top-[60%] xs:top-[50%] transform -translate-y-1/2">
@@ -259,16 +214,16 @@ const Login = () => {
                 transition 
                 duration-300'
                 onClick={login}>
-                Login
+                {t('common:Login')}
               </button>
               <div className='w-[90%] flex sm:flex-col xs:flex-col sm:items-center xs:items-center gap-6'>
                 <button className='w-[50%] sm:w-full xs:w-full flex items-center justify-center bg-main-yellow hover:bg-yellow-500 px-7 py-2 rounded-xl text-white text-lg font-semibold transition duration-300'>
                   <RiKakaoTalkFill size={25} className='w-[30%]' />
-                  <span className='text-center w-[90%] md:text-sm sm:text-sm xs:text-sm'>KaKao</span>
+                  <span className='text-center w-[90%] md:text-sm sm:text-sm xs:text-sm'>{t('common:KaKao')}</span>
                 </button>
                 <button className='w-[50%] sm:w-full xs:w-full flex items-center justify-center bg-white hover:bg-gray-300 px-7 py-2 sm:py-3 rounded-xl text-gray-700 border text-lg font-semibold transition duration-300'>
                   <FcGoogle size={25} className='w-[30%]' />
-                  <span className='text-center w-[90%] md:text-sm sm:text-sm xs:text-sm'>Google</span>
+                  <span className='text-center w-[90%] md:text-sm sm:text-sm xs:text-sm'>{t('common:Google')}</span>
                 </button>
               </div>
             </div>
@@ -276,7 +231,7 @@ const Login = () => {
           <div>
             <p className='text-lg md:text-base sm:text-base xs:text-base font-semibold hover:underline transition duration-200 cursor-pointer'
               onClick={() => router.push('/signup')}>
-              SignUp
+              {t('common:SignUp')}
             </p>
           </div>
         </div>

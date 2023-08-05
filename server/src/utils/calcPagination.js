@@ -25,15 +25,13 @@ const calcPagination = async (total, limit, page) => {
     const nextPage = currentPage < totalPages ? currentPage + 1 : null;
 
     return {
-      pagination: {
-        total,
-        totalPages,
-        currentPage,
-        startPage,
-        endPage,
-        prevPage,
-        nextPage,
-      },
+      total,
+      totalPages,
+      currentPage,
+      startPage,
+      endPage,
+      prevPage,
+      nextPage,
     };
   } catch (err) {
     console.error('Error:', err);
