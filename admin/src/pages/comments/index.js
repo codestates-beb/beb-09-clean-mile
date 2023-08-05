@@ -39,7 +39,6 @@ const Page = () => {
       }
 
       const data = res.data;
-      console.log(data);
 
       let commentData = [];
       let pagination = {};
@@ -74,35 +73,63 @@ const Page = () => {
     setSearchTerm(event.target.value);
   }, []);
 
-  const handleSearchTermSubmit = useCallback(
-    (event) => {
-      event.preventDefault();
+  // const handleSearchTermSubmit = useCallback(
+  //   async (event) => {
+  //     event.preventDefault();
 
-      if (!searchTerm) return;
+  //     if (!searchTerm) return;
 
-      console.log(filter, searchTerm);
-    },
-    [filter, searchTerm]
-  );
+  //     const params = {};
+
+  //     if (category !== "all") {
+  //       params.category = category;
+  //     }
+
+  //     if (filter !== "all") {
+  //       switch (filter) {
+  //         case "title":
+  //           params.title = searchTerm;
+  //           break;
+  //         case "content":
+  //           params.content = searchTerm;
+  //           break;
+  //         case "writer":
+  //           params.writer = searchTerm;
+  //           break;
+  //         default:
+  //           throw new Error("Invalid filter");
+  //       }
+  //     }
+
+  //     await searchComments(params);
+  //   },
+  //   [filter, searchTerm]
+  // );
 
   // useEffect(() => {
-  //   const filteredComments =
-  //     category === "all" ? data : data.filter((e) => e.category === category);
-  //   setComments(filteredComments);
-  // }, [category]);
+  //   const params = {};
+
+  //   if (category !== "all") {
+  //     params.category = category;
+  //   }
+
+  //   params.page = page;
+
+  //   searchComments(params);
+  // }, [category, page]);
 
   useEffect(() => {
     const params = {};
 
-    if (status !== "all") {
-      params.status = status;
+    if (category !== "all") {
+      params.category = category;
     }
 
     params.page = page;
 
     searchComments(params)
       .then((res) => {
-        setComments(res.events);
+        setComments(res.comments);
         setPageCount(res.pagination.totalPages);
         setPage(res.pagination.currentPage);
       })
@@ -112,7 +139,7 @@ const Page = () => {
         setPageCount(1);
         setPage(1);
       });
-  }, [status, page]);
+  }, [category, page]);
 
   return (
     <>
@@ -140,6 +167,7 @@ const Page = () => {
                 ))}
               </Select>
             </Stack>
+            {console.log("items", comments)}
             <CommentsTable
               items={comments}
               page={page}
@@ -152,7 +180,7 @@ const Page = () => {
               handleFilterChange={handleFilterChange}
               searchTerm={searchTerm}
               handleSearchTermChange={handleSearchTermChange}
-              handleSearchTermSubmit={handleSearchTermSubmit}
+              // handleSearchTermSubmit={handleSearchTermSubmit}
               placeholder={"Search Post"}
             />
           </Stack>

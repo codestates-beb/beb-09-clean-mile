@@ -1,4 +1,6 @@
 import PropTypes from "prop-types";
+import { format } from "date-fns";
+import { utcToZonedTime } from "date-fns-tz";
 import {
   Box,
   Card,
@@ -38,6 +40,7 @@ export const CommentsTable = ({ items = [], pageCount, page, handlePageChange })
                 </TableRow>
               </TableHead>
               <TableBody>
+                {console.log("comment", items)}
                 {items.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={6} align="center">
@@ -45,31 +48,31 @@ export const CommentsTable = ({ items = [], pageCount, page, handlePageChange })
                     </TableCell>
                   </TableRow>
                 ) : (
-                  items.map((comment) => {
+                  items.map((comment, i) => {
+                    const createdAt = comment.created_at
+                      ? format(utcToZonedTime(new Date(comment.created_at)), "MM/dd/yyyy")
+                      : "N/A";
                     return (
                       <TableRow
                         hover
-                        key={comment.id}
-                        onClick={() => handleCommentSelected(comment.id)}
+                        key={i}
+                        onClick={() => handleCommentSelected(comment._id)}
                         sx={{
                           "&:hover": {
                             cursor: "pointer",
                           },
                         }}
                       >
-                        <TableCell>
-                          <Stack alignItems="center" direction="row" spacing={2}>
-                            <Typography variant="subtitle2">{comment.title}</Typography>
-                          </Stack>
+                        <TableCell align="center">
+                          <Typography variant="subtitle2">{comment.post_id.title}</Typography>
                         </TableCell>
-                        <TableCell>{comment.category}</TableCell>
-                        <TableCell>
+                        <TableCell align="center">{comment.post_id.category}</TableCell>
+                        <TableCell align="center">
                           {comment.content ? `${comment.content.slice(0, 20)}...` : "N/A"}
                         </TableCell>
-                        <TableCell>{comment.writer}</TableCell>
-
-                        <TableCell>{comment.likes}</TableCell>
-                        <TableCell>{comment.createdAt}</TableCell>
+                        <TableCell align="center">{comment.user_id.nickname}</TableCell>
+                        <TableCell align="center">{comment.likes.count}</TableCell>
+                        <TableCell align="center">{createdAt}</TableCell>
                       </TableRow>
                     );
                   })

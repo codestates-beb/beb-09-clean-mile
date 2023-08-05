@@ -142,6 +142,7 @@ export const AuthProvider = (props) => {
 
   const refresh = async () => {
     let isAuthenticated = false;
+    initialized.current = true;
 
     console.log("refresh");
 
@@ -155,6 +156,7 @@ export const AuthProvider = (props) => {
       const res = await axios.post("http://localhost:7000/admin/refresh", null, {
         withCredentials: true,
       });
+      toggleRefresh(true);
 
       if (!res || !res.status === 200) {
         throw new Error("Refresh failed");
@@ -251,6 +253,7 @@ export const AuthProvider = (props) => {
   useEffect(() => {
     try {
       initialize();
+      refresh();
     } catch (err) {
       console.error(err);
     }
