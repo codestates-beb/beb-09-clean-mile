@@ -183,8 +183,8 @@ const saveUserData = async (userData) => {
         address: userData.wallet_address,
         token_amount: 0,
         badge_amount: 0,
-        total_badge_score:0,
-        mileage_amount:0
+        total_badge_score: 0,
+        mileage_amount: 0,
       },
     });
 

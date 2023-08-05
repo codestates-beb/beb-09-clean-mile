@@ -30,7 +30,7 @@ module.exports = (app) => {
 
       // 이메일로 정보 조회
       const adminResult = await userController.findUserEmail(email);
-      if (!adminResult.success) {
+      if (!adminResult || !adminResult.success) {
         return res.status(400).json({
           success: false,
           message: '등록되지 않은 이메일입니다.',

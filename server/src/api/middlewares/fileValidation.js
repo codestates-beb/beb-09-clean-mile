@@ -12,8 +12,9 @@ const checkFileExistence = (req, res, next) => {
 };
 
 const checkFilesExistence = (req, res, next) => {
+  console.log(req.files);
   const files = req.files;
-  if (files.length === 0) {
+  if (files.length === 0 || !files) {
     return res.status(400).json({
       success: false,
       message: '파일이 존재하지 않습니다.',
