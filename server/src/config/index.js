@@ -7,6 +7,9 @@ module.exports = {
   // mongodb
   databaseURL: config.DATABASE_URL,
 
+  // mongodb test
+  testDatabaseURL: config.TEST_MONGO_URL,
+
   // node environment
   nodeEnv: process.env.NODE_ENV,
 

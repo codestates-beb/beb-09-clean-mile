@@ -12,8 +12,9 @@ const checkFileExistence = (req, res, next) => {
 };
 
 const checkFilesExistence = (req, res, next) => {
+  console.log(req.files);
   const files = req.files;
-  if (files.length === 0) {
+  if (files.length === 0 || !files) {
     return res.status(400).json({
       success: false,
       message: '파일이 존재하지 않습니다.',
@@ -27,7 +28,7 @@ const checkFilesExistence = (req, res, next) => {
 function fileValidation(req, res, next) {
   const allowedMimeTypes = ['image/jpeg', 'image/png', 'video/*'];
 
-  let files = [];
+  let files = req.files;
   if (!req.files) {
     files.push(req.file);
   }

@@ -87,7 +87,10 @@ const getComments = async (category, page, title, content, writer, limit) => {
 const getComment = async (comment_id) => {
   try {
     // 댓글 조회
-    const comment = await CommentModel.findById(comment_id).select('-__v');
+    const comment = await CommentModel.findById(comment_id)
+      .select('-__v -likes.likers')
+      .populate('user_id', ['nickname'])
+      .populate('post_id', ['title']);
     if (!comment) {
       return { success: false };
     }
