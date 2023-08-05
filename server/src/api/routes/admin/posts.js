@@ -53,6 +53,33 @@ module.exports = (app) => {
     }
   });
 
+  route.get('/detail/:post_id', isAdminAuth, async (req, res) => {
+    try {
+      const { post_id } = req.params;
+
+      // 게시물 조회
+      const post = await adminPostsController.getPostWithComments(post_id);
+      if (!post.success) {
+        return res.status(400).json({
+          success: false,
+          message: post.message,
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: '게시글 조회 성공',
+        data: post.data,
+      });
+    } catch (err) {
+      console.error('Error:', err);
+      return res.status(500).json({
+        success: false,
+        message: '서버 오류',
+      });
+    }
+  });
+
   /**
    * @route POST /admin/posts/delete/:id
    * @group Admin - Post
