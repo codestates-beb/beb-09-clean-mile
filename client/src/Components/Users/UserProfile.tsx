@@ -6,10 +6,27 @@ import Swal from 'sweetalert2';
 import { AxiosError, AxiosResponse } from 'axios';
 import { BsFillImageFill } from 'react-icons/bs';
 import { hero_img } from '../Reference';
-import { User, Pagination, Post, EventList, Dnft } from '../Interfaces';
+import {
+  User,
+  Pagination,
+  Post,
+  EventList,
+  Dnft,
+  UserBadge,
+} from '../Interfaces';
 import { ApiCaller } from '../Utils/ApiCaller';
 
-const UserProfile =({ userInfo, postPagination, userDnft, userBadges }: { userInfo: User, postPagination: Pagination, userDnft: Dnft, userBadges: UserBadge[] }) => {
+const UserProfile = ({
+  userInfo,
+  postPagination,
+  userDnft,
+  userBadges,
+}: {
+  userInfo: User;
+  postPagination: Pagination;
+  userDnft: Dnft;
+  userBadges: UserBadge[];
+}) => {
   const router = useRouter();
   const { t } = useTranslation('common');
 
@@ -30,10 +47,8 @@ const UserProfile =({ userInfo, postPagination, userDnft, userBadges }: { userIn
 
       setPostData(res.data.data.data);
       setCurrentPage(pageNumber);
-
     } catch (error) {
-
-      console.log(error)
+      console.log(error);
     }
   };
 
@@ -59,7 +74,6 @@ const UserProfile =({ userInfo, postPagination, userDnft, userBadges }: { userIn
       }).then(() => {
         Swal.close();
       });
-
     } catch (err) {
       Swal.fire({
         title: t('common:Error'),
@@ -71,14 +85,19 @@ const UserProfile =({ userInfo, postPagination, userDnft, userBadges }: { userIn
         Swal.close();
       });
     }
-  }
+  };
 
   return (
-    <div className="w-full min-h-screen">
-      <div className="w-full h-[30rem] md:h-[25rem] sm:h-[20rem] xs:h-[15rem] border-2 border-dashed rounded-xl">
-        <img src={!userInfo?.banner_img_url ? undefined : userInfo?.banner_img_url} className="w-full h-full object-contain" alt="banner Image" />
+    <div className='w-full min-h-screen'>
+      <div className='w-full h-[30rem] md:h-[25rem] sm:h-[20rem] xs:h-[15rem] border-2 border-dashed rounded-xl'>
+        <img
+          src={!userInfo?.banner_img_url ? undefined : userInfo?.banner_img_url}
+          className='w-full h-full object-contain'
+          alt='banner Image'
+        />
       </div>
-      <div className='
+      <div
+        className='
         w-[15rem] 
         lg:w-[10rem] 
         md:w-[9rem] 
@@ -102,8 +121,14 @@ const UserProfile =({ userInfo, postPagination, userDnft, userBadges }: { userIn
         sm:left-[130px] 
         xs:left-[115px] 
         overflow-hidden
-        shadow-lg'>
-        <Image src={userDnft.image_url} layout='fill' className='object-cover' alt='profile image' />
+        shadow-lg'
+      >
+        <Image
+          src={userDnft.image_url}
+          layout='fill'
+          className='object-cover'
+          alt='profile image'
+        />
       </div>
       <div className='w-full h-full flex flex-col sm:items-center xs:items-center justify-center gap-6 px-12 sm:px-2 xs:px-2'>
         <div className='w-[80%] md:w-[80%] sm:w-full xs:w-full flex flex-col items-start sm:items-center xs:items-center gap-3 ml-[14%] lg:ml-[18%] md:ml-[20%] sm:ml-0 xs:ml-0 my-2 mt-5 sm:mt-24 xs:mt-20'>
@@ -112,20 +137,33 @@ const UserProfile =({ userInfo, postPagination, userDnft, userBadges }: { userIn
               {userInfo?.nickname}
             </p>
           </div>
-          <p className='font-semibold sm:text-sm xs:text-xs cursor-pointer' onClick={copyAddr} title="Click to copy the address">
+          <p
+            className='font-semibold sm:text-sm xs:text-xs cursor-pointer'
+            onClick={copyAddr}
+            title='Click to copy the address'
+          >
             {userInfo?.wallet?.address}
           </p>
           <div>
-            <p className='px-3 py-2 sm:px-2 md:text-sm sm:text-sm xs:text-sm bg-[#FBA1B7] hover:bg-main-insta rounded-xl transition duration-300 text-white font-bold'>@insta_id</p>
+            <p className='px-3 py-2 sm:px-2 md:text-sm sm:text-sm xs:text-sm bg-[#FBA1B7] hover:bg-main-insta rounded-xl transition duration-300 text-white font-bold'>
+              @insta_id
+            </p>
           </div>
         </div>
-        <div className={`w-full h-2/3 ${userBadges.length === 0 ? 'flex font-bold' : 'grid grid-cols-10'} lg:grid-cols-6 md:grid-cols-5 sm:grid-cols-3 xs:grid-cols-3 gap-4 justify-items-center bg-gray-200 rounded-xl px-6 py-6`}>
+        <div
+          className={`w-full h-2/3 ${
+            userBadges.length === 0 ? 'flex font-bold' : 'grid grid-cols-10'
+          } lg:grid-cols-6 md:grid-cols-5 sm:grid-cols-3 xs:grid-cols-3 gap-4 justify-items-center bg-gray-200 rounded-xl px-6 py-6`}
+        >
           {userBadges?.length === 0 ? (
-              <p className='w-full flex justify-center items-center'>{t('common:There are no registered badges')}</p>
-            ) : (
-              userBadges?.map((badge, i) => {
-                return (
-                  <div className='w-[10rem] 
+            <p className='w-full flex justify-center items-center'>
+              {t('common:There are no registered badges')}
+            </p>
+          ) : (
+            userBadges?.map((badge, i) => {
+              return (
+                <div
+                  className='w-[10rem] 
                     lg:w-[8rem] 
                     md:w-[6rem] 
                     sm:w-[6rem] 
@@ -139,61 +177,85 @@ const UserProfile =({ userInfo, postPagination, userDnft, userBadges }: { userIn
                     rounded-full 
                     overflow-hidden 
                     relative'
-                    key={i}>
-                    <Image src={badge.image_url} layout='fill' className='object-cover' alt='profile image' />
-                  </div>
-                )
-              })
-            )}
+                  key={i}
+                >
+                  <Image
+                    src={badge.image_url}
+                    layout='fill'
+                    className='object-cover'
+                    alt='profile image'
+                  />
+                </div>
+              );
+            })
+          )}
         </div>
         <div className='w-full h-2/3 flex flex-col gap-4 px-6 py-6 sm:px-2 xs:px-0'>
-          <h2 className='text-3xl sm:text-2xl xs:text-xl font-bold border-b border-black pb-2'>{t('common:Posts created')}</h2>
-          <table className="w-full text-center border-collapse ">
+          <h2 className='text-3xl sm:text-2xl xs:text-xl font-bold border-b border-black pb-2'>
+            {t('common:Posts created')}
+          </h2>
+          <table className='w-full text-center border-collapse '>
             <thead className='border-b'>
               <tr>
-                <th className="p-2">{t('common:No')}</th>
-                <th className="p-2">{t('common:Title')}</th>
-                <th className="p-2">{t('common:Content')}</th>
-                <th className="p-2">{t('common:Writer')}</th>
-                <th className="p-2">{t('common:Date')}</th>
-                <th className="p-2">{t('common:Views')}</th>
+                <th className='p-2'>{t('common:No')}</th>
+                <th className='p-2'>{t('common:Title')}</th>
+                <th className='p-2'>{t('common:Content')}</th>
+                <th className='p-2'>{t('common:Writer')}</th>
+                <th className='p-2'>{t('common:Date')}</th>
+                <th className='p-2'>{t('common:Views')}</th>
               </tr>
             </thead>
             <tbody>
               {postData === null ? (
                 <tr>
-                  <td colSpan={6} className="p-6 text-center">No post was created.</td>
+                  <td colSpan={6} className='p-6 text-center'>
+                    No post was created.
+                  </td>
                 </tr>
               ) : (
                 postData?.map((post, i) => (
-                  <tr className="
+                  <tr
+                    className='
                     hover:bg-gray-200 
                     transition-all 
                     duration-300 
-                    cursor-pointer"
+                    cursor-pointer'
                     key={i}
-                    onClick={() => router.push(`/posts/general/${post._id}`)}>
-                    <td className="border-b p-6 md:p-2 sm:p-2 xs:p-2">
-                      <p className="text-xl sm:text-xs xs:text-xs font-semibold">{i + 1}</p>
+                    onClick={() => router.push(`/posts/general/${post._id}`)}
+                  >
+                    <td className='border-b p-6 md:p-2 sm:p-2 xs:p-2'>
+                      <p className='text-xl sm:text-xs xs:text-xs font-semibold'>
+                        {i + 1}
+                      </p>
                     </td>
-                    <td className="border-b p-6 md:p-2 sm:p-2 xs:p-2">
-                      <p className="text-gray-600 sm:text-xs xs:text-xs">{post.title.length >= 10 ? post.title.slice(0, 10) + '...' : post.title}</p>
+                    <td className='border-b p-6 md:p-2 sm:p-2 xs:p-2'>
+                      <p className='text-gray-600 sm:text-xs xs:text-xs'>
+                        {post.title.length >= 10
+                          ? post.title.slice(0, 10) + '...'
+                          : post.title}
+                      </p>
                     </td>
-                    <td className="border-b p-6 md:p-2 sm:p-2 xs:p-2">
-                      <p className="text-gray-600 sm:text-xs xs:text-xs">{post.content.length >= 20 ? post.content.slice(0, 20) + '...' : post.content}</p>
+                    <td className='border-b p-6 md:p-2 sm:p-2 xs:p-2'>
+                      <p className='text-gray-600 sm:text-xs xs:text-xs'>
+                        {post.content.length >= 20
+                          ? post.content.slice(0, 20) + '...'
+                          : post.content}
+                      </p>
                     </td>
-                    <td className="border-b p-6 md:p-2 sm:p-2 xs:p-2">
-                      <p className="text-gray-600 sm:text-xs xs:text-xs">
+                    <td className='border-b p-6 md:p-2 sm:p-2 xs:p-2'>
+                      <p className='text-gray-600 sm:text-xs xs:text-xs'>
                         {post.user_id.nickname}
                       </p>
                     </td>
-                    <td className="border-b p-6 md:p-2 sm:p-2 xs:p-2">
-                      <p className="text-gray-600 sm:text-xs xs:text-xs">
-                        {post.updated_at.split('T')[0]}<br />{post.updated_at.substring(11, 19)}
+                    <td className='border-b p-6 md:p-2 sm:p-2 xs:p-2'>
+                      <p className='text-gray-600 sm:text-xs xs:text-xs'>
+                        {post.updated_at.split('T')[0]}
+                        <br />
+                        {post.updated_at.substring(11, 19)}
                       </p>
                     </td>
-                    <td className="border-b p-6 md:p-2 sm:p-2 xs:p-2">
-                      <p className="text-gray-600 sm:text-xs xs:text-xs">
+                    <td className='border-b p-6 md:p-2 sm:p-2 xs:p-2'>
+                      <p className='text-gray-600 sm:text-xs xs:text-xs'>
                         {post.view.count}
                       </p>
                     </td>
@@ -207,7 +269,9 @@ const UserProfile =({ userInfo, postPagination, userDnft, userBadges }: { userIn
               {Array.from({ length: totalPages }, (_, i) => (
                 <button
                   key={i + 1}
-                  className={`px-2 py-2 mx-1 xs:text-sm ${currentPage === i + 1 ? 'font-bold' : ''}`}
+                  className={`px-2 py-2 mx-1 xs:text-sm ${
+                    currentPage === i + 1 ? 'font-bold' : ''
+                  }`}
                   onClick={() => handlePageChange(i + 1)}
                 >
                   {i + 1}
@@ -218,7 +282,7 @@ const UserProfile =({ userInfo, postPagination, userDnft, userBadges }: { userIn
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
 export default UserProfile;

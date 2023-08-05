@@ -1,11 +1,16 @@
 import React from 'react';
 import { GetServerSidePropsContext } from 'next';
-import { Header, Notice, NewNotice, Footer } from '../../Components/Reference'
+import { Header, Notice, NewNotice, Footer } from '../../Components/Reference';
 import { ApiCaller } from '../../Components/Utils/ApiCaller';
 import { Post, Pagination } from '../../Components/Interfaces';
 
-
-const NoticePage = ({ noticeList, noticePagination }: { noticeList: Post, noticePagination: Pagination }) => {
+const NoticePage = ({
+  noticeList,
+  noticePagination,
+}: {
+  noticeList: Post[];
+  noticePagination: Pagination;
+}) => {
   return (
     <>
       <Header />
@@ -13,11 +18,13 @@ const NoticePage = ({ noticeList, noticePagination }: { noticeList: Post, notice
       <Footer />
     </>
   );
-}
+};
 
 export default NoticePage;
 
-export const getServerSideProps = async (context: GetServerSidePropsContext) => {
+export const getServerSideProps = async (
+  context: GetServerSidePropsContext
+) => {
   const { query } = context;
   const page = query.page ? query.page : '1';
   const order = query.order ? query.order : 'desc';
@@ -26,9 +33,9 @@ export const getServerSideProps = async (context: GetServerSidePropsContext) => 
 
   try {
     let URL;
-    if(title) {
+    if (title) {
       URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/posts/list/notice?page=${page}&order=${order}&title=${title}`;
-    } else if(content) {
+    } else if (content) {
       URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/posts/list/notice?page=${page}&order=${order}&content=${content}`;
     } else {
       URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/posts/list/notice?page=${page}&order=${order}`;
@@ -49,17 +56,17 @@ export const getServerSideProps = async (context: GetServerSidePropsContext) => 
       // API 호출에 실패하면 오류 메시지를 출력하고 빈 객체를 반환합니다.
       console.error('API 호출 실패:', res.data.message);
       noticeList = {};
-      noticePagination = {}
+      noticePagination = {};
     }
     return { props: { noticeList, noticePagination } };
   } catch (error) {
     console.error('게시글 리스트를 가져오는데 실패했습니다:', error);
-    
+
     return {
       props: {
         noticeList: null,
-        noticePagination: null
-      }
+        noticePagination: null,
+      },
     };
   }
-}
+};
