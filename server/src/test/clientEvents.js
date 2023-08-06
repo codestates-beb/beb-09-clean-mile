@@ -139,7 +139,7 @@ describe('client/commentsController', () => {
     expect(result.success).to.be.false;
   });
 
-  it('should successfully create an event entry', async () => {
+  it('eventEntry 함수 테스트 : should successfully create an event entry', async () => {
     const user = await UserModel.findOne({ email: 'test@example.com' });
     const event = await EventModel.findOne({ title: 'Sample Event' });
     await EventEntryModel.findOneAndDelete({ user_id: user._id });
@@ -150,7 +150,7 @@ describe('client/commentsController', () => {
     expect(result.success).to.be.true;
   });
 
-  it('should return an error when the event is not in recruiting status', async () => {
+  it('eventEntry 함수 테스트 : should return an error when the event is not in recruiting status', async () => {
     const user = await UserModel.findOne({ email: 'test@example.com' });
     const event = await EventModel.findOne({ title: 'Sample Event' });
 
@@ -160,7 +160,7 @@ describe('client/commentsController', () => {
     expect(result.message).to.equal('존재하지 않는 이벤트입니다.');
   });
 
-  it('should return the event details for a valid event ID', async () => {
+  it('getEventById 함숱 테스트 : should return the event details for a valid event ID', async () => {
     const user = await UserModel.findOne({ email: 'test@example.com' });
     const event = await EventModel.findOne({ title: 'Sample Event' });
 
