@@ -2,7 +2,6 @@ import { Avatar, Box, Card, CardContent, Typography } from "@mui/material";
 
 export const UserDNFT = ({ dnft }) => (
   <Card sx={{ p: 3 }}>
-    {console.log("dnft", dnft)}
     <CardContent>
       <Box
         sx={{

@@ -483,6 +483,7 @@ const setTokenCookie = async (res, accessToken, refreshToken) => {
 };
 
 module.exports = {
+  saveAuthCode,
   checkEmail,
   sendEmail,
   checkNickName,

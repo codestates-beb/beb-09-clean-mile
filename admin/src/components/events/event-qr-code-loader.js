@@ -1,6 +1,7 @@
 import PlusIcon from "@heroicons/react/24/solid/PlusIcon";
 import { Box, Card, CardContent, CardHeader, Typography, Button } from "@mui/material";
 import axios from "axios";
+import Swal from "sweetalert2";
 import Image from "next/image";
 import { useState } from "react";
 
@@ -14,12 +15,37 @@ export const EventQRCodeLoader = ({ eventId }) => {
       });
 
       if (res && res.status === 200) {
-        setQRCode(res.data.data);
+        Swal.fire({
+          title: "Success!",
+          text: res.data.message,
+          icon: "success",
+          confirmButtonText: "OK",
+          confirmButtonColor: "#6BCB77",
+        }).then(() => {
+          Swal.close();
+          setQRcode(res.data.data);
+        });
       } else {
-        throw new Error("Failed to generate QR Code");
+        Swal.fire({
+          title: "Error",
+          text: res.data.message,
+          icon: "error",
+          confirmButtonText: "OK",
+          confirmButtonColor: "#6BCB77",
+        }).then(() => {
+          Swal.close();
+        });
       }
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      Swal.fire({
+        title: "Error",
+        text: error.response.data.message,
+        icon: "error",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#6BCB77",
+      }).then(() => {
+        Swal.close();
+      });
     }
   };
 

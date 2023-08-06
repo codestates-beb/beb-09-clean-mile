@@ -1,4 +1,5 @@
 import PropTypes from "prop-types";
+import axios from "axios";
 import {
   Box,
   Card,
@@ -23,12 +24,36 @@ export const EventEntryTable = ({
   pageCount,
   page,
   handlePageChange,
-  handleEntryExport,
 }) => {
   const router = useRouter();
+  const { id } = router.query;
 
   const handleUserSelected = (userId) => {
     router.push(`/users/${userId}`);
+  };
+
+  const entryUserDownload = async () => {
+    try {
+      const res = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/events/entry/download/${id}`,
+        {
+          withCredentials: true,
+          responseType: "blob",
+        }
+      );
+
+      if (res.status === 200) {
+        const downloadUrl = window.URL.createObjectURL(new Blob([res.data]));
+        const link = document.createElement("a");
+        link.href = downloadUrl;
+        link.setAttribute("download", "user_list.xlsx"); // 파일 이름 설정
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+      }
+    } catch (err) {
+      console.log(error);
+    }
   };
 
   return (
@@ -41,7 +66,7 @@ export const EventEntryTable = ({
               <ArrowDownOnSquareIcon />
             </SvgIcon>
           }
-          onClick={handleEntryExport}
+          onClick={entryUserDownload}
         >
           Export
         </Button>
@@ -52,16 +77,17 @@ export const EventEntryTable = ({
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>Name</TableCell>
-                  <TableCell>Email</TableCell>
-                  <TableCell>Wallet Address</TableCell>
-                  <TableCell>Badge</TableCell>
-                  <TableCell>Token</TableCell>
-                  <TableCell>Entry In</TableCell>
+                  <TableCell align="center">No.</TableCell>
+                  <TableCell align="center">Name</TableCell>
+                  <TableCell align="center">Email</TableCell>
+                  <TableCell align="center">Wallet Address</TableCell>
+                  <TableCell align="center">Badge</TableCell>
+                  <TableCell align="center">Token</TableCell>
+                  <TableCell align="center">Entry In</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {items.map((entry) => {
+                {items.map((entry, i) => {
                   return (
                     <TableRow
                       hover
@@ -73,32 +99,35 @@ export const EventEntryTable = ({
                         },
                       }}
                     >
-                      <TableCell>
-                        <Stack alignItems="center" direction="row" spacing={2}>
-                          <Typography variant="subtitle2">{entry.user_id.name}</Typography>
-                        </Stack>
+                      <TableCell align="center">
+                        <Typography variant="subtitle2">{i + 1}</Typography>
                       </TableCell>
-                      <TableCell>{entry.user_id.email}</TableCell>
-                      <TableCell>{`${
+                      <TableCell align="center">
+                        <Typography variant="subtitle2">{entry.user_id.name}</Typography>
+                      </TableCell>
+                      <TableCell align="center">{entry.user_id.email}</TableCell>
+                      <TableCell align="center">{`${
                         entry.user_id.wallet.address.slice(0, 6) +
                         "..." +
                         entry.user_id.wallet.address.slice(-4)
                       }`}</TableCell>
-                      <TableCell>
+                      <TableCell align="center">
                         {entry.is_nft_issued ? (
                           <Chip label="Issued" color="success" />
                         ) : (
                           <Chip label="Pending" color="error" />
                         )}
                       </TableCell>
-                      <TableCell>
+                      <TableCell align="center">
                         {entry.is_token_rewarded ? (
                           <Chip label="Issued" color="success" />
                         ) : (
                           <Chip label="Pending" color="error" />
                         )}
                       </TableCell>
-                      <TableCell>{new Date(entry.created_at).toLocaleString()}</TableCell>
+                      <TableCell align="center">
+                        {new Date(entry.created_at).toLocaleString()}
+                      </TableCell>
                     </TableRow>
                   );
                 })}

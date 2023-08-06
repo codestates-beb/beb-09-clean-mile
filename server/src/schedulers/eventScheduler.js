@@ -12,10 +12,7 @@ const updateEventStatus = async (event) => {
     const currentTime = getKorDate();
 
     // status = 'created' -> 'recruiting'
-    if (
-      event.status === 'created' &&
-      event.recruitment_start_at <= currentTime
-    ) {
+    if (event.status === 'created' && event.recruitment_start_at <= currentTime) {
       event.status = 'recruiting';
     }
 
@@ -34,6 +31,11 @@ const updateEventStatus = async (event) => {
         qrCode.isActive = false;
         await qrCode.save();
       }
+    }
+
+    const result = await event.save();
+    if (!result) {
+      return { success: false };
     }
 
     return { success: true };

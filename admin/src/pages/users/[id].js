@@ -46,8 +46,6 @@ const Page = () => {
         const eventsData = data.data.events;
         const dnftData = data.data.dnft;
 
-        console.log(userData, postsData, commentsData, eventsData, dnftData);
-
         if (userData) {
           setUser(userData);
         }

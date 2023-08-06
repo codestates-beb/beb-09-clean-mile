@@ -159,7 +159,16 @@ const savePost = async (user_id, postData, files) => {
  */
 const editPostField = async (post_id, title, content) => {
   try {
+<<<<<<< HEAD
     const updateFields = {};
+=======
+    updateFields.updated_at = getKorDate();
+    const result = await PostModel.findByIdAndUpdate(
+      post_id,
+      { $set: updateFields },
+      { new: true }
+    );
+>>>>>>> 05a897c18b7670073467e77297da5fa401c781a5
 
     if (title) {
       // 제목 수정

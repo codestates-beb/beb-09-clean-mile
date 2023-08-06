@@ -490,6 +490,8 @@ module.exports = (app) => {
         });
       }
 
+      console.log(content);
+
       /**
        ******** 주최측 데이터 수정 ********
        */

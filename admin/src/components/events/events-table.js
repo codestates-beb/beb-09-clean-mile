@@ -31,12 +31,13 @@ export const EventsTable = ({ items = [], pageCount, page, handlePageChange }) =
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>Title</TableCell>
-                  <TableCell>Type</TableCell>
-                  <TableCell>Location</TableCell>
-                  <TableCell>Organization</TableCell>
-                  <TableCell>Status</TableCell>
-                  <TableCell>Created At</TableCell>
+                  <TableCell align="center">Id</TableCell>
+                  <TableCell align="center">Title</TableCell>
+                  <TableCell align="center">Type</TableCell>
+                  <TableCell align="center">Location</TableCell>
+                  <TableCell align="center">Organization</TableCell>
+                  <TableCell align="center">Status</TableCell>
+                  <TableCell align="center">Created At</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -56,24 +57,31 @@ export const EventsTable = ({ items = [], pageCount, page, handlePageChange }) =
                         },
                       }}
                     >
-                      <TableCell>
-                        <Stack alignItems="center" direction="row" spacing={2}>
-                          <Typography variant="subtitle2">
-                            {event.title ? event.title : "N/A"}
-                          </Typography>
-                        </Stack>
+                      <TableCell align="center">
+                        <Typography variant="subtitle2">
+                          {event._id.slice(0, 6) + "..." + event._id.slice(-4)}
+                        </Typography>
                       </TableCell>
-                      <TableCell>{event.event_type ? event.event_type : "N/A"}</TableCell>
-                      <TableCell>{event.location ? event.location : "N/A"}</TableCell>
-                      <TableCell>
+                      <TableCell align="center">
+                        <Typography variant="subtitle2">
+                          {event.title ? event.title : "N/A"}
+                        </Typography>
+                      </TableCell>
+                      <TableCell align="center">
+                        {event.event_type ? event.event_type : "N/A"}
+                      </TableCell>
+                      <TableCell align="center">
+                        {event.location ? event.location : "N/A"}
+                      </TableCell>
+                      <TableCell align="center">
                         {event.host_id
                           ? event.host_id.organization
                             ? event.host_id.organization
                             : "N/A"
                           : "N/A"}
                       </TableCell>
-                      <TableCell>{event.status ? event.status : "N/A"}</TableCell>
-                      <TableCell>{createdAt}</TableCell>
+                      <TableCell align="center">{event.status ? event.status : "N/A"}</TableCell>
+                      <TableCell align="center">{createdAt}</TableCell>
                     </TableRow>
                   );
                 })}

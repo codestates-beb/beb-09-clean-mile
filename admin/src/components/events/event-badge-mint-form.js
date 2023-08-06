@@ -10,10 +10,10 @@ import {
   Typography,
 } from "@mui/material";
 import axios from "axios";
+import Swal from "sweetalert2";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { useCallback, useRef, useState } from "react";
-import { object, string, number, date, array, mixed } from "yup";
 
 const types = [
   {
@@ -30,39 +30,49 @@ const types = [
   },
 ];
 
-const initialValues = {
-  name: "",
-  description: "",
-  type: 0,
-  image: null,
-  preview: "",
-};
-
-const badgeMintSchema = object({
-  name: string().required(),
-  description: string().required(),
-  type: number().min(0).max(2).required(),
-  image: mixed(),
-});
+const EXTENSIONS = [{ type: "gif" }, { type: "jpg" }, { type: "jpeg" }, { type: "png" }];
 
 export const EventBadgeMintForm = ({ eventId }) => {
-  const [values, setValues] = useState(initialValues);
-
-  const imageInputRef = useRef();
-
   const router = useRouter();
+  const imageInputRef = useRef(null);
+  const [name, setName] = useState("");
+  const [desc, setDesc] = useState("");
+  const [type, setType] = useState("");
+  const [fileUrl, setFileUrl] = useState(null);
+  const [uploadFile, setUploadFile] = useState(null);
+
+  /**
+   * 파일 업로드 이벤트를 처리
+   * @param {Event} e - 파일 업로드 이벤트
+   * @returns {void}
+   */
+  const fileUpload = (e) => {
+    if (e.target.files) {
+      const FILE = e.target.files[0];
+      const SIZE = 10;
+      const TYPE = FILE.type.split("/")[1];
+      const FSIZE = FILE.size / Math.pow(10, 6);
+
+      if (FSIZE < SIZE) {
+        EXTENSIONS.forEach((e) => {
+          if (e.type === TYPE) {
+            const objectURL = URL.createObjectURL(FILE);
+            setFileUrl(objectURL);
+            setUploadFile(FILE);
+          }
+        });
+      }
+    }
+  };
 
   const mintBadge = useCallback(async () => {
     try {
-      console.log(values);
-      const validated = await badgeMintSchema.validate(values);
-
       const formData = new FormData();
 
-      formData.append("name", validated.name);
-      formData.append("description", validated.description);
-      formData.append("type", validated.type);
-      formData.append("image", validated.image);
+      formData.append("name", name);
+      formData.append("description", desc);
+      formData.append("type", type);
+      formData.append("image", uploadFile);
       formData.append("event_id", eventId);
 
       const res = await axios.post("http://localhost:7000/admin/events/createBadge", formData, {
@@ -73,59 +83,55 @@ export const EventBadgeMintForm = ({ eventId }) => {
       });
 
       if (res && res.status === 200) {
-        router.reload();
+        Swal.fire({
+          title: "Success!",
+          text: res.data.message,
+          icon: "success",
+          confirmButtonText: "OK",
+          confirmButtonColor: "#6BCB77",
+        }).then(() => {
+          Swal.close();
+          router.push(`/events/${eventId}`);
+        });
       } else {
-        throw new Error("Invalid response");
+        Swal.fire({
+          title: "Error",
+          text: res.data.message,
+          icon: "error",
+          confirmButtonText: "OK",
+          confirmButtonColor: "#6BCB77",
+        }).then(() => {
+          Swal.close();
+        });
       }
     } catch (error) {
-      throw error;
+      console.log(error);
+      Swal.fire({
+        title: "Error",
+        text: error,
+        icon: "error",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#6BCB77",
+      }).then(() => {
+        Swal.close();
+      });
     }
   }, []);
 
-  const handleChange = useCallback((event) => {
-    const { name, value } = event.target;
-
-    if (name === "image") {
-      const file = event.target.files[0];
-
-      if (!file.type.startsWith("image/")) {
-        throw new Error("File is not an image");
-      }
-
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setValues((prev) => ({
-          ...prev,
-          image: file,
-          preview: reader.result,
-        }));
-      };
-
-      reader.readAsDataURL(file);
-      return;
+  const handleSubmit = useCallback((event) => {
+    event.preventDefault();
+    try {
+      mintBadge();
+    } catch (error) {
+      console.log(error);
     }
-
-    setValues((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
   }, []);
-
-  const handleSubmit = useCallback(
-    (event) => {
-      event.preventDefault();
-      try {
-        mintBadge();
-      } catch (error) {
-        console.log(error);
-      }
-    },
-    [values]
-  );
 
   const handleClear = useCallback(() => {
-    setValues(initialValues);
-    imageInputRef.current.value = "";
+    setName("");
+    setDesc("");
+    setType("");
+    setUploadFile("");
   });
 
   return (
@@ -140,9 +146,9 @@ export const EventBadgeMintForm = ({ eventId }) => {
                   fullWidth
                   label="Badge Name"
                   name="name"
-                  onChange={handleChange}
+                  onChange={(e) => setName(e.target.value)}
                   required
-                  value={values.name}
+                  value={name}
                 />
               </Grid>
               <Grid item xs={12} md={6}>
@@ -150,9 +156,9 @@ export const EventBadgeMintForm = ({ eventId }) => {
                   fullWidth
                   label="Badge Description"
                   name="description"
-                  onChange={handleChange}
+                  onChange={(e) => setDesc(e.target.value)}
                   required
-                  value={values.description}
+                  value={desc}
                 />
               </Grid>
               <Grid item xs={12} md={6}>
@@ -160,11 +166,11 @@ export const EventBadgeMintForm = ({ eventId }) => {
                   fullWidth
                   label="Badge Type"
                   name="type"
-                  onChange={handleChange}
+                  onChange={(e) => setType(e.target.value)}
                   required
                   select
                   SelectProps={{ native: true }}
-                  value={values.type}
+                  value={type}
                 >
                   {types.map((option) => (
                     <option key={option.value} value={option.value}>
@@ -178,16 +184,15 @@ export const EventBadgeMintForm = ({ eventId }) => {
                   fullWidth
                   label="Badge Image"
                   name="image"
-                  onChange={handleChange}
+                  onChange={fileUpload}
                   required
                   type="file"
-                  inputRef={imageInputRef}
                   inputProps={{
                     accept: "image/*",
                   }}
                 />
               </Grid>
-              {values.preview && (
+              {fileUrl && (
                 <Grid
                   item
                   xs={12}
@@ -209,7 +214,7 @@ export const EventBadgeMintForm = ({ eventId }) => {
                       pb: 3,
                     }}
                   >
-                    <Image src={values.preview} alt="preview" width={200} height={200} />
+                    <Image src={fileUrl} alt="preview" width={200} height={200} />
                   </Box>
                 </Grid>
               )}
