@@ -85,4 +85,16 @@ resource "aws_lb_listener" "main_alb_listener_http" {
   }
 }
 
-// TODO: Add HTTPS listener
+resource "aws_lb_listener" "main_alb_listener_https" {
+  load_balancer_arn = aws_alb.main_alb.arn
+  port              = "443"
+  protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-2016-08"
+
+  certificate_arn = aws_acm_certificate.clean_mile_certificate.arn
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_alb_target_group.main_alb_target_group_https.arn
+  }
+}
