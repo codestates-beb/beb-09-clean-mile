@@ -35,11 +35,11 @@ const updateEventStatus = async (event) => {
 <<<<<<< HEAD
 =======
 
-      qrCode.isActive = false;
-      const result = await qrCode.save();
-      if (!result) {
-        return { success: false };
-      }
+      // qrCode.isActive = false;
+      // const result = await qrCode.save();
+      // if (!result) {
+      //   return { success: false };
+      // }
     }
 
     const result = await event.save();
