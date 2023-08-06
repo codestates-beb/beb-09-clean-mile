@@ -7,7 +7,7 @@ const badgeController = require('../../../services/contract/badgeController');
 const dnftController = require('../../../services/contract/dnftController');
 const { getUser } = require('../../../services/client/usersController');
 const { getEventById } = require('../../../services/client/eventsController');
-const { saveFiles } = require('../../../services/client/postsController');
+const { saveFiles } = require('../../../services/client/postsController'); // 사용 안함
 const { checkFileExistence, checkFilesExistence, fileValidation } = require('../../middlewares/fileValidation');
 const storage = multer.memoryStorage(); // 이미지를 메모리에 저장
 const upload = multer({ storage: storage });
@@ -160,7 +160,7 @@ module.exports = (app) => {
           });
         }
 
-        // 이미지 파일 저장
+        // 이미지 파일 저장 -> 배지 생성 직전으로 옮겨주세요.
         const saveImage = await adminEventsController.saveImage(req.file);
         if (!saveImage) {
           return res.status(400).json({
@@ -227,7 +227,7 @@ module.exports = (app) => {
    * - 이벤트 상태가 ‘finished' 상태일 때만 배포 가능
    * - 예외처리 추가
    */
-  route.post('/transferBadges/:event_id', isAdminAuth, async (req, res) => {
+  route.post('/transferBadges/:event_id', isAdminAuth, async (req, res) => { // 이것도 일단 주석처리 해주세요.
     try {
       const { event_id } = req.params;
 
@@ -368,7 +368,7 @@ module.exports = (app) => {
         /**
          ******** 이벤트 생성 ********
          */
-        const eventData = {
+        const eventData = { // 이벤트 시간이 어드민 클라이언트에서 입력한 값이랑 왜 다를까요?
           title: title,
           host_id: host.id,
           poster_url: imageUrls,
@@ -436,7 +436,7 @@ module.exports = (app) => {
         });
       }
 
-      console.log(content);
+      console.log(content); // 로그 지워주세요.
 
       /**
        ******** 주최측 데이터 수정 ********

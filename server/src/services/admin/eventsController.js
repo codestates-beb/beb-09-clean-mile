@@ -514,7 +514,7 @@ const createQRcodeJWt = async (event_id) => {
       };
     }
 
-    // QR코드 생성 여부 확인
+    // QR코드 생성 여부 확인 // + 존재할 경우 verify 필요
     const qrCode = await QRCodeModel.findOne({ event_id: event_id });
     if (qrCode) {
       return { success: true, data: qrCode.token };
