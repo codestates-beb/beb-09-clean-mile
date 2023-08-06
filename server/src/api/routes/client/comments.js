@@ -146,7 +146,7 @@ module.exports = (app) => {
       // 댓글 작성자 확인
       if (
         commentResult.data.user_id.toString() === user_id ||
-        req.decoded.isAuth
+        req.decoded.isAuth // isAuth -> isAdmin 인가요?
       ) {
         // 댓글 삭제
         const commentDeleteResult = await commentsController.deleteComment(
