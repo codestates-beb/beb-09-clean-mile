@@ -22,7 +22,7 @@ module.exports = (app) => {
   app.use('/admin/events', route);
 
   /**
-   * @route POST /admin/events/list
+   * @route GET /admin/events/list
    * @group Admin - Event
    * @summary 이벤트 리스트 확인
    */
@@ -68,7 +68,7 @@ module.exports = (app) => {
   });
 
   /**
-   * @route POST /admin/events/detail/:event_id
+   * @route GET /admin/events/detail/:event_id
    * @group Admin - Event
    * @summary 이벤트 정보 상세 조회
    */
@@ -78,7 +78,7 @@ module.exports = (app) => {
 
       // 이벤트 정보 조회
       const event = await adminEventsController.getEvent(event_id);
-      if (!event) {
+      if (!event.success) {
         return res.status(400).json({
           success: false,
           message: event.message,
@@ -100,7 +100,7 @@ module.exports = (app) => {
   });
 
   /**
-   * @route POST /admin/events/detail/entry/:event_id
+   * @route GET /admin/events/detail/entry/:event_id
    * @group Admin - Event
    * @summary 이벤트 참여자 리스트 조회
    */
@@ -115,8 +115,9 @@ module.exports = (app) => {
         page,
         limit
       );
+
       if (!entries) {
-        return res.status(404).json({
+        return res.status(400).json({
           success: false,
           message: '이벤트 참여자 리스트 조회 실패',
         });
@@ -535,7 +536,7 @@ module.exports = (app) => {
   });
 
   /**
-   * @route PATCH /admin/events//cancel/:event_id
+   * @route PATCH /admin/events/cancel/:event_id
    * @group Admin - Event
    * @summary 이벤트 취소 (status 수정)
    */
@@ -560,7 +561,9 @@ module.exports = (app) => {
       }
 
       // 이벤트 취소
-      const event = await adminEventsController.updateEventStatus(event_id);
+      const event = await adminEventsController.setEventStatusCanceled(
+        event_id
+      );
       if (!event.success) {
         return res.status(400).json({
           success: false,
@@ -607,9 +610,7 @@ module.exports = (app) => {
       }
 
       // 이벤트 삭제
-      const event = await adminEventsController.setEventStatusCanceled(
-        event_id
-      );
+      const event = await adminEventsController.deleteEvent(event_id);
       if (!event.success) {
         return res.status(400).json({
           success: false,
@@ -631,7 +632,7 @@ module.exports = (app) => {
   });
 
   /**
-   * @route GET /admin/events/qrcode/:event_id
+   * @route POST /admin/events/qrcode/:event_id
    * @group Admin - Event
    * @summary 이벤트 인증 QR코드 생성
    */

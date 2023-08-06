@@ -80,9 +80,12 @@ module.exports = (app) => {
           message: '사용자 상세 정보 조회 실패',
         });
       }
-      
+
       const dnftData = await dnftController.userDnftData(id);
-      if (!dnftData.success) return res.status(400).json({success: false,message: '사용자 상세 정보 조회 실패'});
+      if (!dnftData.success)
+        return res
+          .status(400)
+          .json({ success: false, message: '사용자 상세 정보 조회 실패' });
       result.data.dnft = dnftData.data;
 
       return res.status(200).json({

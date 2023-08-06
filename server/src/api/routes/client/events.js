@@ -58,7 +58,7 @@ module.exports = (app) => {
   });
 
   /**
-   * @router POST /events/detail/:_id
+   * @router GET /events/detail/:_id
    * @group Events
    * @Summary 행사 내용 상세 조회
    */
@@ -104,7 +104,7 @@ module.exports = (app) => {
   });
 
   /**
-   * @router POST /events//entry/:event_id
+   * @router POST /events/entry/:event_id
    * @group Events
    * @Summary 행사 참여 신청
    */
