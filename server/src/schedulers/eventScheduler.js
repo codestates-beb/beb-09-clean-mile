@@ -1,4 +1,4 @@
-const schedule = require('node-schedule');
+const schedule = require('node-schedule'); // 이거 안쓰시는 건가요?
 const EventModel = require('../models/Events');
 const QRCodeModel = require('../models/QRCode');
 const { getKorDate } = require('../utils/common');

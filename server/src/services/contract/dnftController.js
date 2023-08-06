@@ -32,14 +32,14 @@ const setBadge = async () => {
  * @param {number} userType
  * @returns 성공여부
  */
-const createDNFT = async (email, userType) => {
+const createDNFT = async (email, userType) => { // email 받아서 사용자 정보 또 불러오기 보다는 사용자의 _id, address, name을 받아서 처리하는게 더 나을 듯
   try {
     const user = await UserModel.findOne({ email: email });
     if (!user) return { success: false, message: '데이터 요청 실패' };
     let description;
-    if (userType == 0) {
+    if (userType == 0) { // switch문 사용하면 더 깔끔할 듯
       // 일반 사용자
-      description = '---Events---';
+      description = '---Events---'; // 좀 더 괜찮은 내용으로 바꿔야할 듯
     } else if (userType == 1) {
       // 관리자
       description = 'Administrator';
@@ -59,7 +59,7 @@ const createDNFT = async (email, userType) => {
     const tokenId = Number(events[0].args.tokenId);
 
     const tokenUri = await dnftContract.connect(signer).tokenURI(tokenId);
-    const dnftLevel = await dnftContract.connect(signer).dnftLevel(tokenId);
+    const dnftLevel = await dnftContract.connect(signer).dnftLevel(tokenId); // dnftData 함수로 한 번에 불러올 수 있음
 
     const dnftData = new DnftModel({
       token_id: tokenId,
@@ -69,7 +69,7 @@ const createDNFT = async (email, userType) => {
       token_uri: tokenUri,
       dnft_level: dnftLevel,
     });
-    if (!dnftData) return { success: false, message: '데이터 요청 실패' };
+    if (!dnftData) return { success: false, message: '데이터 요청 실패' }; // 이 라인은 없어도 될 듯
     const result = await dnftData.save();
     if (!result) return { success: false };
     else return { success: true };

@@ -175,7 +175,7 @@ const saveUserData = async (userData) => {
       email: userData.email,
       name: userData.name,
       phone_number: userData.phone_number,
-      user_type: userData.user_type,
+      user_type: userData.user_type, // 아무 값도 받지 않으므로 라인 삭제, default로 'user' 타입이 설정됩니다.
       hashed_pw: userData.password,
       nickname: userData.nickname,
       social_provider: userData.social_provider,

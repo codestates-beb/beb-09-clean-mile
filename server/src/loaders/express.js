@@ -4,13 +4,13 @@ const cookieParser = require('cookie-parser');
 const morgan = require('morgan');
 const routes = require('../api');
 const config = require('../config');
-const accessLogStream = require('../loaders/morgan');
+const accessLogStream = require('../loaders/morgan'); // 이 부분 어떻게 할까요?
 
 module.exports = (app) => {
   // Enable Cross Origin Resource Sharing to all origins by default
   app.use(
     cors({
-      origin: ['http://localhost:3000'],
+      origin: ['http://localhost:3000'], // config.json에 origin 추가 및 불러오기로 변경
       credentials: true,
       methods: ['GET', 'POST', 'OPTIONS', 'DELETE', 'PATCH'],
     })

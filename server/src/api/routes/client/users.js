@@ -23,7 +23,7 @@ module.exports = (app) => {
    * @group users - 사용자 관련
    * @summary 이메일 인증 코드 전송(이메일 중복 체크 포함)
    */
-  route.post('/check-email', upload.single('email'), async (req, res) => {
+  route.post('/check-email', upload.single('email'), async (req, res) => { // upload.single('email') -> upload.none()
     try {
       const email = req.body.email;
       if (!email) {
@@ -69,7 +69,7 @@ module.exports = (app) => {
    * @group users - 사용자 관련
    * @summary 닉네임 중복 체크
    */
-  route.post('/validate-nickname', upload.single('email'), async (req, res) => {
+  route.post('/validate-nickname', upload.single('email'), async (req, res) => { // upload.single('email') -> upload.none()
     try {
       const nickname = req.body.nickname;
       if (!nickname) {
