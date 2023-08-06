@@ -8,11 +8,7 @@ const dnftController = require('../../../services/contract/dnftController');
 const { getUser } = require('../../../services/client/usersController');
 const { getEventById } = require('../../../services/client/eventsController');
 const { saveFiles } = require('../../../services/client/postsController');
-const {
-  checkFileExistence,
-  checkFilesExistence,
-  fileValidation,
-} = require('../../middlewares/fileValidation');
+const { checkFileExistence, checkFilesExistence, fileValidation } = require('../../middlewares/fileValidation');
 const storage = multer.memoryStorage(); // 이미지를 메모리에 저장
 const upload = multer({ storage: storage });
 
@@ -38,14 +34,7 @@ module.exports = (app) => {
       } = req.query;
 
       // 이벤트 정보 조회
-      const events = await adminEventsController.getEvents(
-        status,
-        page,
-        limit,
-        title,
-        content,
-        organization
-      );
+      const events = await adminEventsController.getEvents(status, page, limit, title, content, organization);
       if (!events) {
         return res.status(400).json({
           success: false,
@@ -110,11 +99,7 @@ module.exports = (app) => {
       const { page = 1, limit = 10 } = req.query;
 
       // 이벤트 참여자 리스트 조회
-      const entries = await adminEventsController.getEventEntries(
-        event_id,
-        page,
-        limit
-      );
+      const entries = await adminEventsController.getEventEntries(event_id, page, limit);
 
       if (!entries) {
         return res.status(400).json({
@@ -142,11 +127,7 @@ module.exports = (app) => {
    * @group Admin - Event
    * @summary 이벤트 참여자 리스트 다운로드
    */
-  route.get(
-    '/entry/download/:event_id',
-    isAdminAuth,
-    adminEventsController.exportToExcel
-  );
+  route.get('/entry/download/:event_id', isAdminAuth, adminEventsController.exportToExcel);
 
   /**
    * @route POST /admin/events/createBadge
@@ -269,26 +250,17 @@ module.exports = (app) => {
       // 행사 참여 후 인증 완료한 사용자 조회
       const recipients = await badgeController.isConfirmedUser(event_id);
       if (!recipients.success) {
-        return res
-          .status(400)
-          .json({ success: false, message: recipients.message });
+        return res.status(400).json({ success: false, message: recipients.message });
       }
       console.log(recipients.data);
 
       // 뱃지 전송
-      const transferBadges = await badgeController.transferBadges(
-        recipients.data,
-        event_id
-      );
+      const transferBadges = await badgeController.transferBadges(recipients.data, event_id);
       if (transferBadges.success) {
         //email
         for (const userId of recipients.data) {
-          const updateDescription = await dnftController.updateDescription(
-            userId,
-            event.data.title
-          );
-          if (!updateDescription.success)
-            return res.status(400).json({ success: false });
+          const updateDescription = await dnftController.updateDescription(userId, event.data.title);
+          if (!updateDescription.success) return res.status(400).json({ success: false });
         }
         return res.status(200).json({
           success: true,
@@ -340,13 +312,7 @@ module.exports = (app) => {
         } = req.body;
 
         // 필수 정보 체크 (host)
-        if (
-          !name ||
-          !email ||
-          !phone_number ||
-          !wallet_address ||
-          !organization
-        ) {
+        if (!name || !email || !phone_number || !wallet_address || !organization) {
           return res.status(400).json({
             success: false,
             message: '주최측 필수 정보를 입력해주세요.',
@@ -470,6 +436,8 @@ module.exports = (app) => {
         });
       }
 
+      console.log(content);
+
       /**
        ******** 주최측 데이터 수정 ********
        */
@@ -561,9 +529,7 @@ module.exports = (app) => {
       }
 
       // 이벤트 취소
-      const event = await adminEventsController.setEventStatusCanceled(
-        event_id
-      );
+      const event = await adminEventsController.setEventStatusCanceled(event_id);
       if (!event.success) {
         return res.status(400).json({
           success: false,
