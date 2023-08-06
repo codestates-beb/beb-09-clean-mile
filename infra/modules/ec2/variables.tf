@@ -45,3 +45,15 @@ variable "common_tags" {
   description = "Common tags to apply to all resources"
   default     = {}
 }
+
+variable "user_data" {
+  type        = string
+  description = "User data to pass to the EC2 instance"
+  default     = null
+}
+
+variable "environment" {
+  type        = string
+  description = "Environment name"
+  default     = "dev"
+}
