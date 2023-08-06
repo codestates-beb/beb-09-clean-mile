@@ -143,7 +143,7 @@ module.exports = (app) => {
    */
   route.post(
     '/reward',
-    /*isAdminAuth*/ async (req, res) => {
+    /*isAdminAuth*/ async (req, res) => { // 이 함수는 일단 주석처리 합시다.
       const { userId, eventId } = req.body;
 
       const tokenTransfer = await tokenController.mileageReward(

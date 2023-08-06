@@ -135,6 +135,10 @@ const savePost = async (user_id, postData, files) => {
     // 저장하려는 게시글의 카테고리가 리뷰인 경우 event_id 필드 추가
     if (postData.category === 'review') {
       saveData.event_id = postData.event_id;
+
+      // entry를 검사: 이벤트에 참가를 했고 아직 리뷰 보상을 받지 않은 경우
+      // entry를 업데이트 (is_token_rewarded = true) -> is_mileage_rewarded로 바꿔야 할 듯
+      // 사용자 업데이트 (마일리지 + 1)
     }
 
     // 게시글 저장
