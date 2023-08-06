@@ -116,9 +116,9 @@ resource "aws_route" "private_nat_route" {
   nat_gateway_id         = aws_nat_gateway.nat_gateway.id
 }
 
-resource "aws_security_group" "main_security_group" {
-  name        = "Clean Mile Security Group"
-  description = "Clean Mile Security Group"
+resource "aws_security_group" "main_public_security_group" {
+  name        = "Clean Mile Public Security Group"
+  description = "Clean Mile Public Security Group"
   vpc_id      = aws_vpc.main_vpc.id
 
   ingress {
@@ -148,7 +148,44 @@ resource "aws_security_group" "main_security_group" {
   tags = merge(
     var.common_tags,
     {
-      Name = "Clean Mile Security Group"
+      Name = "Clean Mile Public Security Group"
+    }
+  )
+}
+
+resource "aws_security_group" "ec2_private_security_group" {
+  name        = "Clean Mile EC2 Private Security Group"
+  description = "Clean Mile EC2 Private Security Group"
+  vpc_id      = aws_vpc.main_vpc.id
+
+  ingress {
+    description     = "Allow HTTP inbound traffic from ALB"
+    from_port       = 80
+    to_port         = 80
+    protocol        = "tcp"
+    security_groups = [aws_security_group.main_public_security_group.id]
+  }
+
+  ingress {
+    description     = "Allow HTTPS inbound traffic from ALB"
+    from_port       = 443
+    to_port         = 443
+    protocol        = "tcp"
+    security_groups = [aws_security_group.main_public_security_group.id]
+  }
+
+  egress {
+    description = "Allow all outbound traffic"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = merge(
+    var.common_tags,
+    {
+      Name = "Clean Mile EC2 Private Security Group"
     }
   )
 }
