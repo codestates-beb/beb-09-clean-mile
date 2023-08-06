@@ -102,7 +102,7 @@ module.exports = (app) => {
       // 게시글 수정
       let editTitleResult = { success: true };
       let editContentResult = { success: true };
-
+      // 제목하고 본문 업데이트하는 거를 하나로 합칠 수 있으면 좋을 것 같습니다
       if (title && title !== postData.title) {
         editTitleResult = await postsController.editPostField(post_id, {
           title,
@@ -232,7 +232,7 @@ module.exports = (app) => {
           order
         );
       }
-
+      // 카테고리가 general, review가 아닌 경우에 대한 예외 처리 -> switch 문을 쓰면 깔끔할 것 같습니다
       return res.status(200).json({
         success: true,
         data: result,

@@ -212,7 +212,7 @@ const findDetailPost = async (req, postId, user_id) => {
     }
 
     // 조회 수 증가
-    const viewResult = await postViews(req, postResult);
+    const viewResult = await postViews(req, postResult); // viewResult가 사용되지 않음
 
     // view.viewers 필드 제거
     let objPost = postResult.toObject();
