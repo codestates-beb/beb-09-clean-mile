@@ -77,3 +77,9 @@ variable "availability_zones" {
   description = "Availability zones to use for the subnets"
   default     = ["ap-northeast-2a", "ap-northeast-2b"]
 }
+
+variable "domain_name" {
+  type        = string
+  description = "Domain name for the hosted zone"
+  default     = "clean-mile.co"
+}
