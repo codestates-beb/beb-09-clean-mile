@@ -319,7 +319,7 @@ module.exports = (app) => {
           });
         }
 
-        // 필수 정보 체크 (event)
+        // 필수 정보 체크 (event) + 이벤트 시간 validation recruitment_start_at < recruitment_end_at < event_start_at < event_end_at
         if (
           !title ||
           !content ||
