@@ -17,6 +17,7 @@ import dayjs from "dayjs";
 import { useRouter } from "next/router";
 import { useCallback, useRef, useState } from "react";
 import { object, string, number, date, array } from "yup";
+import Swal from "sweetalert2";
 
 const types = [
   {
@@ -98,6 +99,19 @@ export const EventCreateForm = () => {
       });
 
       if (res && res.status === 200) {
+        Swal.fire({
+          toast: true,
+          position: "top-end",
+          showCancelButton: false,
+          timer: 3000,
+          timerProgressBar: true,
+          icon: "success",
+          title: res.data.message,
+          didOpen: (toast) => {
+            toast.addEventListener("mouseenter", Swal.stopTimer);
+            toast.addEventListener("mouseleave", Swal.resumeTimer);
+          },
+        });
         router.push("/events");
       }
     } catch (error) {

@@ -1,6 +1,7 @@
 import Head from "next/head";
 import axios from "axios";
 import Swal from "sweetalert2";
+import cookie from 'cookie';
 import { Box, Container, Stack, Typography, Button, Tab } from "@mui/material";
 import { Layout as DashboardLayout } from "src/layouts/dashboard/layout";
 import { useRouter } from "next/router";
@@ -13,10 +14,7 @@ import { TabContext, TabList, TabPanel } from "@mui/lab";
 import { EventEntryTable } from "src/components/events/event-entry-table";
 import { EventQRCodeLoader } from "src/components/events/event-qr-code-loader";
 
-const Page = () => {
-  const [host, setHost] = useState(null);
-  const [event, setEvent] = useState(null);
-  const [badge, setBadge] = useState(null);
+const Page = ({ event, host, badge }) => {
   const [entries, setEntries] = useState([]);
   const [entryPage, setEntryPage] = useState(1);
   const [entryPageCount, setEntryPageCount] = useState(1);
@@ -25,56 +23,12 @@ const Page = () => {
 
   const router = useRouter();
 
-  const { id } = router.query;
-
-  const eventDetails = useCallback(async () => {
-    try {
-      const res = await axios.get(`http://localhost:7000/admin/events/detail/${id}`, {
-        withCredentials: true,
-      });
-
-      if (res && res.status === 200) {
-        const data = res.data;
-
-        if (data && data.data) {
-          const eventData = data.data.event;
-          const badgeData = data.data.badge;
-
-          if (!eventData) {
-            throw new Error("Invalid response");
-          }
-
-          const hostData = eventData.host_id;
-
-          if (!hostData) {
-            throw new Error("Invalid response");
-          }
-
-          delete eventData.host_id;
-
-          setHost(hostData);
-          setEvent(eventData);
-          setBadge(badgeData);
-        } else {
-          throw new Error(data.message ? data.message : "Invalid response");
-        }
-      } else {
-        throw new Error("Invalid response");
-      }
-    } catch (error) {
-      console.log(error);
-      setHost(null);
-      setEvent(null);
-      setBadge(null);
-    }
-  }, []);
-
   const eventEntries = useCallback(async () => {
     try {
       const params = {};
       params.page = entryPage;
 
-      const res = await axios.get(`http://localhost:7000/admin/events/detail/entry/${id}`, {
+      const res = await axios.get(`http://localhost:7000/admin/events/detail/entry/${event._id}`, {
         withCredentials: true,
       });
 
@@ -111,7 +65,7 @@ const Page = () => {
   const deleteEvent = async () => {
     try {
       const res = await axios.delete(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/events/delete/${id}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/events/delete/${event._id}`,
         {
           withCredentials: true,
         }
@@ -155,7 +109,8 @@ const Page = () => {
   const cancelEvent = async () => {
     try {
       const res = await axios.patch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/events/cancel/${id}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/events/cancel/${event._id}`,
+        null,
         {
           withCredentials: true,
         }
@@ -200,17 +155,9 @@ const Page = () => {
     setEntryPage(value);
   }, []);
 
-  const handleEntryExport = useCallback(() => {
-    console.log("handleEntryExport");
-  }, []);
-
   const handleTabChange = (event, value) => {
     setTabNum(value);
   };
-
-  useEffect(() => {
-    eventDetails();
-  }, [id]);
 
   useEffect(() => {
     eventEntries();
@@ -269,7 +216,7 @@ const Page = () => {
                 </TabPanel>
               ) : (
                 <TabPanel value={"4"}>
-                  <EventBadgeMintForm eventId={id} />
+                  <EventBadgeMintForm eventId={event._id} />
                 </TabPanel>
               )}
               <TabPanel value={"5"}>
@@ -277,12 +224,11 @@ const Page = () => {
                   page={entryPage}
                   pageCount={entryPageCount}
                   handlePageChange={handleEntryPageChange}
-                  handleEntryExport={handleEntryExport}
                   items={entries}
                 />
               </TabPanel>
               <TabPanel value={"6"}>
-                <EventQRCodeLoader eventId={id} />
+                <EventQRCodeLoader eventId={event._id} />
               </TabPanel>
             </TabContext>
           </Stack>
@@ -295,3 +241,46 @@ const Page = () => {
 Page.getLayout = (page) => <DashboardLayout>{page}</DashboardLayout>;
 
 export default Page;
+
+export const getServerSideProps = async (context) => {
+  const { id } = context.query;
+  const cookiesObj = cookie.parse(context.req.headers.cookie || "");
+
+  let cookiesStr = "";
+  if (context.req && cookiesObj) {
+    cookiesStr = Object.entries(cookiesObj)
+      .map(([key, value]) => `${key}=${value}`)
+      .join("; ");
+    axios.defaults.headers.Cookie = cookiesStr;
+  }
+  try {
+    const res = await axios.get(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/events/detail/${id}`,
+      {
+        withCredentials: true,
+      }
+    );
+
+    const event = res.data.data.event;
+    const host = res.data.data.event.host_id;
+    const badge = res.data.data.badge;
+
+    return {
+      props: {
+        event,
+        host,
+        badge
+      },
+    };
+  } catch (error) {
+    console.log(error);
+
+    return {
+      props: {
+        event: null,
+        host: null,
+        badge: null
+      },
+    };
+  }
+};

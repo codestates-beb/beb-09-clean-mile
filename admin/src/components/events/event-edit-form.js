@@ -68,8 +68,6 @@ export const EventEditForm = ({ event, host }) => {
       formData.append("event_start_at", eventStart);
       formData.append("event_end_at", eventEnd);
 
-      console.log(content);
-
       const res = await axios.patch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/events/edit`,
         formData,
@@ -106,7 +104,7 @@ export const EventEditForm = ({ event, host }) => {
     } catch (error) {
       Swal.fire({
         title: "Error",
-        text: error.response.data.message,
+        text: error,
         icon: "error",
         confirmButtonText: "OK",
         confirmButtonColor: "#6BCB77",
@@ -282,7 +280,6 @@ export const EventEditForm = ({ event, host }) => {
                   name="content"
                   onChange={(e) => {
                     setContent(e.target.value);
-                    console.log(content);
                   }}
                   required
                   value={content}

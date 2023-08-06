@@ -58,7 +58,6 @@ export const NoticeCreateForm = () => {
 
   const handleSubmit = useCallback((event) => {
     event.preventDefault();
-    console.log(values);
   }, []);
 
   const handleCancel = useCallback(() => {

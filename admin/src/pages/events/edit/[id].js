@@ -56,8 +56,6 @@ export const getServerSideProps = async (context) => {
       }
     );
 
-    console.log(res.data.data.event);
-
     const event = res.data.data.event;
     const host = res.data.data.event.host_id;
 

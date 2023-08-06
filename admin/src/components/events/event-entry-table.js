@@ -33,7 +33,6 @@ export const EventEntryTable = ({
   const handleUserSelected = (userId) => {
     router.push(`/users/${userId}`);
   };
-  // console.log(eventId)
 
   const entryUserDownload = async () => {
     try {

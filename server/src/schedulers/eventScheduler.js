@@ -13,10 +13,7 @@ const updateEventStatus = async (event) => {
     const currentTime = getKorDate();
 
     // status = 'created' -> 'recruiting'
-    if (
-      event.status === 'created' &&
-      event.recruitment_start_at <= currentTime
-    ) {
+    if (event.status === 'created' && event.recruitment_start_at <= currentTime) {
       event.status = 'recruiting';
     }
 
@@ -35,6 +32,20 @@ const updateEventStatus = async (event) => {
         qrCode.isActive = false;
         await qrCode.save();
       }
+<<<<<<< HEAD
+=======
+
+      // qrCode.isActive = false;
+      // const result = await qrCode.save();
+      // if (!result) {
+      //   return { success: false };
+      // }
+    }
+
+    const result = await event.save();
+    if (!result) {
+      return { success: false };
+>>>>>>> Update event cancel, badge minting
     }
 
     return { success: true };

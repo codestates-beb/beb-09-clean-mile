@@ -19,8 +19,6 @@ import { useRouter } from "next/router";
 export const PostsTable = ({ items = [], pageCount, page, handlePageChange, path }) => {
   const router = useRouter();
 
-  console.log(items);
-
   const handlePostSelected = (postId) => {
     router.push(`${path}/${postId}`);
   };
