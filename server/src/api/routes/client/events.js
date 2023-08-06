@@ -143,7 +143,7 @@ module.exports = (app) => {
    * @group Events
    * @Summary 행사 참여 인증 및 뱃지 지급
    */
-  route.post('/verify', isAuth, upload.none(), async (req, res) => {
+  route.post('/verify', isAuth, upload.none(), async (req, res) => { // 이 부분 돌아가긴 하는데 최적화가 필요함
     try {
       const user_id = req.decoded.user_id;
       const { token } = req.body;
@@ -153,6 +153,15 @@ module.exports = (app) => {
           message: '필수 입력 값이 없습니다.',
         });
       }
+
+      /*
+      이 부분 함수를 조금 나눕시다
+
+      1. qr 인증
+      2. 배지 지급
+      3. event entry 업데이트(인증 + 배지 지급 상태)
+      4. user 업데이트 (배지 개수 및 총 점수)
+      */
 
       // 행사 참여 인증
       const result = await eventsController.validateQRParticipation(

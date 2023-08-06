@@ -23,7 +23,7 @@ const findEventDetail = async (req, event_id, user_id) => {
     }
 
     // 조회 수 증가
-    const viewResult = await postViews(req, eventResult);
+    const viewResult = await postViews(req, eventResult); // 예외 처리 필요
 
     // view.viewers 필드 제거
     let objEvent = eventResult.toObject();
@@ -80,7 +80,7 @@ const eventEntry = async (event_id, user_id) => {
     }
 
     const currentTime = getKorDate();
-    if (event.remaining <= 0 || event.event_end_at <= currentTime) {
+    if (event.remaining <= 0 || event.event_end_at <= currentTime) { // event_end_at 대신 currentTime > recruitment_end_at 인지 체크
       return { success: false, message: '참가자 모집이 마감된 이벤트입니다.' };
     }
 
@@ -197,7 +197,7 @@ const validateQRParticipation = async (token, user_id) => {
       return { success: false, message: '인증에 실패하였습니다.' };
     }
 
-    // 마지막 스캔 시간 저장
+    // 마지막 스캔 시간 저장 // 이 부분 빼고 entry 스키마에 인증 시간을 추가할까요?
     qrResult.last_scanned_at = getKorDate();
     const updateQrData = await qrResult.save();
     if (!updateQrData) {
