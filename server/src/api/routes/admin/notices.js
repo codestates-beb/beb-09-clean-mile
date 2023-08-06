@@ -1,7 +1,6 @@
 const Router = require('express');
 const multer = require('multer');
 const isAdminAuth = require('../../middlewares/isAdminAuth');
-const { getUser } = require('../../../services/client/usersController');
 const { saveFiles } = require('../../../services/client/postsController');
 const { fileValidation } = require('../../middlewares/fileValidation');
 const adminNoticesController = require('../../../services/admin/noticesController');

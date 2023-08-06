@@ -157,11 +157,28 @@ const savePost = async (user_id, postData, files) => {
  * @param {*} updateFields 수정할 필드와 값을 담은 객체
  * @returns 성공 여부에 따라 객체 반환
  */
-const editPostField = async (post_id, updateFields) => {
+const editPostField = async (post_id, title, content) => {
   try {
-    updateFields.updated_at = getKorDate();
-    const result = await PostModel.findByIdAndUpdate(post_id, { $set: updateFields }, { new: true });
+    const updateFields = {};
 
+    if (title) {
+      // 제목 수정
+      updateFields.title = title;
+    }
+
+    if (content) {
+      // 내용 수정
+      updateFields.content = content;
+    }
+
+    // 수정일자 추가
+    updateFields.updated_at = getKorDate();
+
+    const result = await PostModel.findByIdAndUpdate(
+      post_id,
+      { $set: updateFields },
+      { new: true }
+    );
     if (!result) {
       return { success: false };
     }
@@ -200,7 +217,9 @@ const deletePost = async (postId) => {
 const findDetailPost = async (req, postId, user_id) => {
   try {
     // 게시글 상세 정보 조회
-    const postResult = await PostModel.findById(postId).populate('user_id', ['nickname']).select('-__v');
+    const postResult = await PostModel.findById(postId)
+      .populate('user_id', ['nickname'])
+      .select('-__v');
     if (!postResult) {
       return { success: false };
     }

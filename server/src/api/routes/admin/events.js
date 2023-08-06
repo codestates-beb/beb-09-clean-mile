@@ -7,7 +7,6 @@ const badgeController = require('../../../services/contract/badgeController');
 const dnftController = require('../../../services/contract/dnftController');
 const { getUser } = require('../../../services/client/usersController');
 const { getEventById } = require('../../../services/client/eventsController');
-const { saveFiles } = require('../../../services/client/postsController');
 const {
   checkFileExistence,
   checkFilesExistence,
@@ -179,15 +178,6 @@ module.exports = (app) => {
           });
         }
 
-        // 이미지 파일 저장
-        const saveImage = await adminEventsController.saveImage(req.file);
-        if (!saveImage) {
-          return res.status(400).json({
-            success: false,
-            message: '이미지 파일 저장 실패',
-          });
-        }
-
         // 이벤트 정보 조회
         const event = await getEventById(event_id);
         if (!event) {
@@ -201,6 +191,15 @@ module.exports = (app) => {
           return res.status(400).json({
             success: false,
             message: '이미 종료된 이벤트입니다.',
+          });
+        }
+
+        // 이미지 파일 저장
+        const saveImage = await adminEventsController.saveImage(req.file);
+        if (!saveImage) {
+          return res.status(400).json({
+            success: false,
+            message: '이미지 파일 저장 실패',
           });
         }
 
@@ -246,68 +245,70 @@ module.exports = (app) => {
    * - 이벤트 상태가 ‘finished' 상태일 때만 배포 가능
    * - 예외처리 추가
    */
-  route.post('/transferBadges/:event_id', isAdminAuth, async (req, res) => {
-    try {
-      const { event_id } = req.params;
+  /**
+   * 아직 사용하지 않는 엔드 포인트
+   */
+  // route.post('/transferBadges/:event_id', isAdminAuth, async (req, res) => {
+  //   try {
+  //     const { event_id } = req.params;
 
-      // 이벤트 정보 조회
-      const event = await getEventById(event_id);
-      if (!event) {
-        return res.status(400).json({
-          success: false,
-          message: event.message,
-        });
-      }
+  //     // 이벤트 정보 조회
+  //     const event = await getEventById(event_id);
+  //     if (!event) {
+  //       return res.status(400).json({
+  //         success: false,
+  //         message: event.message,
+  //       });
+  //     }
 
-      if (event.data.status !== 'finished') {
-        return res.status(400).json({
-          success: false,
-          message: '뱃지 전송은 finished 상태의 이벤트에서만 가능합니다.',
-        });
-      }
+  //     if (event.data.status !== 'finished') {
+  //       return res.status(400).json({
+  //         success: false,
+  //         message: '뱃지 전송은 finished 상태의 이벤트에서만 가능합니다.',
+  //       });
+  //     }
 
-      // 행사 참여 후 인증 완료한 사용자 조회
-      const recipients = await badgeController.isConfirmedUser(event_id);
-      if (!recipients.success) {
-        return res
-          .status(400)
-          .json({ success: false, message: recipients.message });
-      }
-      console.log(recipients.data);
+  //     // 행사 참여 후 인증 완료한 사용자 조회
+  //     const recipients = await badgeController.isConfirmedUser(event_id);
+  //     if (!recipients.success) {
+  //       return res
+  //         .status(400)
+  //         .json({ success: false, message: recipients.message });
+  //     }
 
-      // 뱃지 전송
-      const transferBadges = await badgeController.transferBadges(
-        recipients.data,
-        event_id
-      );
-      if (transferBadges.success) {
-        //email
-        for (const userId of recipients.data) {
-          const updateDescription = await dnftController.updateDescription(
-            userId,
-            event.data.title
-          );
-          if (!updateDescription.success)
-            return res.status(400).json({ success: false });
-        }
-        return res.status(200).json({
-          success: true,
-          message: '뱃지 전송 성공',
-        });
-      } else {
-        return res.status(400).json({
-          success: false,
-          message: '뱃지 전송 실패',
-        });
-      }
-    } catch (err) {
-      console.error('Error:', err);
-      return res.status(500).json({
-        success: false,
-        message: '서버 오류',
-      });
-    }
-  });
+  //     // 뱃지 전송
+  //     const transferBadges = await badgeController.transferBadges(
+  //       recipients.data,
+  //       event_id
+  //     );
+  //     if (transferBadges.success) {
+  //       //email
+  //       for (const userId of recipients.data) {
+  //         const updateDescription = await dnftController.updateDescription(
+  //           userId,
+  //           event.data.title
+  //         );
+  //         if (!updateDescription.success)
+  //           return res.status(400).json({ success: false });
+  //       }
+  //       return res.status(200).json({
+  //         success: true,
+  //         message: '뱃지 전송 성공',
+  //       });
+  //     } else {
+  //       return res.status(400).json({
+  //         success: false,
+  //         message: '뱃지 전송 실패',
+  //       });
+  //     }
+  //   } catch (err) {
+  //     console.error('Error:', err);
+  //     return res.status(500).json({
+  //       success: false,
+  //       message: '서버 오류',
+  //     });
+  //   }
+  // });
 
   /**
    * @route POST /admin/events/create
@@ -371,6 +372,23 @@ module.exports = (app) => {
           });
         }
 
+        //@todo 이벤트 타입 체크 확인해보기
+
+        // 이벤트 시간 체크
+        if (
+          !(
+            recruitment_start_at <
+            recruitment_end_at <
+            event_start_at <
+            event_end_at
+          )
+        ) {
+          return res.status(400).json({
+            success: false,
+            message: '이벤트 시간을 다시 확인해주세요.',
+          });
+        }
+
         // 이미지 파일 저장
         const imageUrls = await adminEventsController.saveImages(req.files);
         if (!imageUrls) {
@@ -416,6 +434,8 @@ module.exports = (app) => {
           event_start_at: event_start_at,
           event_end_at: event_end_at,
         };
+
+        // @todo 이벤트 시간이 어드민 클라이언트에서 입력한 값이 왜 다른지 확인 필요
 
         const event = await adminEventsController.saveEvent(eventData);
         if (!event) {
@@ -641,7 +661,7 @@ module.exports = (app) => {
       const { event_id } = req.params;
 
       // jwt 토큰 생성
-      const qrCodeJwt = await adminEventsController.createQRcodeJWt(event_id);
+      const qrCodeJwt = await adminEventsController.createQRCodeJwt(event_id);
       if (!qrCodeJwt.success) {
         return res.status(400).json({
           success: false,

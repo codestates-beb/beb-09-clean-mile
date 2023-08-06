@@ -74,7 +74,7 @@ module.exports = (app) => {
    */
   route.patch('/edit', isAuth, upload.none(), async (req, res) => {
     try {
-      const { post_id, title, content } = req.body;
+      const { post_id, title = null, content = null } = req.body;
 
       if (!post_id || (!title && !content)) {
         return res.status(400).json({
@@ -100,22 +100,12 @@ module.exports = (app) => {
       }
 
       // 게시글 수정
-      let editTitleResult = { success: true };
-      let editContentResult = { success: true };
-
-      if (title && title !== postData.title) {
-        editTitleResult = await postsController.editPostField(post_id, {
-          title,
-        });
-      }
-
-      if (content && content !== postData.content) {
-        editContentResult = await postsController.editPostField(post_id, {
-          content,
-        });
-      }
-
-      if (!editTitleResult.success || !editContentResult.success) {
+      const editPost = await postsController.editPostField(
+        post_id,
+        title,
+        content
+      );
+      if (!editPost.success) {
         return res.status(400).json({
           success: false,
           message: '게시글 수정에 실패했습니다.',
@@ -209,28 +199,31 @@ module.exports = (app) => {
       } = req.query;
 
       let result;
-
-      // General -> list
-      if (category === 'general') {
-        result = await postsController.getPosts(
-          page, // 조회할 페이지 번호
-          limit,
-          order, // 정렬 순서
-          category,
-          title,
-          content
-        );
-      }
-
-      // Review -> infinite scroll
-      if (category === 'review') {
-        result = await postsController.getReviews(
-          last_id, // 마지막 게시글 id
-          limit,
-          title,
-          content,
-          order
-        );
+      switch (category) {
+        case 'general': // General -> list
+          result = await postsController.getPosts(
+            page,
+            limit,
+            order,
+            category,
+            title,
+            content
+          );
+          break;
+        case 'review': // Review -> infinite scroll
+          result = await postsController.getReviews(
+            last_id, // 마지막 게시글 id
+            limit,
+            title,
+            content,
+            order
+          );
+          break;
+        default:
+          return res.status(400).json({
+            success: false,
+            message: '잘못된 카테고리입니다.',
+          });
       }
 
       return res.status(200).json({

@@ -86,7 +86,7 @@ module.exports = (app) => {
       if (!result.success) {
         return res.status(404).json({
           success: false,
-          message: '행사가 존재하지 않습니다.',
+          message: result.message,
         });
       }
 

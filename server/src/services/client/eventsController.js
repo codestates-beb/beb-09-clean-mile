@@ -16,14 +16,23 @@ const findEventDetail = async (req, event_id, user_id) => {
   try {
     // 이벤트 정보 조회
     const eventResult = await EventModel.findById(event_id)
-      .populate('host_id', ['name', 'email', 'phone_number', 'wallet_address', 'organization'])
+      .populate('host_id', [
+        'name',
+        'email',
+        'phone_number',
+        'wallet_address',
+        'organization',
+      ])
       .select('-__v');
     if (!eventResult) {
-      return { success: false };
+      return { success: false, message: '존재하지 않는 이벤트입니다.' };
     }
 
     // 조회 수 증가
     const viewResult = await postViews(req, eventResult);
+    if (!viewResult || !viewResult.success) {
+      return { success: false, message: '조회수 증가에 실패하였습니다.' };
+    }
 
     // view.viewers 필드 제거
     let objEvent = eventResult.toObject();
@@ -80,7 +89,7 @@ const eventEntry = async (event_id, user_id) => {
     }
 
     const currentTime = getKorDate();
-    if (event.remaining <= 0 || event.event_end_at <= currentTime) {
+    if (event.remaining <= 0 || currentTime > event.recruitment_end_at) {
       return { success: false, message: '참가자 모집이 마감된 이벤트입니다.' };
     }
 
@@ -192,16 +201,11 @@ const validateQRParticipation = async (token, user_id) => {
 
     // 참여 인증 정보 업데이트
     entry.is_confirmed = true;
+    entry.authenticated_at = getKorDate(); // 행사 참여 인증 시간
+    entry.updated_at = getKorDate(); // 업데이트 시간
     const result = await entry.save();
     if (!result) {
       return { success: false, message: '인증에 실패하였습니다.' };
-    }
-
-    // 마지막 스캔 시간 저장
-    qrResult.last_scanned_at = getKorDate();
-    const updateQrData = await qrResult.save();
-    if (!updateQrData) {
-      return { success: false, message: 'QR 데이터 수정에 실패했습니다.' };
     }
 
     return { success: true };

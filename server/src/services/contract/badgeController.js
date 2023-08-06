@@ -46,13 +46,6 @@ const createBadge = async (
   try {
     const pinata = new pinataSDK(config.PINATA_API, config.PINATA_SECRET);
 
-    // 이미지 파일 pinata에 업로드
-    // const photoResult = await pinata.pinJSONToIPFS({ image_url: imageUrl });
-    // console.log(
-    //   "Photo uploaded successfully. IPFS Hash:",
-    //   photoResult.IpfsHash
-    // );
-
     // NFT 메타 데이터 생성 및 Pinata에 업로드
     const nftMetadata = {
       name: name,
@@ -263,7 +256,7 @@ const transferBadge = async (recipient, eventId) => {
 
 /**
  * 유저가 보유 중인 뱃지 정보 반환
- * @param {string} userId 
+ * @param {string} userId
  * @returns 성공여부, 유저 뱃지 리스트
  */
 const userBadges = async (userId) => {
@@ -294,29 +287,30 @@ const userBadges = async (userId) => {
     console.error('Error:', err);
     throw new Error(err);
   }
-}
+};
 
 /**
  * 행사 종료 후 수량이 1개 이상인 뱃지 리스트 반환
  * @returns 성공여부, 잔여 뱃지 리스트
  */
 const remainBadges = async () => {
-  const remainBadges = await BadgeModel.find({remain_quantity: {$gt:0}});
-  if (!remainBadges) return ({success: false, message: "데이터를 가져오지 못했습니다."});
-  
+  const remainBadges = await BadgeModel.find({ remain_quantity: { $gt: 0 } });
+  if (!remainBadges)
+    return { success: false, message: '데이터를 가져오지 못했습니다.' };
+
   let badgeList = [];
-  const badgeType = ['bronze','silver','gold'];
-  for (const badge of remainBadges){
+  const badgeType = ['bronze', 'silver', 'gold'];
+  for (const badge of remainBadges) {
     badgeList.push({
       name: badge.name,
       description: badge.description,
       image: badge.image_url,
       badge_type: badgeType[badge.type],
-      remain_quantity: badge.remain_quantity
-    })
+      remain_quantity: badge.remain_quantity,
+    });
   }
-  return ({success: true, message: "잔여 뱃지 데이터", data: badgeList });
-}
+  return { success: true, message: '잔여 뱃지 데이터', data: badgeList };
+};
 
 module.exports = {
   createBadge,
@@ -324,5 +318,5 @@ module.exports = {
   transferBadges,
   userBadges,
   isConfirmedUser,
-  remainBadges
+  remainBadges,
 };

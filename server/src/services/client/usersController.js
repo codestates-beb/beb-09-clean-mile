@@ -146,8 +146,6 @@ const checkNickName = async (nickname) => {
 const checkEmailAuthCode = async (email, code) => {
   try {
     const emailData = await MailModel.findOne({ email: email });
-    console.log(emailData.expiry);
-    console.log(getKorDate());
     if (
       emailData &&
       Number(emailData.code) === Number(code) &&
@@ -171,28 +169,32 @@ const checkEmailAuthCode = async (email, code) => {
  */
 const saveUserData = async (userData) => {
   try {
+    // wallet address 중복 확인
+    const checkWalletAddr = await UserModel.findOne({
+      'wallet.address': userData.wallet_address,
+    });
+
+    if (checkWalletAddr) {
+      return { success: false, message: '이미 등록된 지갑 주소입니다.' };
+    }
+
     const saveUserData = new UserModel({
       email: userData.email,
       name: userData.name,
       phone_number: userData.phone_number,
-      user_type: userData.user_type,
       hashed_pw: userData.password,
       nickname: userData.nickname,
       social_provider: userData.social_provider,
       wallet: {
         address: userData.wallet_address,
-        token_amount: 0,
-        badge_amount: 0,
-        total_badge_score: 0,
-        mileage_amount: 0,
       },
     });
 
     const result = await saveUserData.save();
     if (!result) {
-      return { success: false };
+      return { success: false, message: '사용자 정보 저장에 실패했습니다.' };
     } else {
-      return { success: true };
+      return { success: true, data: result };
     }
   } catch (err) {
     console.error('Error:', err);
@@ -467,6 +469,7 @@ const setTokenCookie = async (res, accessToken, refreshToken) => {
     secure: true, // HTTPS 연결에서만 쿠키를 전송 (설정 후 수정 필요)
     sameSite: 'strict', // CSRF와 같은 공격을 방지
     maxAge: 1000 * 60 * 15, // 15분 (밀리초 단위)
+    domain: config.cookieDomain,
   });
 
   // refresh token을 쿠키에 저장
@@ -475,6 +478,7 @@ const setTokenCookie = async (res, accessToken, refreshToken) => {
     secure: true, // HTTPS 연결에서만 쿠키를 전송 (설정 후 수정 필요)
     sameSite: 'strict', // CSRF와 같은 공격을 방지
     maxAge: 1000 * 60 * 60 * 24 * 14, // 14일 (밀리초 단위)
+    domain: config.cookieDomain,
   });
 };
 

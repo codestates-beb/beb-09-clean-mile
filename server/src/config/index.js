@@ -4,6 +4,9 @@ module.exports = {
   // port
   port: config.PORT,
 
+  // cors
+  origin: config.ORIGIN,
+
   // mongodb
   databaseURL: config.DATABASE_URL,
 
@@ -33,6 +36,9 @@ module.exports = {
     isu: config.ISSUER,
     aud: config.AUDIENCE,
   },
+
+  // cookie
+  cookieDomain: config.COOKIE_DOMAIN,
 
   // QR code JWT
   qrCodeJwt: {
