@@ -21,11 +21,9 @@ import ArrowDownOnSquareIcon from "@heroicons/react/24/solid/ArrowDownOnSquareIc
 
 export const EventEntryTable = ({
   items = [],
-  // eventId,
   pageCount,
   page,
   handlePageChange,
-  handleEntryExport,
 }) => {
   const router = useRouter();
   const { id } = router.query;
