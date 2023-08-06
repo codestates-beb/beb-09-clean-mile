@@ -1,7 +1,7 @@
 const Router = require('express');
 const multer = require('multer');
 const isAdminAuth = require('../../middlewares/isAdminAuth');
-const { getUser } = require('../../../services/client/usersController');
+const { getUser } = require('../../../services/client/usersController'); // 사용하지 않음
 const { saveFiles } = require('../../../services/client/postsController');
 const { fileValidation } = require('../../middlewares/fileValidation');
 const adminNoticesController = require('../../../services/admin/noticesController');

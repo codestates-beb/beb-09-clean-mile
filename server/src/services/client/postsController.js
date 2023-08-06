@@ -42,7 +42,7 @@ const saveFiles = async (files) => {
         const uploadResult = await s3.upload(params).promise();
 
         if (file.mimetype.includes('image')) {
-          imageUrls.push(uploadResult.Location);
+          imageUrls.push(uploadResult.Location); // config.json에 cloundfront 주소 추가 필요, cloudfront 주소 + fileName으로 저장해야 함. 일단은 배포할 때 수정합시다.
         }
       }
     }
@@ -61,7 +61,7 @@ const saveFiles = async (files) => {
         const uploadResult = await s3.upload(params).promise();
 
         if (file.mimetype.includes('video')) {
-          videoUrls.push(uploadResult.Location);
+          videoUrls.push(uploadResult.Location); // 마찬가지로 cloudfront 주소 + fileName으로 저장해야 함.
         }
       }
     }
