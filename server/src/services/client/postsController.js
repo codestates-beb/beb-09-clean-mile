@@ -138,7 +138,7 @@ const savePost = async (user_id, postData, files) => {
 
       // entry를 검사: 이벤트에 참가를 했고 아직 리뷰 보상을 받지 않은 경우
       // entry를 업데이트 (is_token_rewarded = true) -> is_mileage_rewarded로 바꿔야 할 듯
-      // 사용자 업데이트 (마일리지 + 1)
+      // 사용자 업데이트 (마일리지 + 1) -> tokenController.mileageReward
     }
 
     // 게시글 저장

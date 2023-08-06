@@ -45,7 +45,7 @@ const createBadge = async (
 ) => {
   try {
     const pinata = new pinataSDK(config.PINATA_API, config.PINATA_SECRET);
-
+    // 주석 지워줘
     // 이미지 파일 pinata에 업로드
     // const photoResult = await pinata.pinJSONToIPFS({ image_url: imageUrl });
     // console.log(
@@ -242,7 +242,7 @@ const transferBadge = async (recipient, eventId) => {
       user.is_nft_issued = true;
       await user.save();
 
-      let userInfo = await UserModel.findById(recipient);
+      let userInfo = await UserModel.findById(recipient); // 위에서 recipientInfo로 이미 받아왔는데 왜 또
       if (!userInfo) return { success: false, message: '데이터 요청 실패' };
       userInfo.wallet.badge_amount += 1;
       userInfo.wallet.total_badge_score += badgeScore[badge.type];
