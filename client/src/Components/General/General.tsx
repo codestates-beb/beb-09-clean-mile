@@ -94,14 +94,15 @@ const General = ({
                 </tr>
               </thead>
               <tbody>
-                {postList === null ? (
+              {postList === null ? (
                   <tr>
                     <td colSpan={6} className='p-6 text-center'>
                       {t('common:There are no registered posts')}
                     </td>
                   </tr>
                 ) : (
-                  postList?.map((post, i) => (
+                  postList?.map((post, i) => {
+                    return (
                     <tr
                       className='
                       hover:bg-gray-200 
@@ -109,8 +110,7 @@ const General = ({
                       duration-300 
                       cursor-pointer'
                       key={i}
-                      onClick={() => router.push(`/posts/general/${post._id}`)}
-                    >
+                      onClick={() => router.push(`/posts/general/${post._id}`)}>
                       <td className='border-b p-6 sm:p-3 xs:p-2'>
                         <p className='text-xl sm:text-sm xs:text-xs font-semibold'>
                           {i + 1}
@@ -128,6 +128,8 @@ const General = ({
                           {post.content.length >= 20
                             ? post.content.slice(0, 60) + '...'
                             : post.content}
+                        </p>
+                      </td>
                       <td className="border-b p-6 sm:p-3 xs:p-2">
                         <p className="text-gray-600 sm:text-sm xs:text-xs">
                           {post.user_id === null ? t('common:Unknown') : post.user_id?.nickname}
@@ -151,7 +153,8 @@ const General = ({
                         <p className='text-gray-600'>{post.view.count}</p>
                       </td>
                     </tr>
-                  ))
+                    )
+                  })
                 )}
               </tbody>
             </table>
