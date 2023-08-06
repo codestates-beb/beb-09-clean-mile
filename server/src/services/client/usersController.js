@@ -146,8 +146,8 @@ const checkNickName = async (nickname) => {
 const checkEmailAuthCode = async (email, code) => {
   try {
     const emailData = await MailModel.findOne({ email: email });
-    console.log(emailData.expiry);
-    console.log(getKorDate());
+    console.log(emailData.expiry); // log는 지우셔도 됩니다.
+    console.log(getKorDate()); // log는 지우셔도 됩니다.
     if (
       emailData &&
       Number(emailData.code) === Number(code) &&
@@ -467,6 +467,7 @@ const setTokenCookie = async (res, accessToken, refreshToken) => {
     secure: true, // HTTPS 연결에서만 쿠키를 전송 (설정 후 수정 필요)
     sameSite: 'strict', // CSRF와 같은 공격을 방지
     maxAge: 1000 * 60 * 15, // 15분 (밀리초 단위)
+    // domain: config.cookieDomain // config로 불러와서 도메인 설정 필요 (기본값: localhost)
   });
 
   // refresh token을 쿠키에 저장
@@ -475,6 +476,7 @@ const setTokenCookie = async (res, accessToken, refreshToken) => {
     secure: true, // HTTPS 연결에서만 쿠키를 전송 (설정 후 수정 필요)
     sameSite: 'strict', // CSRF와 같은 공격을 방지
     maxAge: 1000 * 60 * 60 * 24 * 14, // 14일 (밀리초 단위)
+    // domain: config.cookieDomain // config로 불러와서 도메인 설정 필요 (기본값: localhost)
   });
 };
 

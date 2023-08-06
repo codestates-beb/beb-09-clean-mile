@@ -266,7 +266,7 @@ const transferBadge = async (recipient, eventId) => {
  * @param {string} userId
  * @returns 성공여부, 유저 뱃지 리스트
  */
-const userBadges = async (userId) => {
+const userBadges = async (userId) => { // badges 스키마에 owners 필드에 user_id가 포함되어 있는 것들을 가져오는 식으로 변경 필요 (가능하면), db 호출 횟수도 많고 오래 걸림
   try {
     const userEvents = await EventEntryModel.find({ user_id: userId });
     if (!userEvents) return { success: false, message: '데이터 요청 실패' };
@@ -278,7 +278,7 @@ const userBadges = async (userId) => {
     }
     let badgeList = [];
 
-    const badgeType = ['bronze', 'silver', 'gold'];
+    const badgeType = ['bronze', 'silver', 'gold']; 
     for (const eventId of confirmedEventList) {
       const badge = await BadgeModel.findOne({ event_id: eventId });
       if (!badge) continue;

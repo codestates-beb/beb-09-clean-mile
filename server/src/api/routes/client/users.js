@@ -635,7 +635,7 @@ route.get('/userInfo', isAuth, async (req, res) => {
  * @summary DNFT 업그레이드
  */
 route.post(
-  '/updateDNFTName',
+  '/updateDNFTName', // 이 부분은 당장 사용하는 곳이 없으므로 주석 처리
   /*isAuth*/ async (req, res) => {
     try {
       const { email, newName } = req.body;
@@ -669,9 +669,9 @@ route.post(
  */
 route.post(
   '/upgrade-dnft',
-  /*isAuth*/ async (req, res) => {
+  /*isAuth*/ async (req, res) => { // access token 인증 필요
     try {
-      const { email } = req.body;
+      const { email } = req.body; // 토큰에서 사용자 정보 가져오기
 
       const upgradeDNFT = await dnftController.upgradeDnft(email);
 
@@ -703,7 +703,7 @@ route.post(
  */
 route.post('/token-exchange', isAuth, async (req, res) => {
   try {
-    // const { userId } = req.body;
+    // const { userId } = req.body; // 주석 지우기
     const userId = req.decoded.user_id;
 
     const tokenExchange = await tokenController.tokenExchange(userId);
