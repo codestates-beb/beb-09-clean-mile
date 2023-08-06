@@ -27,17 +27,12 @@ const checkFilesExistence = (req, res, next) => {
 function fileValidation(req, res, next) {
   const allowedMimeTypes = ['image/jpeg', 'image/png', 'video/*'];
 
-  console.log(req.files);
-  console.log(req.file);
-
   let files = [];
   if (req.files && Array.isArray(req.files)) {
     files = req.files;
   } else if (req.file) {
     files.push(req.file);
   }
-
-  console.log(files);
 
   for (const file of files) {
     if (!allowedMimeTypes.includes(file.mimetype)) {

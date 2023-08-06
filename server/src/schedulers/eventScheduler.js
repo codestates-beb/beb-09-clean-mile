@@ -30,21 +30,11 @@ const updateEventStatus = async (event) => {
       event.status = 'finished';
 
       // QRCode isActive = true -> false
-      const qrCode = await QRCodeModel.find({ event_id: event._id });
-      if (!qrCode) {
-        return { success: false };
+      const qrCode = await QRCodeModel.findOne({ event_id: event._id });
+      if (qrCode && qrCode.isActive) {
+        qrCode.isActive = false;
+        await qrCode.save();
       }
-
-      qrCode.isActive = false;
-      const result = await qrCode.save();
-      if (!result) {
-        return { success: false };
-      }
-    }
-
-    const result = await event.save();
-    if (!result) {
-      return { success: false };
     }
 
     return { success: true };

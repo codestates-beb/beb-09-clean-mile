@@ -94,10 +94,11 @@ const getEvents = async (status, page, limit, title, content, organization) => {
 const getEvent = async (event_id) => {
   try {
     // 이벤트 정보 조회
-    const event = await EventModel.findById(event_id)
+    const eventResult = await EventModel.findById(event_id)
       .populate({ path: 'host_id', select: '-__v' })
       .select('-__v -view.viewers');
-    if (!event) {
+
+    if (!eventResult) {
       return { success: false, message: '존재하지 않는 이벤트입니다.' };
     }
 
@@ -106,7 +107,7 @@ const getEvent = async (event_id) => {
       '-__v'
     );
 
-    return { success: true, data: { event: event, badge: badge } };
+    return { success: true, data: { event: eventResult, badge: badge } };
   } catch (err) {
     console.error('Error:', err);
     throw Error(err);
@@ -404,7 +405,7 @@ const updateEvent = async (
     }
 
     // 모집 시작일 전에만 수정 가능
-    if (recruitment_start_at && event.recruitment_start_at < getKorDate()) {
+    if (event.recruitment_start_at < getKorDate()) {
       return {
         success: false,
         message: '모집 시작일이 지나 수정할 수 없습니다.',
