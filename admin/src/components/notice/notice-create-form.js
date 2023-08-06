@@ -1,3 +1,8 @@
+import { useCallback, useRef, useState } from "react";
+import Image from "next/image";
+import { useRouter } from "next/router";
+import axios from 'axios';
+import Swal from "sweetalert2";
 import {
   Box,
   Card,
@@ -9,11 +14,7 @@ import {
   Button,
   Typography,
 } from "@mui/material";
-import Image from "next/image";
-import { useRouter } from "next/router";
-import { useCallback } from "react";
-import { useRef } from "react";
-import { useState } from "react";
+import { object, string, number, date, array } from "yup";
 
 const initialValues = {
   title: "",
@@ -23,11 +24,79 @@ const initialValues = {
   preview: [],
 };
 
+const createPostSchema = object({
+  title: string().required(),
+  content: string().required(),
+  image: array(),
+  video: array(),
+});
+
 export const NoticeCreateForm = () => {
   const [values, setValues] = useState(initialValues);
   const imageInputRef = useRef(null);
 
   const router = useRouter();
+
+  const createNotice = async () => {
+    try {
+      const validated = await createPostSchema.validate(values);
+
+      const formData = new FormData();
+      for (const key in validated) {
+        if (key === "image") {
+          for (const image of validated[key]) {
+            formData.append(key, image);
+          }
+          continue;
+        }
+        formData.append(key, validated[key]);
+      }
+
+      const res = await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/notice/create`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          withCredentials: true,
+        }
+      );
+
+      if (res && res.status === 200) {
+        Swal.fire({
+          title: "Success!",
+          text: res.data.message,
+          icon: "success",
+          confirmButtonText: "OK",
+          confirmButtonColor: "#6BCB77",
+        }).then(() => {
+          Swal.close();
+          router.push(`/notice`);
+        });
+      } else {
+        Swal.fire({
+          title: "Error",
+          text: res.data.message,
+          icon: "error",
+          confirmButtonText: "OK",
+          confirmButtonColor: "#6BCB77",
+        }).then(() => {
+          Swal.close();
+        });
+      }
+    } catch (error) {
+      Swal.fire({
+        title: "Error",
+        text: error,
+        icon: "error",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#6BCB77",
+      }).then(() => {
+        Swal.close();
+      });
+    }
+  };
 
   const handleChange = useCallback((event) => {
     const { name, value } = event.target;
@@ -56,10 +125,21 @@ export const NoticeCreateForm = () => {
     }));
   }, []);
 
-  const handleSubmit = useCallback((event) => {
-    event.preventDefault();
-    console.log(values);
-  }, []);
+  const handleSubmit = useCallback(
+    (event) => {
+      event.preventDefault();
+      try {
+        createNotice();
+        setValues(initialValues);
+        if (imageInputRef.current) {
+          imageInputRef.current.value = "";
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    [values]
+  );
 
   const handleCancel = useCallback(() => {
     router.back();

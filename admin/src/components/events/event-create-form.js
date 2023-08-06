@@ -13,10 +13,11 @@ import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import axios from "axios";
 import Image from "next/image";
-
+import dayjs from "dayjs";
 import { useRouter } from "next/router";
 import { useCallback, useRef, useState } from "react";
 import { object, string, number, date, array } from "yup";
+import Swal from "sweetalert2";
 
 const types = [
   {
@@ -73,6 +74,8 @@ export const EventCreateForm = () => {
   const router = useRouter();
   const imageInputRef = useRef();
 
+  const today = dayjs();
+
   const createEvent = async () => {
     try {
       const validated = await createEventSchema.validate(values);
@@ -96,6 +99,19 @@ export const EventCreateForm = () => {
       });
 
       if (res && res.status === 200) {
+        Swal.fire({
+          toast: true,
+          position: "top-end",
+          showCancelButton: false,
+          timer: 3000,
+          timerProgressBar: true,
+          icon: "success",
+          title: res.data.message,
+          didOpen: (toast) => {
+            toast.addEventListener("mouseenter", Swal.stopTimer);
+            toast.addEventListener("mouseleave", Swal.resumeTimer);
+          },
+        });
         router.push("/events");
       }
     } catch (error) {
@@ -293,12 +309,15 @@ export const EventCreateForm = () => {
                       }));
                     }}
                     name="recruitment_start_at"
+                    disablePast
+                    views={["year", "month", "day", "hours", "minutes"]}
                   />
                 </Grid>
                 <Grid xs={12} md={6}>
                   <DateTimePicker
                     renderInput={(props) => <TextField fullWidth required {...props} />}
                     label="Recruitment End At"
+                    defaultValue={today}
                     value={values.recruitment_end_at}
                     onChange={(newValue) => {
                       setValues((prev) => ({
@@ -307,6 +326,8 @@ export const EventCreateForm = () => {
                       }));
                     }}
                     name="recruitment_end_at"
+                    disablePast
+                    views={["year", "month", "day", "hours", "minutes"]}
                   />
                 </Grid>
                 <Grid xs={12} md={6}>
@@ -321,6 +342,8 @@ export const EventCreateForm = () => {
                       }));
                     }}
                     name="event_start_at"
+                    disablePast
+                    views={["year", "month", "day", "hours", "minutes"]}
                   />
                 </Grid>
                 <Grid xs={12} md={6}>
@@ -335,6 +358,8 @@ export const EventCreateForm = () => {
                       }));
                     }}
                     name="event_end_at"
+                    disablePast
+                    views={["year", "month", "day", "hours", "minutes"]}
                   />
                 </Grid>
               </LocalizationProvider>
