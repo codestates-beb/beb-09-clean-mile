@@ -14,9 +14,9 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import axios from "axios";
 import Image from "next/image";
 import dayjs from "dayjs";
+import Swal from "sweetalert2";
 import { useRouter } from "next/router";
 import { useCallback, useRef, useState } from "react";
-import { object, string, number, date, array } from "yup";
 
 const types = [
   {
@@ -29,145 +29,95 @@ const types = [
   },
 ];
 
-const initialValues = {
-  name: "",
-  email: "",
-  phone_number: "",
-  wallet_address: "",
-  organization: "",
-  title: "",
-  content: "",
-  location: "",
-  capacity: 0,
-  event_type: types[0].value,
-  recruitment_start_at: new Date(),
-  recruitment_end_at: new Date(),
-  event_start_at: new Date(),
-  event_end_at: new Date(),
-  poster_image: [],
-  preview: [],
-};
-
-const createEventSchema = object({
-  name: string().required(),
-  email: string().email().required(),
-  phone_number: string().required(),
-  wallet_address: string().required(),
-  organization: string().required(),
-  title: string().required(),
-  content: string().required(),
-  location: string().required(),
-  capacity: number().positive().integer().required(),
-  event_type: string()
-    .oneOf(types.map((type) => type.value))
-    .required(),
-  recruitment_start_at: date().required(),
-  recruitment_end_at: date().required(),
-  event_start_at: date().required(),
-  event_end_at: date().required(),
-  poster_image: array().min(1).required(),
-});
-
-export const EventCreateForm = () => {
-  const [values, setValues] = useState(initialValues);
+export const EventEditForm = ({ event, host }) => {
   const router = useRouter();
-  const imageInputRef = useRef();
+  
+  const [name, setName] = useState(host.name);
+  const [email, setEmail] = useState(host.email);
+  const [phoneNumber, setPhoneNumber] = useState(host.phone_number);
+  const [address, setAddress] = useState(host.wallet_address);
+  const [organization, setOrganization] = useState(host.organization);
+  const [title, setTitle] = useState(event.title);
+  const [content, setContent] = useState(event.content);
+  const [location, setLocation] = useState(event.location);
+  const [eventType, setEventType] = useState(event.event_type);
+  const [capacity, setCapacity] = useState(event.capacity);
+  const [recruitmentStart, setRecruitmentStart] = useState(event.recruitment_start_at);
+  const [recruitmentEnd, setRecruitmentEnd] = useState(event.recruitment_end_at);
+  const [eventStart, setEventStart] = useState(event.event_start_at);
+  const [eventEnd, setEventEnd] = useState(event.event_end_at);
 
-  const today = dayjs();
 
-  const createEvent = async () => {
+  const editEvent = async () => {
     try {
-      const validated = await createEventSchema.validate(values);
-
       const formData = new FormData();
-      for (const key in validated) {
-        if (key === "poster_image") {
-          for (const image of validated[key]) {
-            formData.append(key, image);
-          }
-          continue;
-        }
-        formData.append(key, validated[key]);
-      }
 
-      const res = await axios.post("http://localhost:7000/admin/events/create", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-        withCredentials: true,
-      });
+      formData.append("event_id", event._id);
+      formData.append("name", name);
+      formData.append("email", email);
+      formData.append("phone_number", phoneNumber);
+      formData.append("wallet_address", address);
+      formData.append("organization", organization);
+      formData.append("title", title);
+      formData.append("content", content);
+      formData.append("location", location);
+      formData.append("capacity", capacity);
+      formData.append("event_type", eventType);
+      formData.append("recruitment_start_at", recruitmentStart);
+      formData.append("recruitment_end_at", recruitmentEnd);
+      formData.append("event_start_at", eventStart);
+      formData.append("event_end_at", eventEnd);
+
+      console.log(content);
+
+      const res = await axios.patch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/events/edit`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          withCredentials: true,
+        }
+      );
 
       if (res && res.status === 200) {
-        router.push("/events");
+        Swal.fire({
+          title: "Success!",
+          text: res.data.message,
+          icon: "success",
+          confirmButtonText: "OK",
+          confirmButtonColor: "#6BCB77",
+        }).then(() => {
+          Swal.close();
+          router.push(`/events/${event._id}`);
+        });
+      } else {
+        Swal.fire({
+          title: "Error",
+          text: res.data.message,
+          icon: "error",
+          confirmButtonText: "OK",
+          confirmButtonColor: "#6BCB77",
+        }).then(() => {
+          Swal.close();
+        });
       }
     } catch (error) {
-      throw error;
+      Swal.fire({
+        title: "Error",
+        text: error.response.data.message,
+        icon: "error",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#6BCB77",
+      }).then(() => {
+        Swal.close();
+      });
     }
   };
 
-  const handleChange = useCallback((event) => {
-    const { name, value } = event.target;
-
-    if (name === "poster_image") {
-      const poster_image = [];
-      const preview = [];
-      const files = [];
-
-      for (const file of event.target.files) {
-        if (!file.type.startsWith("image/")) {
-          imageInputRef.current.value = "";
-          throw new Error("File type must be image");
-        }
-
-        const reader = new FileReader();
-
-        reader.onloadend = () => {
-          poster_image.push(file);
-          preview.push(reader.result);
-        };
-
-        reader.readAsDataURL(file);
-
-        files.push(file);
-      }
-
-      setValues((prev) => ({
-        ...prev,
-        poster_image,
-        preview,
-      }));
-
-      return;
-    }
-
-    setValues((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  }, []);
-
-  const handleSubmit = useCallback(
-    (event) => {
-      event.preventDefault();
-      try {
-        createEvent();
-        setValues(initialValues);
-        if (imageInputRef.current) {
-          imageInputRef.current.value = "";
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    },
-    [values]
-  );
-
-  const handleCancel = useCallback(() => {
-    router.back();
-  }, []);
-
   return (
-    <form autoComplete="off" noValidate onSubmit={handleSubmit}>
+    <>
       <Card sx={{ p: 3 }}>
         <CardHeader title="Host" />
         <CardContent sx={{ pt: 1 }}>
@@ -178,9 +128,9 @@ export const EventCreateForm = () => {
                   fullWidth
                   label="Host Name"
                   name="name"
-                  onChange={handleChange}
+                  onChange={(e) => setName(e.target.value)}
                   required
-                  value={values.name}
+                  value={name}
                 />
               </Grid>
               <Grid xs={12} md={6}>
@@ -189,9 +139,9 @@ export const EventCreateForm = () => {
                   label="Host Email"
                   name="email"
                   type="email"
-                  onChange={handleChange}
+                  onChange={(e) => setEmail(e.target.value)}
                   required
-                  value={values.email}
+                  value={email}
                 />
               </Grid>
               <Grid xs={12} md={6}>
@@ -199,9 +149,9 @@ export const EventCreateForm = () => {
                   fullWidth
                   label="Host Phone Number"
                   name="phone_number"
-                  onChange={handleChange}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
                   required
-                  value={values.phone_number}
+                  value={phoneNumber}
                 />
               </Grid>
               <Grid xs={12} md={6}>
@@ -209,9 +159,9 @@ export const EventCreateForm = () => {
                   fullWidth
                   label="Host Wallet Address"
                   name="wallet_address"
-                  onChange={handleChange}
+                  onChange={(e) => setAddress(e.target.value)}
                   required
-                  value={values.wallet_address}
+                  value={address}
                 />
               </Grid>
               <Grid xs={12} md={6}>
@@ -219,9 +169,9 @@ export const EventCreateForm = () => {
                   fullWidth
                   label="Organization"
                   name="organization"
-                  onChange={handleChange}
+                  onChange={(e) => setOrganization(e.target.value)}
                   required
-                  value={values.organization}
+                  value={organization}
                 />
               </Grid>
             </Grid>
@@ -238,9 +188,9 @@ export const EventCreateForm = () => {
                   fullWidth
                   label="Title"
                   name="title"
-                  onChange={handleChange}
+                  onChange={(e) => setTitle(e.target.value)}
                   required
-                  value={values.title}
+                  value={title}
                 />
               </Grid>
               <Grid xs={12} md={6}>
@@ -248,11 +198,11 @@ export const EventCreateForm = () => {
                   fullWidth
                   label="Event Type"
                   name="event_type"
-                  onChange={handleChange}
+                  onChange={(e) => setEventType(e.target.value)}
                   required
                   select
                   SelectProps={{ native: true }}
-                  value={values.event_type}
+                  value={eventType}
                 >
                   {types.map((option) => (
                     <option key={option.value} value={option.value}>
@@ -266,9 +216,9 @@ export const EventCreateForm = () => {
                   fullWidth
                   label="Location"
                   name="location"
-                  onChange={handleChange}
+                  onChange={(e) => setLocation(e.target.value)}
                   required
-                  value={values.location}
+                  value={location}
                 />
               </Grid>
               <Grid xs={12} md={6}>
@@ -276,10 +226,11 @@ export const EventCreateForm = () => {
                   fullWidth
                   label="Capacity"
                   name="capacity"
-                  onChange={handleChange}
+                  onChange={(e) => setCapacity(e.target.value)}
                   required
-                  value={values.capacity}
+                  value={capacity}
                   type="number"
+                  inputProps={{ min: 1 }}
                 />
               </Grid>
               <LocalizationProvider dateAdapter={AdapterDateFns} sx={{}}>
@@ -287,65 +238,40 @@ export const EventCreateForm = () => {
                   <DateTimePicker
                     renderInput={(props) => <TextField fullWidth required {...props} />}
                     label="Recruitment Start At"
-                    value={values.recruitment_start_at}
-                    onChange={(newValue) => {
-                      setValues((prev) => ({
-                        ...prev,
-                        recruitment_start_at: newValue,
-                      }));
-                    }}
+                    value={recruitmentStart}
+                    onChange={(date) => setRecruitmentStart(date)}
                     name="recruitment_start_at"
                     disablePast
-                    views={["year", "month", "day", "hours", "minutes"]}
                   />
                 </Grid>
                 <Grid xs={12} md={6}>
                   <DateTimePicker
                     renderInput={(props) => <TextField fullWidth required {...props} />}
                     label="Recruitment End At"
-                    defaultValue={today}
-                    value={values.recruitment_end_at}
-                    onChange={(newValue) => {
-                      setValues((prev) => ({
-                        ...prev,
-                        recruitment_end_at: newValue,
-                      }));
-                    }}
+                    value={recruitmentEnd}
+                    onChange={(date) => setRecruitmentEnd(date)}
                     name="recruitment_end_at"
                     disablePast
-                    views={["year", "month", "day", "hours", "minutes"]}
                   />
                 </Grid>
                 <Grid xs={12} md={6}>
                   <DateTimePicker
                     renderInput={(props) => <TextField fullWidth required {...props} />}
                     label="Event Start At"
-                    value={values.event_start_at}
-                    onChange={(newValue) => {
-                      setValues((prev) => ({
-                        ...prev,
-                        event_start_at: newValue,
-                      }));
-                    }}
+                    value={eventStart}
+                    onChange={(date) => setEventStart(date)}
                     name="event_start_at"
                     disablePast
-                    views={["year", "month", "day", "hours", "minutes"]}
                   />
                 </Grid>
                 <Grid xs={12} md={6}>
                   <DateTimePicker
                     renderInput={(props) => <TextField fullWidth required {...props} />}
                     label="Event End At"
-                    value={values.event_end_at}
-                    onChange={(newValue) => {
-                      setValues((prev) => ({
-                        ...prev,
-                        event_end_at: newValue,
-                      }));
-                    }}
+                    value={eventEnd}
+                    onChange={(date) => setEventEnd(date)}
                     name="event_end_at"
                     disablePast
-                    views={["year", "month", "day", "hours", "minutes"]}
                   />
                 </Grid>
               </LocalizationProvider>
@@ -354,30 +280,17 @@ export const EventCreateForm = () => {
                   fullWidth
                   label="Content"
                   name="content"
-                  onChange={handleChange}
+                  onChange={(e) => {
+                    setContent(e.target.value);
+                    console.log(content);
+                  }}
                   required
-                  value={values.content}
+                  value={content}
                   multiline
                   rows={8}
                 />
               </Grid>
-              <Grid item xs={12} md={12}>
-                <TextField
-                  fullWidth
-                  label="Poster Image"
-                  name="poster_image"
-                  onChange={handleChange}
-                  required
-                  multiple
-                  type="file"
-                  inputRef={imageInputRef}
-                  inputProps={{
-                    multiple: true,
-                    accept: "image/*",
-                  }}
-                />
-              </Grid>
-              {values.preview.length > 0 && (
+              {event.poster_url.length > 0 && (
                 <Grid
                   item
                   xs={12}
@@ -399,8 +312,8 @@ export const EventCreateForm = () => {
                       pb: 3,
                     }}
                   >
-                    {values.preview.map((image, index) => (
-                      <Image key={index} src={image} width={200} height={200} />
+                    {event.poster_url.map((image, index) => (
+                      <Image key={index} src={image} width={200} height={200} alt="post image" />
                     ))}
                   </Box>
                 </Grid>
@@ -410,13 +323,13 @@ export const EventCreateForm = () => {
         </CardContent>
       </Card>
       <Stack direction={"row"} spacing={1} sx={{ mt: 3, justifyContent: "right" }}>
-        <Button variant="contained" color="success" type="submit">
-          Create
+        <Button variant="contained" color="success" onClick={editEvent}>
+          Edit
         </Button>
-        <Button variant="contained" color="warning" onClick={handleCancel}>
+        <Button variant="contained" color="warning" onClick={() => router.back()}>
           Cancel
         </Button>
       </Stack>
-    </form>
+    </>
   );
 };

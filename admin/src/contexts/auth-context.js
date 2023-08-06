@@ -253,7 +253,6 @@ export const AuthProvider = (props) => {
   useEffect(() => {
     try {
       initialize();
-      refresh();
     } catch (err) {
       console.error(err);
     }

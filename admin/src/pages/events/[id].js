@@ -1,4 +1,6 @@
 import Head from "next/head";
+import axios from "axios";
+import Swal from "sweetalert2";
 import { Box, Container, Stack, Typography, Button, Tab } from "@mui/material";
 import { Layout as DashboardLayout } from "src/layouts/dashboard/layout";
 import { useRouter } from "next/router";
@@ -10,7 +12,6 @@ import { EventBadgeMintForm } from "src/components/events/event-badge-mint-form"
 import { TabContext, TabList, TabPanel } from "@mui/lab";
 import { EventEntryTable } from "src/components/events/event-entry-table";
 import { EventQRCodeLoader } from "src/components/events/event-qr-code-loader";
-import axios from "axios";
 
 const Page = () => {
   const [host, setHost] = useState(null);
@@ -49,8 +50,6 @@ const Page = () => {
             throw new Error("Invalid response");
           }
 
-          console.log(eventData, badgeData, hostData);
-
           delete eventData.host_id;
 
           setHost(hostData);
@@ -83,10 +82,8 @@ const Page = () => {
         const data = res.data;
 
         if (data && data.data) {
-          const entriesData = data.data.data;
+          const entriesData = data.data.entries;
           const pagination = data.data.pagination;
-
-          console.log(entriesData, pagination);
 
           if (!entriesData) {
             setEntries([]);
@@ -110,6 +107,94 @@ const Page = () => {
       setEntries([]);
     }
   }, []);
+
+  const deleteEvent = async () => {
+    try {
+      const res = await axios.delete(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/events/delete/${id}`,
+        {
+          withCredentials: true,
+        }
+      );
+
+      if (res && res.status === 200) {
+        Swal.fire({
+          title: "Success!",
+          text: res.data.message,
+          icon: "success",
+          confirmButtonText: "OK",
+          confirmButtonColor: "#6BCB77",
+        }).then(() => {
+          Swal.close();
+          router.push(`/events`);
+        });
+      } else {
+        Swal.fire({
+          title: "Error",
+          text: res.data.message,
+          icon: "error",
+          confirmButtonText: "OK",
+          confirmButtonColor: "#6BCB77",
+        }).then(() => {
+          Swal.close();
+        });
+      }
+    } catch (error) {
+      Swal.fire({
+        title: "Error",
+        text: error.response.data.message,
+        icon: "error",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#6BCB77",
+      }).then(() => {
+        Swal.close();
+      });
+    }
+  };
+
+  const cancelEvent = async () => {
+    try {
+      const res = await axios.patch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/events/cancel/${id}`,
+        {
+          withCredentials: true,
+        }
+      );
+
+      if (res && res.status === 200) {
+        Swal.fire({
+          title: "Success!",
+          text: res.data.message,
+          icon: "success",
+          confirmButtonText: "OK",
+          confirmButtonColor: "#6BCB77",
+        }).then(() => {
+          Swal.close();
+          router.push(`/events`);
+        });
+      } else {
+        Swal.fire({
+          title: "Error",
+          text: res.data.message,
+          icon: "error",
+          confirmButtonText: "OK",
+          confirmButtonColor: "#6BCB77",
+        }).then(() => {
+          Swal.close();
+        });
+      }
+    } catch (error) {
+      Swal.fire({
+        title: "Error",
+        text: error.response.data.message,
+        icon: "error",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#6BCB77",
+      }).then(() => {
+        Swal.close();
+      });
+    }
+  };
 
   const handleEntryPageChange = useCallback((event, value) => {
     setEntryPage(value);
@@ -146,8 +231,18 @@ const Page = () => {
             <Stack direction={"row"} justifyContent="space-between" spacing={3}>
               <Typography variant="h4">Event</Typography>
               <Stack direction={"row"} spacing={1}>
-                <Button variant="contained" color="warning">
+                <Button variant="contained" color="warning" onClick={deleteEvent}>
                   Delete
+                </Button>
+                <Button variant="contained" color="error" onClick={cancelEvent}>
+                  Cancel
+                </Button>
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  onClick={() => router.push(`/events/edit/${event._id}`)}
+                >
+                  Edit
                 </Button>
                 <Button variant="contained" onClick={() => router.back()}>
                   Back
