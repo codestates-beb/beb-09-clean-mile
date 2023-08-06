@@ -32,20 +32,11 @@ const updateEventStatus = async (event) => {
         qrCode.isActive = false;
         await qrCode.save();
       }
-<<<<<<< HEAD
-=======
-
-      // qrCode.isActive = false;
-      // const result = await qrCode.save();
-      // if (!result) {
-      //   return { success: false };
-      // }
     }
 
     const result = await event.save();
     if (!result) {
       return { success: false };
->>>>>>> Update event cancel, badge minting
     }
 
     return { success: true };
