@@ -16,6 +16,7 @@ import { showSuccessAlert, showErrorAlert } from '@/Redux/actions';
 
 const GeneralDetail = ({ postDetail, comments }: { postDetail: PostDetail, comments: Comment[] }) => {
   const router = useRouter();
+  const dispatch = useDispatch();
   const { t } = useTranslation('common');
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
