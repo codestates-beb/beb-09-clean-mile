@@ -428,7 +428,6 @@ const getEvents = async (last_id, limit, title, content, status) => {
     let query = {};
 
     // last_id가 존재하면, 마지막 id 이후의 문서 조회
-    console.log('last_id:', last_id);
     if (last_id && last_id !== 'undefined' && last_id !== 'null') {
       query._id = { $lt: last_id };
     }
