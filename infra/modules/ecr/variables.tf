@@ -22,9 +22,3 @@ variable "common_tags" {
   description = "Common tags to apply to all resources"
   default     = {}
 }
-
-variable "environment" {
-  type        = string
-  description = "Environment name"
-  default     = "dev"
-}

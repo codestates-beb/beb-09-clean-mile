@@ -9,35 +9,35 @@ variable "common_tags" {
 variable "ecr_repos" {
   type = map(object({
     name                 = string
-    environment          = string
     image_tag_mutability = string
     scan_on_push         = bool
+    name_tag             = string
   }))
   description = "ECR repositories to create"
   default = {
     "clean-mile-server" = {
       name                 = "clean-mile-server"
-      environment          = "production"
       image_tag_mutability = "MUTABLE"
       scan_on_push         = true
+      name_tag             = "Clean Mile Server"
     }
     "clean-mile-client" = {
       name                 = "clean-mile-client"
-      environment          = "production"
       image_tag_mutability = "MUTABLE"
       scan_on_push         = true
+      name_tag             = "Clean Mile Client"
     }
     "clean-mile-admin" = {
       name                 = "clean-mile-admin"
-      environment          = "production"
       image_tag_mutability = "MUTABLE"
       scan_on_push         = true
+      name_tag             = "Clean Mile Admin"
     }
     "clean-mile-daemon" = {
       name                 = "clean-mile-daemon"
-      environment          = "production"
       image_tag_mutability = "MUTABLE"
       scan_on_push         = true
+      name_tag             = "Clean Mile Daemon"
     }
   }
 }

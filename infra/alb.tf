@@ -83,6 +83,13 @@ resource "aws_lb_listener" "main_alb_listener_http" {
     type             = "forward"
     target_group_arn = aws_alb_target_group.main_alb_target_group_http.arn
   }
+
+  tags = merge(
+    var.common_tags,
+    {
+      Name = "Clean Mile ALB Listener HTTP"
+    }
+  )
 }
 
 resource "aws_lb_listener" "main_alb_listener_https" {
@@ -97,4 +104,11 @@ resource "aws_lb_listener" "main_alb_listener_https" {
     type             = "forward"
     target_group_arn = aws_alb_target_group.main_alb_target_group_https.arn
   }
+
+  tags = merge(
+    var.common_tags,
+    {
+      Name = "Clean Mile ALB Listener HTTPS"
+    }
+  )
 }
