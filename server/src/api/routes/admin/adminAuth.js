@@ -1,7 +1,6 @@
 const Router = require('express');
 const multer = require('multer');
 const jwtUtil = require('../../../utils/jwtAdminUtil');
-const jwt = require('jsonwebtoken');
 const userController = require('../../../services/client/usersController');
 const isAdminAuth = require('../../middlewares/isAdminAuth');
 const { getUser } = require('../../../services/client/usersController');
