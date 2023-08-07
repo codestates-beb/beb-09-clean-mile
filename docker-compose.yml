@@ -51,6 +51,16 @@ services:
     ports:
       - 3000:3000
 
+  admin:
+    build:
+      context: ./admin
+      dockerfile: Dockerfile
+    image: admin
+    container_name: admin
+    restart: always
+    ports:
+      - 3001:3000
+
 volumes:
   ganache_data:
     driver: local
