@@ -357,8 +357,9 @@ const saveImages = async (images) => {
 
       // 파일 업로드
       const uploadResult = await s3.upload(params).promise();
+      const imageUrl = config.cloudfront + uploadResult.key;
 
-      imageUrls.push(uploadResult.Location);
+      imageUrls.push(imageUrl);
     }
     return imageUrls;
   } catch (err) {
@@ -583,8 +584,9 @@ const saveImage = async (image) => {
 
     // S3 업로드 실행
     const uploadResult = await s3.upload(uploadParams).promise();
+    const imageUrl = config.cloudfront + uploadResult.Key;
 
-    return uploadResult.Location;
+    return imageUrl;
   } catch (err) {
     console.error('Error:', err);
     throw Error(err);

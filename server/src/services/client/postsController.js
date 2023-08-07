@@ -47,11 +47,9 @@ const saveFiles = async (files) => {
         // 파일 업로드
         const uploadResult = await s3.upload(params).promise();
 
-        /**
-         * @todo config.json에 cloundfront 주소 추가 필요, cloudfront 주소 + fileName으로 저장해야 함 (배포시 수정)
-         */
         if (file.mimetype.includes('image')) {
-          imageUrls.push(uploadResult.Location);
+          const imageUrl = config.cloudfront + uploadResult.Key;
+          imageUrls.push(imageUrl);
         }
       }
     }
@@ -69,11 +67,9 @@ const saveFiles = async (files) => {
         // 파일 업로드
         const uploadResult = await s3.upload(params).promise();
 
-        /**
-         * @todo config.json에 cloundfront 주소 추가 필요, cloudfront 주소 + fileName으로 저장해야 함 (배포시 수정)
-         */
         if (file.mimetype.includes('video')) {
-          videoUrls.push(uploadResult.Location);
+          const videoUrl = config.cloudfront + uploadResult.Key;
+          videoUrls.push(videoUrl);
         }
       }
     }

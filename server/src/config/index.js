@@ -52,4 +52,7 @@ module.exports = {
     secretKey: config.S3_SECRET_KEY,
     bucketName: config.S3_BUCKET_NAME,
   },
+
+  // cloudfront
+  cloudfront: config.CLOUD_FRONT_URL,
 };

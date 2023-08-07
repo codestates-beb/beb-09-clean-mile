@@ -8,6 +8,7 @@ const PostModel = require('../../models/Posts');
 const EventModel = require('../../models/Events');
 const EventEntryModel = require('../../models/EventEntries');
 const dnftController = require('../contract/dnftController');
+const { saveImage } = require('../admin/eventsController');
 const badgeController = require('../contract/badgeController');
 const AWS = require('../../loaders/aws-s3');
 const s3 = new AWS.S3();
@@ -406,6 +407,7 @@ const changeBanner = async (email, image) => {
     if (currentBannerUrl) {
       const key = currentBannerUrl.split('/').pop(); // URL에서 객체 키를 추출
       const prefix = key.split('_')[0]; // 키에서 파일 이름을 제외한 고유한 아이디 추출
+      console.log(prefix);
 
       const listParams = {
         Bucket: config.awsS3.bucketName,
@@ -431,17 +433,9 @@ const changeBanner = async (email, image) => {
       await s3.deleteObjects(deleteParams).promise();
     }
 
-    // 새로운 이미지 업로드
-    const keyName = generateUniqueFileName(image.originalname);
-    const uploadParams = {
-      Bucket: config.awsS3.bucketName,
-      Key: keyName,
-      Body: image.buffer,
-    };
-
-    // S3 업로드 실행
-    const uploadResult = await s3.upload(uploadParams).promise();
-    userData.banner_img_url = uploadResult.Location;
+    // 이미지 업로드
+    const uploadResult = await saveImage(image);
+    userData.banner_img_url = uploadResult;
     userData.updated_at = getKorDate();
 
     const result = await userData.save();

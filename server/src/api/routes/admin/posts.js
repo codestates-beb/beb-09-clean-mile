@@ -142,7 +142,7 @@ module.exports = (app) => {
    * @summary 후기 작성 보상
    */
   /**
-   * 아직 사용하지 않음
+   * 사용하지 않음
    */
   // route.post(
   //   '/reward',

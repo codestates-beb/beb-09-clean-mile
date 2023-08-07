@@ -323,7 +323,7 @@ module.exports = (app) => {
     fileValidation,
     async (req, res) => {
       try {
-        const {
+        let {
           name, // (Host) 주최측 이름
           email, // (Host) 주최측 이메일
           phone_number, // (Host) 주최측 전화번호
@@ -372,22 +372,25 @@ module.exports = (app) => {
           });
         }
 
-        //@todo 이벤트 타입 체크 확인해보기 (테스트 중)
+        // 시간 타입 변경
+        recruitment_start_at = new Date(`${recruitment_start_at} GMT`);
+        recruitment_end_at = new Date(`${recruitment_end_at} GMT`);
+        event_start_at = new Date(`${event_start_at} GMT`);
+        event_end_at = new Date(`${event_end_at} GMT`);
 
         // 이벤트 시간 체크
-        // if (
-        //   !(
-        //     recruitment_start_at <
-        //     recruitment_end_at <
-        //     event_start_at <
-        //     event_end_at
-        //   )
-        // ) {
-        //   return res.status(400).json({
-        //     success: false,
-        //     message: '이벤트 시간을 다시 확인해주세요.',
-        //   });
-        // }
+        if (
+          !(
+            recruitment_start_at < recruitment_end_at &&
+            recruitment_end_at < event_start_at &&
+            event_start_at < event_end_at
+          )
+        ) {
+          return res.status(400).json({
+            success: false,
+            message: '이벤트 시간을 다시 확인해주세요.',
+          });
+        }
 
         // 이미지 파일 저장
         const imageUrls = await adminEventsController.saveImages(req.files);
@@ -434,8 +437,6 @@ module.exports = (app) => {
           event_start_at: event_start_at,
           event_end_at: event_end_at,
         };
-
-        // @todo 이벤트 시간이 어드민 클라이언트에서 입력한 값이 왜 다른지 확인 필요
 
         const event = await adminEventsController.saveEvent(eventData);
         if (!event) {
