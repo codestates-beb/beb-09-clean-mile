@@ -485,8 +485,10 @@ const getReviews = async (last_data, limit, title, content, order) => {
     let nextViewCount = null;
     let nextId = null;
 
-    if (last_data) {
+    if (last_data.includes('_')) {
       [nextViewCount, nextId] = last_data.split('_');
+    } else if (last_data && last_data !== 'undefined' && last_data !== 'null') {
+      nextId = last_data;
     }
 
     // 정렬 방향에 따라 정렬 객체 생성
