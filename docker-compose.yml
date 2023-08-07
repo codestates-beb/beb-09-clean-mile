@@ -32,6 +32,24 @@ services:
       - 8545:8545
     volumes:
       - ganache_data:/data
+      
+  caddy:
+    image: caddy:latest
+    container_name: caddy
+    command: caddy reverse-proxy --to client:3000
+    ports:
+      - 443:443
+    restart: always
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    image: client
+    container_name: client
+    restart: always
+    ports:
+      - 3000:3000
 
 volumes:
   ganache_data:
