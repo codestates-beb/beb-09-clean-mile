@@ -101,5 +101,7 @@
   "Cancel": "취소",
   "Back": "뒤로가기",
   "Please scan the QR code": "QR 코드를 스캔해주세요.",
+  "Upgrading": "업그레이드 중...",
+  "Loading": "로딩 중...",
   "QR Code Scan": "QR 코드 스캔"
 }

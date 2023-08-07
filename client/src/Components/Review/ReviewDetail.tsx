@@ -1,19 +1,22 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useRouter } from 'next/router';
 import Link from 'next/link';
 import Image from 'next/image';
 import useTranslation from 'next-translate/useTranslation';
 import Swal from 'sweetalert2';
-import { AxiosError } from 'axios';
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import { useDispatch } from 'react-redux';
+import { useRouter } from 'next/router';
+import { AxiosError } from 'axios';
 import { PostDetail, Comment, User } from '../Interfaces';
 import { ApiCaller } from '../Utils/ApiCaller';
 import { Comments } from '../Reference';
+import { showSuccessAlert, showErrorAlert } from '@/Redux/actions';
 
 const ReviewDetail = ({ reviewDetail, comments }: { reviewDetail: PostDetail, comments: Comment[] }) => {
   const router = useRouter();
+  const dispatch = useDispatch();
   const { t } = useTranslation('common');
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -55,68 +58,29 @@ const ReviewDetail = ({ reviewDetail, comments }: { reviewDetail: PostDetail, co
 
           const res = await ApiCaller.delete(URL, dataBody, isJSON, headers, isCookie);
           if (res.status === 200) {
-            Swal.fire({
-              title: t('common:Success'),
-              text: res.data.message,
-              icon: 'success',
-              confirmButtonText: t('common:OK'),
-              confirmButtonColor: '#6BCB77'
-            }).then(() => {
-              Swal.close();
-              router.push('/posts/review');
-            });
-
+            dispatch(showSuccessAlert(res.data.message));
+            router.push('/posts/review');
           } else {
-            Swal.fire({
-              title: t('common:Error'),
-              text: res.data.message,
-              icon: 'error',
-              confirmButtonText: t('common:OK'),
-              confirmButtonColor: '#6BCB77'
-            }).then(() => {
-              Swal.close();
-            });
+            dispatch(showErrorAlert(res.data.message));
           }
         } catch (error) {
           const err = error as AxiosError;
 
           const data = err.response?.data as { message: string };
 
-          Swal.fire({
-            title: t('common:Error'),
-            text: data?.message,
-            icon: 'error',
-            confirmButtonText: t('common:OK'),
-            confirmButtonColor: '#6BCB77'
-          }).then(() => {
-            Swal.close();
-          });
+          dispatch(showErrorAlert(data?.message));
         }
       } else if (result.isDismissed) {
-        Swal.fire({
-          title: t('common:Success'),
-          text: t('common:You have cancelled deleting the post'),
-          icon: 'success',
-          confirmButtonText: t('common:OK'),
-          confirmButtonColor: '#6BCB77',
-        })
+        dispatch(showSuccessAlert(t('common:You have cancelled deleting the post')));
       }
     })
   }
 
   const handleProfile = () => {
     if (reviewDetail.user_id === null) {
-      Swal.fire({
-        title: t('common:Error'),
-        text: t('common:User does not exist'),
-        icon: 'error',
-        confirmButtonText: t('common:OK'),
-        confirmButtonColor: '#6BCB77'
-      }).then(() => {
-        Swal.close();
-      });
+      dispatch(showErrorAlert(t('common:User does not exist')));
     } else {
-      if(reviewDetail.user_id._id === userInfo?._id) {
+      if (reviewDetail.user_id._id === userInfo?._id) {
         router.push(`/users/mypage`)
       } else {
         router.push(`/users/profile?id=${reviewDetail.user_id._id}`)

@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import dynamic from 'next/dynamic';
 import useTranslation from 'next-translate/useTranslation';
-import Swal from "sweetalert2";
+import { useDispatch } from 'react-redux';
 import { AxiosError } from "axios";
 import { useRouter } from 'next/router';
 import { IoIosArrowBack } from 'react-icons/io';
 import { User } from './Interfaces';
 import { ApiCaller } from './Utils/ApiCaller';
+import { showSuccessAlert, showErrorAlert } from '@/Redux/actions';
 
 const QrReader = dynamic(() => import("react-web-qr-reader"), {
   ssr: false
@@ -14,6 +15,7 @@ const QrReader = dynamic(() => import("react-web-qr-reader"), {
 
 const QRScan = () => {
   const router = useRouter();
+  const dispatch = useDispatch();
   const { t } = useTranslation('common');
 
   const [tokenData, setTokenData] = useState<string>("");
@@ -42,42 +44,18 @@ const QRScan = () => {
   
       const res = await ApiCaller.post(URL, dataBody, isJSON, headers, isCookie);
       if (res.status === 200) {
-        Swal.fire({
-          title: t('common:Success'),
-          text: res.data.message,
-          icon: 'success',
-          confirmButtonText: t('common:OK'),
-          confirmButtonColor: '#6BCB77'
-        }).then(() => {
-          Swal.close();
-          router.replace(`/users/mypage`);
-        });
+        dispatch(showSuccessAlert(res.data.message));
+        router.replace(`/users/mypage`);
 
       } else {
-        Swal.fire({
-          title: t('common:Error'),
-          text: res.data.message,
-          icon: 'error',
-          confirmButtonText: t('common:OK'),
-          confirmButtonColor: '#6BCB77'
-        }).then(() => {
-          Swal.close();
-        });
+        dispatch(showErrorAlert(res.data.message));
       }
     } catch (error) {
       const err = error as AxiosError;
 
       const data = err.response?.data as { message: string };
 
-      Swal.fire({
-        title: t('common:Error'),
-        text: data?.message,
-        icon: 'error',
-        confirmButtonText: t('common:OK'),
-        confirmButtonColor: '#6BCB77'
-      }).then(() => {
-        Swal.close();
-      });
+      dispatch(showErrorAlert(data?.message));
     }
   }
 

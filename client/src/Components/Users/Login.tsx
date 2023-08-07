@@ -79,6 +79,14 @@ const Login = () => {
    * @throws {AxiosError} 네트워크 에러 또는 서버에서 보내는 에러 응답
    */
   const loginAPI  = async ({ email, password }: LoginAPIInput): Promise<LoginAPIOutput> => {
+    Swal.fire({
+      title: t('common:Loading'),
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
     const formData = new FormData();
 
     formData.append('email', email);
@@ -94,6 +102,9 @@ const Login = () => {
       const isCookie = true;
 
       const res = await ApiCaller.post(URL, dataBody, isJSON, headers, isCookie);
+
+      Swal.close();
+
       if (res.status === 200) {
         dispatch(showSuccessAlert(res.data.message));
         router.push('/');
@@ -102,6 +113,8 @@ const Login = () => {
       }
       return res.data.data
     } catch (error) {
+      Swal.close();
+      
       const err = error as AxiosError;
       const data = err.response?.data as { message: string };
 

@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { useRouter } from 'next/router';
 import useTranslation from 'next-translate/useTranslation';
 import Swal from 'sweetalert2';
-import { hydrate } from 'react-query';
+import { useDispatch } from 'react-redux';
+import { useRouter } from 'next/router';
 import { AxiosError } from 'axios';
 import { ApiCaller } from '../Utils/ApiCaller';
 import { UserInfo, PostDetail } from '../Interfaces';
+import { showSuccessAlert, showErrorAlert } from '@/Redux/actions';
 
 interface IFile extends File {
   preview?: string;
@@ -13,6 +14,7 @@ interface IFile extends File {
 
 const ReviewEdit = ({ reviewDetailDefault }: { reviewDetailDefault: PostDetail }) => {
   const router = useRouter();
+  const dispatch = useDispatch();
   const { t } = useTranslation('common');
 
   const [selectCategory, setSelectCategory] = useState('');
@@ -79,42 +81,17 @@ const ReviewEdit = ({ reviewDetailDefault }: { reviewDetailDefault: PostDetail }
 
       const res = await ApiCaller.patch(URL, dataBody, isJSON, headers, isCookie);
       if (res.status === 200) {
-        Swal.fire({
-          title: t('common:Success'),
-          text: res.data.message,
-          icon: 'success',
-          confirmButtonText: 'OK',
-          confirmButtonColor: '#6BCB77'
-        }).then(() => {
-          Swal.close();
-          router.replace(`/posts/review/${reviewDetailDefault._id}`);
-        });
-
+        dispatch(showSuccessAlert(res.data.message));
+        router.replace(`/posts/review/${reviewDetailDefault._id}`);
       } else {
-        Swal.fire({
-          title: t('common:Error'),
-          text: res.data.message,
-          icon: 'error',
-          confirmButtonText: 'OK',
-          confirmButtonColor: '#6BCB77'
-        }).then(() => {
-          Swal.close();
-        });
+        dispatch(showErrorAlert(res.data.message));
       }
     } catch (error) {
       const err = error as AxiosError;
 
       const data = err.response?.data as { message: string };
 
-      Swal.fire({
-        title: t('common:Error'),
-        text: data?.message,
-        icon: 'error',
-        confirmButtonText: 'OK',
-        confirmButtonColor: '#6BCB77'
-      }).then(() => {
-        Swal.close();
-      });
+      dispatch(showErrorAlert(data?.message));
     }
   }
 

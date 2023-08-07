@@ -1,16 +1,18 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useRouter } from 'next/router';
 import useTranslation from 'next-translate/useTranslation';
 import Link from 'next/link';
 import Image from 'next/image';
 import Swal from 'sweetalert2';
-import { AxiosError } from 'axios';
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import { useDispatch } from 'react-redux';
+import { AxiosError } from 'axios';
+import { useRouter } from 'next/router';
 import { PostDetail, Comment, User } from '../Interfaces';
 import { ApiCaller } from '../Utils/ApiCaller';
 import { Comments } from '../Reference';
+import { showSuccessAlert, showErrorAlert } from '@/Redux/actions';
 
 const GeneralDetail = ({ postDetail, comments }: { postDetail: PostDetail, comments: Comment[] }) => {
   const router = useRouter();
@@ -55,51 +57,20 @@ const GeneralDetail = ({ postDetail, comments }: { postDetail: PostDetail, comme
 
           const res = await ApiCaller.delete(URL, dataBody, isJSON, headers, isCookie);
           if (res.status === 200) {
-            Swal.fire({
-              title: t('common:Success'),
-              text: res.data.message,
-              icon: 'success',
-              confirmButtonText: 'OK',
-              confirmButtonColor: '#6BCB77'
-            }).then(() => {
-              Swal.close();
-              router.reload();
-            });
-
+            dispatch(showSuccessAlaert(res.data.message));
+            router.reload();
           } else {
-            Swal.fire({
-              title: t('common:Error'),
-              text: res.data.message,
-              icon: 'error',
-              confirmButtonText: 'OK',
-              confirmButtonColor: '#6BCB77'
-            }).then(() => {
-              Swal.close();
-            });
+            dispatch(showErrorAlert(res.data.message));
           }
         } catch (error) {
           const err = error as AxiosError;
 
           const data = err.response?.data as { message: string };
 
-          Swal.fire({
-            title: t('common:Error'),
-            text: data?.message,
-            icon: 'error',
-            confirmButtonText: 'OK',
-            confirmButtonColor: '#6BCB77'
-          }).then(() => {
-            Swal.close();
-          });
+          dispatch(showErrorAlert(data?.message));
         }
       } else if (result.isDismissed) {
-        Swal.fire({
-          title: t('common:Success'),
-          text: t('common:You have cancelled deleting the post'),
-          icon: 'success',
-          confirmButtonText: 'OK',
-          confirmButtonColor: '#6BCB77',
-        })
+        dispatch(showSuccessAlert(t('common:You have cancelled deleting the post')));
       }
     })
   }

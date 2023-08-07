@@ -383,6 +383,14 @@ const SignUp = () => {
    * @returns {Promise<void>} 아무것도 반환하지 않음
    */
   const signUp = async () => {
+    Swal.fire({
+      title: t('common:Loading'),
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
     const formData = new FormData();
 
     formData.append('email', email);
@@ -406,12 +414,16 @@ const SignUp = () => {
 
       const res = await ApiCaller.post(URL, dataBody, isJSON, headers);
 
+      Swal.close();
+
       if (res.status === 200) {
         dispatch(showSuccessAlert(res.data.message));
         router.push('/login');
       }
 
     } catch (error) {
+      Swal.close();
+      
       const err = error as AxiosError;
       const data = err.response?.data as { message: string };
 

@@ -232,14 +232,16 @@ const MyPage = ({
   }
 
   const upgradeDnft = async () => {
-    Swal.showLoading();
-
-    const formData = new FormData();
-
-    formData.append('email', userInfo.email);
+    Swal.fire({
+      title: t('common:Upgrading'),
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
     try {
       const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/upgrade-dnft`;
-      const dataBody = formData;
+      const dataBody = null;
       const isJSON = true;
       const headers = {
         'Content-Type': 'multipart/form-data',
@@ -253,13 +255,14 @@ const MyPage = ({
 
       if(res.status === 200) {
         dispatch(showSuccessAlert(res.data?.message));
+        router.reload();
       } else {
         dispatch(showErrorAlert(res.data?.message));
       }
     } catch (error) {
       Swal.close();
+      
       const err = error as AxiosError;
-
       const data = err.response?.data as { message: string };
 
       dispatch(showErrorAlert(data?.message));
@@ -505,7 +508,7 @@ const MyPage = ({
               userBadges.map((badge, i) => {
                 return (
                   <div className='w-[10rem] 
-                    lg:w-[8rem] 
+                  lg:w-[8rem] 
                     md:w-[6rem] 
                     sm:w-[6rem] 
                     xs:w-[5rem] 
