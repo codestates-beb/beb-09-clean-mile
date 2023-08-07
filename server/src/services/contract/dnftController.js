@@ -37,18 +37,21 @@ const createDNFT = async (email, userType) => {
     const user = await UserModel.findOne({ email: email });
     if (!user) return { success: false, message: '데이터 요청 실패' };
     let description;
+    let inPutUserType;
     if (userType == 0) {
       // 일반 사용자
       description = '---Events---';
+      inPutUserType = 0;
     } else if (userType == 1) {
       // 관리자
       description = 'Administrator';
+      inPutUserType = 1;
     } else {
       return { success: false };
     }
     const transaction = await dnftContract
       .connect(signer)
-      .mintDNFT(user.wallet.address, user.name, description, userType);
+      .mintDNFT(user.wallet.address, user.name, description, inPutUserType);
     await transaction.wait();
 
     const eventFilter = dnftContract.filters.Transfer(
