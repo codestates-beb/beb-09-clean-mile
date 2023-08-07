@@ -51,12 +51,15 @@ const createDNFT = async (
 ) => {
   try {
     let description = '';
+    let user_type_num = 0;
     switch (user_Type) {
       case 'user':
         description = '---Events---'; // @todo 내용 수정 논의 필요
+        user_type_num = 0;
         break;
       case 'admin':
         description = 'Administrator'; // @todo  내용 수정 논의 필요
+        user_type_num = 1;
         break;
       default:
         return { success: false, message: '잘못된 사용자 타입입니다.' };
@@ -64,7 +67,7 @@ const createDNFT = async (
 
     const transaction = await dnftContract
       .connect(signer)
-      .mintDNFT(wallet_address, name, description, user_Type);
+      .mintDNFT(wallet_address, name, description, user_type_num);
     await transaction.wait();
 
     const eventFilter = dnftContract.filters.Transfer(null, wallet_address);
