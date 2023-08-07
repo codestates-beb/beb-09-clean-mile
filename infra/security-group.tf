@@ -1,4 +1,3 @@
-
 resource "aws_security_group" "main_public_security_group" {
   name        = "Clean Mile Public Security Group"
   description = "Clean Mile Public Security Group"
