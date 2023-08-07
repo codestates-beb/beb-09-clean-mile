@@ -4,6 +4,9 @@ module.exports = {
   // port
   port: config.PORT,
 
+  // cors
+  origin: config.ORIGIN,
+
   // mongodb
   databaseURL: config.DATABASE_URL,
 
@@ -34,6 +37,9 @@ module.exports = {
     aud: config.AUDIENCE,
   },
 
+  // cookie
+  cookieDomain: config.COOKIE_DOMAIN,
+
   // QR code JWT
   qrCodeJwt: {
     jwtSecret: config.EVENT_QR_SECRET_CODE,
@@ -46,4 +52,7 @@ module.exports = {
     secretKey: config.S3_SECRET_KEY,
     bucketName: config.S3_BUCKET_NAME,
   },
+
+  // cloudfront
+  cloudfront: config.CLOUD_FRONT_URL,
 };

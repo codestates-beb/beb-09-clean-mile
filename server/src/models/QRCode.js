@@ -18,12 +18,13 @@ const qrCodeSchema = new mongoose.Schema({
     // QRCode 토큰
     type: String,
   },
-  last_scanned_at: {
-    // 마지막 스캔 시간
-    type: Date,
-  },
   created_at: {
     // QRCode 생성일
+    type: Date,
+    default: getKorDate,
+  },
+  updated_at: {
+    // QRCode 수정일
     type: Date,
     default: getKorDate,
   },

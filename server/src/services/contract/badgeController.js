@@ -47,13 +47,6 @@ const createBadge = async (
   try {
     const pinata = new pinataSDK(config.PINATA_API, config.PINATA_SECRET);
 
-    // 이미지 파일 pinata에 업로드
-    // const photoResult = await pinata.pinJSONToIPFS({ image_url: imageUrl });
-    // console.log(
-    //   "Photo uploaded successfully. IPFS Hash:",
-    //   photoResult.IpfsHash
-    // );
-
     // NFT 메타 데이터 생성 및 Pinata에 업로드
     const nftMetadata = {
       name: name,
@@ -222,6 +215,7 @@ const transferBadge = async (recipient, eventId) => {
     if (!badge) return { success: false, message: '뱃지 데이터 요청 실패' };
     const tokenId = badge.badge_id;
 
+    // 사용자 정보 조회
     const recipientInfo = await UserModel.findById(recipient);
     if (!recipientInfo)
       return { success: false, message: '사용자 데이터 요청 실패' };
@@ -244,40 +238,15 @@ const transferBadge = async (recipient, eventId) => {
 
     if (transaction) {
       badge.remain_quantity -= 1;
-      let user = await EventEntryModel.findOne({
-        event_id: eventId,
-        user_id: recipient,
-      });
-      if (!user)
-        return { success: false, message: '사용자 행사 참여 데이터 요청 실패' };
-      user.is_nft_issued = true;
-      await user.save();
 
-      let userInfo = await UserModel.findById(recipient);
-      if (!userInfo)
-        return { success: false, message: '사용자 데이터 요청 실패' };
-      userInfo.wallet.badge_amount += 1;
-      userInfo.wallet.total_badge_score += badgeScore[badge.type];
-
-      await userInfo.save();
-
-      // 유저 DNFT에 행상 정보 업데이트
-      const updateDescription = await dnftController.updateDescription(
-        recipient,
-        badge.description
-      );
-      if (!updateDescription.success) {
-        return {
-          success: false,
-          message: '유저 DNFT를 업데이트 하지 못했습니다',
-        };
-      }
+      // 뱃지 점수 계산
+      const badge_score = badgeScore[badge.type];
 
       badge.owners.push(recipient);
       await badge.save();
-      return { success: true };
+      return { success: true, badge_score: badge_score };
     } else {
-      return { success: false };
+      return { success: false, message: '토큰 전송 실패' };
     }
   } catch (err) {
     console.error('Error:', err);
@@ -292,20 +261,17 @@ const transferBadge = async (recipient, eventId) => {
  */
 const userBadges = async (userId) => {
   try {
-    const userEvents = await EventEntryModel.find({ user_id: userId });
-    if (!userEvents) return { success: false, message: '데이터 요청 실패' };
-    let confirmedEventList = [];
-    for (const userEvent of userEvents) {
-      if (userEvent.is_nft_issued) {
-        confirmedEventList.push(userEvent.event_id);
-      }
+    // 사용자가 받은 뱃지 조회
+    const userBadges = await BadgeModel.find({ 'owners._id': userId });
+    if (!userBadges) {
+      return { success: false, message: '데이터 요청 실패' };
     }
-    let badgeList = [];
 
+    // 뱃지 정보 변환
     const badgeType = ['bronze', 'silver', 'gold'];
-    for (const eventId of confirmedEventList) {
-      const badge = await BadgeModel.findOne({ event_id: eventId });
-      if (!badge) continue;
+
+    let badgeList = [];
+    for (const badge of userBadges) {
       badgeList.push({
         name: badge.name,
         description: badge.description,
@@ -313,6 +279,7 @@ const userBadges = async (userId) => {
         badge_type: badgeType[badge.type],
       });
     }
+
     return { success: true, data: badgeList };
   } catch (err) {
     console.error('Error:', err);
