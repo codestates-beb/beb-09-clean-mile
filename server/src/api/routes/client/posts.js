@@ -4,6 +4,7 @@ const isAuth = require('../../middlewares/isAuth');
 const jwtUtil = require('../../../utils/jwtUtil');
 const PostModel = require('../../../models/Posts');
 const postsController = require('../../../services/client/postsController');
+const tokenController = require('../../../services/contract/tokenController');
 const { fileValidation } = require('../../middlewares/fileValidation');
 const storage = multer.memoryStorage(); // 이미지를 메모리에 저장
 const upload = multer({ storage: storage });
@@ -38,17 +39,50 @@ module.exports = (app) => {
           });
         }
 
-        // 게시글 저장
-        const result = await postsController.savePost(
-          req.decoded.user_id,
-          postData,
-          req.files
-        );
-        if (!result.success) {
-          return res.status(400).json({
-            success: false,
-            message: result.message,
-          });
+        const user_id = req.decoded.user_id;
+        const files = req.files;
+
+        let result;
+        switch (postData.category) {
+          case 'review':
+            // 리뷰 저장
+            result = await postsController.saveReview(user_id, postData, files);
+            if (!result.success) {
+              return res.status(400).json({
+                success: false,
+                message: result.message,
+              });
+            }
+
+            // 리뷰 작성자에게 마일리지 지급 (사용자 정보 업데이트)
+            const rewardResult = await tokenController.mileageReward(
+              user_id,
+              result.entry
+            );
+            if (!rewardResult.success) {
+              return res.status(400).json({
+                success: false,
+                message: rewardResult.message,
+              });
+            }
+            break;
+
+          case 'general':
+            // 일반 게시글 저장
+            result = await postsController.savePost(user_id, postData, files);
+            if (!result.success) {
+              return res.status(400).json({
+                success: false,
+                message: result.message,
+              });
+            }
+            break;
+
+          default:
+            return res.status(400).json({
+              success: false,
+              message: '잘못된 카테고리입니다.',
+            });
         }
 
         return res.status(200).json({

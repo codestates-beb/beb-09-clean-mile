@@ -1,6 +1,7 @@
 const EventModel = require('../../models/Events');
 const EventEntryModel = require('../../models/EventEntries');
 const QRCodeModel = require('../../models/QRCode');
+const UserModel = require('../../models/Users');
 const { updateCommentLikes } = require('./commentsController');
 const { postViews } = require('./postsController');
 const { getKorDate } = require('../../utils/common');
@@ -150,27 +151,20 @@ const getEventById = async (event_id) => {
 };
 
 /**
- * 행사 참여 인증
+ * qr 인증
  * @param {*} token
  * @param {*} user_id
- * @returns 성공 여부
+ * @returns 참여 인증이 확인된 이벤트 아이디
  */
-const validateQRParticipation = async (token, user_id) => {
+const verifyQRAuth = async (token, user_id) => {
   try {
     // 토큰 유효성 확인
-    console.log(token);
     const tokenResult = jwtAdminUtil.qrVerify(token);
     if (!tokenResult.success) {
       return { success: false, message: '유효하지 않은 토큰입니다.' };
     }
 
     const event_id = tokenResult.decoded.event_id;
-
-    // QR 코드 조회
-    const qrResult = await QRCodeModel.findOne({ event_id: event_id });
-    if (!qrResult) {
-      return { success: false, message: '존재하지 않는 QR 코드입니다.' };
-    }
 
     // 이벤트 조회
     const event = await EventModel.findById(event_id);
@@ -193,19 +187,72 @@ const validateQRParticipation = async (token, user_id) => {
     if (!entry) {
       return { success: false, message: '이벤트에 참가하지 않았습니다.' };
     }
-
     // 이미 인증한 경우
     if (entry.is_confirmed) {
       return { success: false, message: '이미 인증한 이벤트입니다.' };
     }
 
-    // 참여 인증 정보 업데이트
-    entry.is_confirmed = true;
-    entry.authenticated_at = getKorDate(); // 행사 참여 인증 시간
+    // QR 코드 조회
+    const qrResult = await QRCodeModel.findOne({ event_id: event_id });
+    if (!qrResult) {
+      return { success: false, message: '존재하지 않는 QR 코드입니다.' };
+    }
+
+    return { success: true, event_id: event_id, entry_id: entry._id };
+  } catch (err) {
+    console.error('Error:', err);
+    throw Error(err);
+  }
+};
+
+/**
+ * event entry 업데이트(인증 + 배지 지급 상태)
+ * @param {*} entry_id
+ * @returns
+ */
+const updateEventEntry = async (entry_id) => {
+  try {
+    const entry = await EventEntryModel.findById(entry_id);
+    if (!entry) {
+      return { success: false, message: '존재하지 않는 데이터입니다.' };
+    }
+
+    entry.is_confirmed = true; // 참여 인증
+    entry.is_nft_issued = true; // NFT 발급
     entry.updated_at = getKorDate(); // 업데이트 시간
+
     const result = await entry.save();
     if (!result) {
-      return { success: false, message: '인증에 실패하였습니다.' };
+      return { success: false, message: '데이터 수정에 실패했습니다.' };
+    }
+
+    return { success: true };
+  } catch (err) {
+    console.error('Error:', err);
+    throw Error(err);
+  }
+};
+
+/**
+ * user 업데이트 (배지 개수 및 총 점수)
+ * @param {*} user_id
+ * @param {*} badge_score
+ * @returns 성공 여부
+ */
+const updateUserBadge = async (user_id, badge_score) => {
+  try {
+    // 사용자 정보 조회
+    const user = await UserModel.findById(user_id);
+    if (!user) {
+      return { success: false, message: '존재하지 않는 사용자입니다.' };
+    }
+
+    user.wallet.badge_amount += 1;
+    user.wallet.total_badge_score += badge_score;
+
+    const result = await user.save();
+    if (!result) {
+      return { success: false, message: '데이터 수정에 실패했습니다.' };
     }
 
     return { success: true };
@@ -219,5 +266,7 @@ module.exports = {
   findEventDetail,
   eventEntry,
   getEventById,
-  validateQRParticipation,
+  verifyQRAuth,
+  updateEventEntry,
+  updateUserBadge,
 };

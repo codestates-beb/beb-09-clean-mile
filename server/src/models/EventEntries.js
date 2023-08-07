@@ -27,7 +27,7 @@ const eventEntrySchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-  is_token_rewarded: {
+  is_mileage_rewarded: {
     // 후기 작성 보상 지급 여부
     type: Boolean,
     default: false,

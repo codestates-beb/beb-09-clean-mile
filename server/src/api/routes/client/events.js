@@ -154,23 +154,19 @@ module.exports = (app) => {
         });
       }
 
-      // 행사 참여 인증
-      const result = await eventsController.validateQRParticipation(
-        token,
-        user_id
-      );
-      if (!result.success) {
+      // 행사 참여 인증 후 이벤트 아이디 반환
+      const verify_token = await eventsController.verifyQRAuth(token, user_id);
+      if (!verify_token.success) {
         return res.status(400).json({
           success: false,
-          message: result.message,
+          message: verify_token.message,
         });
       }
-      const tokenResult = jwtAdminUtil.qrVerify(token);
-      const event_id = tokenResult.decoded.event_id;
 
+      // 뱃지 지급 후 뱃지 점수 반환
       const transferBadgeResult = await badgeController.transferBadge(
         user_id,
-        event_id
+        verify_token.event_id
       );
       if (!transferBadgeResult.success) {
         return res.status(400).json({
@@ -178,6 +174,30 @@ module.exports = (app) => {
           message: transferBadgeResult.message,
         });
       }
+
+      // event entry 업데이트(인증 + 배지 지급 상태)
+      const updateEventEntryResult = await eventsController.updateEventEntry(
+        verify_token.entry_id
+      );
+      if (!updateEventEntryResult.success) {
+        return res.status(400).json({
+          success: false,
+          message: updateEventEntryResult.message,
+        });
+      }
+
+      // user 업데이트 (배지 개수 및 총 점수)
+      const updateUserResult = await eventsController.updateUserBadge(
+        user_id,
+        transferBadgeResult.badge_score
+      );
+      if (!updateUserResult.success) {
+        return res.status(400).json({
+          success: false,
+          message: updateUserResult.message,
+        });
+      }
+
       return res.status(200).json({
         success: true,
         message: '행사 참여 인증 및 뱃지 지급 성공',

@@ -4,6 +4,7 @@ const EventModel = require('../../models/Events');
 const EventEntryModel = require('../../models/EventEntries');
 const calcPagination = require('../../utils/calcPagination');
 const { updateCommentLikes } = require('./commentsController');
+const tokenController = require('../contract/tokenController');
 const {
   getKorDate,
   escapeRegexChars,
@@ -22,6 +23,11 @@ const getClientIP = (req) => {
   return req.headers['x-forwarded-for'] || req.connection.remoteAddress;
 };
 
+/**
+ * 파일 저장 (이미지, 동영상)
+ * @param {*} files
+ * @returns 저장된 파일 url (array)
+ */
 const saveFiles = async (files) => {
   try {
     const imageUrls = [];
@@ -41,6 +47,9 @@ const saveFiles = async (files) => {
         // 파일 업로드
         const uploadResult = await s3.upload(params).promise();
 
+        /**
+         * @todo config.json에 cloundfront 주소 추가 필요, cloudfront 주소 + fileName으로 저장해야 함 (배포시 수정)
+         */
         if (file.mimetype.includes('image')) {
           imageUrls.push(uploadResult.Location);
         }
@@ -60,6 +69,9 @@ const saveFiles = async (files) => {
         // 파일 업로드
         const uploadResult = await s3.upload(params).promise();
 
+        /**
+         * @todo config.json에 cloundfront 주소 추가 필요, cloudfront 주소 + fileName으로 저장해야 함 (배포시 수정)
+         */
         if (file.mimetype.includes('video')) {
           videoUrls.push(uploadResult.Location);
         }
@@ -85,31 +97,8 @@ const saveFiles = async (files) => {
  */
 const savePost = async (user_id, postData, files) => {
   try {
-    // 리뷰 게시글을 등록하려고 할 경우
-    if (postData.category === 'review') {
-      const event = await EventModel.findById(postData.event_id);
-      if (!event) {
-        return { success: false, message: '존재하지 않는 이벤트입니다.' };
-      }
-
-      if (event.status !== 'finished') {
-        return {
-          success: false,
-          message: '이벤트가 종료되어야 후기를 작성할 수 있습니다.',
-        };
-      }
-
-      // 이벤트 신청자인지 확인
-      const entry = await EventEntryModel.findOne({
-        event_id: postData.event_id,
-        user_id: user_id,
-      });
-      if (!entry) {
-        return {
-          success: false,
-          message: '이벤트 신청자만 리뷰를 작성할 수 있습니다.',
-        };
-      }
+    if (postData.category !== 'general') {
+      return { success: false, message: '잘못된 카테고리입니다.' };
     }
 
     // 파일 저장
@@ -121,7 +110,8 @@ const savePost = async (user_id, postData, files) => {
       });
     }
 
-    const saveData = {
+    // 게시글 저장
+    const saveResult = new PostModel({
       user_id: user_id,
       category: postData.category,
       title: postData.title,
@@ -130,21 +120,92 @@ const savePost = async (user_id, postData, files) => {
         img: saveFilesResult.imageUrls,
         video: saveFilesResult.videoUrls,
       },
-    };
-
-    // 저장하려는 게시글의 카테고리가 리뷰인 경우 event_id 필드 추가
-    if (postData.category === 'review') {
-      saveData.event_id = postData.event_id;
-    }
-
-    // 게시글 저장
-    const saveResult = new PostModel(saveData);
+    });
     const result = await saveResult.save();
     if (!result) {
       return { success: false };
     } else {
       return { success: true, data: result._id };
     }
+  } catch (err) {
+    console.error('Error:', err);
+    throw Error(err);
+  }
+};
+
+/**
+ * 이벤트 참여 후기 저장
+ * @param {*} user_id
+ * @param {*} postData
+ * @param {*} files
+ * @returns
+ */
+const saveReview = async (user_id, postData, files) => {
+  try {
+    if (postData.category !== 'review') {
+      return { success: false, message: '잘못된 카테고리입니다.' };
+    }
+
+    // 이벤트 정보 조회
+    const event = await EventModel.findById(postData.event_id);
+    if (!event) {
+      return { success: false, message: '존재하지 않는 이벤트입니다.' };
+    }
+
+    if (event.status !== 'finished') {
+      return {
+        success: false,
+        message: '이벤트가 종료되어야 후기를 작성할 수 있습니다.',
+      };
+    }
+
+    // 이벤트 참가 정보 조회
+    const entry = await EventEntryModel.findOne({
+      event_id: postData.event_id,
+      user_id: user_id,
+    });
+    if (!entry) {
+      return {
+        success: false,
+        message: '이벤트 신청자만 리뷰를 작성할 수 있습니다.',
+      };
+    }
+
+    if (entry.is_token_rewarded) {
+      return {
+        success: false,
+        message: '이미 리뷰를 작성했습니다.',
+      };
+    }
+
+    // 파일 저장
+    const saveFilesResult = await saveFiles(files);
+    if (!saveFilesResult) {
+      return res.status(400).json({
+        success: false,
+        message: '파일 저장에 실패했습니다.',
+      });
+    }
+
+    // 리뷰 게시글 저장
+    const saveResult = new PostModel({
+      user_id: user_id,
+      category: postData.category,
+      title: postData.title,
+      content: postData.content,
+      event_id: postData.event_id,
+      media: {
+        img: saveFilesResult.imageUrls,
+        video: saveFilesResult.videoUrls,
+      },
+    });
+
+    const result = await saveResult.save();
+    if (!result) {
+      return { success: false };
+    }
+
+    return { success: true, data: result._id, entry: entry };
   } catch (err) {
     console.error('Error:', err);
     throw Error(err);
@@ -226,6 +287,9 @@ const findDetailPost = async (req, postId, user_id) => {
 
     // 조회 수 증가
     const viewResult = await postViews(req, postResult);
+    if (!viewResult || !viewResult.success) {
+      return { success: false, message: '조회수 증가에 실패하였습니다.' };
+    }
 
     // view.viewers 필드 제거
     let objPost = postResult.toObject();
@@ -502,4 +566,5 @@ module.exports = {
   getEvents,
   getReviews,
   saveFiles,
+  saveReview,
 };

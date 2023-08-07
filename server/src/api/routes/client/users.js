@@ -102,7 +102,6 @@ module.exports = (app) => {
   });
 
   /**
-   * @todo 사용자 dnft 데이터 추가 필요
    * @route POST /users/signup
    * @group users - 사용자 관련
    * @summary 회원가입 (이메일 인증 코드 검증 포함)
@@ -242,17 +241,27 @@ module.exports = (app) => {
 
       usersController.setTokenCookie(res, accessToken, refreshToken);
 
+      // 사용자 DNFT 데이터 조회
       const dnftData = await dnftController.userDnftData(user_id);
       if (!dnftData.success)
         return res
           .status(500)
           .json({ success: false, message: 'DNFT 데이터 조회 실패' });
 
+      // 사용자 뱃지 정보 조회
+      const badgeData = await badgeController.userBadges(user_id);
+      if (!badgeData.success)
+        return res
+          .status(400)
+          .json({ success: false, message: badgeData.message });
+
       // 필요 없는 데이터 제거
       const userData = userResult.data.toObject();
-      userData.dnftData = dnftData;
       delete userData.hashed_pw;
       delete userData.__v;
+
+      userData.dnft = dnftData.data; // userData에 dnft 정보 추가
+      userData.badges = badgeData.data; // userData에 badge 정보 추가
 
       return res.status(200).json({
         success: true,
@@ -531,7 +540,6 @@ module.exports = (app) => {
   });
 
   /**
-   * @todo cloudFront 설정 추가할수도 있음
    * @route POST /users/change-password
    * @group users - 사용자 관련
    * @summary 사용자 배너 이미지 변경
@@ -592,15 +600,14 @@ route.get('/userInfo', isAuth, async (req, res) => {
       });
     }
 
-    /**
-     * @todo 사용자 배지, dnft 정보 조회 수정 필요
-     */
+    // 사용자 dnft 정보 조회
     const dnftData = await dnftController.userDnftData(user_id);
     if (!dnftData.success)
       return res
         .status(400)
         .json({ success: false, message: dnftData.message });
 
+    // 사용자 뱃지 정보 조회
     const badgeData = await badgeController.userBadges(user_id);
     if (!badgeData.success)
       return res
@@ -618,6 +625,7 @@ route.get('/userInfo', isAuth, async (req, res) => {
       data: {
         user: user.data,
         dnftData: dnftData.data,
+        badgeData: badgeData.data,
         events: events.data,
         posts: posts.data,
       },
@@ -632,7 +640,6 @@ route.get('/userInfo', isAuth, async (req, res) => {
 });
 
 /**
- * @todo DNFT Name 업데이트
  * @route POST /users/updateDNFTName
  * @group users - 사용자 관련
  * @summary DNFT 업그레이드

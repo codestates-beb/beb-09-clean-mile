@@ -372,22 +372,22 @@ module.exports = (app) => {
           });
         }
 
-        //@todo 이벤트 타입 체크 확인해보기
+        //@todo 이벤트 타입 체크 확인해보기 (테스트 중)
 
         // 이벤트 시간 체크
-        if (
-          !(
-            recruitment_start_at <
-            recruitment_end_at <
-            event_start_at <
-            event_end_at
-          )
-        ) {
-          return res.status(400).json({
-            success: false,
-            message: '이벤트 시간을 다시 확인해주세요.',
-          });
-        }
+        // if (
+        //   !(
+        //     recruitment_start_at <
+        //     recruitment_end_at <
+        //     event_start_at <
+        //     event_end_at
+        //   )
+        // ) {
+        //   return res.status(400).json({
+        //     success: false,
+        //     message: '이벤트 시간을 다시 확인해주세요.',
+        //   });
+        // }
 
         // 이미지 파일 저장
         const imageUrls = await adminEventsController.saveImages(req.files);
