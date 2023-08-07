@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const config = require('../../config');
 const PostModel = require('../../models/Posts');
 const EventModel = require('../../models/Events');
@@ -428,7 +429,7 @@ const getEvents = async (last_id, limit, title, content, status) => {
     let query = {};
 
     // last_id가 존재하면, 마지막 id 이후의 문서 조회
-    if (last_id && last_id !== 'undefined' && last_id !== 'null') {
+    if (last_id && mongoose.Types.ObjectId.isValid(last_id)) {
       query._id = { $lt: last_id };
     }
 
@@ -487,7 +488,7 @@ const getReviews = async (last_data, limit, title, content, order) => {
 
     if (last_data.includes('_')) {
       [nextViewCount, nextId] = last_data.split('_');
-    } else if (last_data && last_data !== 'undefined' && last_data !== 'null') {
+    } else if (last_data && mongoose.Types.ObjectId.isValid(last_data)) {
       nextId = last_data;
     }
 
