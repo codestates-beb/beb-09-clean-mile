@@ -260,7 +260,7 @@ module.exports = (app) => {
       delete userData.hashed_pw;
       delete userData.__v;
 
-      userData.dnft = dnftData.data; // userData에 dnft 정보 추가
+      userData.dnftData = dnftData.data; // userData에 dnft 정보 추가
       userData.badges = badgeData.data; // userData에 badge 정보 추가
 
       return res.status(200).json({
