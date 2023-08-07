@@ -4,16 +4,12 @@ const {
   getEvents,
   getEvent,
   getEventEntries,
-  exportToExcel,
   saveEventHost,
   saveEvent,
   updateEventHost,
   updateEvent,
   setEventStatusCanceled,
   deleteEvent,
-  createQRcodeJWt,
-  saveImage,
-  saveImages,
 } = require('../services/admin/eventsController'); // 실제 함수들이 들어 있는 모듈의 경로로 바꿔주세요.
 const UserModel = require('../models/Users');
 const EventHostModel = require('../models/EventHosts');
@@ -73,6 +69,9 @@ describe('admin/eventsControllerTest', () => {
       const eventEndAt = new Date();
       eventEndAt.setHours(eventEndAt.getHours() + 1);
 
+      const recruitment_start_at = new Date();
+      recruitment_start_at.setHours(recruitment_start_at.getHours() + 1);
+
       const newEvent = await EventModel.create({
         title: 'Sample Event',
         host_id: host._id,
@@ -81,9 +80,9 @@ describe('admin/eventsControllerTest', () => {
         location: 'Seoul, South Korea',
         capacity: 100,
         remaining: 100,
-        status: 'recruiting',
+        status: 'created',
         event_type: 'fcfs',
-        recruitment_start_at: new Date(),
+        recruitment_start_at: recruitment_start_at,
         recruitment_end_at: new Date(),
         event_start_at: new Date(),
         event_end_at: eventEndAt,
@@ -120,11 +119,11 @@ describe('admin/eventsControllerTest', () => {
   });
 
   it('getEvents 함수 테스트 : should get events with the provided status', async () => {
-    const result = await getEvents('recruiting', 1, 10, null, null, null);
+    const result = await getEvents('created', 1, 10, null, null, null);
 
     expect(result.data).to.be.an('array');
     expect(result.data.length).to.equal(1);
-    expect(result.data[0].status).to.equal('recruiting');
+    expect(result.data[0].status).to.equal('created');
   });
 
   it('getEvents 함수 테스트 : should get events with the provided title', async () => {
@@ -239,6 +238,91 @@ describe('admin/eventsControllerTest', () => {
     expect(updatedHost.phone_number).to.equal(updatedHostData.phone_number);
     expect(updatedHost.wallet_address).to.equal(updatedHostData.wallet_address);
     expect(updatedHost.organization).to.equal(updatedHostData.organization);
+  });
+
+  it('saveEvent 함수 테스트 : should save event data and return success', async () => {
+    const user = await UserModel.findOne({ name: 'Test' });
+    const eventData = {
+      title: 'Sample Event2',
+      host_id: user._id,
+      poster_url: ['https://example.com/sample-poster.jpg'],
+      content: 'This is a sample event description.',
+      location: 'Seoul, South Korea',
+      capacity: 100,
+      remaining: 100,
+      status: 'recruiting',
+      event_type: 'fcfs',
+      recruitment_start_at: new Date(),
+      recruitment_end_at: new Date(),
+      event_start_at: new Date(),
+      event_end_at: new Date(),
+      view: {
+        count: 0,
+        viewers: [],
+      },
+    };
+    const result = await saveEvent(eventData);
+
+    expect(result.success).to.be.true;
+  });
+
+  it('updateEvent 함수 테스트 : should update event data and return success', async () => {
+    const updatedTitle = 'Updated Event Title';
+    const updatedLocation = 'Updated Location';
+    const event = await EventModel.findOne({ title: 'Sample Event' });
+
+    const result = await updateEvent(
+      event._id,
+      updatedTitle,
+      null,
+      updatedLocation,
+      null,
+      null,
+      null,
+      null
+    );
+
+    expect(result.success).to.be.true;
+
+    // 업데이트된 이벤트 정보 조회 및 검증
+    const updatedEvent = await EventModel.findById(event._id);
+    expect(updatedEvent.title).to.equal(updatedTitle);
+    expect(updatedEvent.location).to.equal(updatedLocation);
+  });
+
+  it('setEventStatusCanceled 함수 테스트 : should set event status to canceled and return success', async () => {
+    const event = await EventModel.findOne({ title: 'Updated Event Title' });
+    const result = await setEventStatusCanceled(event._id);
+    expect(result.success).to.be.true;
+
+    // 이벤트 상태 확인
+    const updatedEvent = await EventModel.findById(event._id);
+    expect(updatedEvent.status).to.equal('canceled');
+  });
+
+  it('setEventStatusCanceled 함수 테스트 : should return failure when event does not exist', async () => {
+    const result = await setEventStatusCanceled(
+      new mongoose.Types.ObjectId() // 잘못된 event_id
+    );
+    expect(result.success).to.be.false;
+    expect(result.message).to.equal('존재하지 않는 이벤트입니다.');
+  });
+
+  it('setEventStatusCanceled 함수 테스트 : should return failure when event is already canceled', async () => {
+    const event = await EventModel.findOne({ title: 'Updated Event Title' });
+    const result = await setEventStatusCanceled(event._id);
+    expect(result.success).to.be.false;
+    expect(result.message).to.equal('이미 취소된 이벤트입니다.');
+  });
+
+  it('deleteEvent 함수 테스트 : should delete event and return success', async () => {
+    const event = await EventModel.findOne({ title: 'Updated Event Title' });
+    const result = await deleteEvent(event._id);
+    expect(result.success).to.be.true;
+
+    // 이벤트가 삭제되었는지 확인
+    const deletedEvent = await EventModel.findById(event._id);
+    expect(deletedEvent).to.equal(null);
   });
 
   after(async function () {

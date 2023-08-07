@@ -218,16 +218,25 @@ const transferBadge = async (recipient, eventId) => {
     // const event = await EventModel.findById(eventId);
 
     const badge = await BadgeModel.findOne({ event_id: eventId });
-    if (!badge) return { success: false, message: '데이터 요청 실패' };
+    if (!badge) return { success: false, message: '뱃지 데이터 요청 실패' };
     const tokenId = badge.badge_id;
 
     const recipientInfo = await UserModel.findById(recipient);
-    if (!recipientInfo) return { success: false, message: '데이터 요청 실패' };
+    if (!recipientInfo)
+      return { success: false, message: '사용자 데이터 요청 실패' };
     const recipientAddress = recipientInfo.wallet.address;
+
+    const gasPrice = ethers.utils.parseUnits('50', 'gwei');
+    // const feeData = await provider.getFeeData();
+    // const gasLimit =  ethers.utils.formatUnits(feeData.maxFeePerGas, "wei");
+    const gasLimit = 10000000;
 
     const transaction = await badgeContract
       .connect(signer)
-      .transferBadge(sender, recipientAddress, tokenId, amount);
+      .transferBadge(sender, recipientAddress, tokenId, amount, {
+        gasPrice,
+        gasLimit,
+      });
     transaction.wait();
 
     const badgeScore = [1, 5, 10];
@@ -238,12 +247,14 @@ const transferBadge = async (recipient, eventId) => {
         event_id: eventId,
         user_id: recipient,
       });
-      if (!user) return { success: false, message: '데이터 요청 실패' };
+      if (!user)
+        return { success: false, message: '사용자 행사 참여 데이터 요청 실패' };
       user.is_nft_issued = true;
       await user.save();
 
       let userInfo = await UserModel.findById(recipient);
-      if (!userInfo) return { success: false, message: '데이터 요청 실패' };
+      if (!userInfo)
+        return { success: false, message: '사용자 데이터 요청 실패' };
       userInfo.wallet.badge_amount += 1;
       userInfo.wallet.total_badge_score += badgeScore[badge.type];
 
