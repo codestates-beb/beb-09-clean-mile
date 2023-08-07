@@ -131,7 +131,6 @@ module.exports = (app) => {
       }
 
       //사용자 DNFT 발급
-<<<<<<< HEAD
       const createDNFT = await dnftController.createDNFT(
         saveDataResult.data._id, // 사용자 아이디
         saveDataResult.data.wallet.address, // 사용자 지갑 주소
@@ -140,15 +139,8 @@ module.exports = (app) => {
         saveDataResult.data.user_type // 사용자 타입
       );
       if (!createDNFT.success) {
-        return res
-          .status(400)
-          .json({ success: false, message: createDNFT.message });
+        return res.status(400).json({ success: false, message: createDNFT.message });
       }
-=======
-      const createDNFT = await dnftController.createDNFT(userData.email, 0);
-      if (!createDNFT.success) return res.status(400).json({ success: false, message: '사용자 DNFT 발급 실패' });
-      if (!createDNFT.success) return res.status(400).json({ success: false, message: '사용자 DNFT 발급 실패' });
->>>>>>> Update Swal redux
 
       return res.status(200).json({
         success: true,
@@ -247,10 +239,7 @@ module.exports = (app) => {
 
       // 사용자 뱃지 정보 조회
       const badgeData = await badgeController.userBadges(user_id);
-      if (!badgeData.success)
-        return res
-          .status(400)
-          .json({ success: false, message: badgeData.message });
+      if (!badgeData.success) return res.status(400).json({ success: false, message: badgeData.message });
 
       // 필요 없는 데이터 제거
       const userData = userResult.data.toObject();
