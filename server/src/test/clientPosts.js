@@ -76,6 +76,16 @@ describe('client/postsControllerTest', () => {
       });
 
       await userData.save();
+
+      const postData = await PostModel.create({
+        user_id: userData._id,
+        category: 'review',
+        event_id: new mongoose.Types.ObjectId('64cd330618b708cebbfccc3b'),
+        title: 'new Post',
+        content: 'content',
+      });
+
+      await postData.save();
     } catch (err) {
       console.error('Error in before hook:', err);
       throw err;
@@ -197,11 +207,8 @@ describe('client/postsControllerTest', () => {
     expect(result.data).to.have.property('post');
     expect(result.data).to.have.property('comment');
 
-    expect(result.data.post).to.have.property('title', 'Updated Test Post');
-    expect(result.data.post).to.have.property(
-      'content',
-      'Updated Test content'
-    );
+    expect(result.data.post).to.have.property('title', 'new Post');
+    expect(result.data.post).to.have.property('content', 'content');
 
     expect(result.data.post.view).to.not.have.property('viewers');
   });
@@ -242,7 +249,7 @@ describe('client/postsControllerTest', () => {
     expect(resultDesc)
       .to.have.property('data')
       .to.be.an('array')
-      .with.lengthOf(2);
+      .with.lengthOf(3);
     expect(resultDesc.data[0]).to.have.property('title', 'Test 2');
     expect(resultDesc.data[1]).to.have.property('title', 'Updated Test Post');
 
@@ -251,9 +258,9 @@ describe('client/postsControllerTest', () => {
     expect(resultAsc)
       .to.have.property('data')
       .to.be.an('array')
-      .with.lengthOf(2);
-    expect(resultAsc.data[0]).to.have.property('title', 'Updated Test Post');
-    expect(resultAsc.data[1]).to.have.property('title', 'Test 2');
+      .with.lengthOf(3);
+    expect(resultAsc.data[0]).to.have.property('title', 'new Post');
+    expect(resultAsc.data[1]).to.have.property('title', 'Updated Test Post');
   });
 
   it('getEvents 함수 - 제목과 내용으로 검색', async () => {
@@ -324,32 +331,14 @@ describe('client/postsControllerTest', () => {
     expect(resultPage2).to.have.property('last_id').to.be.a('string');
   });
 
-  // it('getReviews 함수 - 제목과 내용으로 검색', async () => {
-  //   // getReviews 함수 실행 - 제목과 내용으로 검색
-  //   const result = await getReviews(null, 10, 'Test', 'Test', 'desc');
+  it('getReviews 함수 - 제목과 내용으로 검색', async () => {
+    // getReviews 함수 실행 - 제목과 내용으로 검색
+    const result = await getReviews(null, 10, 'new Post', 'content', 'desc');
 
-  //   expect(result).to.have.property('data').to.be.an('array').with.lengthOf(2);
-  //   expect(result.data[0]).to.have.property('title', 'Test 2');
-  //   expect(result.data[1]).to.have.property('title', 'Updated Test Post');
-  //   expect(result).to.have.property('last_item').to.be.a('string');
-  // });
-
-  // it('getReviews 함수 - 페이징 처리 확인', async () => {
-  //   const lastItem = await PostModel.findOne({ title: 'Test 2' });
-  //   // getReviews 함수 실행 - 2페이지, 페이지당 2개 아이템
-  //   const resultPage2 = await getReviews(
-  //     lastItem._id,
-  //     1,
-  //     'Test',
-  //     'Test',
-  //     'desc'
-  //   );
-  //   console.log(resultPage2);
-  //   expect(resultPage2).to.have.property('data');
-  //   expect(resultPage2.data[1]).to.have.property('title', 'Updated Test Post');
-
-  //   expect(resultPage2).to.have.property('last_item').to.be.a('string');
-  // });
+    expect(result).to.have.property('data').to.be.an('array').with.lengthOf(1);
+    expect(result.data[0]).to.have.property('title', 'new Post');
+    expect(result).to.have.property('last_item').to.be.a('string');
+  });
 
   after(async function () {
     await mongoose.disconnect();
