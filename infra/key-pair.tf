@@ -5,7 +5,7 @@ resource "tls_private_key" "private_key" {
 
 resource "local_file" "private_key_pem" {
   content         = tls_private_key.private_key.private_key_openssh
-  filename        = "private_key.pem"
+  filename        = "${var.key_pair_name}.pem"
   file_permission = "0400"
 }
 

@@ -83,3 +83,8 @@ variable "domain_name" {
   description = "Domain name for the hosted zone"
   default     = "clean-mile.co"
 }
+
+variable "manager_ip" {
+  type        = string
+  description = "IP address of the manager"
+}

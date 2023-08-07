@@ -91,7 +91,7 @@ resource "aws_security_group" "ec2_public_security_group" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = [var.manager_ip]
   }
 
   ingress {

@@ -64,13 +64,13 @@ resource "aws_alb_target_group" "main_alb_target_group_https" {
 
 resource "aws_alb_target_group_attachment" "main_alb_target_group_attachment_http" {
   target_group_arn = aws_alb_target_group.main_alb_target_group_http.arn
-  target_id        = module.ec2.ec2_instance_id
+  target_id        = aws_instance.client_instance1.id
   port             = 80
 }
 
 resource "aws_alb_target_group_attachment" "main_alb_target_group_attachment_https" {
   target_group_arn = aws_alb_target_group.main_alb_target_group_https.arn
-  target_id        = module.ec2.ec2_instance_id
+  target_id        = aws_instance.client_instance1.id
   port             = 443
 }
 
