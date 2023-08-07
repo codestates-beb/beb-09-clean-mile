@@ -1,7 +1,7 @@
 const smtpTransport = require('../../loaders/email');
 const config = require('../../config/index');
 const calcPagination = require('../../utils/calcPagination');
-const { getKorDate, generateUniqueFileName } = require('../../utils/common');
+const { getKorDate } = require('../../utils/common');
 const MailModel = require('../../models/Mails');
 const UserModel = require('../../models/Users');
 const PostModel = require('../../models/Posts');

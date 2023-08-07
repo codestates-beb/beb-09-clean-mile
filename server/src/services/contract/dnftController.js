@@ -53,10 +53,10 @@ const createDNFT = async (
     let description = '';
     switch (user_Type) {
       case 'user':
-        description = '---Events---'; // 내용 수정 논의 필요
+        description = '---Events---'; // @todo 내용 수정 논의 필요
         break;
       case 'admin':
-        description = 'Administrator'; // 내용 수정 논의 필요
+        description = 'Administrator'; // @todo  내용 수정 논의 필요
         break;
       default:
         return { success: false, message: '잘못된 사용자 타입입니다.' };
