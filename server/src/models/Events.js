@@ -9,7 +9,7 @@ const eventSchema = new mongoose.Schema({
   title: {
     // 이벤트명
     type: String,
-    required: true
+    required: true,
   },
   host_id: {
     // 주최측 ID
@@ -31,12 +31,12 @@ const eventSchema = new mongoose.Schema({
   capacity: {
     // 모집 인원
     type: Number,
-    required: true
+    required: true,
   },
   remaining: {
     // 남은 인원
     type: Number,
-    required: true
+    required: true,
   },
   status: {
     // 이벤트 진행 상태

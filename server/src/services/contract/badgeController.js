@@ -15,6 +15,7 @@ const badgeContract = new ethers.Contract(
 );
 const pinataSDK = require('@pinata/sdk');
 const { token } = require('morgan');
+const dnftController = require('./dnftController');
 
 /**
  * 뱃지 발행
@@ -211,17 +212,26 @@ const transferBadge = async (recipient, eventId) => {
     // const event = await EventModel.findById(eventId);
 
     const badge = await BadgeModel.findOne({ event_id: eventId });
-    if (!badge) return { success: false, message: '데이터 요청 실패' };
+    if (!badge) return { success: false, message: '뱃지 데이터 요청 실패' };
     const tokenId = badge.badge_id;
 
     // 사용자 정보 조회
     const recipientInfo = await UserModel.findById(recipient);
-    if (!recipientInfo) return { success: false, message: '데이터 요청 실패' };
+    if (!recipientInfo)
+      return { success: false, message: '사용자 데이터 요청 실패' };
     const recipientAddress = recipientInfo.wallet.address;
+
+    const gasPrice = ethers.utils.parseUnits('50', 'gwei');
+    // const feeData = await provider.getFeeData();
+    // const gasLimit =  ethers.utils.formatUnits(feeData.maxFeePerGas, "wei");
+    const gasLimit = 10000000;
 
     const transaction = await badgeContract
       .connect(signer)
-      .transferBadge(sender, recipientAddress, tokenId, amount);
+      .transferBadge(sender, recipientAddress, tokenId, amount, {
+        gasPrice,
+        gasLimit,
+      });
     transaction.wait();
 
     const badgeScore = [1, 5, 10];

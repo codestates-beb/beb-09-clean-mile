@@ -20,7 +20,7 @@ const MongoMemoryServerStart = async () => {
   return connection.connection.db;
 };
 
-describe('client/commentsController', () => {
+describe('client/eventsController', () => {
   let url;
 
   before(async function () {

@@ -17,7 +17,7 @@ const MongoMemoryServerStart = async () => {
   return connection.connection.db;
 };
 
-describe('client/usersControllerTest', () => {
+describe('admin/usersControllerTest', () => {
   let url; // URI 변수를 선언하여 저장
 
   before(async function () {
