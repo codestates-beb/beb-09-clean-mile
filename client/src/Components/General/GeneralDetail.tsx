@@ -58,7 +58,7 @@ const GeneralDetail = ({ postDetail, comments }: { postDetail: PostDetail, comme
 
           const res = await ApiCaller.delete(URL, dataBody, isJSON, headers, isCookie);
           if (res.status === 200) {
-            dispatch(showSuccessAlaert(res.data.message));
+            dispatch(showSuccessAlert(res.data.message));
             router.reload();
           } else {
             dispatch(showErrorAlert(res.data.message));
