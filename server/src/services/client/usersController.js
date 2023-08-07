@@ -1,13 +1,14 @@
 const smtpTransport = require('../../loaders/email');
 const config = require('../../config/index');
 const calcPagination = require('../../utils/calcPagination');
-const { getKorDate, generateUniqueFileName } = require('../../utils/common');
+const { getKorDate } = require('../../utils/common');
 const MailModel = require('../../models/Mails');
 const UserModel = require('../../models/Users');
 const PostModel = require('../../models/Posts');
 const EventModel = require('../../models/Events');
 const EventEntryModel = require('../../models/EventEntries');
 const dnftController = require('../contract/dnftController');
+const { saveImage } = require('../admin/eventsController');
 const badgeController = require('../contract/badgeController');
 const AWS = require('../../loaders/aws-s3');
 const s3 = new AWS.S3();
@@ -146,8 +147,6 @@ const checkNickName = async (nickname) => {
 const checkEmailAuthCode = async (email, code) => {
   try {
     const emailData = await MailModel.findOne({ email: email });
-    console.log(emailData.expiry);
-    console.log(getKorDate());
     if (
       emailData &&
       Number(emailData.code) === Number(code) &&
@@ -171,28 +170,32 @@ const checkEmailAuthCode = async (email, code) => {
  */
 const saveUserData = async (userData) => {
   try {
+    // wallet address 중복 확인
+    const checkWalletAddr = await UserModel.findOne({
+      'wallet.address': userData.wallet_address,
+    });
+
+    if (checkWalletAddr) {
+      return { success: false, message: '이미 등록된 지갑 주소입니다.' };
+    }
+
     const saveUserData = new UserModel({
       email: userData.email,
       name: userData.name,
       phone_number: userData.phone_number,
-      user_type: userData.user_type,
       hashed_pw: userData.password,
       nickname: userData.nickname,
       social_provider: userData.social_provider,
       wallet: {
         address: userData.wallet_address,
-        token_amount: 0,
-        badge_amount: 0,
-        total_badge_score: 0,
-        mileage_amount: 0,
       },
     });
 
     const result = await saveUserData.save();
     if (!result) {
-      return { success: false };
+      return { success: false, message: '사용자 정보 저장에 실패했습니다.' };
     } else {
-      return { success: true };
+      return { success: true, data: result };
     }
   } catch (err) {
     console.error('Error:', err);
@@ -404,6 +407,7 @@ const changeBanner = async (email, image) => {
     if (currentBannerUrl) {
       const key = currentBannerUrl.split('/').pop(); // URL에서 객체 키를 추출
       const prefix = key.split('_')[0]; // 키에서 파일 이름을 제외한 고유한 아이디 추출
+      console.log(prefix);
 
       const listParams = {
         Bucket: config.awsS3.bucketName,
@@ -429,17 +433,9 @@ const changeBanner = async (email, image) => {
       await s3.deleteObjects(deleteParams).promise();
     }
 
-    // 새로운 이미지 업로드
-    const keyName = generateUniqueFileName(image.originalname);
-    const uploadParams = {
-      Bucket: config.awsS3.bucketName,
-      Key: keyName,
-      Body: image.buffer,
-    };
-
-    // S3 업로드 실행
-    const uploadResult = await s3.upload(uploadParams).promise();
-    userData.banner_img_url = uploadResult.Location;
+    // 이미지 업로드
+    const uploadResult = await saveImage(image);
+    userData.banner_img_url = uploadResult;
     userData.updated_at = getKorDate();
 
     const result = await userData.save();
@@ -467,6 +463,7 @@ const setTokenCookie = async (res, accessToken, refreshToken) => {
     secure: true, // HTTPS 연결에서만 쿠키를 전송 (설정 후 수정 필요)
     sameSite: 'strict', // CSRF와 같은 공격을 방지
     maxAge: 1000 * 60 * 15, // 15분 (밀리초 단위)
+    domain: config.cookieDomain,
   });
 
   // refresh token을 쿠키에 저장
@@ -475,6 +472,7 @@ const setTokenCookie = async (res, accessToken, refreshToken) => {
     secure: true, // HTTPS 연결에서만 쿠키를 전송 (설정 후 수정 필요)
     sameSite: 'strict', // CSRF와 같은 공격을 방지
     maxAge: 1000 * 60 * 60 * 24 * 14, // 14일 (밀리초 단위)
+    domain: config.cookieDomain,
   });
 };
 

@@ -1,4 +1,3 @@
-const schedule = require('node-schedule');
 const EventModel = require('../models/Events');
 const QRCodeModel = require('../models/QRCode');
 const { getKorDate } = require('../utils/common');

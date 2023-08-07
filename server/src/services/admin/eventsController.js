@@ -357,8 +357,9 @@ const saveImages = async (images) => {
 
       // 파일 업로드
       const uploadResult = await s3.upload(params).promise();
+      const imageUrl = config.cloudfront + uploadResult.key;
 
-      imageUrls.push(uploadResult.Location);
+      imageUrls.push(imageUrl);
     }
     return imageUrls;
   } catch (err) {
@@ -498,7 +499,7 @@ const deleteEvent = async (event_id) => {
  * @param {*} event_id
  * @returns 토큰
  */
-const createQRcodeJWt = async (event_id) => {
+const createQRCodeJwt = async (event_id) => {
   try {
     // 이벤트 정보 조회
     const event = await EventModel.findById(event_id);
@@ -514,31 +515,52 @@ const createQRcodeJWt = async (event_id) => {
       };
     }
 
-    // QR코드 생성 여부 확인
-    const qrCode = await QRCodeModel.findOne({ event_id: event_id });
-    if (qrCode) {
-      return { success: true, data: qrCode.token };
-    }
-
-    // jwt 토큰 생성
+    // JWT 토큰 생성
     const token = jwtUtil.qrSign(event_id);
     if (!token) {
-      return { success: false, message: 'jwt 토큰 생성 실패' };
+      return { success: false, message: 'JWT 토큰 생성 실패' };
     }
 
-    // 데이터 저장
-    const qrCodeResult = new QRCodeModel({
-      event_id: event_id,
-      isActive: true,
-      token: token,
-    });
+    // QR 코드 생성 또는 업데이트
+    let qrCode = await QRCodeModel.findOne({ event_id: event_id });
 
-    const result = await qrCodeResult.save();
-    if (!result) {
-      return { success: false, message: 'QR코드 데이터 저장에 실패했습니다.' };
+    if (!qrCode) {
+      // QR 코드가 존재하지 않으면 새로 생성
+      const qrCodeResult = new QRCodeModel({
+        event_id: event_id,
+        isActive: true,
+        token: token,
+      });
+
+      qrCode = await qrCodeResult.save();
+      if (!qrCode) {
+        return {
+          success: false,
+          message: 'QR코드 데이터 저장에 실패했습니다.',
+        };
+      }
+    } else {
+      const verify = jwtUtil.qrVerify(qrCode.token);
+      if (verify.success) {
+        return {
+          success: true,
+          data: qrCode.token,
+        };
+      }
+
+      // QR 코드가 존재하지만 유효하지 않으면 업데이트
+      qrCode.token = token;
+      qrCode.updated_at = getKorDate();
+      qrCode = await qrCode.save();
+      if (!qrCode) {
+        return {
+          success: false,
+          message: 'QR코드 데이터 수정에 실패했습니다.',
+        };
+      }
     }
 
-    return { success: true, data: result.token };
+    return { success: true, data: qrCode.token };
   } catch (err) {
     console.error('Error:', err);
     throw Error(err);
@@ -562,8 +584,9 @@ const saveImage = async (image) => {
 
     // S3 업로드 실행
     const uploadResult = await s3.upload(uploadParams).promise();
+    const imageUrl = config.cloudfront + uploadResult.Key;
 
-    return uploadResult.Location;
+    return imageUrl;
   } catch (err) {
     console.error('Error:', err);
     throw Error(err);
@@ -581,7 +604,7 @@ module.exports = {
   updateEvent,
   setEventStatusCanceled,
   deleteEvent,
-  createQRcodeJWt,
+  createQRCodeJwt,
   saveImage,
   saveImages,
 };

@@ -63,7 +63,6 @@ module.exports = (app) => {
   });
 
   /**
-   * @todo 토큰, dnft 관련 코드 추가 필여
    * @route POST /admin/users/detail/:id
    * @group Admin - User
    * @summary 사용자 상세 정보 확인

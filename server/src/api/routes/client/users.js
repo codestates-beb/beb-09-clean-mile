@@ -23,7 +23,7 @@ module.exports = (app) => {
    * @group users - 사용자 관련
    * @summary 이메일 인증 코드 전송(이메일 중복 체크 포함)
    */
-  route.post('/check-email', upload.single('email'), async (req, res) => {
+  route.post('/check-email', upload.none(), async (req, res) => {
     try {
       const email = req.body.email;
       if (!email) {
@@ -69,7 +69,7 @@ module.exports = (app) => {
    * @group users - 사용자 관련
    * @summary 닉네임 중복 체크
    */
-  route.post('/validate-nickname', upload.single('email'), async (req, res) => {
+  route.post('/validate-nickname', upload.none(), async (req, res) => {
     try {
       const nickname = req.body.nickname;
       if (!nickname) {
@@ -102,7 +102,6 @@ module.exports = (app) => {
   });
 
   /**
-   * @todo 사용자 dnft 데이터 추가 필요
    * @route POST /users/signup
    * @group users - 사용자 관련
    * @summary 회원가입 (이메일 인증 코드 검증 포함)
@@ -130,20 +129,23 @@ module.exports = (app) => {
       if (!saveDataResult.success) {
         return res.status(400).json({
           success: false,
-          message: '사용자 정보 저장에 실패했습니다.',
+          message: saveDataResult.message,
         });
       }
 
       //사용자 DNFT 발급
-      const createDNFT = await dnftController.createDNFT(userData.email, 0);
-      if (!createDNFT.success)
+      const createDNFT = await dnftController.createDNFT(
+        saveDataResult.data._id, // 사용자 아이디
+        saveDataResult.data.wallet.address, // 사용자 지갑 주소
+        saveDataResult.data.name, // 사용자 이름
+        saveDataResult.data.nickname, // 사용자 닉네임
+        saveDataResult.data.user_type // 사용자 타입
+      );
+      if (!createDNFT.success) {
         return res
           .status(400)
-          .json({ success: false, message: '사용자 DNFT 발급 실패' });
-      if (!createDNFT.success)
-        return res
-          .status(400)
-          .json({ success: false, message: '사용자 DNFT 발급 실패' });
+          .json({ success: false, message: createDNFT.message });
+      }
 
       return res.status(200).json({
         success: true,
@@ -239,17 +241,27 @@ module.exports = (app) => {
 
       usersController.setTokenCookie(res, accessToken, refreshToken);
 
+      // 사용자 DNFT 데이터 조회
       const dnftData = await dnftController.userDnftData(user_id);
       if (!dnftData.success)
         return res
           .status(500)
           .json({ success: false, message: 'DNFT 데이터 조회 실패' });
 
+      // 사용자 뱃지 정보 조회
+      const badgeData = await badgeController.userBadges(user_id);
+      if (!badgeData.success)
+        return res
+          .status(400)
+          .json({ success: false, message: badgeData.message });
+
       // 필요 없는 데이터 제거
       const userData = userResult.data.toObject();
-      userData.dnftData = dnftData;
       delete userData.hashed_pw;
       delete userData.__v;
+
+      userData.dnftData = dnftData.data; // userData에 dnft 정보 추가
+      userData.badges = badgeData.data; // userData에 badge 정보 추가
 
       return res.status(200).json({
         success: true,
@@ -528,7 +540,6 @@ module.exports = (app) => {
   });
 
   /**
-   * @todo cloudFront 설정 추가할수도 있음
    * @route POST /users/change-password
    * @group users - 사용자 관련
    * @summary 사용자 배너 이미지 변경
@@ -589,15 +600,14 @@ route.get('/userInfo', isAuth, async (req, res) => {
       });
     }
 
-    /**
-     * @todo 사용자 배지, dnft 정보 조회 수정 필요
-     */
+    // 사용자 dnft 정보 조회
     const dnftData = await dnftController.userDnftData(user_id);
     if (!dnftData.success)
       return res
         .status(400)
         .json({ success: false, message: dnftData.message });
 
+    // 사용자 뱃지 정보 조회
     const badgeData = await badgeController.userBadges(user_id);
     if (!badgeData.success)
       return res
@@ -615,6 +625,7 @@ route.get('/userInfo', isAuth, async (req, res) => {
       data: {
         user: user.data,
         dnftData: dnftData.data,
+        badgeData: badgeData.data,
         events: events.data,
         posts: posts.data,
       },
@@ -629,81 +640,78 @@ route.get('/userInfo', isAuth, async (req, res) => {
 });
 
 /**
- * @todo DNFT Name 업데이트
  * @route POST /users/updateDNFTName
  * @group users - 사용자 관련
  * @summary DNFT 업그레이드
  */
-route.post(
-  '/updateDNFTName',
-  /*isAuth*/ async (req, res) => {
-    try {
-      const { email, newName } = req.body;
+/**
+ * 당장 사용하는 곳이 없으므로 주석 처리
+ */
+// route.post(
+//   '/updateDNFTName',
+//   /*isAuth*/ async (req, res) => {
+//     try {
+//       const { email, newName } = req.body;
 
-      const updateName = await dnftController.updateName(email, newName);
+//       const updateName = await dnftController.updateName(email, newName);
 
-      if (updateName.success) {
-        return res.status(200).json({
-          success: true,
-        });
-      } else {
-        return res.status(400).json({
-          success: false,
-          message: 'DNFT Name 업데이트에 실패하였습니다',
-        });
-      }
-    } catch (err) {
-      console.error('Error:', err);
-      return res.status(500).json({
-        success: false,
-        message: '서버 오류',
-      });
-    }
-  }
-);
+//       if (updateName.success) {
+//         return res.status(200).json({
+//           success: true,
+//         });
+//       } else {
+//         return res.status(400).json({
+//           success: false,
+//           message: 'DNFT Name 업데이트에 실패하였습니다',
+//         });
+//       }
+//     } catch (err) {
+//       console.error('Error:', err);
+//       return res.status(500).json({
+//         success: false,
+//         message: '서버 오류',
+//       });
+//     }
+//   }
+// );
 
 /**
  * @route POST /users/upgrade-dnft
  * @group users - 사용자 관련
  * @summary DNFT 업그레이드
  */
-route.post(
-  '/upgrade-dnft',
-  /*isAuth*/ async (req, res) => {
-    try {
-      const { email } = req.body;
+route.post('/upgrade-dnft', isAuth, async (req, res) => {
+  try {
+    const user_id = req.decoded.user_id;
 
-      const upgradeDNFT = await dnftController.upgradeDnft(email);
+    const upgradeDNFT = await dnftController.upgradeDnft(user_id);
 
-      if (upgradeDNFT.success) {
-        return res.status(200).json({
-          success: true,
-        });
-      } else {
-        return res.status(400).json({
-          success: false,
-          message: 'DNFT 업그레이드에 실패하였습니다',
-        });
-      }
-    } catch (err) {
-      console.error('Error:', err);
-      return res.status(500).json({
+    if (upgradeDNFT.success) {
+      return res.status(200).json({
+        success: true,
+      });
+    } else {
+      return res.status(400).json({
         success: false,
-        message: '서버 오류',
+        message: 'DNFT 업그레이드에 실패하였습니다',
       });
     }
+  } catch (err) {
+    console.error('Error:', err);
+    return res.status(500).json({
+      success: false,
+      message: '서버 오류',
+    });
   }
-);
+});
 
 /**
- * @todo DNFT 업그레이드 api 구현 필요
  * @route POST /users/token-exchange
  * @group users - 사용자 관련
  * @summary 마일리지를 토큰으로 교환
  */
 route.post('/token-exchange', isAuth, async (req, res) => {
   try {
-    // const { userId } = req.body;
     const userId = req.decoded.user_id;
 
     const tokenExchange = await tokenController.tokenExchange(userId);

@@ -51,6 +51,11 @@ module.exports = (app) => {
     }
   });
 
+  /**
+   * @route GET /admin/comments/detail/:comment_id
+   * @group Admin - Comment
+   * @summary 댓글 상세 조회
+   */
   route.get('/detail/:comment_id', isAdminAuth, async (req, res) => {
     try {
       const { comment_id } = req.params;
@@ -78,6 +83,11 @@ module.exports = (app) => {
     }
   });
 
+  /**
+   * @route DELETE /admin/comments/delete/:comment_id
+   * @group Admin - Comment
+   * @summary 댓글 삭제
+   */
   route.delete('/delete/:comment_id', isAdminAuth, async (req, res) => {
     try {
       const { comment_id } = req.params;

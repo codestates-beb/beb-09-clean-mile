@@ -9,13 +9,13 @@ const eventEntrySchema = new mongoose.Schema({
     // 이벤트 ID
     type: mongoose.Schema.Types.ObjectId,
     ref: 'event',
-    required: true
+    required: true,
   },
   user_id: {
     // 사용자 ID
     type: mongoose.Schema.Types.ObjectId,
     ref: 'user',
-    required: true
+    required: true,
   },
   is_confirmed: {
     // 참가 인증 여부
@@ -27,10 +27,14 @@ const eventEntrySchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-  is_token_rewarded: {
+  is_mileage_rewarded: {
     // 후기 작성 보상 지급 여부
     type: Boolean,
     default: false,
+  },
+  authenticated_at: {
+    // 행사 참여 인증 시간
+    type: Date,
   },
   created_at: {
     // 이벤트 참가자 데이터 생성일

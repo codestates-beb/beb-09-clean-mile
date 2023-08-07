@@ -144,10 +144,7 @@ module.exports = (app) => {
       }
 
       // 댓글 작성자 확인
-      if (
-        commentResult.data.user_id.toString() === user_id ||
-        req.decoded.isAuth
-      ) {
+      if (commentResult.data.user_id.toString() === user_id) {
         // 댓글 삭제
         const commentDeleteResult = await commentsController.deleteComment(
           comment_id
