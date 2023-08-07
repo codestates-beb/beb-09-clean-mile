@@ -9,7 +9,7 @@ module.exports = (app) => {
   // Enable Cross Origin Resource Sharing to all origins by default
   app.use(
     cors({
-      origin: [config.origin],
+      origin: config.origin,
       credentials: true,
       methods: ['GET', 'POST', 'OPTIONS', 'DELETE', 'PATCH'],
     })

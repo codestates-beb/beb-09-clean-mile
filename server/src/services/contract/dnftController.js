@@ -51,12 +51,15 @@ const createDNFT = async (
 ) => {
   try {
     let description = '';
+    let user_type_num;
     switch (user_Type) {
       case 'user':
-        description = '---Events---'; // @todo 내용 수정 논의 필요
+        description = '---Welcome---';
+        user_type_num = 0;
         break;
       case 'admin':
-        description = 'Administrator'; // @todo  내용 수정 논의 필요
+        description = 'Administrator';
+        user_type_num = 1;
         break;
       default:
         return { success: false, message: '잘못된 사용자 타입입니다.' };
@@ -64,7 +67,7 @@ const createDNFT = async (
 
     const transaction = await dnftContract
       .connect(signer)
-      .mintDNFT(wallet_address, name, description, user_Type);
+      .mintDNFT(wallet_address, name, description, user_type_num);
     await transaction.wait();
 
     const eventFilter = dnftContract.filters.Transfer(null, wallet_address);
@@ -72,7 +75,7 @@ const createDNFT = async (
     const tokenId = Number(events[0].args.tokenId);
 
     const tokenUri = await dnftContract.connect(signer).tokenURI(tokenId);
-    const dnftLevel = await dnftContract.connect(signer).dnftLevel(tokenId); // @todo dnftData 함수로 한 번에 불러올 수 있음
+    const dnftLevel = await dnftContract.connect(signer).dnftLevel(tokenId);
 
     // dnft 정보 저장
     const dnftData = new DnftModel({
@@ -173,10 +176,6 @@ const updateDescription = async (userId, newEvent) => {
  */
 const userDnftData = async (userId) => {
   try {
-    // 사용자 정보 조회
-    const user = await UserModel.findById(userId); // @todo 아래 내용 확인 후 수정
-    if (!user) return { success: false, message: '데이터 요청 실패' };
-
     // 사용자 DNFT 정보 조회
     const dnft = await DnftModel.findOne({ user_id: userId });
     if (!dnft) return { success: false, message: '데이터 요청 실패' };
@@ -184,7 +183,6 @@ const userDnftData = async (userId) => {
     return {
       success: true,
       data: {
-        owner: user.nickname, // @todo 사용하는 곳이 있는지 확인 필요
         token_id: dnft.token_id,
         name: dnft.name,
         image_url: dnft.token_uri,
