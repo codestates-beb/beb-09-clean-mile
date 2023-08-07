@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useRouter } from 'next/router';
 import Swal from 'sweetalert2';
 import useTranslation from 'next-translate/useTranslation';
+import { useDispatch } from 'react-redux';
+import { useRouter } from 'next/router';
 import { AxiosError } from 'axios';
 import { GiHamburgerMenu, GiToken } from 'react-icons/gi';
 import { IoCloseSharp } from 'react-icons/io5';
@@ -14,10 +15,12 @@ import { useMutation, useQueryClient, dehydrate } from 'react-query';
 import { Nav, NewNotice, hero_img, LanguageSwitch } from '../Reference';
 import { User, UserInfo, Post, Dnft } from '../Interfaces';
 import { ApiCaller } from '../Utils/ApiCaller';
+import { showSuccessAlert, showErrorAlert } from '@/Redux/actions';
 
 const Header = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const dispatch = useDispatch();
   const { t } = useTranslation('common');
 
   const [isOpen, setIsOpen] = useState(false);
@@ -110,7 +113,7 @@ const Header = () => {
   const logout = async () => {
 
     Swal.fire({
-      title: t('common: Do you want to log out'),
+      title: t('common:Do you want to log out'),
       icon: 'question',
       showCancelButton: true,
       confirmButtonText: t('common:OK'),
@@ -132,33 +135,17 @@ const Header = () => {
 
           const res = await ApiCaller.post(URL, dataBody, isJSON, headers, isCookie);
           if (res.status === 200) {
-            Swal.fire({
-              title: t('common:Success'),
-              text: res.data.message,
-              icon: 'success',
-              confirmButtonText: t('common:OK'),
-              confirmButtonColor: '#6BCB77',
-            }).then(() => {
-              Swal.close();
-              router.replace('/');
+            dispatch(showSuccessAlert(res.data.message));
+            router.replace('/');
 
-              if (typeof window !== "undefined") {
-                sessionStorage.removeItem('user');
-                sessionStorage.removeItem('user_info');
-              }
-              queryClient.removeQueries('user');
-              queryClient.removeQueries('user_info');
-            });
+            if (typeof window !== "undefined") {
+              sessionStorage.removeItem('user');
+              sessionStorage.removeItem('user_info');
+            }
+            queryClient.removeQueries('user');
+            queryClient.removeQueries('user_info');
           } else {
-            Swal.fire({
-              title: t('common:Error'),
-              text: res.data.message,
-              icon: 'error',
-              confirmButtonText: t('common:OK'),
-              confirmButtonColor: '#6BCB77'
-            }).then(() => {
-              Swal.close();
-            });
+            dispatch(showErrorAlert(res.data.message));
           }
           return res.data.data
         } catch (error) {
@@ -166,27 +153,10 @@ const Header = () => {
 
           const data = err.response?.data as { message: string };
 
-          Swal.fire({
-            title: t('common:Error'),
-            text: data?.message,
-            icon: 'error',
-            confirmButtonText: t('common:OK'),
-            confirmButtonColor: '#6BCB77'
-          }).then(() => {
-            Swal.close();
-            router.push('/');
-          });
-
-          throw err;
+          dispatch(showErrorAlert(data?.message));
         }
       } else if (result.isDismissed) {
-        Swal.fire({
-          title: t('common:Success'),
-          text: t('common:You have cancelled your logout'),
-          icon: 'success',
-          confirmButtonText: t('common:OK'),
-          confirmButtonColor: '#6BCB77',
-        })
+        dispatch(showSuccessAlert(t('common:You have cancelled your logout')));
       }
     });
   }

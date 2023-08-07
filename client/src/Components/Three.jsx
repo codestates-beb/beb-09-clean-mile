@@ -2,11 +2,7 @@ import React, { Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';       // react에서 three.js를 간편하게 활용할 수 있도록 하는 라이브러리
 import { OrbitControls, PerspectiveCamera, Stars, useGLTF, Environment   } from "@react-three/drei";
 
-interface ModelProps {
-	url: string;
-}
-
-function Model({ url }: ModelProps) {
+function Model({ url }) {
 	// useGLTF 훅을 통해 glTF 형식의 3D 모델을 불러옴
 	const gltf = useGLTF(url);
 	return <primitive object={gltf.scene} 
@@ -15,7 +11,7 @@ function Model({ url }: ModelProps) {
 	/>;
 }
 
-export default function Three(): JSX.Element {
+export default function Three() {
 	return (
 		// Canvas는 react-three/fiber Scene을 정의하기 시작하는 곳
 		<Canvas style={{ height: '100%', backgroundColor: '#0f1325' }}>

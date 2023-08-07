@@ -180,7 +180,7 @@ const UserProfile = ({
                   key={i}
                 >
                   <Image
-                    src={badge.image_url}
+                    src={badge.image}
                     layout='fill'
                     className='object-cover'
                     alt='profile image'

@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import useTranslation from 'next-translate/useTranslation';
 import Swal from 'sweetalert2';
+import { useDispatch } from 'react-redux';
 import { useRouter } from 'next/router';
 import { AxiosError } from 'axios';
 import { AiOutlineDelete, AiOutlineHeart, AiFillHeart } from 'react-icons/ai'
 import { MdOutlineCreate } from 'react-icons/md';
 import { ApiCaller } from './Utils/ApiCaller';
 import { Comment, User } from './Interfaces';
+import { showSuccessAlert, showErrorAlert } from '@/Redux/actions';
 
 const Comments = ({ postDetailId, comments }: { postDetailId: string, comments: Comment[] }) => {
   const router = useRouter();
+  const dispatch = useDispatch();
   const { t } = useTranslation('common');
 
   const [comment, setComment] = useState('');
@@ -28,7 +31,7 @@ const Comments = ({ postDetailId, comments }: { postDetailId: string, comments: 
       setUserInfo(userCache.queries[0]?.state.data.user);
     }
   }, []);
-  
+
   const createComment = async () => {
     const formData = new FormData();
 
@@ -44,41 +47,17 @@ const Comments = ({ postDetailId, comments }: { postDetailId: string, comments: 
 
       const res = await ApiCaller.post(URL, dataBody, isJSON, headers, isCookie);
       if (res.status === 200) {
-        Swal.fire({
-          title: 'Success!',
-          text: res.data.message,
-          icon: 'success',
-          confirmButtonText: 'OK',
-          confirmButtonColor: '#6BCB77'
-        }).then(() => {
-          Swal.close();
-          router.reload();
-        });
+        dispatch(showSuccessAlert(res.data.message));
+        router.reload();
       } else {
-        Swal.fire({
-          title: 'Error',
-          text: res.data.message,
-          icon: 'error',
-          confirmButtonText: 'OK',
-          confirmButtonColor: '#6BCB77'
-        }).then(() => {
-          Swal.close();
-        });
+        dispatch(showErrorAlert(res.data.message));
       }
     } catch (error) {
       const err = error as AxiosError;
 
       const data = err.response?.data as { message: string };
 
-      Swal.fire({
-        title: 'Error',
-        text: data?.message,
-        icon: 'error',
-        confirmButtonText: 'OK',
-        confirmButtonColor: '#6BCB77'
-      }).then(() => {
-        Swal.close();
-      });
+      dispatch(showErrorAlert(data?.message));
     }
   }
 
@@ -92,7 +71,7 @@ const Comments = ({ postDetailId, comments }: { postDetailId: string, comments: 
 
       const res = await ApiCaller.patch(URL, dataBody, isJSON, headers, isCookie);
       if (res.status === 200) {
-        setLikedComments({...likedComments, [commentId]: !likedComments[commentId]});
+        setLikedComments({ ...likedComments, [commentId]: !likedComments[commentId] });
       }
 
 
@@ -100,16 +79,7 @@ const Comments = ({ postDetailId, comments }: { postDetailId: string, comments: 
       const err = error as AxiosError;
 
       const data = err.response?.data as { message: string };
-
-      Swal.fire({
-        title: 'Error',
-        text: data?.message,
-        icon: 'error',
-        confirmButtonText: 'OK',
-        confirmButtonColor: '#6BCB77'
-      }).then(() => {
-        Swal.close();
-      });
+      dispatch(showErrorAlert(data?.message));
     }
   }
 
@@ -133,41 +103,17 @@ const Comments = ({ postDetailId, comments }: { postDetailId: string, comments: 
 
       const res = await ApiCaller.patch(URL, dataBody, isJSON, headers, isCookie);
       if (res.status === 200) {
-        Swal.fire({
-          title: 'Success!',
-          text: res.data.message,
-          icon: 'success',
-          confirmButtonText: 'OK',
-          confirmButtonColor: '#6BCB77'
-        }).then(() => {
-          Swal.close();
-          router.reload();
-        });
+        dispatch(showSuccessAlert(res.data.message));
+        router.reload();
       } else {
-        Swal.fire({
-          title: 'Error',
-          text: res.data.message,
-          icon: 'error',
-          confirmButtonText: 'OK',
-          confirmButtonColor: '#6BCB77'
-        }).then(() => {
-          Swal.close();
-        });
+        dispatch(showErrorAlert(res.data.message));
       }
     } catch (error) {
       const err = error as AxiosError;
 
       const data = err.response?.data as { message: string };
 
-      Swal.fire({
-        title: 'Error',
-        text: data?.message,
-        icon: 'error',
-        confirmButtonText: 'OK',
-        confirmButtonColor: '#6BCB77'
-      }).then(() => {
-        Swal.close();
-      });
+      dispatch(showErrorAlert(data?.message));
     }
   }
 
@@ -191,47 +137,22 @@ const Comments = ({ postDetailId, comments }: { postDetailId: string, comments: 
 
           const res = await ApiCaller.delete(URL, dataBody, isJSON, headers, isCookie);
           if (res.status === 200) {
-            Swal.fire({
-              title: 'Success!',
-              text: res.data.message,
-              icon: 'success',
-              confirmButtonText: 'OK',
-              confirmButtonColor: '#6BCB77'
-            }).then(() => {
-              Swal.close();
-              router.reload();
-            });
-
+            dispatch(showSuccessAlert(res.data.message));
+            router.reload();
           } else {
-            Swal.fire({
-              title: 'Error',
-              text: res.data.message,
-              icon: 'error',
-              confirmButtonText: 'OK',
-              confirmButtonColor: '#6BCB77'
-            }).then(() => {
-              Swal.close();
-            });
+            dispatch(showErrorAlert(res.data.message));
           }
         } catch (error) {
           const err = error as AxiosError;
 
           const data = err.response?.data as { message: string };
-
-          Swal.fire({
-            title: 'Error',
-            text: data?.message,
-            icon: 'error',
-            confirmButtonText: 'OK',
-            confirmButtonColor: '#6BCB77'
-          }).then(() => {
-            Swal.close();
-          });
+          
+          dispatch(showErrorAlert(data?.message));
         }
       } else if (result.isDismissed) {
         Swal.fire({
           title: 'Success!',
-          text: 'You canceled deleting the comments.',
+          text: t('common:You canceled deleting the comments'),
           icon: 'success',
           confirmButtonText: 'OK',
           confirmButtonColor: '#6BCB77',
@@ -243,12 +164,12 @@ const Comments = ({ postDetailId, comments }: { postDetailId: string, comments: 
   return (
     <>
       <div className='w-full flex flex-col gap-4'>
-          <h2 className='text-xl font-bold xs:text-base'>{t('common:Comment')}</h2>
-          {comments.length !== 0 ? (
-            comments.map((comment, i) => {
-              return (
-                <div className='w-full grid grid-cols-2 items-center border rounded-xl p-3 sm:p-2' key={i}>
-                  <div>
+        <h2 className='text-xl font-bold xs:text-base'>{t('common:Comment')}</h2>
+        {comments.length !== 0 ? (
+          comments.map((comment, i) => {
+            return (
+              <div className='w-full grid grid-cols-2 items-center border rounded-xl p-3 sm:p-2' key={i}>
+                <div>
                   {editingComment === comment._id ? (
                     <div className='flex gap-2'>
                       <input
@@ -278,63 +199,63 @@ const Comments = ({ postDetailId, comments }: { postDetailId: string, comments: 
                       </p>
                     </>
                   )}
-                  </div>
-                  <div className='text-right flex justify-end gap-6 sm:gap-2 xs:gap-2'>
+                </div>
+                <div className='text-right flex justify-end gap-6 sm:gap-2 xs:gap-2'>
+                  <div>
+                    <p className='font-bold text-lg sm:text-sm xs:text-xs cursor-pointer hover:underline'
+                      onClick={() => {
+                        comment.user_id === null ? (
+                          Swal.fire({
+                            title: 'Error',
+                            text: 'User does not exist.',
+                            icon: 'error',
+                            confirmButtonText: 'OK',
+                            confirmButtonColor: '#6BCB77'
+                          }).then(() => {
+                            Swal.close();
+                          })
+                        ) : (
+                          router.push(`/users/profile?id=${comment.user_id._id}`)
+                        )
+                      }}>
+                      {comment.user_id === null ? t('common:Unknown') : comment.user_id.nickname}
+                    </p>
                     <div>
-                      <p className='font-bold text-lg sm:text-sm xs:text-xs cursor-pointer hover:underline'
-                        onClick={() => {
-                          comment.user_id === null ? (
-                            Swal.fire({
-                              title: 'Error',
-                              text: 'User does not exist.',
-                              icon: 'error',
-                              confirmButtonText: 'OK',
-                              confirmButtonColor: '#6BCB77'
-                            }).then(() => {
-                              Swal.close();
-                            })
-                          ) : (
-                            router.push(`/users/profile?id=${comment.user_id._id}`)
-                          )
-                        }}>
-                        {comment.user_id === null ? t('common:Unknown') : comment.user_id.nickname}
+                      <p className='text-sm sm:text-xs xs:text-xs'>
+                        {comment.updated_at.split('T')[0]} {comment.updated_at.substring(11, 19)}
                       </p>
-                      <div>
-                        <p className='text-sm sm:text-xs xs:text-xs'>
-                          {comment.updated_at.split('T')[0]} {comment.updated_at.substring(11, 19)}
-                        </p>
-                      </div>
                     </div>
-                    <div className='flex justify-end items-center gap-4 sm:gap-2 xs:gap-2'>
-                      {likedComments[comment._id] ?  (
-                        <AiFillHeart className='text-main-red cursor-pointer sm:w-[30%] xs:w-[30%]' size={26} onClick={() => likeComment(comment._id)}/>
-                      ) : (
-                        <AiOutlineHeart className='text-main-red cursor-pointer sm:w-[30%] xs:w-[30%]' size={26} onClick={() => likeComment(comment._id)} />
-                      )}
-                      {/* ... comment content ... */}
-                      {isLoggedIn && userInfo?._id === comment.user_id._id && (
-                        <>
-                          <MdOutlineCreate className="text-red-500 cursor-pointer sm:w-[30%] xs:w-[30%]" size={26} onClick={() => handleEditComment(comment._id)} />
-                          <AiOutlineDelete className="text-red-500 cursor-pointer sm:w-[30%] xs:w-[30%]" size={26} onClick={() => deleteComment(comment._id)} />
-                        </>
-                      )}
-                    </div>
+                  </div>
+                  <div className='flex justify-end items-center gap-4 sm:gap-2 xs:gap-2'>
+                    {likedComments[comment._id] ? (
+                      <AiFillHeart className='text-main-red cursor-pointer sm:w-[30%] xs:w-[30%]' size={26} onClick={() => likeComment(comment._id)} />
+                    ) : (
+                      <AiOutlineHeart className='text-main-red cursor-pointer sm:w-[30%] xs:w-[30%]' size={26} onClick={() => likeComment(comment._id)} />
+                    )}
+                    {/* ... comment content ... */}
+                    {isLoggedIn && userInfo?._id === comment.user_id._id && (
+                      <>
+                        <MdOutlineCreate className="text-red-500 cursor-pointer sm:w-[30%] xs:w-[30%]" size={26} onClick={() => handleEditComment(comment._id)} />
+                        <AiOutlineDelete className="text-red-500 cursor-pointer sm:w-[30%] xs:w-[30%]" size={26} onClick={() => deleteComment(comment._id)} />
+                      </>
+                    )}
                   </div>
                 </div>
-              )
-            })
-          ) : (
-            null
-          )}
-          <textarea
-            className='border border-gray-300 rounded-lg p-2 w-full outline-none'
-            rows={4}
-            placeholder={t('common:Please enter comments')}
-            value={comment}
-            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setComment(e.target.value)}
-          />
-          <div className='flex justify-end'>
-            <button className='
+              </div>
+            )
+          })
+        ) : (
+          null
+        )}
+        <textarea
+          className='border border-gray-300 rounded-lg p-2 w-full outline-none'
+          rows={4}
+          placeholder={t('common:Please enter comments')}
+          value={comment}
+          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setComment(e.target.value)}
+        />
+        <div className='flex justify-end'>
+          <button className='
               py-2 
               px-4
               sm:px-6 
@@ -348,11 +269,11 @@ const Comments = ({ postDetailId, comments }: { postDetailId: string, comments: 
               hover:bg-blue-600 
               transition 
               duration-300'
-              onClick={createComment}>
-              {t('common:Create')}
-            </button>
-          </div>
+            onClick={createComment}>
+            {t('common:Create')}
+          </button>
         </div>
+      </div>
     </>
   )
 }

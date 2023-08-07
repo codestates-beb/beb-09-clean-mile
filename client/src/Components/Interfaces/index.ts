@@ -188,7 +188,7 @@ type Dnft = {
 type UserBadge = {
   name: string;
   description: string;
-  image_url: string;
+  image: string;
   badge_type: string;
 }
 

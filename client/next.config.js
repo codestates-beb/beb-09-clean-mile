@@ -6,12 +6,18 @@ const nextConfig = {
   reactStrictMode: false,
   images: {
     domains: [
-      'example.com',
+      'd190dv1poq5i84.cloudfront.net',
       'plohub-bucket.s3.ap-northeast-2.amazonaws.com',
       'gold-cool-goat-213.mypinata.cloud',
-      'i.namu.wiki',
     ],
   },
+  remotePatterns: [
+    {
+      protocol: 'https',
+      hostname: 'd190dv1poq5i84.cloudfront.net',
+      port: '',
+    },
+  ],
   webpack: (config, { dev }) => {
     if (dev) {
       // Only dev purpose

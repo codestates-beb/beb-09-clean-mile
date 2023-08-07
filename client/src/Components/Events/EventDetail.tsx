@@ -1,19 +1,21 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { useRouter } from 'next/router';
 import useTranslation from 'next-translate/useTranslation';
 import Link from 'next/link';
 import Image from 'next/image';
-import Swal from 'sweetalert2';
-import { AxiosError } from 'axios';
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import { useDispatch } from 'react-redux';
+import { AxiosError } from 'axios';
+import { useRouter } from 'next/router';
 import { Comments } from '../Reference';
 import { EventDetailType, Comment, User } from '../Interfaces';
 import { ApiCaller } from '../Utils/ApiCaller';
+import { showSuccessAlert, showErrorAlert } from '@/Redux/actions';
 
 const EventDetail = ({ eventDetail, comments }: { eventDetail: EventDetailType, comments: Comment[] }) => {
   const router = useRouter();
+  const dispatch = useDispatch();
   const { t } = useTranslation('common');
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -56,42 +58,17 @@ const EventDetail = ({ eventDetail, comments }: { eventDetail: EventDetailType, 
       const res = await ApiCaller.post(URL, dataBody, isJSON, headers, isCookie);
 
       if (res.status === 200) {
-        Swal.fire({
-          title: t('common:Success'),
-          text: res.data.message,
-          icon: 'success',
-          confirmButtonText: t('common:OK'),
-          confirmButtonColor: '#6BCB77'
-        }).then(() => {
-          Swal.close();
-          router.replace(`/users/mypage`);
-        });
-
+        dispatch(showSuccessAlert(res.data.message));
+        router.replace(`/users/mypage`);
       } else {
-        Swal.fire({
-          title: t('common:Error'),
-          text: res.data.message,
-          icon: 'error',
-          confirmButtonText: t('common:OK'),
-          confirmButtonColor: '#6BCB77'
-        }).then(() => {
-          Swal.close();
-        });
+        dispatch(showErrorAlert(res.data.message));
       }
     } catch (error) {
       const err = error as AxiosError;
 
       const data = err.response?.data as { message: string };
 
-      Swal.fire({
-        title: t('common:Error'),
-        text: data?.message,
-        icon: 'error',
-        confirmButtonText: t('common:OK'),
-        confirmButtonColor: '#6BCB77'
-      }).then(() => {
-        Swal.close();
-      });
+      dispatch(showErrorAlert(data?.message));
     }
   }
 

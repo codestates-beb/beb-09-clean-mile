@@ -88,6 +88,7 @@
   "Completed application": "Completed application",
   "Do you want to log out": "Do you want to log out?",
   "You have cancelled your logout": "You have cancelled your logout.",
+  "You canceled deleting the comments": "You canceled deleting the comments.",
   "Verify": "Verify",
   "Token Exchange": "Mileage Exchange",
   "Mileage": "Mileage",
@@ -100,5 +101,7 @@
   "Cancel": "Cancel",
   "Back": "Back",
   "Please scan the QR code": "Please scan the QR code.",
+  "Upgrading": "Upgrading...",
+  "Loading": "Loading...",
   "QR Code Scan": "QR Code Scan"
 }

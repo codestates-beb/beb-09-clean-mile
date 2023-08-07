@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
-import { useRouter } from 'next/router';
 import Image from 'next/image';
 import useTranslation from 'next-translate/useTranslation';
 import Swal from 'sweetalert2';
+import { useDispatch } from 'react-redux';
+import { useRouter } from 'next/router';
 import { AxiosError, AxiosResponse } from 'axios';
 import { BsFillImageFill } from 'react-icons/bs';
 import { User, Pagination, Post, EventList, Dnft, UserBadge } from '../Interfaces';
 import { default_banner } from '../Reference';
 import { ApiCaller } from '../Utils/ApiCaller';
+import { showSuccessAlert, showErrorAlert } from '@/Redux/actions'
 
 const EXTENSIONS = [
   { type: 'gif' },
@@ -31,7 +33,8 @@ const MyPage = ({
   userDnft: Dnft,
   userBadges: UserBadge[]
 }) => {
-  const router = useRouter()
+  const router = useRouter();
+  const dispatch = useDispatch();
   const { t } = useTranslation('common');
 
   const [fileUrl, setFileUrl] = useState<string | null>(null);
@@ -174,43 +177,17 @@ const MyPage = ({
 
       const data = err.response?.data as { message: string };
 
-      Swal.fire({
-        title: t('common:Error'),
-        text: data?.message,
-        icon: 'error',
-        confirmButtonText: t('common:OK'),
-        confirmButtonColor: '#6BCB77'
-      }).then(() => {
-        Swal.close();
-      });
-
+      dispatch(showErrorAlert(data?.message));
     }
   }
 
   const handleResponse = (res: AxiosResponse) => {
     if (res.status === 200) {
-      Swal.fire({
-        title: t('common:Success'),
-        text: t('common:Profile change was successful'),
-        icon: 'success',
-        confirmButtonText: t('common:OK'),
-        confirmButtonColor: '#6BCB77'
-      }).then(() => {
-        Swal.close();
-        router.reload();
-      });
+      dispatch(showSuccessAlert(t('common:Profile change was successful')))
+      router.reload();
       setIsEditing(false);
-
     } else {
-      Swal.fire({
-        title: t('common:Error'),
-        text: res.data.message,
-        icon: 'error',
-        confirmButtonText: t('common:OK'),
-        confirmButtonColor: '#6BCB77'
-      }).then(() => {
-        Swal.close();
-      });
+      dispatch(showSuccessAlert(res.data.message));
     }
   }
 
@@ -221,26 +198,9 @@ const MyPage = ({
   const copyAddr = async () => {
     try {
       await navigator.clipboard.writeText(userInfo.wallet.address);
-      Swal.fire({
-        title: t('common:Success'),
-        text: t('common:Your wallet address has been copied'),
-        icon: 'success',
-        confirmButtonText: t('common:OK'),
-        confirmButtonColor: '#6BCB77',
-      }).then(() => {
-        Swal.close();
-      });
-
+      dispatch(showSuccessAlert(t('common:Your wallet address has been copied')))
     } catch (err) {
-      Swal.fire({
-        title: (t('common:Error')),
-        text: t('commonFailed to copy wallet address'),
-        icon: 'error',
-        confirmButtonText: t('common:OK'),
-        confirmButtonColor: '#6BCB77',
-      }).then(() => {
-        Swal.close();
-      });
+      dispatch(showErrorAlert(t('commonFailed to copy wallet address')));
     }
   }
 
@@ -258,51 +218,31 @@ const MyPage = ({
 
       const res = await ApiCaller.post(URL, dataBody, isJSON, headers, isCookie);
       if(res.status === 200) {
-        Swal.fire({
-          title: t('common:Success'),
-          text: res.data?.message,
-          icon: 'success',
-          confirmButtonText: t('common:OK'),
-          confirmButtonColor: '#6BCB77'
-        }).then(() => {
-          Swal.close();
-        });
+        dispatch(showSuccessAlert(res.data?.message));
       } else {
-        Swal.fire({
-          title: t('common:Error'),
-          text: res.data?.message,
-          icon: 'error',
-          confirmButtonText: t('common:OK'),
-          confirmButtonColor: '#6BCB77'
-        }).then(() => {
-          Swal.close();
-        });
+        dispatch(showErrorAlert(res.data?.message));
       }
     } catch (error) {
       const err = error as AxiosError;
 
       const data = err.response?.data as { message: string };
 
-      Swal.fire({
-        title: t('common:Error'),
-        text: data?.message,
-        icon: 'error',
-        confirmButtonText: t('common:OK'),
-        confirmButtonColor: '#6BCB77'
-      }).then(() => {
-        Swal.close();
-      });
+      dispatch(showErrorAlert(data?.message));
     }
   }
 
   const upgradeDnft = async () => {
-    const formData = new FormData();
-
-    formData.append('email', userInfo.email);
+    Swal.fire({
+      title: t('common:Upgrading'),
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
     try {
       const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/upgrade-dnft`;
-      const dataBody = formData;
-      const isJSON = false;
+      const dataBody = null;
+      const isJSON = true;
       const headers = {
         'Content-Type': 'multipart/form-data',
         'Accept': 'application/json',
@@ -310,42 +250,22 @@ const MyPage = ({
       const isCookie = true;
   
       const res = await ApiCaller.post(URL, dataBody, isJSON, headers, isCookie);
+      
+      Swal.close();
 
       if(res.status === 200) {
-        Swal.fire({
-          title: t('common:Success'),
-          text: res.data?.message,
-          icon: 'success',
-          confirmButtonText: t('common:OK'),
-          confirmButtonColor: '#6BCB77'
-        }).then(() => {
-          Swal.close();
-        });
+        dispatch(showSuccessAlert(res.data?.message));
+        router.reload();
       } else {
-        Swal.fire({
-          title: t('common:Error'),
-          text: res.data?.message,
-          icon: 'error',
-          confirmButtonText: t('common:OK'),
-          confirmButtonColor: '#6BCB77'
-        }).then(() => {
-          Swal.close();
-        });
+        dispatch(showErrorAlert(res.data?.message));
       }
     } catch (error) {
+      Swal.close();
+      
       const err = error as AxiosError;
-
       const data = err.response?.data as { message: string };
 
-      Swal.fire({
-        title: t('common:Error'),
-        text: data?.message,
-        icon: 'error',
-        confirmButtonText: t('common:OK'),
-        confirmButtonColor: '#6BCB77'
-      }).then(() => {
-        Swal.close();
-      });
+      dispatch(showErrorAlert(data?.message));
     }
   }
 
@@ -495,19 +415,19 @@ const MyPage = ({
               {userInfo?.wallet?.address}
             </p>
             <div className='flex items-center justify-center gap-2'>
-              <p className='font-semibold sm:text-sm xs:text-xs cursor-pointer' onClick={copyAddr} title="Click to copy the address">
+              <p className='font-semibold sm:text-sm xs:text-xs'>
                 {t('common:Mileage')}: {userInfo?.wallet?.mileage_amount}
               </p>
-              <p className='font-semibold sm:text-sm xs:text-xs cursor-pointer' onClick={copyAddr} title="Click to copy the address">
+              <p className='font-semibold sm:text-sm xs:text-xs'>
                 |
               </p>
-              <p className='font-semibold sm:text-sm xs:text-xs cursor-pointer' onClick={copyAddr} title="Click to copy the address">
+              <p className='font-semibold sm:text-sm xs:text-xs'>
                 {t('common:Token')}: {userInfo?.wallet?.token_amount} CM
               </p>
-              <p className='font-semibold sm:text-sm xs:text-xs cursor-pointer' onClick={copyAddr} title="Click to copy the address">
+              <p className='font-semibold sm:text-sm xs:text-xs'>
                 |
               </p>
-              <p className='font-semibold sm:text-sm xs:text-xs cursor-pointer' onClick={copyAddr} title="Click to copy the address">
+              <p className='font-semibold sm:text-sm xs:text-xs'>
                 {t('common:Total Badge Score')}: {userInfo?.wallet?.total_badge_score}
               </p>
             </div>
@@ -588,7 +508,7 @@ const MyPage = ({
               userBadges.map((badge, i) => {
                 return (
                   <div className='w-[10rem] 
-                    lg:w-[8rem] 
+                  lg:w-[8rem] 
                     md:w-[6rem] 
                     sm:w-[6rem] 
                     xs:w-[5rem] 
@@ -602,7 +522,7 @@ const MyPage = ({
                     overflow-hidden 
                     relative'
                     key={i}>
-                    <Image src={badge.image_url} layout='fill' className='object-cover' alt='profile image' />
+                    <Image src={badge.image} layout='fill' objectFit='cover' alt='profile image' />
                   </div>
                 )
               })
