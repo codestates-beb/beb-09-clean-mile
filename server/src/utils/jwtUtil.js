@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const config = require('../config');
-const { findUserEmail } = require('../services/client/usersController');
+const UserModel = require('../models/Users');
 
 module.exports = {
   /**
@@ -76,8 +76,7 @@ module.exports = {
     try {
       const decoded = jwt.verify(token, config.jwt.jwtRefreshSecret);
 
-      // 사용자 확인
-      const findUser = await findUserEmail(decoded.email);
+      const findUser = await UserModel.findOne({ email: decoded.email });
       if (!findUser) {
         return {
           success: false,
@@ -85,10 +84,7 @@ module.exports = {
         };
       }
 
-      if (
-        decoded.email === findUser.data.email &&
-        decoded.iss === config.jwt.isu
-      ) {
+      if (decoded.email === findUser.email && decoded.iss === config.jwt.isu) {
         return {
           success: true,
           decoded: decoded,

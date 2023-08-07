@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const config = require('../config');
-const { findUserEmail } = require('../services/client/usersController');
+const UserModel = require('../models/Users');
 
 module.exports = {
   /**
@@ -83,9 +83,9 @@ module.exports = {
   adminRefreshVerify: async (token) => {
     try {
       const decoded = jwt.verify(token, config.jwt.jwtAdminRefreshSecret);
+      console.log(decoded.email);
 
-      // 사용자 확인
-      const findUser = await findUserEmail(decoded.email);
+      const findUser = await UserModel.findOne({ email: decoded.email });
       if (!findUser) {
         return {
           success: false,
@@ -94,9 +94,9 @@ module.exports = {
       }
 
       if (
-        decoded.email === findUser.data.email &&
+        decoded.email === findUser.email &&
         decoded.iss === config.jwt.isu &&
-        findUser.data.user_type === 'admin'
+        findUser.user_type === 'admin'
       ) {
         return {
           success: true,
