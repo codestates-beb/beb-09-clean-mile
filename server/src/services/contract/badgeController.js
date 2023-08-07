@@ -15,6 +15,7 @@ const badgeContract = new ethers.Contract(
 );
 const pinataSDK = require('@pinata/sdk');
 const { token } = require('morgan');
+const dnftController = require('./dnftController');
 
 /**
  * 뱃지 발행
@@ -259,6 +260,18 @@ const transferBadge = async (recipient, eventId) => {
       userInfo.wallet.total_badge_score += badgeScore[badge.type];
 
       await userInfo.save();
+
+      // 유저 DNFT에 행상 정보 업데이트
+      const updateDescription = await dnftController.updateDescription(
+        recipient,
+        badge.description
+      );
+      if (!updateDescription.success) {
+        return {
+          success: false,
+          message: '유저 DNFT를 업데이트 하지 못했습니다',
+        };
+      }
 
       badge.owners.push(recipient);
       await badge.save();
