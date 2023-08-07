@@ -112,3 +112,49 @@ resource "aws_lb_listener" "main_alb_listener_https" {
     }
   )
 }
+
+resource "aws_lb_listener_rule" "main_alb_listener_rule_http" {
+  listener_arn = aws_lb_listener.main_alb_listener_http.arn
+  priority     = 1
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_alb_target_group.main_alb_target_group_http.arn
+  }
+
+  condition {
+    host_header {
+      values = ["www.${var.domain_name}"]
+    }
+  }
+
+  tags = merge(
+    var.common_tags,
+    {
+      Name = "Clean Mile ALB Listener Rule HTTP"
+    }
+  )
+}
+
+resource "aws_lb_listener_rule" "main_alb_listener_rule_https" {
+  listener_arn = aws_lb_listener.main_alb_listener_https.arn
+  priority     = 1
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_alb_target_group.main_alb_target_group_https.arn
+  }
+
+  condition {
+    host_header {
+      values = ["www.${var.domain_name}"]
+    }
+  }
+
+  tags = merge(
+    var.common_tags,
+    {
+      Name = "Clean Mile ALB Listener Rule HTTPS"
+    }
+  )
+}
