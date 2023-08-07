@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import axios from 'axios';
 import Image from 'next/image';
 import useTranslation from 'next-translate/useTranslation';
 import { useRouter } from 'next/router';
@@ -13,6 +14,19 @@ const Main = () =>  {
     { id: 2, image: insta_icon, insta_id: 'test1', insta_content: 'skfjklsfjklsjfkljsklf' },
     { id: 3, image: insta_logo, insta_id: 'test1', insta_content: 'sfssssssssssssssssssssssssssssssssssssss' },
   ]
+
+  const getHashtagId = async () => {
+    try {
+      const res = await axios.get(`https://graph.facebook.com/v17.0/ig_hashtag_search?user_id=${process.env.NEXT_PUBLIC_INSTAGRAM_CLIENT_ID}&q=plogging&access_token=${process.env.NEXT_PUBLIC_INSTAGRAM_ACCESS_KEY}`)
+      console.log(res);
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  useEffect(() => {
+    getHashtagId();
+  }, [])
 
   return (
     <div className='px-12 sm:px-6 xs:px-4'>

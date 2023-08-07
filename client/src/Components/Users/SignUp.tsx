@@ -1,16 +1,16 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { AxiosError } from 'axios';
+import Image from 'next/image';
+import Web3 from 'web3';
 import Swal from 'sweetalert2';
 import useTranslation from 'next-translate/useTranslation';
+import { AxiosError } from 'axios';
 import { useRouter } from 'next/router';
-import Image from 'next/image';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { RiKakaoTalkFill } from 'react-icons/ri';
 import { FcGoogle } from 'react-icons/fc';
 import { IoEyeSharp, IoEyeOffSharp } from 'react-icons/io5';
-import Web3 from 'web3';
+import { showSuccessAlert, showErrorAlert } from '@/Redux/actions';
 import { useMutation, useQueryClient, useQuery } from 'react-query';
-// import { signIn, signOut, useSession } from 'next-auth/client';
 import { Three, logo, meta_mask_logo } from '../Reference';
 import { ApiCaller } from '../Utils/ApiCaller';
 
@@ -24,6 +24,7 @@ const SignUp = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
   const userAddressQuery = useQuery('userAddress');
+  const dispatch = useDispatch();
   const { t } = useTranslation('common');
   let web3: Web3;
 
@@ -226,31 +227,13 @@ const SignUp = () => {
         })
       } else if (res.status === 400) {
 
-        Swal.fire({
-          title: t('common:Error'),
-          text: res.data.message,
-          icon: 'error',
-          confirmButtonText: t('common:OK'),
-          confirmButtonColor: '#6BCB77'
-        }).then(() => {
-          Swal.close();
-        });
+        dispatch(showErrorAlert(res.data.message));
       }
     } catch (error) {
       const err = error as AxiosError;
       const data = err.response?.data as { message: string };
 
-
-      Swal.fire({
-        title: t('common:Error'),
-        text: data?.message,
-        icon: 'error',
-        confirmButtonText: t('common:OK'),
-        confirmButtonColor: '#6BCB77'
-      }).then(() => {
-        Swal.close();
-
-      });
+      dispatch(showErrorAlert(data?.message));
     }
   }
 
@@ -282,42 +265,17 @@ const SignUp = () => {
       const res = await ApiCaller.post(URL, dataBody, isJSON, headers);
 
       if (res.status === 200) {
-        Swal.fire({
-          title: t('common:Success'),
-          text: t('common:Your email has been successfully authenticated'),
-          icon: 'success',
-          confirmButtonText: t('common:OK'),
-          confirmButtonColor: '#6BCB77'
-        }).then(() => {
-          Swal.close();
 
-        });
+        dispatch(showSuccessAlert(t('common:Your email has been successfully authenticated')));
       } else {
-        Swal.fire({
-          title: t('common:Error'),
-          text: res.data.message,
-          icon: 'error',
-          confirmButtonText: t('common:OK'),
-          confirmButtonColor: '#6BCB77'
-        }).then(() => {
-          Swal.close();
-
-        });
+        dispatch(showErrorAlert(res.data.message));
       }
 
     } catch (error) {
       const err = error as AxiosError;
       const data = err.response?.data as { message: string };
 
-      Swal.fire({
-        title: t('common:Error'),
-        text: data?.message,
-        icon: 'error',
-        confirmButtonText: 'OK',
-        confirmButtonColor: '#6BCB77'
-      }).then(() => {
-        Swal.close();
-      });
+      dispatch(showErrorAlert(data?.message));
     }
   }
 
@@ -325,7 +283,7 @@ const SignUp = () => {
    * 유저가 입력하 닉네임을 중복 체크하는 함수
    * 
    * @async
-   * @function checkNicname
+   * @function checkNickname
    * @returns {Promise<void>} 아무것도 반환하지 않음
    */
   const checkNickname = async () => {
@@ -346,45 +304,16 @@ const SignUp = () => {
       const res = await ApiCaller.post(URL, dataBody, isJSON, headers);
 
       if (res.status === 200) {
-        Swal.fire({
-          title: t('common:Success'),
-          text: res.data.message,
-          icon: 'success',
-          confirmButtonText: t('common:OK'),
-          confirmButtonColor: '#6BCB77'
-        }).then(() => {
+        dispatch(showSuccessAlert(res.data.message));
           setNicknameCheck(false)
-          Swal.close();
-
-        });
-
-
       } else {
-        Swal.fire({
-          title: t('common:Error'),
-          text: res.data.message,
-          icon: 'error',
-          confirmButtonText: t('common:OK'),
-          confirmButtonColor: '#6BCB77'
-        }).then(() => {
-          Swal.close();
-
-        });
-
+        dispatch(showErrorAlert(res.data.message));
       }
     } catch (error) {
       const err = error as AxiosError;
       const data = err.response?.data as { message: string };
-
-      Swal.fire({
-        title: t('common:Error'),
-        text: data?.message,
-        icon: 'error',
-        confirmButtonText: t('common:OK'),
-        confirmButtonColor: '#6BCB77'
-      }).then(() => {
-        Swal.close();
-      });
+      
+      dispatch(showErrorAlert(data?.message));
     }
   }
 
@@ -478,33 +407,15 @@ const SignUp = () => {
       const res = await ApiCaller.post(URL, dataBody, isJSON, headers);
 
       if (res.status === 200) {
-        Swal.fire({
-          title: t('common:Success'),
-          text: res.data.message,
-          icon: 'success',
-          confirmButtonText: t('common:OK'),
-          confirmButtonColor: '#6BCB77'
-        }).then(() => {
-          Swal.close();
-          router.push('/login');
-        });
-
+        dispatch(showSuccessAlert(res.data.message));
+        router.push('/login');
       }
 
     } catch (error) {
       const err = error as AxiosError;
       const data = err.response?.data as { message: string };
 
-      Swal.fire({
-        title: (t('common:Error')),
-        text: data?.message,
-        icon: 'error',
-        confirmButtonText: t('common:OK'),
-        confirmButtonColor: '#6BCB77'
-      }).then(() => {
-        Swal.close();
-
-      });
+      dispatch(showErrorAlert(data?.message));
     }
   }
 

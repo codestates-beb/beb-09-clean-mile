@@ -1,17 +1,26 @@
 import React, { useEffect } from 'react';
 import '@/styles/globals.css'
-import { createStore } from 'redux';
 import { Provider } from 'react-redux';
+import { createStore, applyMiddleware } from 'redux';
+import createSagaMiddleware from 'redux-saga';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { AxiosError } from 'axios';
 import type { AppProps } from 'next/app'
 import HeadMeta from '../Components/Common/HeadMeta'
 import { ApiCaller } from '../Components/Utils/ApiCaller';
+import rootReducer from '../Redux/rootReducer';
+import rootSaga from '../Redux/sagas';
 
 // Initialize a QueryClient
 const queryClient = new QueryClient();
 
 export default function App({ Component, pageProps }: AppProps) {
+  const sagaMiddleware = createSagaMiddleware();
+
+  const store = createStore(rootReducer, applyMiddleware(sagaMiddleware));
+
+  sagaMiddleware.run(rootSaga);
+  
   useEffect(() => {
     /**
      * 토큰을 갱신하는 함수
@@ -54,10 +63,10 @@ export default function App({ Component, pageProps }: AppProps) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* <Provider store={store}> */}
+      <Provider store={store}>
         <HeadMeta />
         <Component {...pageProps} />
-      {/* </Provider> */}
+      </Provider>
     </QueryClientProvider>
   )
 }

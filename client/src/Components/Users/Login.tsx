@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { AxiosError } from 'axios';
-import Swal from 'sweetalert2';
-import useTranslation from 'next-translate/useTranslation';
-import { useRouter } from 'next/router';
 import Image from 'next/image';
+import useTranslation from 'next-translate/useTranslation';
+import { AxiosError } from 'axios';
+import { useRouter } from 'next/router';
+import { useDispatch } from 'react-redux';
 import { useMutation, useQueryClient, dehydrate } from 'react-query';
 import { RiKakaoTalkFill } from 'react-icons/ri';
 import { FcGoogle } from 'react-icons/fc';
@@ -11,11 +11,13 @@ import { IoEyeSharp, IoEyeOffSharp } from 'react-icons/io5';
 import { Three, logo } from '../Reference';
 import { ApiCaller } from '../Utils/ApiCaller';
 import { LoginAPIInput, LoginAPIOutput } from '../Interfaces';
+import { showSuccessAlert, showErrorAlert } from '@/Redux/actions';
 
 
 const Login = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const dispatch = useDispatch();
   const { t } = useTranslation('common');
 
   const [isPwdVisible, setPwVisible] = useState(false);
@@ -93,43 +95,17 @@ const Login = () => {
 
       const res = await ApiCaller.post(URL, dataBody, isJSON, headers, isCookie);
       if (res.status === 200) {
-        Swal.fire({
-          title: t('common:Success'),
-          text: res.data.message,
-          icon: 'success',
-          confirmButtonText: 'OK',
-          confirmButtonColor: '#6BCB77'
-        }).then(() => {
-          Swal.close();
-          router.push('/');
-        });
-
+        dispatch(showSuccessAlert(res.data.message));
+        router.push('/');
       } else {
-        Swal.fire({
-          title: t('common:Error'),
-          text: res.data.message,
-          icon: 'error',
-          confirmButtonText: 'OK',
-          confirmButtonColor: '#6BCB77'
-        }).then(() => {
-          Swal.close();
-        });
+        dispatch(showErrorAlert(res.data.message));
       }
       return res.data.data
     } catch (error) {
       const err = error as AxiosError;
-
       const data = err.response?.data as { message: string };
 
-      Swal.fire({
-        title: t('common:Error'),
-        text: data?.message,
-        icon: 'error',
-        confirmButtonText: 'OK',
-        confirmButtonColor: '#6BCB77'
-      }).then(() => {
-        Swal.close();
-      });
+      dispatch(showErrorAlert(data?.message));
 
       throw err;
     }
