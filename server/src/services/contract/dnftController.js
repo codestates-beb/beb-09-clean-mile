@@ -39,13 +39,7 @@ const setBadge = async () => {
  *  - 파라미터 수정
  *  - description 수정 (switch)
  */
-const createDNFT = async (
-  user_id,
-  wallet_address,
-  name,
-  nickname,
-  user_Type
-) => {
+const createDNFT = async (user_id, wallet_address, name, nickname, user_Type) => {
   try {
     let description = '';
     let user_type_num;
@@ -62,16 +56,10 @@ const createDNFT = async (
         return { success: false, message: '잘못된 사용자 타입입니다.' };
     }
 
-    const transaction = await dnftContract
-      .connect(signer)
-      .mintDNFT(wallet_address, name, description, user_type_num);
+    const transaction = await dnftContract.connect(signer).mintDNFT(wallet_address, name, description, user_type_num);
     await transaction.wait();
 
-<<<<<<< HEAD
     const eventFilter = dnftContract.filters.Transfer(null, wallet_address);
-=======
-    const eventFilter = dnftContract.filters.Transfer(null, user.wallet.address);
->>>>>>> Update Swal redux
     const events = await dnftContract.queryFilter(eventFilter);
     const tokenId = Number(events[0].args.tokenId);
 
