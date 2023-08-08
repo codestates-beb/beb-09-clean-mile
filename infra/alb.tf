@@ -98,6 +98,12 @@ resource "aws_alb_target_group_attachment" "main_alb_target_group_attachment_ser
   port             = 8080
 }
 
+resource "aws_alb_target_group_attachment" "main_alb_target_group_attachment_admin" {
+  target_group_arn = aws_alb_target_group.main_alb_target_group_admin.arn
+  target_id        = aws_instance.admin_instance.id
+  port             = 3001
+}
+
 
 resource "aws_lb_listener" "main_alb_listener_http" {
   load_balancer_arn = aws_alb.main_alb.arn
@@ -194,27 +200,25 @@ resource "aws_lb_listener_rule" "main_alb_listener_rule_https_server" {
   )
 }
 
-/*
-resource "aws_lb_listener_rule" "main_alb_listener_rule_https" {
+resource "aws_lb_listener_rule" "main_alb_listener_rule_https_admin" {
   listener_arn = aws_lb_listener.main_alb_listener_https.arn
-  priority     = 1
+  priority     = 3
 
   action {
     type             = "forward"
-    target_group_arn = aws_alb_target_group.main_alb_target_group_https.arn
+    target_group_arn = aws_alb_target_group.main_alb_target_group_admin.arn
   }
 
   condition {
     host_header {
-      values = ["www.${var.domain_name}"]
+      values = [aws_route53_record.admin_clean_mile_record.name]
     }
   }
 
   tags = merge(
     var.common_tags,
     {
-      Name = "Clean Mile ALB Listener Rule HTTPS"
+      Name = "Clean Mile ALB Listener Rule HTTPS Admin"
     }
   )
 }
-*/

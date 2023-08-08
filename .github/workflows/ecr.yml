@@ -2,7 +2,8 @@ name: Dockerize and Push to ECR
 
 on:
   push:
-    branches: ['dev', 'feat/158']
+    branches: 
+      - dev
 
 jobs:
   build:

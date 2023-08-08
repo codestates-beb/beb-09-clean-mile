@@ -33,3 +33,15 @@ resource "aws_route53_record" "server_clean_mile_record" {
     evaluate_target_health = true
   }
 }
+
+resource "aws_route53_record" "admin_clean_mile_record" {
+  zone_id = aws_route53_zone.existing_clean_mile_zone.zone_id
+  name    = "admin.${var.domain_name}"
+  type    = "A"
+
+  alias {
+    name                   = aws_alb.main_alb.dns_name
+    zone_id                = aws_alb.main_alb.zone_id
+    evaluate_target_health = true
+  }
+}

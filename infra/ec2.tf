@@ -41,3 +41,26 @@ resource "aws_instance" "server_instance1" {
     }
   )
 }
+
+resource "aws_instance" "admin_instance" {
+  ami           = "ami-0c9c942bd7bf113a2"
+  instance_type = "t2.micro"
+  subnet_id     = aws_subnet.public_subnets[2].id
+  key_name      = aws_key_pair.key_pair.key_name
+  vpc_security_group_ids = [
+    aws_security_group.admin_security_group.id
+  ]
+  iam_instance_profile = aws_iam_instance_profile.ec2_to_ecr_instance_profile.name
+
+  associate_public_ip_address = true
+
+  user_data = file("./scripts/setup-admin.sh")
+
+  tags = merge(
+    var.common_tags,
+    {
+      "Name" = "Clean Mile Admin Instance"
+    }
+  )
+
+}
