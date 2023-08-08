@@ -39,7 +39,7 @@ resource "aws_subnet" "private_subnets" {
 
 resource "aws_vpc_peering_connection" "mongo_vpc_peering_connection" {
   peer_vpc_id = var.mongo_vpc_id
-  vpc_id = aws_vpc.main_vpc.id
+  vpc_id      = aws_vpc.main_vpc.id
 
   tags = merge(
     var.common_tags,
