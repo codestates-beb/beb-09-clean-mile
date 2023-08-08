@@ -23,7 +23,7 @@ type Media = {
 const GeneralDetail = ({ postDetail, comments }: { postDetail: PostDetail, comments: Comment[] }) => {
   const router = useRouter();
   const dispatch = useDispatch();
-  const userData = useUserSession();
+  const { userData } = useUserSession();
   const { t } = useTranslation('common');
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);

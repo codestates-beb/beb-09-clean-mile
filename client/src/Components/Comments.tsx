@@ -14,7 +14,7 @@ import { userCreateComment, userLikeComment, userEditComment, userDeleteComment 
 const Comments = ({ postDetailId, comments }: { postDetailId: string, comments: Comment[] }) => {
   const router = useRouter();
   const dispatch = useDispatch();
-  const userData = useUserSession();
+  const { userData } = useUserSession();
   const { t } = useTranslation('common');
 
   const [comment, setComment] = useState('');
@@ -30,7 +30,7 @@ const Comments = ({ postDetailId, comments }: { postDetailId: string, comments: 
   const createComment = async () => {
     try {
       const res = await userCreateComment(postDetailId, comment);
-      
+
       if (res.status === 200) {
         dispatch(showSuccessAlert(res.data.message));
         router.reload();
@@ -48,7 +48,7 @@ const Comments = ({ postDetailId, comments }: { postDetailId: string, comments: 
 
   const likeComment = async (commentId: string) => {
     try {
-      
+
       const res = await userLikeComment(commentId);
       if (res.status === 200) {
         setLikedComments({ ...likedComments, [commentId]: !likedComments[commentId] });
@@ -100,7 +100,7 @@ const Comments = ({ postDetailId, comments }: { postDetailId: string, comments: 
 
 
   const deleteComment = async (commentId: string) => {
-   const result = await confirmDelete();
+    const result = await confirmDelete();
     if (result.isConfirmed) {
       try {
         const res = await userDeleteComment(commentId);
@@ -114,7 +114,7 @@ const Comments = ({ postDetailId, comments }: { postDetailId: string, comments: 
         const err = error as AxiosError;
 
         const data = err.response?.data as { message: string };
-        
+
         dispatch(showErrorAlert(data?.message));
       }
     } else if (result.isDismissed) {
