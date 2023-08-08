@@ -144,10 +144,10 @@ const Header = () => {
         const notice = await getLatestNotice();
         setLatestNotice(notice.data.data);
       } catch (error) {
-        const axiosError = error as AxiosError;
-        if (axiosError.response && axiosError.response.data) {
-          console.log('New Notice Error: ', axiosError.response.data?.message);
-        } 
+        const err = error as AxiosError;
+
+        const data = err.response?.data as { message: string };
+        console.log('New Notice Error: ', data?.message);
       }
     }
     fetchLatestNotice();
@@ -255,7 +255,7 @@ const Header = () => {
                   rounded-full 
                   relative 
                   overflow-hidden'>
-                  {userData.dnftData && userData.dnftData.image_url ? (
+                  {userData?.dnftData && userData?.dnftData.image_url ? (
                     <Image src={userData.dnftData.image_url} layout='fill' className='object-cover' alt='user profile image' />
                   ) : (
                     <Image src={hero_img} layout='fill' className='object-cover' alt='default profile image' />
@@ -290,7 +290,7 @@ const Header = () => {
                         transition 
                         duration-300">
                         <GiToken size={20} />
-                        {userInfoData?.wallet.token_amount} CM
+                        {userData?.user.wallet.token_amount} CM
                       </li>
                       <Link href='/users/mypage'>
                         <li className="

@@ -10,77 +10,89 @@ import { useDispatch } from 'react-redux';
 import { useRouter } from 'next/router';
 import { AxiosError } from 'axios';
 import { PostDetail, Comment, User } from '../Interfaces';
-import { ApiCaller } from '../Utils/ApiCaller';
 import { Comments } from '../Reference';
 import { showSuccessAlert, showErrorAlert } from '@/Redux/actions';
+import { useUserSession } from '@/hooks/useUserSession';
+import { userPostDelete } from '@/services/api';
+
+type Media = {
+  type: 'image' | 'video';
+  url: string;
+};
 
 const ReviewDetail = ({ reviewDetail, comments }: { reviewDetail: PostDetail, comments: Comment[] }) => {
   const router = useRouter();
   const dispatch = useDispatch();
+  const userData = useUserSession();
   const { t } = useTranslation('common');
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userInfo, setUserInfo] = useState<User | null>(null);
+
+  useEffect(() => {
+    setIsLoggedIn(Boolean(sessionStorage.getItem('user')));
+  }, []);
+
+  const allMedia: Media[] = [
+    ...reviewDetail.media.img.map(i => ({ type: 'image' as const, url: i })),
+    ...reviewDetail.media.video.map(v => ({ type: 'video' as const, url: v }))
+  ];
+  
 
   const settings = useMemo(() => ({
     dots: true,
     infinite: false,
     speed: 500,
-    slidesToShow: reviewDetail?.media.img.length > 2 ? 3 : reviewDetail?.media.img.length,
-    slidesToScroll: reviewDetail?.media.img.length > 2 ? 3 : reviewDetail?.media.img.length,
-  }), [reviewDetail?.media.img.length]);
+    slidesToShow: allMedia.length > 2 ? 3 : allMedia.length,
+    slidesToScroll: allMedia.length > 2 ? 3 : allMedia.length,
+  }), [allMedia.length]);
 
-  useEffect(() => {
-    if (typeof window !== "undefined" && sessionStorage.getItem('user')) {
-      const userCache = JSON.parse(sessionStorage.getItem('user') || '');
-      setIsLoggedIn(userCache !== null);
-      setUserInfo(userCache.queries[0]?.state.data)
-    }
-  }, []);
-
-  const postDelete = async () => {
-    Swal.fire({
+  const confirmDelete = () => {
+    return Swal.fire({
       title: t('common:Are you sure you want to delete it'),
       icon: 'question',
       showCancelButton: true,
-      confirmButtonText: t('common:OK'),
+      confirmButtonText: 'OK',
       confirmButtonColor: '#6BCB77',
       cancelButtonText: t('common:Cancel'),
       cancelButtonColor: '#FF6B6B'
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        try {
-          const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/posts/delete/${reviewDetail._id}`;
-          const dataBody = null;
-          const isJSON = false;
-          const headers = {};
-          const isCookie = true;
-
-          const res = await ApiCaller.delete(URL, dataBody, isJSON, headers, isCookie);
-          if (res.status === 200) {
-            dispatch(showSuccessAlert(res.data.message));
-            router.push('/posts/review');
-          } else {
-            dispatch(showErrorAlert(res.data.message));
-          }
-        } catch (error) {
-          const err = error as AxiosError;
-
-          const data = err.response?.data as { message: string };
-
-          dispatch(showErrorAlert(data?.message));
-        }
-      } else if (result.isDismissed) {
-        dispatch(showSuccessAlert(t('common:You have cancelled deleting the post')));
-      }
-    })
+    });
   }
 
+  const performDelete = async () => {
+    const res = await userPostDelete(reviewDetail._id);
+
+    if (res.status === 200) {
+      dispatch(showSuccessAlert(res.data.message));
+      router.replace('/posts/review');
+    } else {
+      dispatch(showErrorAlert(res.data.message));
+    }
+
+    return res.data.data;
+  }
+
+  const postDelete = async () => {
+    const result = await confirmDelete();
+
+    if (result.isConfirmed) {
+      try {
+        await performDelete();
+      } catch (error) {
+        const err = error as AxiosError;
+
+        const data = err.response?.data as { message: string };
+
+        dispatch(showErrorAlert(data?.message));
+      }
+    } else if (result.isDismissed) {
+      dispatch(showSuccessAlert(t('common:You have cancelled deleting the post')));
+    }
+  }
   const handleProfile = () => {
     if (reviewDetail.user_id === null) {
       dispatch(showErrorAlert(t('common:User does not exist')));
     } else {
-      if (reviewDetail.user_id._id === userInfo?._id) {
+      if (reviewDetail.user_id._id === userData?.user._id) {
         router.push(`/users/mypage`)
       } else {
         router.push(`/users/profile?id=${reviewDetail.user_id._id}`)
@@ -106,19 +118,33 @@ const ReviewDetail = ({ reviewDetail, comments }: { reviewDetail: PostDetail, co
         </div>
         <div className='w-full max-h-full flex flex-col whitespace-pre-wrap'>
           <div className='w-[60%] h-[60%] mx-auto mb-10'>
-            {reviewDetail.media.img.length === 0 ? (
+            {allMedia.length === 0 ? (
               null
-            ) : reviewDetail.media.img.length <= 2 ? (
-              reviewDetail.media.img.map((media, index) => (
+            ) : allMedia.length <= 2 ? (
+              allMedia.map((media, index) => (
                 <div key={index} className="w-full h-full flex justify-center">
-                  <Image src={media} width={400} height={100} key={index} alt='post media' />
+                  {media.type === 'video' ? (
+                    <video width="400" height="100" controls>
+                      <source src={media.url} type="video/mp4" />
+                      Your browser does not support the video tag.
+                    </video>
+                  ) : (
+                    <Image src={media.url} width={400} height={100} key={index} alt='media' />
+                  )}
                 </div>
               ))
             ) : (
-              <Slider {...settings} className='relative w-full h-full flex justify-center items-center'>
-                {reviewDetail.media.img.map((media, index) => (
+              <Slider {...settings} className='w-full h-full flex justify-center items-center'>
+                {allMedia.map((media, index) => (
                   <div key={index} className="w-full h-full">
-                    <img src={media} className='w-full h-full object-contain' key={index} alt='post media' />
+                    {media.type === 'video' ? (
+                      <video className='w-full h-full object-contain' controls>
+                        <source src={media.url} type="video/mp4" />
+                        Your browser does not support the video tag.
+                      </video>
+                    ) : (
+                      <img src={media.url} className='w-full h-full object-contain' key={index} alt='media' />
+                    )}
                   </div>
                 ))}
               </Slider>
@@ -130,7 +156,7 @@ const ReviewDetail = ({ reviewDetail, comments }: { reviewDetail: PostDetail, co
         </div>
         <Comments postDetailId={reviewDetail._id} comments={comments} />
         <div className='w-full flex gap-3 xs:gap-2 justify-end my-16'>
-          {isLoggedIn && userInfo?._id === reviewDetail.user_id._id ? (
+          {isLoggedIn && userData?.user._id === reviewDetail.user_id._id ? (
             <>
               <button className='
                 w-[5%]

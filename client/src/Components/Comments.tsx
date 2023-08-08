@@ -18,18 +18,14 @@ const Comments = ({ postDetailId, comments }: { postDetailId: string, comments: 
   const { t } = useTranslation('common');
 
   const [comment, setComment] = useState('');
-  const [commentList, setCommentList] = useState<Comment[]>(comments);
   const [likedComments, setLikedComments] = useState<{ [key: string]: boolean }>({});
   const [editCommentInput, setEditCommentInput] = useState('');
   const [editingComment, setEditingComment] = useState<string | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  let isLoggedIn: boolean;
-
-  if (typeof window !== "undefined") {
-    isLoggedIn = Boolean(sessionStorage.getItem('user'));
-  } else {
-    isLoggedIn = false;
-  }
+  useEffect(() => {
+    setIsLoggedIn(Boolean(sessionStorage.getItem('user')));
+  }, []);
 
   const createComment = async () => {
     try {
@@ -77,15 +73,7 @@ const Comments = ({ postDetailId, comments }: { postDetailId: string, comments: 
       const res = await userEditComment(commentId, editCommentInput);
       if (res.status === 200) {
         dispatch(showSuccessAlert(res.data.message));
-        const updatedComments = commentList.map(comment => {
-          if (comment._id === commentId) {
-            return {...comment, content: editCommentInput};  // Assuming the comment content is under the `content` property
-          }
-          return comment;
-        });
-        setCommentList(updatedComments);
-        setEditingComment(null);
-        setEditCommentInput('');  // Clear the edit input
+        router.reload();
       } else {
         dispatch(showErrorAlert(res.data.message));
       }
@@ -118,7 +106,7 @@ const Comments = ({ postDetailId, comments }: { postDetailId: string, comments: 
         const res = await userDeleteComment(commentId);
         if (res.status === 200) {
           dispatch(showSuccessAlert(res.data.message));
-          setCommentList(prevComments => prevComments.filter(comment => comment._id !== commentId));
+          router.reload();
         } else {
           dispatch(showErrorAlert(res.data.message));
         }
@@ -138,8 +126,8 @@ const Comments = ({ postDetailId, comments }: { postDetailId: string, comments: 
     <>
       <div className='w-full flex flex-col gap-4'>
         <h2 className='text-xl font-bold xs:text-base'>{t('common:Comment')}</h2>
-        {commentList.length !== 0 ? (
-          commentList.map((comment, i) => {
+        {comments.length !== 0 ? (
+          comments.map((comment, i) => {
             return (
               <div className='w-full grid grid-cols-2 items-center border rounded-xl p-3 sm:p-2' key={i}>
                 <div>
@@ -197,6 +185,7 @@ const Comments = ({ postDetailId, comments }: { postDetailId: string, comments: 
                     ) : (
                       <AiOutlineHeart className='text-main-red cursor-pointer sm:w-[30%] xs:w-[30%]' size={26} onClick={() => likeComment(comment._id)} />
                     )}
+                    {/* ... comment content ... */}
                     {isLoggedIn && userData?.user._id === comment.user_id._id && (
                       <>
                         <MdOutlineCreate className="text-red-500 cursor-pointer sm:w-[30%] xs:w-[30%]" size={26} onClick={() => handleEditComment(comment._id)} />

@@ -3,7 +3,13 @@ import Image from 'next/image';
 import useTranslation from 'next-translate/useTranslation';
 import { useDispatch } from 'react-redux';
 import { useRouter } from 'next/router';
-import { User, Pagination, Dnft, UserBadge } from '../Interfaces';
+import {
+  User,
+  Pagination,
+  Post,
+  Dnft,
+  UserBadge,
+} from '../Interfaces';
 import { default_banner } from '../Reference';
 import { showSuccessAlert, showErrorAlert } from '@/Redux/actions';
 import { fetchPageData } from '@/services/api';

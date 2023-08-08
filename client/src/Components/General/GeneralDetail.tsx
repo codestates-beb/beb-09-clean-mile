@@ -17,7 +17,7 @@ import { userPostDelete } from '@/services/api'
 
 type Media = {
   type: 'image' | 'video';
-  src: string;
+  url: string;
 };
 
 const GeneralDetail = ({ postDetail, comments }: { postDetail: PostDetail, comments: Comment[] }) => {
@@ -32,7 +32,11 @@ const GeneralDetail = ({ postDetail, comments }: { postDetail: PostDetail, comme
     setIsLoggedIn(Boolean(sessionStorage.getItem('user')));
   }, []);
 
-  const allMedia: Media[] = [...postDetail.media.img.map(i => ({ type: 'image', src: i })), ...postDetail.media.video.map(v => ({ type: 'video', src: v }))];
+  const allMedia: Media[] = [
+    ...postDetail.media.img.map(i => ({ type: 'image' as const, url: i })),
+    ...postDetail.media.video.map(v => ({ type: 'video' as const, url: v }))
+  ];
+  
 
   const settings = useMemo(() => ({
     dots: true,
@@ -130,26 +134,25 @@ const GeneralDetail = ({ postDetail, comments }: { postDetail: PostDetail, comme
                 <div key={index} className="w-full h-full flex justify-center">
                   {media.type === 'video' ? (
                     <video width="400" height="100" controls>
-                      <source src={media} type="video/mp4" />
+                      <source src={media.url} type="video/mp4" />
                       Your browser does not support the video tag.
                     </video>
                   ) : (
-                    <Image src={media} width={400} height={100} key={index} alt='media' />
+                    <Image src={media.url} width={400} height={100} key={index} alt='media' />
                   )}
                 </div>
               ))
             ) : (
               <Slider {...settings} className='w-full h-full flex justify-center items-center'>
-                {console.log(allMedia)}
                 {allMedia.map((media, index) => (
                   <div key={index} className="w-full h-full">
                     {media.type === 'video' ? (
                       <video className='w-full h-full object-contain' controls>
-                        <source src={media} type="video/mp4" />
+                        <source src={media.url} type="video/mp4" />
                         Your browser does not support the video tag.
                       </video>
                     ) : (
-                      <img src={media} className='w-full h-full object-contain' key={index} alt='media' />
+                      <img src={media.url} className='w-full h-full object-contain' key={index} alt='media' />
                     )}
                   </div>
                 ))}
