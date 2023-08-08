@@ -33,12 +33,6 @@ variable "ecr_repos" {
       scan_on_push         = true
       name_tag             = "Clean Mile Admin"
     }
-    "clean-mile-daemon" = {
-      name                 = "clean-mile-daemon"
-      image_tag_mutability = "MUTABLE"
-      scan_on_push         = true
-      name_tag             = "Clean Mile Daemon"
-    }
   }
 }
 
@@ -90,11 +84,11 @@ variable "manager_ip" {
 }
 
 variable "mongo_vpc_id" {
-  type = string
+  type        = string
   description = "Mongo Atlas VPC ID of the VPC to peer with"
 }
 
 variable "mongo_vpc_cidr" {
-  type = string
+  type        = string
   description = "Mongo Atlas VPC CIDR block to peer with"
 }
