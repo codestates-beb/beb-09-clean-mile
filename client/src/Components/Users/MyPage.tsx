@@ -82,7 +82,6 @@ const MyPage = ({
     try {
       const res = await fetchPageData('users/profile/postPagination', userInfo._id, pageNumber);
 
-      const res = await fetchPageData('users/profile/postPagination', userInfo._id, pageNumber);
       setPostData(res.data.data.data);
       setPostCurrentPage(pageNumber);
 
