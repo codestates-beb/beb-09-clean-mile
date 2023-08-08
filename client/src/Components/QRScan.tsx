@@ -5,9 +5,8 @@ import { useDispatch } from 'react-redux';
 import { AxiosError } from "axios";
 import { useRouter } from 'next/router';
 import { IoIosArrowBack } from 'react-icons/io';
-import { User } from './Interfaces';
-import { ApiCaller } from './Utils/ApiCaller';
 import { showSuccessAlert, showErrorAlert } from '@/Redux/actions';
+import { userVerifyEvent } from '@/services/api';
 
 const QrReader = dynamic(() => import("react-web-qr-reader"), {
   ssr: false
@@ -18,31 +17,9 @@ const QRScan = () => {
   const dispatch = useDispatch();
   const { t } = useTranslation('common');
 
-  const [tokenData, setTokenData] = useState<string>("");
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userInfo, setUserInfo] = useState<User | null>(null);
-
-  useEffect(() => {
-    if (typeof window !== "undefined" && sessionStorage.getItem('user_info')) {
-      const userCache = JSON.parse(sessionStorage.getItem('user_info') || '');
-      setIsLoggedIn(userCache !== null);
-      setUserInfo(userCache.queries[0]?.state.data.user);
-    }
-  }, []);
-
   const verifyEvent = async (tokenData: string) => {
-    const formData = new FormData();
-    
-    formData.append('token', tokenData);
     try {
-  
-      const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/events/verify`;
-      const dataBody = formData;
-      const isJSON = false;
-      const headers = {};
-      const isCookie = true;
-  
-      const res = await ApiCaller.post(URL, dataBody, isJSON, headers, isCookie);
+      const res = await userVerifyEvent(tokenData);
       if (res.status === 200) {
         dispatch(showSuccessAlert(res.data.message));
         router.replace(`/users/mypage`);

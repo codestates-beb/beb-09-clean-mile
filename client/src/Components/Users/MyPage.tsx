@@ -11,6 +11,7 @@ import { User, Pagination, Post, EventList, Dnft, UserBadge } from '../Interface
 import { default_banner } from '../Reference';
 import { ApiCaller } from '../Utils/ApiCaller';
 import { showSuccessAlert, showErrorAlert } from '@/Redux/actions'
+import { fetchPageData, changeUserNickname, changeUserBanner, exchangeToken, upgradeUserDnft } from '@/services/api';
 
 const EXTENSIONS = [
   { type: 'gif' },
@@ -19,6 +20,10 @@ const EXTENSIONS = [
   { type: 'png' },
   { type: 'mp4' },
 ];
+const MAX_FILE_SIZE = 10; // is MB
+
+const MAX_LENGTH = 8;
+const MIN_LENGTH = 2;
 
 const MyPage = ({
   userInfo,
@@ -46,7 +51,7 @@ const MyPage = ({
   const [eventCurrentPage, setEventCurrentPage] = useState(1);
   const [postData, setPostData] = useState<Post[]>([]);
   const [eventsData, setEventsData] = useState<EventList[] | null>(null);
-  const [isQrVisible, setIsQrVisible] = useState(false);
+  const [localUserInfo, setLocalUserInfo] = useState<User>(userInfo);
 
   /**
    * 파일 업로드 이벤트를 처리
@@ -56,11 +61,10 @@ const MyPage = ({
   const fileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const FILE = e.target.files[0];
-      const SIZE = 10;
       const TYPE = (FILE.type).split('/')[1];
       const FSIZE = (FILE.size) / Math.pow(10, 6);
 
-      if (FSIZE < SIZE) {
+      if (FSIZE < MAX_FILE_SIZE) {
         EXTENSIONS.forEach(e => {
           if (e.type === TYPE) {
             const objectURL = URL.createObjectURL(FILE);
@@ -77,13 +81,7 @@ const MyPage = ({
 
   const handlePostPageChange = async (pageNumber: number) => {
     try {
-      const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/profile/postPagination/${userInfo._id}?page=${pageNumber}`;
-      const dataBody = null;
-      const isJSON = false;
-      const headers = {};
-      const isCookie = true;
-
-      const res = await ApiCaller.get(URL, dataBody, isJSON, headers, isCookie);
+      const res = await fetchPageData('users/profile/postPagination', userInfo._id, pageNumber);
 
       setPostData(res.data.data.data);
       setPostCurrentPage(pageNumber);
@@ -101,14 +99,7 @@ const MyPage = ({
 
   const handleEventPageChange = async (pageNumber: number) => {
     try {
-      const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/profile/eventPagination/${userInfo._id}?page=${pageNumber}`;
-      const dataBody = null;
-      const isJSON = false;
-      const headers = {};
-      const isCookie = true;
-
-      const res = await ApiCaller.get(URL, dataBody, isJSON, headers, isCookie);
-
+      const res = await fetchPageData('users/profile/eventPagination', userInfo._id, pageNumber);
       setEventsData(res.data.data.data);
       setEventCurrentPage(pageNumber);
 
@@ -134,9 +125,9 @@ const MyPage = ({
    */
   const validateNickname = () => {
     if (nickname?.length < 2) {
-      setErrorMessage('닉네임은 최소 2자 이상이어야 합니다.');
+      setErrorMessage(`닉네임은 최소 ${MIN_LENGTH}자 이상이어야 합니다.`);
     } else if (nickname?.length > 8) {
-      setErrorMessage('닉네임은 최대 8자 입니다.');
+      setErrorMessage(`닉네임은 최대 ${MAX_LENGTH}자 입니다.`);
     } else {
       setErrorMessage('');
     }
@@ -151,43 +142,33 @@ const MyPage = ({
     const hasImageChange = uploadFile !== null;
 
     try {
-      const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/change-nickname`;
-      const URL2 = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/change-banner`;
-      const isJSON = false;
-      const headers = {}
-      const isCookie = true;
-
       if (hasNicknameChange) {
-        const formData = new FormData();
-        formData.append('nickname', nickname);
-        const res = await ApiCaller.patch(URL, formData, isJSON, headers, isCookie);
-        handleResponse(res);
+        const res = await changeUserNickname(nickname);
+         handleResponse(res, 'nickname', nickname);
       }
 
       if (hasImageChange) {
-        const formData = new FormData();
-        formData.append('imgFile', uploadFile);
-        const res = await ApiCaller.patch(URL2, formData, isJSON, headers, isCookie);
-        handleResponse(res);
-        setFileUrl(res.data.imageUrl);
+        const res = await changeUserBanner(uploadFile);
+        handleResponse(res, 'image', res.data.imageUrl);
       }
-
     } catch (error) {
       const err = error as AxiosError;
-
       const data = err.response?.data as { message: string };
-
       dispatch(showErrorAlert(data?.message));
     }
-  }
+  };
 
-  const handleResponse = (res: AxiosResponse) => {
+  const handleResponse = (res: AxiosResponse, type: 'nickname' | 'image', value: string) => {
     if (res.status === 200) {
       dispatch(showSuccessAlert(t('common:Profile change was successful')))
-      router.reload();
+      if (type === 'nickname') {
+        setLocalUserInfo((prev) => ({ ...prev, nickname: value }));
+      } else if (type === 'image') {
+        setLocalUserInfo((prev) => ({ ...prev, image: value }));
+      }
       setIsEditing(false);
     } else {
-      dispatch(showSuccessAlert(res.data.message));
+      dispatch(showErrorAlert(res.data.message));
     }
   }
 
@@ -205,31 +186,19 @@ const MyPage = ({
   }
 
   const tokenExchange = async () => {
-    const formData = new FormData();
-    
-    formData.append('userId', userInfo._id);
-
     try {
-      const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/token-exchange`;
-      const dataBody = formData;
-      const isJSON = true;
-      const headers = {}
-      const isCookie = true;
-
-      const res = await ApiCaller.post(URL, dataBody, isJSON, headers, isCookie);
-      if(res.status === 200) {
+      const res = await exchangeToken(userInfo._id);
+      if (res.status === 200) {
         dispatch(showSuccessAlert(res.data?.message));
       } else {
         dispatch(showErrorAlert(res.data?.message));
       }
     } catch (error) {
       const err = error as AxiosError;
-
       const data = err.response?.data as { message: string };
-
       dispatch(showErrorAlert(data?.message));
     }
-  }
+  };
 
   const upgradeDnft = async () => {
     Swal.fire({
@@ -239,21 +208,13 @@ const MyPage = ({
         Swal.showLoading();
       }
     });
+
     try {
-      const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/upgrade-dnft`;
-      const dataBody = null;
-      const isJSON = true;
-      const headers = {
-        'Content-Type': 'multipart/form-data',
-        'Accept': 'application/json',
-      }
-      const isCookie = true;
-  
-      const res = await ApiCaller.post(URL, dataBody, isJSON, headers, isCookie);
-      
+      const res = await upgradeUserDnft();
+
       Swal.close();
 
-      if(res.status === 200) {
+      if (res.status === 200) {
         dispatch(showSuccessAlert(res.data?.message));
         router.reload();
       } else {
@@ -261,13 +222,12 @@ const MyPage = ({
       }
     } catch (error) {
       Swal.close();
-      
+
       const err = error as AxiosError;
       const data = err.response?.data as { message: string };
-
       dispatch(showErrorAlert(data?.message));
     }
-  }
+  };
 
   const getClassNameForStatus = (status: string) => {
     switch (status) {
@@ -320,7 +280,7 @@ const MyPage = ({
                 required />
             </label>
           ) : (
-            <Image src={!userInfo?.banner_img_url ? default_banner : userInfo?.banner_img_url} width={1500} height={100} className="w-full h-full object-contain" alt="banner Image" />
+            <Image src={!localUserInfo?.banner_img_url ? default_banner : localUserInfo?.banner_img_url} width={1500} height={100} className="w-full h-full object-contain" alt="banner Image" />
           )}
         </div>
         <div className='
@@ -363,7 +323,7 @@ const MyPage = ({
               ) : (
                 <>
                   <p className='font-bold text-3xl lg:text-2xl md:text-xl sm:text-lg xs:text-lg'>
-                    {userInfo?.nickname}
+                    {localUserInfo?.nickname}
                   </p>
                 </>
               )}

@@ -9,6 +9,8 @@ import { MdOutlineArrowForwardIos } from 'react-icons/md';
 import { SearchInput } from '../Reference';
 import { Post, User } from '../Interfaces';
 import { ApiCaller } from '../Utils/ApiCaller';
+import { useUserSession } from '@/hooks/useUserSession';
+import { fetchReviews } from '@/services/api';
 
 interface Item {
   _id: string;
@@ -26,27 +28,14 @@ interface Item {
 
 const Review = ({ reviewList, lastId }: { reviewList: Post[], lastId: string }) => {
   const router = useRouter();
+  const userData = useUserSession();
   const { t } = useTranslation('common');
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userInfo, setUserInfo] = useState<User | null>(null);
 
   useEffect(() => {
-    if (typeof window !== "undefined" && sessionStorage.getItem('user')) {
-      const userCache = JSON.parse(sessionStorage.getItem('user') || '');
-      setIsLoggedIn(userCache !== null);
-      setUserInfo(userCache.queries[0]?.state.data)
-    }
+    setIsLoggedIn(Boolean(sessionStorage.getItem('user')));
   }, []);
-
-  const fetchReviews = async ({ pageParam = lastId }) => {
-    let URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/posts/lists/review?last_id=${pageParam}`;
-    const res = await ApiCaller.get(URL, null, false, {}, true);
-    if (res.status === 200 && res.data.data.data) {
-      return res.data.data.data;
-    }
-    throw new Error('Error fetching data');
-  };
 
   const {
     data,
@@ -148,7 +137,7 @@ const Review = ({ reviewList, lastId }: { reviewList: Post[], lastId: string }) 
                               Swal.close();
                             })
                           ) : (
-                            item.user_id._id === userInfo?._id ? (
+                            item.user_id._id === userData?.user._id ? (
                               router.push(`/users/mypage`)
                             ) : (
                               router.push(`/users/profile?id=${item.user_id._id}`)

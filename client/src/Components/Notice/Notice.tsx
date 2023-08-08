@@ -5,17 +5,21 @@ import useTranslation from 'next-translate/useTranslation';
 import { SearchInput } from '../Reference';
 import { Post, Pagination } from '../../Components/Interfaces';
 
+const DEFAULT_PAGE = 1;
+
 const Notice = ({ noticeList, noticePagination }: { noticeList: Post[], noticePagination: Pagination }) => {
   const router = useRouter();
   const { t } = useTranslation('common');
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const [filter, setFilter] = useState('newest');
+  const [currentPage, setCurrentPage] = useState(
+    Number(router.query.page) || DEFAULT_PAGE
+  );
+
   // 필터 변경 핸들러
   const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    router.push(`/notice?page=${currentPage}&order=${e.target.value}`);
+    const order = e.target.value;
+    router.push(`/notice?page=${currentPage}&order=${order}`);
   };
-
 
   const totalPages = noticePagination?.totalPages;
 
@@ -24,7 +28,6 @@ const Notice = ({ noticeList, noticePagination }: { noticeList: Post[], noticePa
   };
 
   useEffect(() => {
-    // URL query에 page 번호를 기록하려면 아래 코드를 활성화하세요.
     router.push(`/notice?page=${currentPage}`);
   }, [currentPage]);
 

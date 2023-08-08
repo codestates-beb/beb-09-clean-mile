@@ -10,7 +10,7 @@ export const EventQRCodeLoader = ({ eventId }) => {
 
   const handleGenerateQRCode = async () => {
     try {
-      const res = await axios.post(`http://localhost:7000/admin/events/qrcode/${eventId}`, null, {
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/events/qrcode/${eventId}`, null, {
         withCredentials: true,
       });
 

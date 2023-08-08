@@ -1,20 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
 import Image from 'next/image';
 import useTranslation from 'next-translate/useTranslation';
-import Swal from 'sweetalert2';
-import { AxiosError, AxiosResponse } from 'axios';
-import { BsFillImageFill } from 'react-icons/bs';
-import { hero_img } from '../Reference';
+import { useDispatch } from 'react-redux';
+import { useRouter } from 'next/router';
 import {
   User,
   Pagination,
   Post,
-  EventList,
   Dnft,
   UserBadge,
 } from '../Interfaces';
-import { ApiCaller } from '../Utils/ApiCaller';
+import { default_banner } from '../Reference';
+import { showSuccessAlert, showErrorAlert } from '@/Redux/actions';
+import { fetchPageData } from '@/services/api';
 
 const UserProfile = ({
   userInfo,
@@ -28,6 +26,7 @@ const UserProfile = ({
   userBadges: UserBadge[];
 }) => {
   const router = useRouter();
+  const dispatch = useDispatch();
   const { t } = useTranslation('common');
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -37,13 +36,7 @@ const UserProfile = ({
 
   const handlePageChange = async (pageNumber: number) => {
     try {
-      const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/profile/postPagination/${userInfo._id}?page=${pageNumber}`;
-      const dataBody = null;
-      const isJSON = false;
-      const headers = {};
-      const isCookie = true;
-
-      const res = await ApiCaller.get(URL, dataBody, isJSON, headers, isCookie);
+      const res = await fetchPageData('users/profile/postPagination', userInfo._id, pageNumber);
 
       setPostData(res.data.data.data);
       setCurrentPage(pageNumber);
@@ -65,36 +58,17 @@ const UserProfile = ({
   const copyAddr = async () => {
     try {
       await navigator.clipboard.writeText(userInfo.wallet.address);
-      Swal.fire({
-        title: t('common:Success'),
-        text: t('common:Your wallet address has been copied'),
-        icon: 'success',
-        confirmButtonText: t('common:OK'),
-        confirmButtonColor: '#6BCB77',
-      }).then(() => {
-        Swal.close();
-      });
+
+      dispatch(showSuccessAlert(t('common:Your wallet address has been copied')));
     } catch (err) {
-      Swal.fire({
-        title: t('common:Error'),
-        text: t('common:Failed to copy wallet address'),
-        icon: 'error',
-        confirmButtonText: t('common:OK'),
-        confirmButtonColor: '#6BCB77',
-      }).then(() => {
-        Swal.close();
-      });
+      dispatch(showErrorAlert(t('common:Failed to copy wallet address')));
     }
   };
 
   return (
     <div className='w-full min-h-screen'>
       <div className='w-full h-[30rem] md:h-[25rem] sm:h-[20rem] xs:h-[15rem] border-2 border-dashed rounded-xl'>
-        <img
-          src={!userInfo?.banner_img_url ? undefined : userInfo?.banner_img_url}
-          className='w-full h-full object-contain'
-          alt='banner Image'
-        />
+        <Image src={!userInfo?.banner_img_url ? default_banner : userInfo?.banner_img_url} width={1500} height={100} className="w-full h-full object-contain" alt="banner Image" />
       </div>
       <div
         className='

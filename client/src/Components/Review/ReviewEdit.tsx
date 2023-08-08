@@ -7,6 +7,7 @@ import { AxiosError } from 'axios';
 import { ApiCaller } from '../Utils/ApiCaller';
 import { UserInfo, PostDetail } from '../Interfaces';
 import { showSuccessAlert, showErrorAlert } from '@/Redux/actions';
+import { updatePost } from '@/services/api';
 
 interface IFile extends File {
   preview?: string;
@@ -23,17 +24,13 @@ const ReviewEdit = ({ reviewDetailDefault }: { reviewDetailDefault: PostDetail }
   const [images, setImages] = useState<IFile[]>([]);
   const [videos, setVideos] = useState<IFile[]>([]);
   const [selectedFile, setSelectedFile] = useState<IFile[]>([]);
-  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+  
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  
   useEffect(() => {
-    if (typeof window !== "undefined" && sessionStorage.getItem('user')) {
-      const userCache = JSON.parse(sessionStorage.getItem('user') || '');
-      setIsLoggedIn(userCache !== null);
-      setUserInfo(userCache.queries[0].state.data.data)
-    }
+    setIsLoggedIn(Boolean(sessionStorage.getItem('user')));
   }, []);
+
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -63,29 +60,10 @@ const ReviewEdit = ({ reviewDetailDefault }: { reviewDetailDefault: PostDetail }
   };
 
   const editPost = async () => {
-    const formData = new FormData();
-
-    formData.append('post_id', reviewDetailDefault._id);
-    formData.append('title', title);
-    formData.append('content', content);
-
     try {
-      const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/posts/edit`;
-      const dataBody = formData;
-      const isJSON = false;
-      const headers = {
-        'Content-Type': 'multipart/form-data',
-        'Accept': 'application/json'  
-      };
-      const isCookie = true;
-
-      const res = await ApiCaller.patch(URL, dataBody, isJSON, headers, isCookie);
-      if (res.status === 200) {
-        dispatch(showSuccessAlert(res.data.message));
-        router.replace(`/posts/review/${reviewDetailDefault._id}`);
-      } else {
-        dispatch(showErrorAlert(res.data.message));
-      }
+      const updatedPostId = await updatePost(reviewDetailDefault._id, title, content, images, videos);
+      dispatch(showSuccessAlert(t('common:SuccessMessage')));
+      router.replace(`/posts/review/${updatedPostId}`);
     } catch (error) {
       const err = error as AxiosError;
 
@@ -94,7 +72,6 @@ const ReviewEdit = ({ reviewDetailDefault }: { reviewDetailDefault: PostDetail }
       dispatch(showErrorAlert(data?.message));
     }
   }
-
   return (
     <>
       <div className='w-[90%] min-h-screen mx-auto py-20 sm:py-10 xs:py-10 flex flex-col gap-12'>

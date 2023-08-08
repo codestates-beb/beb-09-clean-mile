@@ -1,11 +1,11 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import useTranslation from 'next-translate/useTranslation';
+import { useDispatch } from 'react-redux';
 import { useRouter } from 'next/router';
-import Swal from 'sweetalert2';
-import { hydrate } from 'react-query';
 import { AxiosError } from 'axios';
-import { ApiCaller } from '../Utils/ApiCaller';
-import { UserInfo, PostDetail } from '../Interfaces';
+import { PostDetail } from '../Interfaces';
+import { showErrorAlert, showSuccessAlert } from '@/Redux/actions';
+import { updatePost } from '@/services/api';
 
 interface IFile extends File {
   preview?: string;
@@ -13,6 +13,7 @@ interface IFile extends File {
 
 const GeneralEdit = ({ postDetailDefault }: { postDetailDefault: PostDetail }) => {
   const router = useRouter();
+  const dispatch = useDispatch();
   const { t } = useTranslation('common');
 
   const [selectCategory, setSelectCategory] = useState('');
@@ -39,7 +40,7 @@ const GeneralEdit = ({ postDetailDefault }: { postDetailDefault: PostDetail }) =
 
     files.forEach((file) => {
       const extension = file.name.split('.').pop()?.toLowerCase();
-
+  
       if (['jpg', 'jpeg', 'png'].includes(extension || '')) {
         setImages((prevImages) => [...prevImages, file]);
       } else if (['mp4', 'avi', 'mov'].includes(extension || '')) {
@@ -48,70 +49,17 @@ const GeneralEdit = ({ postDetailDefault }: { postDetailDefault: PostDetail }) =
     });
     setSelectedFile(files)
   };
-
   const editPost = async () => {
-    const formData = new FormData();
-
-    formData.append('post_id', postDetailDefault._id);
-    formData.append('title', title);
-    formData.append('content', content);
-
-    images.forEach((image) => {
-      formData.append('image', image);
-    });
-
-    videos.forEach((video) => {
-      formData.append('video', video);
-    });
-
     try {
-      const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/posts/edit`;
-      const dataBody = formData;
-      const isJSON = false;
-      const headers = {
-        'Content-Type': 'multipart/form-data',
-        'Accept': 'application/json'
-      };
-      const isCookie = true;
-
-      const res = await ApiCaller.patch(URL, dataBody, isJSON, headers, isCookie);
-      if (res.status === 200) {
-        Swal.fire({
-          title: t('common:Success'),
-          text: res.data.message,
-          icon: 'success',
-          confirmButtonText: 'OK',
-          confirmButtonColor: '#6BCB77'
-        }).then(() => {
-          Swal.close();
-          router.replace(`/posts/review/${postDetailDefault._id}`);
-        });
-
-      } else {
-        Swal.fire({
-          title: t('common:Error'),
-          text: res.data.message,
-          icon: 'error',
-          confirmButtonText: 'OK',
-          confirmButtonColor: '#6BCB77'
-        }).then(() => {
-          Swal.close();
-        });
-      }
+      const updatedPostId = await updatePost(postDetailDefault._id, title, content, images, videos);
+      dispatch(showSuccessAlert(t('common:SuccessMessage')));
+      router.replace(`/posts/review/${updatedPostId}`);
     } catch (error) {
       const err = error as AxiosError;
 
       const data = err.response?.data as { message: string };
 
-      Swal.fire({
-        title: t('common:Error'),
-        text: data?.message,
-        icon: 'error',
-        confirmButtonText: 'OK',
-        confirmButtonColor: '#6BCB77'
-      }).then(() => {
-        Swal.close();
-      });
+      dispatch(showErrorAlert(data?.message));
     }
   }
 

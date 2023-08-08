@@ -94,36 +94,6 @@ type Pagination = {
   nextPage: null | number;
 };
 
-type User = {
-  wallet: Wallet;
-  _id: string;
-  email: string;
-  name: string;
-  phone_number: string;
-  user_type: number;
-  hashed_pw: string;
-  nickname: string;
-  social_provider: string;
-  created_at: string;
-  updated_at: string;
-  __v: number;
-  banner_img_url: string;
-};
-
-type UserInfo = {
-  user: User;
-  posts: {
-    data: PostDetail[];
-    last_id: string;
-    pagination: Pagination;
-  };
-  event: {
-    data: Event[];
-    last_id: string;
-    pagination: Pagination;
-  };
-};
-
 type EventHost = {
   _id: string;
   name: string;
@@ -173,10 +143,6 @@ type EventDetailType = {
   updated_at: string;
 }
 
-type LoggedIn = {
-  isLoggedIn: boolean;
-}
-
 type Dnft = {
   owner: string;
   token_id: number;
@@ -192,6 +158,30 @@ type UserBadge = {
   badge_type: string;
 }
 
+type User = {
+  wallet: Wallet;
+  _id: string;
+  email: string;
+  name: string;
+  phone_number: string;
+  user_type: number;
+  hashed_pw: string;
+  nickname: string;
+  social_provider: string;
+  created_at: string;
+  updated_at: string;
+  __v: number;
+  banner_img_url: string;
+};
+
+type UserInfo = {
+  user: User;
+  dnftData: Dnft;
+  badgeData: UserBadge;
+  posts: PostDetail;
+  events: EventDetailType[];
+};
+
 export type { 
   Post,
   PostDetail, 
@@ -203,7 +193,6 @@ export type {
   Pagination, 
   EventList, 
   EventDetailType, 
-  LoggedIn, 
   Dnft, 
   UserBadge 
 }

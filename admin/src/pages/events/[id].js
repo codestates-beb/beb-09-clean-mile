@@ -28,7 +28,7 @@ const Page = ({ event, host, badge }) => {
       const params = {};
       params.page = entryPage;
 
-      const res = await axios.get(`http://localhost:7000/admin/events/detail/entry/${event._id}`, {
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/events/detail/entry/${event._id}`, {
         withCredentials: true,
       });
 

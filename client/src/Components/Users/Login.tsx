@@ -13,7 +13,7 @@ import { Three, logo } from '../Reference';
 import { ApiCaller } from '../Utils/ApiCaller';
 import { LoginAPIInput, LoginAPIOutput } from '../Interfaces';
 import { showSuccessAlert, showErrorAlert } from '@/Redux/actions';
-
+import { userLogin } from '@/services/api';
 
 const Login = () => {
   const router = useRouter();
@@ -26,129 +26,94 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  
+  const togglePasswordVisibility = () => setPwVisible(prevState => !prevState);
 
-  /**
-   * 비밀번호 가시성 상태를 전환하는 함수
-   */
-  const passwordVisibility = () => {
-    setPwVisible(!isPwdVisible);
+  const isPasswordValid = (password: string) => {
+    const passwordRegex = /^(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+    return passwordRegex.test(password) && password.length >= 8;
   };
 
-  /**
-   * 사용자의 비밀번호를 검증하는 함수
-   * 비밀번호는 최소 8자 이상이어야 하며, 최소한 하나의 대문자, 소문자, 숫자, 특수문자가 포함되어야 함
-   * 만약 비밀번호가 이 요구사항을 만족하지 않을 경우, `passwordError` 상태를 관련 오류 메시지로 업데이트
-   */
-  const validatePassword = () => {
-    const passwordRegex = /^(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
-    if (password.length < 8) {
-      setPasswordError(t('common:Password must be at least 8 characters long'));
-    } else if (!passwordRegex.test(password)) {
-      setPasswordError(t('common:Password must contain all English uppercase letters, lowercase letters, numbers, and special symbols'));
-    } else {
-      setPasswordError('');
-    }
+  const isEmailValid = (email: string) => {
+    const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return re.test(email);
   };
 
   useEffect(() => {
-      validatePassword();
-  }, [password]);
+    if (!isPasswordValid(password)) {
+      setPasswordError(t('common:Password requirements not met'));
+    } else {
+      setPasswordError('');
+    }
 
-  /**
-   * 이메일을 검증하는 함수
-   * 이메일은 특정 형식에 맞아야 함
-   * 만약 이메일이 이 형식에 맞지 않을 경우, `emailError` 상태를 오류 메시지로 업데이트
-   */
-  const validateEmail = () => {
-    const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    if (!re.test(email)) {
+    if (!isEmailValid(email)) {
       setEmailError(t('common:Invalid email format'));
     } else {
       setEmailError('');
     }
-  } 
-  
-  useEffect(() => {
-    validateEmail();
-  }, [email]);
+  }, [email, password]);
 
-  /**
-   * loginAPI 함수는 사용자의 이메일과 비밀번호를 이용해 로그인을 수행
-   *
-   * @param {LoginAPIInput} { email, password } 로그인을 수행할 때 필요한 사용자의 이메일과 비밀번호
-   * @returns {Promise<LoginAPIOutput>} 로그인 수행 후 서버로부터 받는 응답
-   * @throws {AxiosError} 네트워크 에러 또는 서버에서 보내는 에러 응답
-   */
-  const loginAPI  = async ({ email, password }: LoginAPIInput): Promise<LoginAPIOutput> => {
-    Swal.fire({
-      title: t('common:Loading'),
+  const showLoadingSwal = (title: string) => {
+    return Swal.fire({
+      title,
       allowOutsideClick: false,
       didOpen: () => {
         Swal.showLoading();
       }
     });
+  }
 
-    const formData = new FormData();
+  const handleLoginSuccess = (data: LoginAPIOutput, variables: LoginAPIInput, context: unknown): void => {
+    queryClient.invalidateQueries('user');
+    queryClient.setQueryData('user', data);
+    const dehydratedState = dehydrate(queryClient);
+    sessionStorage.setItem('user', JSON.stringify(dehydratedState));
+  }
+  
+  const handleError = (error: AxiosError, variables: LoginAPIInput, context: unknown): void => {
+    console.log('Mutation Error: ', error);
+  }
 
-    formData.append('email', email);
-    formData.append('password', password);
+  const loginAPI = async (loginInput: LoginAPIInput) => {
+    showLoadingSwal(t('common:Loading'));
+    
     try {
-      const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/login`;
-      const dataBody = formData;
-      const headers = {
-        'Content-Type': 'application/form-data',
-        'Accept': 'application/json',
-      }
-      const isJSON = false;
-      const isCookie = true;
-
-      const res = await ApiCaller.post(URL, dataBody, isJSON, headers, isCookie);
-
-      Swal.close();
-
+      const res = await userLogin(loginInput);
+      
       if (res.status === 200) {
-        dispatch(showSuccessAlert(res.data.message));
+        await Swal.fire({
+          title: 'Success',
+          text: res.data.message,
+          icon: 'success',
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#6BCB77'
+        });
         router.push('/');
       } else {
         dispatch(showErrorAlert(res.data.message));
       }
-      return res.data.data
+  
+      return res.data.data;
     } catch (error) {
-      Swal.close();
-      
       const err = error as AxiosError;
+
       const data = err.response?.data as { message: string };
 
       dispatch(showErrorAlert(data?.message));
-
-      throw err;
+      throw error;
+    } finally {
+      Swal.close();
     }
-  }
-  
-  /**
-   * loginMutation 함수는 useMutation hook을 사용하여 loginAPI를 호출하고, 요청의 결과에 따라 적절한 동작을 수행
-   * 
-   * @returns {UseMutationResult} 리액트 쿼리의 useMutation hook으로부터 반환되는 결과 객체
-   */
-  const loginMutation = useMutation<LoginAPIOutput, unknown, LoginAPIInput>(loginAPI , {
-    onSuccess: (data: LoginAPIOutput) => {
-      queryClient.invalidateQueries('user');
-      queryClient.setQueryData('user', data);
+  };
 
-      const dehydratedState = dehydrate(queryClient);
-      sessionStorage.setItem('user', JSON.stringify(dehydratedState));
-    },
-    onError: (error) => {
-      console.log('Mutation Error: ', error);
-    }
+  const loginMutation = useMutation(loginAPI, {
+    onSuccess: handleLoginSuccess,
+    onError: handleError
   });
 
-  /**
- * login 함수는 loginMutation을 호출하여 사용자 로그인을 수행
- */
   const login = () => {
     loginMutation.mutate({ email, password });
-  }
+  };
 
   return (
     <div className='w-full min-h-screen grid grid-cols-2'>
@@ -183,7 +148,7 @@ const Login = () => {
                   placeholder={t('common:Password')} />
                 <p className='w-full text-left text-red-600 text-xs' style={{ minHeight: '1rem'}}>{password.length > 0 && passwordError}</p>
               </div>
-              <button type="button" onClick={passwordVisibility} className="absolute right-3 top-1/2 md:top-[55%] sm:top-[60%] xs:top-[50%] transform -translate-y-1/2">
+              <button type="button" onClick={togglePasswordVisibility} className="absolute right-3 top-1/2 md:top-[55%] sm:top-[60%] xs:top-[50%] transform -translate-y-1/2">
                 {isPwdVisible ? <IoEyeOffSharp size={20} /> : <IoEyeSharp size={20} />}
               </button>
             </div>
