@@ -29,12 +29,33 @@ export const enterEvent = async (eventId: string) => {
   return await ApiCaller.post(URL, null, false, {}, true);
 }
 
-export const fetchEventsWithPaging = async ({ pageParam = 'defaultId' }: QueryFunctionContext<'events'>) => {
-  const URL = `${BASE_URL}/events/list?last_id=${pageParam}`;
+interface FetchEventParams extends QueryFunctionContext<'events'> {
+  pageParam: string;
+  title?: string | undefined;
+  content?: string | undefined;
+  filter?: string | undefined;
+}
+
+export const fetchEventsWithPaging = async ({ pageParam = 'null', title, content, filter }: FetchEventParams) => {
+  let URL = `${BASE_URL}/events/list?last_id=${pageParam}`;
+
+  // 검색 조건 추가
+  if (title) {
+    URL += `&title=${encodeURIComponent(title)}`;
+  }
+
+  if (content) {
+    URL += `&content=${encodeURIComponent(content)}`;
+  }
+
+  // 필터 조건 추가
+  if (filter && filter !== 'all') {
+    URL += `&status=${encodeURIComponent(filter)}`;
+  }
 
   const res = await ApiCaller.get(URL, null, false, {}, true);
-  if (res.status === 200 && res.data.data.data) {
-    return res.data.data.data;
+  if (res.status === 200 && res.data.data) {
+    return res.data.data;
   }
   throw new Error('Error fetching data');
 }
@@ -73,11 +94,33 @@ export const updatePost = async (postId: string, title: string, content: string,
   return postId;
 }
 
-export const fetchReviews = async ({ pageParam = 'defaultId' }: QueryFunctionContext<'reviews'>) => {
-  const URL = `${BASE_URL}/posts/lists/review?last_id=${pageParam}`;
+interface FetchReviewParams extends QueryFunctionContext<'reviews'> {
+  pageParam: string;
+  title?: string | undefined;
+  content?: string | undefined;
+  filter?: string | undefined;
+}
+
+export const fetchReviews = async ({ pageParam = 'null', title, content, filter }: FetchReviewParams) => {
+  let URL = `${BASE_URL}/posts/lists/review?last_id=${pageParam}`;
+
+  // 검색 조건 추가
+  if (title) {
+    URL += `&title=${encodeURIComponent(title)}`;
+  }
+
+  if (content) {
+    URL += `&content=${encodeURIComponent(content)}`;
+  }
+
+  // 필터 조건 추가
+  if (filter && filter !== 'all') {
+    URL += `&order=${encodeURIComponent(filter)}`;
+  }
+
   const res = await ApiCaller.get(URL, null, false, {}, true);
-  if (res.status === 200 && res.data.data.data) {
-    return res.data.data.data;
+  if (res.status === 200 && res.data.data) {
+    return res.data.data;
   }
   throw new Error('Error fetching data');
 };

@@ -12,5 +12,5 @@ export const useUserSession = () => {
     }
   }, []);
 
-  return userData;
+  return { userData, setUserData };
 }

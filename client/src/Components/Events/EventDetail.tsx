@@ -17,7 +17,7 @@ import { useUserSession } from '@/hooks/useUserSession';
 const EventDetail = ({ eventDetail, comments }: { eventDetail: EventDetailType, comments: Comment[] }) => {
   const router = useRouter();
   const dispatch = useDispatch();
-  const userData = useUserSession();
+  const { userData } = useUserSession();
   const { t } = useTranslation('common');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
@@ -72,7 +72,7 @@ const EventDetail = ({ eventDetail, comments }: { eventDetail: EventDetailType, 
         </div>
         <div className='w-[90%] max-h-full flex items-center justify-center whitespace-pre-wrap'>
           <div className='w-[60%] h-[60%] mx-auto mb-10'>
-            <div className="w-full h-full flex justify-center">
+            <div className="w-full h-full flex justify-center items-center">
               {Array.isArray(eventDetail.poster_url)
                 ? eventDetail.poster_url.length === 0 ? (
                   null
