@@ -23,16 +23,6 @@ services:
     container_name: daemon
     restart: always
 
-  ganache:
-    image: trufflesuite/ganache:latest
-    container_name: ganache
-    command: --database.dbPath=/data --wallet.accounts 0xf3aff74e76ab06ba866303284853ab6eef61028409b85d918dbd65ddbb6cf879,10000000000000000000000
-    restart: always
-    ports:
-      - 8545:8545
-    volumes:
-      - ganache_data:/data
-      
   caddy:
     image: caddy:latest
     container_name: caddy
