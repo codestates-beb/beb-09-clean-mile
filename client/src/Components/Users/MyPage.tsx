@@ -143,7 +143,7 @@ const MyPage = ({
     try {
       if (hasNicknameChange) {
         const res = await changeUserNickname(nickname);
-         handleResponse(res, 'nickname', nickname);
+          handleResponse(res, 'nickname', nickname);
       }
   
       if (hasImageChange) {
@@ -158,7 +158,7 @@ const MyPage = ({
     }
   };
 
-  const handleResponse = (res: AxiosResponse, type: 'nickname' | 'image', value: string) => {
+  const handleResponse = (res: AxiosResponse, type: 'nickname' | 'banner_img_url', value: string) => {
     if (res.status === 200) {
       dispatch(showSuccessAlert(t('common:Profile change was successful')))
       if (type === 'nickname') {
@@ -278,7 +278,6 @@ const MyPage = ({
                 accept="image/*,video/*"
                 onChange={fileUpload}
                 required />
-                {console.log(localUserInfo)}
             </label>
           ) : (
             <Image src={!localUserInfo?.banner_img_url ? default_banner : localUserInfo?.banner_img_url} width={1500} height={100} className="w-full h-full object-contain" alt="banner Image" />

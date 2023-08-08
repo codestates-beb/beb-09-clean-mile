@@ -64,7 +64,7 @@ const Header = () => {
    * @returns {UseMutationResult} 리액트 쿼리의 useMutation hook으로부터 반환되는 결과 객체
    */
   const loginMutation = useMutation(getUserInfo, {
-    onSuccess: (data: UserInfo) => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries('user_info');
       queryClient.setQueryData('user_info', data);
 
