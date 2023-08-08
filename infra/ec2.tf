@@ -11,7 +11,7 @@ resource "aws_instance" "client_instance1" {
 
   associate_public_ip_address = true
 
-  user_data = file("./scripts/install-docker.sh")
+  user_data = file("./scripts/setup-client.sh")
 
   tags = merge(
     var.common_tags,
@@ -32,7 +32,7 @@ resource "aws_instance" "server_instance1" {
   ]
   iam_instance_profile = aws_iam_instance_profile.ec2_to_ecr_instance_profile.name
 
-  user_data = file("./scripts/install-docker.sh")
+  user_data = file("./scripts/setup-server.sh")
 
   tags = merge(
     var.common_tags,
