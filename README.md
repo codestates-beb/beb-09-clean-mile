@@ -20,9 +20,9 @@
 ## 🌍 프로젝트 주요 기능
 
 - 플로깅, 비치 코밍 등의 환경 보호 행사에 관심이 있는 사용자들을 위한 커뮤니티 구축
-- 회원가입 시 기본적으로 DNFT 1개를 지급하여 활동 상태에 따라 업그레이드 제공
+- 회원가입 시 기본적으로 DNFT (ERC-721) 지급하여 활동 상태에 따라 업그레이드 제공
 - 행사에 참여 후 QR 인증을 통한 참여 인증
-- 사용자들이 환경 보호 행사에 참여할 때마다 행사 참여 기록을 블록체인에 저장하고, 참여자들에게 NFT(ERC-1155) 형태의 인증 배지 발급
+- 사용자들이 환경 보호 행사에 참여할 때마다 행사 참여 기록을 블록체인에 저장하고, 참여자들에게 NFT (ERC-1155) 형태의 인증 배지 발급
 - 관리자 페이지에서 커뮤니티 사용자, 게시글 관리
 
 <br/>
@@ -106,5 +106,6 @@
 - #### [Wire Frame(admin)](https://github.com/codestates-beb/beb-09-clean-mile/wiki/Wire-Frame-%E2%80%90-admin)
 - #### [API 문서](https://documenter.getpostman.com/view/26736336/2s946o5pn6#7cce518f-94ac-4962-b5ce-bf200a001639)
 - #### [DB Schema](https://github.com/codestates-beb/beb-09-clean-mile/wiki/DB-Schema)
+- #### [발표자료](https://docs.google.com/presentation/d/12tAatS807ki-KKteL0nSU3NdAu2GexhEGhL3wRWXNLM/edit#slide=id.g239e59f90a6_0_3)
 
 ![Footer](https://capsule-render.vercel.app/api?type=waving&color=0:C6FCA6,100:56D80C&height=100&section=footer)
