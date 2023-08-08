@@ -88,3 +88,13 @@ variable "manager_ip" {
   type        = string
   description = "IP address of the manager"
 }
+
+variable "mongo_vpc_id" {
+  type = string
+  description = "Mongo Atlas VPC ID of the VPC to peer with"
+}
+
+variable "mongo_vpc_cidr" {
+  type = string
+  description = "Mongo Atlas VPC CIDR block to peer with"
+}

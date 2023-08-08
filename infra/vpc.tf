@@ -37,6 +37,18 @@ resource "aws_subnet" "private_subnets" {
   )
 }
 
+resource "aws_vpc_peering_connection" "mongo_vpc_peering_connection" {
+  peer_vpc_id = var.mongo_vpc_id
+  vpc_id = aws_vpc.main_vpc.id
+
+  tags = merge(
+    var.common_tags,
+    {
+      Name = "Clean Mile VPC Peering Connection"
+    }
+  )
+}
+
 resource "aws_route_table" "public_route_table" {
   vpc_id = aws_vpc.main_vpc.id
 
@@ -114,4 +126,10 @@ resource "aws_route" "private_nat_route" {
   route_table_id         = aws_route_table.private_route_table.id
   destination_cidr_block = "0.0.0.0/0"
   nat_gateway_id         = aws_nat_gateway.nat_gateway.id
+}
+
+resource "aws_route" "mongo_vpc_peering_route" {
+  route_table_id            = aws_route_table.private_route_table.id
+  destination_cidr_block    = var.mongo_vpc_cidr
+  vpc_peering_connection_id = aws_vpc_peering_connection.mongo_vpc_peering_connection.id
 }
