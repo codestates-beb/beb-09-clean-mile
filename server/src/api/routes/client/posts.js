@@ -332,8 +332,9 @@ module.exports = (app) => {
         const decoded = jwtUtil.verify(req.cookies.clientAccessToken);
         if (!decoded.success) {
           user_id = null;
+        } else {
+          user_id = decoded.decoded.user_id;
         }
-        user_id = decoded.decoded.user_id;
       }
 
       // 게시글 상세 조회
