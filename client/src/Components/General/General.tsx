@@ -5,18 +5,13 @@ import Link from 'next/link';
 import { SearchInput } from '../Reference';
 import { Post, Pagination } from '../Interfaces';
 
-const General = ({
-  postList,
-  postPagination,
-}: {
-  postList: Post[];
-  postPagination: Pagination;
-}) => {
+const DEFAULT_PAGE = 1;
+const General: React.FC<{ postList: Post[], postPagination: Pagination }> = ({ postList, postPagination }) => {
   const router = useRouter();
   const { t } = useTranslation('common');
 
   const [currentPage, setCurrentPage] = useState(
-    Number(router.query.page || 1)
+    Number(router.query.page) || DEFAULT_PAGE
   );
 
   const totalPages = postPagination?.totalPages;
@@ -27,11 +22,11 @@ const General = ({
 
   // 필터 변경 핸들러
   const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    router.push(`/posts/general?page=${currentPage}&order=${e.target.value}`);
+    const order = e.target.value;
+    router.push(`/posts/general?page=${currentPage}&order=${order}`);
   };
 
   useEffect(() => {
-    // URL query에 page 번호를 기록하려면 아래 코드를 활성화하세요.
     router.push(`/posts/general?page=${currentPage}`);
   }, [currentPage]);
 

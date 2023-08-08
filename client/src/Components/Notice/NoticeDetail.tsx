@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useRouter } from 'next/router';
 import useTranslation from 'next-translate/useTranslation';
 import Link from 'next/link';
@@ -13,13 +13,13 @@ import { Comments } from '../../Components/Reference';
 const NoticeDetail = ({ noticeDetail, comments }: { noticeDetail: PostDetail, comments: Comment[] }) => {
   const { t } = useTranslation('common');
 
-  const settings = {
+  const settings = useMemo(() => ({
     dots: true,
     infinite: false,
     speed: 500,
     slidesToShow: noticeDetail?.media.img.length > 2 ? 3 : noticeDetail?.media.img.length,
     slidesToScroll: noticeDetail?.media.img.length > 2 ? 3 : noticeDetail?.media.img.length,
-  };
+  }), [noticeDetail?.media.img.length]);
 
   return (
     <>

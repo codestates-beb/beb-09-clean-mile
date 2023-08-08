@@ -14,14 +14,17 @@ import { FiLogOut } from 'react-icons/fi';
 import { useMutation, useQueryClient, dehydrate } from 'react-query';
 import { Nav, NewNotice, hero_img, LanguageSwitch } from '../Reference';
 import { User, UserInfo, Post, Dnft } from '../Interfaces';
-import { ApiCaller } from '../Utils/ApiCaller';
 import { showSuccessAlert, showErrorAlert } from '@/Redux/actions';
+import { useUserSession } from '@/hooks/useUserSession';
+import { getUserInfo, userLogout, getLatestNotice } from '@/services/api';
+
 
 const Header = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
   const dispatch = useDispatch();
   const { t } = useTranslation('common');
+  const userData = useUserSession();
 
   const [isOpen, setIsOpen] = useState(false);
   const [isMenu, setIsMenu] = useState(false);
@@ -30,6 +33,11 @@ const Header = () => {
   const [dnftData, setDnftData] = useState<Dnft | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [latestNotice, setLatestNotice] = useState<Post | null>(null);
+
+  useEffect(() => {
+    setIsLoggedIn(Boolean(sessionStorage.getItem('user')));
+  }, []);
+
 
   /**
    * 특정 URI로 이동하는 함수
@@ -44,28 +52,7 @@ const Header = () => {
    * 메뉴의 열림 상태(`isMenuOpen`)를 반전시키고, 화살표의 회전 값(`arrowRotation`)을 180도 증가시킴
    */
   const menuToggle = () => {
-    setUserMenuOpen(!isUserMenuOpen);
-  }
-
-  const userInfo = async () => {
-    try {
-      const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/userInfo`;
-      const dataBody = null;
-      const isJSON = false;
-      const headers = {};
-      const isCookie = true;
-
-      const res = await ApiCaller.get(URL, dataBody, isJSON, headers, isCookie);
-
-      return res.data.data
-    } catch (error) {
-      const err = error as AxiosError;
-
-      const data = err.response?.data as { message: string };
-
-      console.log('User Info Error: ', data?.message);
-      throw err;
-    }
+    setUserMenuOpen(prevState => !prevState);
   }
 
   /**
@@ -73,7 +60,7 @@ const Header = () => {
    * 
    * @returns {UseMutationResult} 리액트 쿼리의 useMutation hook으로부터 반환되는 결과 객체
    */
-  const loginMutation = useMutation(userInfo, {
+  const loginMutation = useMutation(getUserInfo, {
     onSuccess: (data: UserInfo) => {
       queryClient.invalidateQueries('user_info');
       queryClient.setQueryData('user_info', data);
@@ -94,25 +81,14 @@ const Header = () => {
   });
 
   useEffect(() => {
-    const user = sessionStorage.getItem('user');
-    const userInfo = sessionStorage.getItem('user_info');
-    if (userInfo) {
-      const userCache = JSON.parse(sessionStorage.getItem('user_info') || '');
-      setUserInfoData(userCache.queries[0]?.state.data.user);
-      setDnftData(userCache.queries[0]?.state.data.dnftData);
-    }
-    if (user) {
-      setIsLoggedIn(true);
+    if (isLoggedIn) {
       loginMutation.mutate();
-    } else {
-      setIsLoggedIn(false);
     }
-  }, []);
+  }, [isLoggedIn]);
 
 
-  const logout = async () => {
-
-    Swal.fire({
+  const confirmLogout = () => {
+    return Swal.fire({
       title: t('common:Do you want to log out'),
       icon: 'question',
       showCancelButton: true,
@@ -120,71 +96,62 @@ const Header = () => {
       confirmButtonColor: '#6BCB77',
       cancelButtonText: t('common:Cancel'),
       cancelButtonColor: '#FF6B6B'
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-
-        try {
-          const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/logout`;
-          const dataBody = null;
-          const headers = {
-            'Content-Type': 'application/form-data',
-            'Accept': 'application/json',
-          }
-          const isJSON = false;
-          const isCookie = true;
-
-          const res = await ApiCaller.post(URL, dataBody, isJSON, headers, isCookie);
-          if (res.status === 200) {
-            dispatch(showSuccessAlert(res.data.message));
-            router.replace('/');
-
-            if (typeof window !== "undefined") {
-              sessionStorage.removeItem('user');
-              sessionStorage.removeItem('user_info');
-            }
-            queryClient.removeQueries('user');
-            queryClient.removeQueries('user_info');
-          } else {
-            dispatch(showErrorAlert(res.data.message));
-          }
-          return res.data.data
-        } catch (error) {
-          const err = error as AxiosError;
-
-          const data = err.response?.data as { message: string };
-
-          dispatch(showErrorAlert(data?.message));
-        }
-      } else if (result.isDismissed) {
-        dispatch(showSuccessAlert(t('common:You have cancelled your logout')));
-      }
     });
   }
 
-  const newNotice = async () => {
-    try {
-      const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/posts/notices_latest`;
-      const dataBody = null;
-      const isJSON = false;
-      const headers = {};
-      const isCookie = true;
+  const performLogout = async () => {
+    const res = await userLogout();
 
-      const res = await ApiCaller.get(URL, dataBody, isJSON, headers, isCookie);
-      setLatestNotice(res.data.data);
-    } catch (error) {
-      const err = error as AxiosError;
+    if (res.status === 200) {
+      dispatch(showSuccessAlert(res.data.message));
+      router.replace('/');
+      clearSession();
+    } else {
+      dispatch(showErrorAlert(res.data.message));
+    }
 
-      const data = err.response?.data as { message: string };
+    return res.data.data;
+  }
 
-      console.log('New Notice Error: ', data?.message);
-      throw err;
+  const clearSession = () => {
+    if (typeof window !== "undefined") {
+      sessionStorage.removeItem('user');
+      sessionStorage.removeItem('user_info');
+    }
+    queryClient.removeQueries('user');
+    queryClient.removeQueries('user_info');
+  }
+
+  const logout = async () => {
+    const result = await confirmLogout();
+
+    if (result.isConfirmed) {
+      try {
+        await performLogout();
+      } catch (error) {
+        const err = error as AxiosError;
+        const data = err.response?.data as { message: string };
+        dispatch(showErrorAlert(data?.message));
+      }
+    } else if (result.isDismissed) {
+      dispatch(showSuccessAlert(t('common:You have cancelled your logout')));
     }
   }
 
   useEffect(() => {
-    newNotice();
-  }, [])
-
+    const fetchLatestNotice = async () => {
+      try {
+        const notice = await getLatestNotice();
+        setLatestNotice(notice.data.data);
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        if (axiosError.response && axiosError.response.data) {
+          console.log('New Notice Error: ', axiosError.response.data?.message);
+        } 
+      }
+    }
+    fetchLatestNotice();
+  }, []);
   return (
     <>
       <div className="w-full mx-auto h-20 flex items-center justify-between px-10 sm:px-3 xs:px-3 border-b bg-white md:gap-6 sm:gap-4 xs:gap-4 sticky top-0 z-50">
@@ -288,13 +255,13 @@ const Header = () => {
                   rounded-full 
                   relative 
                   overflow-hidden'>
-                  {dnftData && dnftData.image_url ? (
-                    <Image src={dnftData.image_url} layout='fill' className='object-cover' alt='user profile image' />
+                  {userData.dnftData && userData.dnftData.image_url ? (
+                    <Image src={userData.dnftData.image_url} layout='fill' className='object-cover' alt='user profile image' />
                   ) : (
                     <Image src={hero_img} layout='fill' className='object-cover' alt='default profile image' />
                   )}
                 </div>
-                <p onClick={menuToggle}>{userInfoData?.nickname}</p>
+                <p onClick={menuToggle}>{userData?.user.nickname}</p>
                 <div className='relative cursor-pointer'>
                   <BiSolidDownArrow className={`transform ${isUserMenuOpen ? 'rotate-180' : ''} transition-transform duration-400`} onClick={menuToggle} />
                 </div>

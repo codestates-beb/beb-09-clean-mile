@@ -7,6 +7,7 @@ const nextConfig = {
   images: {
     domains: [
       'd190dv1poq5i84.cloudfront.net',
+      'clean-mile.s3.ap-northeast-2.amazonaws.com',
       'plohub-bucket.s3.ap-northeast-2.amazonaws.com',
       'gold-cool-goat-213.mypinata.cloud',
     ],

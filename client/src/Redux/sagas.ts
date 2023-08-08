@@ -33,8 +33,15 @@ function* showAlert(action: AlertActionTypes) {
       title: title,
       text: message,
       icon: icon,
-      confirmButtonText: 'OK',
-      confirmButtonColor: '#6BCB77'
+      toast: true, // This makes it a toast!
+      position: 'top-end', 
+      showConfirmButton: false,
+      timer: 3000,  // Will disappear after 3 seconds
+      timerProgressBar: true,
+      didOpen: (toast) => {
+        toast.addEventListener('mouseenter', Swal.stopTimer)
+        toast.addEventListener('mouseleave', Swal.resumeTimer)
+      }
     });
   }
 
