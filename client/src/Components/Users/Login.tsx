@@ -116,9 +116,11 @@ const Login = () => {
   };
 
   return (
-    <div className='w-full min-h-screen grid grid-cols-2'>
-      <Three />
-      <div className='flex flex-col items-center justify-center gap-40 lg:gap-24 sm:gap-20 xs:gap-12 lg:py-6'>
+    <div className='w-full min-h-screen grid grid-cols-2 sm:flex sm:items-center sm:justify-center'>
+      <div className="block sm:hidden xs:hidden">
+        <Three />
+      </div>
+      <div className='flex flex-col items-center justify-center gap-40 lg:gap-24 sm:gap-20 xs:gap-12 lg:py-6 sm:w-full xs:w-full'>
         <div className='flex flex-col items-center justify-center gap-6'>
           <Image src={logo} className='cursor-pointer md:w-1/2 sm:w-1/3 xs:w-1/2' width={150} height={100} alt='clean mile logo' onClick={() => router.push('/')} />
           <h1 className='text-6xl lg:text-4xl md:text-4xl sm:text-3xl xs:text-3xl font-bold'>{t('common:Login')}</h1>
