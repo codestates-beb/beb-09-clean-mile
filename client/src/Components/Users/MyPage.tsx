@@ -148,7 +148,8 @@ const MyPage = ({
   
       if (hasImageChange) {
         const res = await changeUserBanner(uploadFile);
-        handleResponse(res, 'image', res.data.imageUrl);
+        console.log(res.data)
+        handleResponse(res, 'banner_img_url', res.data.imageUrl);
       }
     } catch (error) {
       const err = error as AxiosError;
@@ -162,8 +163,8 @@ const MyPage = ({
       dispatch(showSuccessAlert(t('common:Profile change was successful')))
       if (type === 'nickname') {
         setLocalUserInfo((prev) => ({ ...prev, nickname: value }));
-      } else if (type === 'image') {
-        setLocalUserInfo((prev) => ({ ...prev, image: value }));
+      } else if (type === 'banner_img_url') {
+        setLocalUserInfo((prev) => ({ ...prev, banner_img_url: value }));
       }
       setIsEditing(false);
     } else {
@@ -277,6 +278,7 @@ const MyPage = ({
                 accept="image/*,video/*"
                 onChange={fileUpload}
                 required />
+                {console.log(localUserInfo)}
             </label>
           ) : (
             <Image src={!localUserInfo?.banner_img_url ? default_banner : localUserInfo?.banner_img_url} width={1500} height={100} className="w-full h-full object-contain" alt="banner Image" />

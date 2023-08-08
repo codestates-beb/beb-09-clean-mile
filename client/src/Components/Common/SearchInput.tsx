@@ -40,6 +40,14 @@ const SearchInput = () => {
         path = generatePath('/posts/events', params);
         break;
 
+      case '/posts/review':
+        params = {
+          last_id: 'null',
+          [filter]: search
+        };
+        path = generatePath('/posts/review', params);
+        break;
+
       case '/notice':
         params = {
           page: 1,

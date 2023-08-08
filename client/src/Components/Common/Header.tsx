@@ -17,8 +17,6 @@ import { User, UserInfo, Post, Dnft } from '../Interfaces';
 import { showSuccessAlert, showErrorAlert } from '@/Redux/actions';
 import { useUserSession } from '@/hooks/useUserSession';
 import { getUserInfo, userLogout, getLatestNotice } from '@/services/api';
-
-
 interface AxiosError<T = any> extends Error {
   config: AxiosRequestConfig;
   code?: string;
@@ -26,13 +24,14 @@ interface AxiosError<T = any> extends Error {
   response?: AxiosResponse<T>;
 }
 
-
-const Header = () => {
+const Header = ({ userInfo }: { userInfo: User }) => {
   const router = useRouter();
   const queryClient = useQueryClient();
   const dispatch = useDispatch();
   const { t } = useTranslation('common');
   const userData = useUserSession();
+
+  console.log(userInfo)
 
   const [isOpen, setIsOpen] = useState(false);
   const [isMenu, setIsMenu] = useState(false);

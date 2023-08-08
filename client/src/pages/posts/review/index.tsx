@@ -2,13 +2,12 @@ import React from 'react';
 import { GetServerSidePropsContext } from 'next';
 import { Header, Review, Footer } from '../../../Components/Reference'
 import { ApiCaller } from '../../../Components/Utils/ApiCaller';
-import { Post } from '../../../Components/Interfaces';
 
-const ReviewPage = ({ reviewList, lastId }: { reviewList: Post[], lastId: string }) => {
+const ReviewPage = () => {
   return (
     <>
       <Header />
-      <Review reviewList={reviewList} lastId={lastId} />
+      <Review />
       <Footer />
     </>
   );
@@ -18,20 +17,19 @@ export default ReviewPage;
 
 export const getServerSideProps = async (context: GetServerSidePropsContext) => {
   const { query } = context;
-  const last_id = query.page ? query.page : '';
-  const title = query.title ? query.title : null;
-  const content = query.content ? query.content : null;
+  const last_id = query.page ? query.page as string : 'null';
+  const title = query.title ? query.title as string: null;
+  const content = query.content ? query.content as string : null;
+  const order = query.order ? query.order as string : null;
 
   try {
-    let URL;
+    const params = new URLSearchParams();
+    if (title) params.append('title', title);
+    if (content) params.append('content', content);
+    if (order) params.append('order', order);
+    if (last_id) params.append('last_id', last_id);
 
-    if(title) {
-      URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/posts/lists/review?last_id=${last_id}&title=${title}`;
-    } else if(content) {
-      URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/posts/lists/review?last_id=${last_id}&content=${content}`;
-    } else {
-      URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/posts/lists/review?last_id=${last_id}`;
-    }
+    const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}//posts/lists/review?${params.toString()}`;
 
     const dataBody = null;
     const headers = {};
