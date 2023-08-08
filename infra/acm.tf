@@ -1,15 +1,3 @@
-// imported from existing zone
-resource "aws_route53_zone" "existing_clean_mile_zone" {
-    name = var.domain_name
-
-    tags = merge(
-        var.common_tags,
-        {
-            "Name" = "clean-mile-zone"
-        }
-    )
-}
-
 resource "aws_acm_certificate" "clean_mile_certificate" {
     domain_name       = "*.${var.domain_name}"
     validation_method = "DNS"
@@ -21,7 +9,7 @@ resource "aws_acm_certificate" "clean_mile_certificate" {
     tags = merge(
         var.common_tags,
         {
-            "Name" = "clean-mile-certificate"
+            "Name" = "Clean Mile Certificate"
         }
     )
 }

@@ -37,6 +37,18 @@ resource "aws_subnet" "private_subnets" {
   )
 }
 
+resource "aws_vpc_peering_connection" "mongo_vpc_peering_connection" {
+  peer_vpc_id = var.mongo_vpc_id
+  vpc_id      = aws_vpc.main_vpc.id
+
+  tags = merge(
+    var.common_tags,
+    {
+      Name = "Clean Mile VPC Peering Connection"
+    }
+  )
+}
+
 resource "aws_route_table" "public_route_table" {
   vpc_id = aws_vpc.main_vpc.id
 
@@ -116,39 +128,8 @@ resource "aws_route" "private_nat_route" {
   nat_gateway_id         = aws_nat_gateway.nat_gateway.id
 }
 
-resource "aws_security_group" "main_public_security_group" {
-  name        = "Clean Mile Public Security Group"
-  description = "Clean Mile Public Security Group"
-  vpc_id      = aws_vpc.main_vpc.id
-
-  ingress {
-    description = "Allow http inbound traffic"
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    description = "Allow https inbound traffic"
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    description = "Allow all outbound traffic"
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = merge(
-    var.common_tags,
-    {
-      Name = "Clean Mile Public Security Group"
-    }
-  )
+resource "aws_route" "mongo_vpc_peering_route" {
+  route_table_id            = aws_route_table.private_route_table.id
+  destination_cidr_block    = var.mongo_vpc_cidr
+  vpc_peering_connection_id = aws_vpc_peering_connection.mongo_vpc_peering_connection.id
 }

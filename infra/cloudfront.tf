@@ -46,29 +46,10 @@ resource "aws_cloudfront_distribution" "cloudfront_distribution" {
     cloudfront_default_certificate = true
   }
 
-  tags = var.common_tags
-}
-
-resource "aws_s3_bucket_policy" "allow_cloudfront_access_to_s3_bucket" {
-  bucket = aws_s3_bucket.s3_bucket.id
-  policy = data.aws_iam_policy_document.allow_cloudfront_access_to_s3_bucket.json
-}
-
-data "aws_iam_policy_document" "allow_cloudfront_access_to_s3_bucket" {
-  statement {
-    actions = ["s3:GetObject"]
-    resources = [
-      aws_s3_bucket.s3_bucket.arn,
-      "${aws_s3_bucket.s3_bucket.arn}/*",
-    ]
-
-    principals {
-      type        = "AWS"
-      identifiers = [aws_cloudfront_origin_access_identity.s3_bucket_origin_access_identity.iam_arn]
+  tags = merge(
+    var.common_tags,
+    {
+      Name = "Clean Mile CloudFront Distribution"
     }
-  }
-}
-
-output "cloudfront_distribution_domain_name" {
-  value = aws_cloudfront_distribution.cloudfront_distribution.domain_name
+  )
 }
