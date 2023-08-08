@@ -41,6 +41,8 @@ export const getServerSideProps = async (
 ) => {
   const cookiesObj = cookie.parse(context.req.headers.cookie || '');
 
+  console.log(cookiesObj)
+
   let cookiesStr = '';
   if (context.req && cookiesObj) {
     cookiesStr = Object.entries(cookiesObj)
@@ -57,6 +59,8 @@ export const getServerSideProps = async (
     const isCookie = true;
 
     const res = await ApiCaller.get(URL, dataBody, isJSON, headers, isCookie);
+
+    console.log(res)
 
     let userInfo;
     let userPosts;

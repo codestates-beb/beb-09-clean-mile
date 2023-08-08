@@ -18,7 +18,6 @@ const EXTENSIONS = [
   { type: 'jpg' },
   { type: 'jpeg' },
   { type: 'png' },
-  { type: 'mp4' },
 ];
 const MAX_FILE_SIZE = 10; // is MB
 
@@ -83,6 +82,7 @@ const MyPage = ({
     try {
       const res = await fetchPageData('users/profile/postPagination', userInfo._id, pageNumber);
 
+      const res = await fetchPageData('users/profile/postPagination', userInfo._id, pageNumber);
       setPostData(res.data.data.data);
       setPostCurrentPage(pageNumber);
 
@@ -140,13 +140,13 @@ const MyPage = ({
   const profileChange = async () => {
     const hasNicknameChange = nickname !== userInfo.nickname;
     const hasImageChange = uploadFile !== null;
-
+  
     try {
       if (hasNicknameChange) {
         const res = await changeUserNickname(nickname);
          handleResponse(res, 'nickname', nickname);
       }
-
+  
       if (hasImageChange) {
         const res = await changeUserBanner(uploadFile);
         handleResponse(res, 'image', res.data.imageUrl);
@@ -308,7 +308,7 @@ const MyPage = ({
           xs:left-[115px] 
           overflow-hidden
           shadow-lg'>
-          <Image src={userDnft.image_url} layout='fill' className='object-cover' alt='profile image' />
+          <Image src={userDnft.image_url} layout='fill' className='object-cover bg-white' alt='profile image' />
         </div>
         <div className='w-full h-full flex flex-col sm:items-center xs:items-center justify-center gap-6 px-12 sm:px-2 xs:px-2'>
           <div className='w-[80%] md:w-[80%] sm:w-full xs:w-full flex flex-col items-start sm:items-center xs:items-center gap-3 ml-[14%] lg:ml-[18%] md:ml-[20%] sm:ml-0 xs:ml-0 my-2 mt-5 sm:mt-24 xs:mt-20'>
@@ -658,7 +658,6 @@ const MyPage = ({
           </div>
         </div>
       </div>
-
     </>
   )
 }

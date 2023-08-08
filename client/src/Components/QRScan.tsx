@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import dynamic from 'next/dynamic';
 import useTranslation from 'next-translate/useTranslation';
 import { useDispatch } from 'react-redux';

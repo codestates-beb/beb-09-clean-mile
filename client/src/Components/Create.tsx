@@ -30,7 +30,6 @@ const Create = () => {
   const [selectEvent, setSelectEvent] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-
   useEffect(() => {
     setIsLoggedIn(Boolean(sessionStorage.getItem('user')));
   }, []);

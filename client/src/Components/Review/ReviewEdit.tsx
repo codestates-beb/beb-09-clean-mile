@@ -24,7 +24,6 @@ const ReviewEdit = ({ reviewDetailDefault }: { reviewDetailDefault: PostDetail }
   const [images, setImages] = useState<IFile[]>([]);
   const [videos, setVideos] = useState<IFile[]>([]);
   const [selectedFile, setSelectedFile] = useState<IFile[]>([]);
-  
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
