@@ -7,19 +7,8 @@ const config = require('../config');
 
 module.exports = (app) => {
   // Enable Cross Origin Resource Sharing to all origins by default
-
-  const whitelist = config.origin;
-
   const corsOptions = {
-    origin: (origin, callback) => {
-      if (whitelist.indexOf(origin) !== -1) {
-        // 허용된 도메인인 경우에만 CORS 허용
-        callback(null, true);
-      } else {
-        // 허용된 도메인이 아닌 경우
-        callback(new Error('Not allowed by CORS'));
-      }
-    },
+    origin:  config.origin,
     credentials: true,
     methods: ['GET', 'POST', 'OPTIONS', 'DELETE', 'PATCH'],
   };
