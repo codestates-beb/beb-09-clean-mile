@@ -8,7 +8,7 @@ services:
     container_name: server
     restart: always
     ports:
-      - 7000:8080
+      - 8080:8080
     volumes:
       - /tmp/server/npm_cache:/root/.npm:z
       - ./server/src:/usr/src/app/src:z
