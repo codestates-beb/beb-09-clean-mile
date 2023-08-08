@@ -2,7 +2,7 @@ resource "aws_alb" "main_alb" {
   name                             = "clean-mile-alb"
   internal                         = false
   load_balancer_type               = "application"
-  security_groups                  = [aws_security_group.main_public_security_group.id]
+  security_groups                  = [aws_security_group.alb_security_group.id]
   subnets                          = aws_subnet.public_subnets[*].id
   enable_cross_zone_load_balancing = true
 

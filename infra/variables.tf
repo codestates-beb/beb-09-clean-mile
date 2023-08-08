@@ -63,19 +63,19 @@ variable "vpc_cidr" {
 variable "public_subnet_cidrs" {
   type        = list(string)
   description = "CIDR blocks for the public subnets"
-  default     = ["10.0.1.0/24", "10.0.2.0/24"]
+  default     = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
 }
 
 variable "private_subnet_cidrs" {
   type        = list(string)
   description = "CIDR blocks for the private subnets"
-  default     = ["10.0.3.0/24", "10.0.4.0/24"]
+  default     = ["10.0.4.0/24", "10.0.5.0/24"]
 }
 
 variable "availability_zones" {
   type        = list(string)
   description = "Availability zones to use for the subnets"
-  default     = ["ap-northeast-2a", "ap-northeast-2b"]
+  default     = ["ap-northeast-2a", "ap-northeast-2b", "ap-northeast-2c"]
 }
 
 variable "domain_name" {
