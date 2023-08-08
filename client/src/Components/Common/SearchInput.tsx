@@ -8,31 +8,51 @@ const SearchInput = () => {
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('title');
 
+  const generatePath = (base:string, params: object) => {
+    const url = new URL(base, 'http://dummy.com'); // dummy domain to support URL API
+
+    Object.entries(params).forEach(([key, value]) => {
+      url.searchParams.append(key, value);
+    });
+
+    return url.pathname + url.search;
+  }
+
   const handleSearch = () => {
+    let path;
+    let params;
+
     switch (router.pathname) {
       case '/posts/general':
-        if (filter === 'title') {
-          router.push(`/posts/general?page=1&order=desc&title=${search}`);
-        } else if (filter === 'content') {
-          router.push(`/posts/general?page=1&order=desc&content=${search}`);
-        }
-        return;
+        params = {
+          page: 1,
+          order: 'desc',
+          [filter]: search
+        };
+        path = generatePath('/posts/general', params);
+        break;
+
       case '/posts/events':
-        if (filter === 'title') {
-          router.push(`/posts/events?last_id=null&title=${search}`);
-        } else if (filter === 'content') {
-          router.push(`/posts/events?last_id=null&content=${search}`);
-        }
-        return;
+        params = {
+          last_id: 'null',
+          [filter]: search
+        };
+        path = generatePath('/posts/events', params);
+        break;
+
       case '/notice':
-        if (filter === 'title') {
-          router.push(`/notice?page=1&order=desc&title=${search}`);
-        } else if (filter === 'content') {
-          router.push(`/notice?page=1&order=desc&content=${search}`);
-        }
-        return;
-      default: return '';
+        params = {
+          page: 1,
+          order: 'desc',
+          [filter]: search
+        };
+        path = generatePath('/notice', params);
+        break;
+
+      default: return;
     }
+
+    router.push(path);
   }
 
   return (

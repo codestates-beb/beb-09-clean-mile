@@ -1,12 +1,14 @@
-import React, { useEffect, useState, useRef } from 'react';
-import Swal from 'sweetalert2';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import useTranslation from 'next-translate/useTranslation';
+import Swal from 'sweetalert2';
 import { useDispatch } from 'react-redux';
 import { useRouter } from 'next/router';
 import { AxiosError } from 'axios';
 import { ApiCaller } from './Utils/ApiCaller';
 import { User, EventList } from './Interfaces';
 import { showSuccessAlert, showErrorAlert } from '@/Redux/actions';
+import { useUserSession } from '@/hooks/useUserSession';
+import { userCreatePost } from '@/services/api'
 
 interface IFile extends File {
   preview?: string;
@@ -15,6 +17,7 @@ interface IFile extends File {
 const Create = () => {
   const router = useRouter();
   const dispatch = useDispatch();
+  const userData = useUserSession();
   const { t } = useTranslation('common');
 
   const [selectCategory, setSelectCategory] = useState('');
@@ -23,34 +26,26 @@ const Create = () => {
   const [images, setImages] = useState<IFile[]>([]);
   const [videos, setVideos] = useState<IFile[]>([]);
   const [selectedFile, setSelectedFile] = useState<IFile[]>([]);
-  const [userInfo, setUserInfo] = useState<User | null>(null);
-  const [eventData, setEventData] = useState<EventList[] | null>(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isReview, setIsReview] = useState(false);
   const [selectEvent, setSelectEvent] = useState('');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    setIsLoggedIn(Boolean(sessionStorage.getItem('user')));
+  }, []);
 
 
   useEffect(() => {
-    if (typeof window !== "undefined" && sessionStorage.getItem('user')) {
-      const userCache = JSON.parse(sessionStorage.getItem('user_info') || '');
-      setIsLoggedIn(userCache !== null);
-      setUserInfo(userCache.queries[0].state.data.user)
-      setEventData(userCache.queries[0].state.data.events);
-      setIsReview(selectCategory === 'review');
+    if (userData?.events && userData?.events.length > 0) {
+      setSelectEvent(userData?.events[0]._id);
     }
-  }, [selectCategory]);
-
-  useEffect(() => {
-    if (eventData && eventData.length > 0) {
-      setSelectEvent(eventData[0]._id);
-    }
-  }, [eventData]);
+  }, [userData?.events]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileSelect = () => {
+  const handleFileSelect = useCallback(() => {
     fileInputRef.current?.click();
-  };
+  }, []);
 
   const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedCategory = e.target.value;
@@ -80,37 +75,17 @@ const Create = () => {
   };
 
   const createPost = async () => {
-    const formData = new FormData();
-
-    formData.append('category', selectCategory);
-    formData.append('title', title);
-    formData.append('content', content);
-    if (selectCategory === 'review') {
-      formData.append('event_id', selectEvent);
-    }
-
-    images.forEach((image) => {
-      formData.append('image', image);
-    });
-
-    videos.forEach((video) => {
-      formData.append('video', video);
-    });
-
     try {
-      const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/posts/create`;
-      const dataBody = formData;
-      const isJSON = false;
-      const headers = {
-        'Content-Type': 'multipart/form-data',
-        'Accept': 'application/json'
-      };
-      const isCookie = true;
-
-      const res = await ApiCaller.post(URL, dataBody, isJSON, headers, isCookie);
+      const res = await userCreatePost(selectCategory, title, content, selectEvent, images, videos);
       if (res.status === 200) {
-        dispatch(showSuccessAlert(res.data.message));
-        router.replace(`/users/mypage`);
+        await Swal.fire({
+          title: 'Success',
+          text: res.data.message,
+          icon: 'success',
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#6BCB77'
+        });
+        router.push(`/users/mypage`);
       } else {
         dispatch(showErrorAlert(res.data.message));
       }
@@ -148,7 +123,7 @@ const Create = () => {
             <option className="text-sm" value="general">{t('common:General')}</option>
             <option className="text-sm" value="review">{t('common:Review')}</option>
           </select>
-          {isReview && eventData && (
+          {isReview && userData?.events && (
             <select className="
               border-b 
               outline-none 
@@ -161,7 +136,7 @@ const Create = () => {
               sm:text-sm
               xs:text-sm"
               onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSelectEvent(e.target.value)}>
-              {eventData.map((event, i) => {
+              {userData?.events.map((event, i) => {
                 return (
                   <>
                     <option key={i} value={event._id}>{event.title}</option>

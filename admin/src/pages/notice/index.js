@@ -30,7 +30,7 @@ const Page = () => {
 
   const searchNotice = useCallback(async (params) => {
     try {
-      const res = await axios.get("http://localhost:7000/admin/notice/list", {
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/notice/list`, {
         withCredentials: true,
         params,
       });

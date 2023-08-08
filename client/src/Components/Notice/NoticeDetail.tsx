@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useRouter } from 'next/router';
 import useTranslation from 'next-translate/useTranslation';
 import Link from 'next/link';
@@ -9,17 +9,27 @@ import "slick-carousel/slick/slick-theme.css";
 import { PostDetail, Comment } from '../../Components/Interfaces';
 import { Comments } from '../../Components/Reference';
 
+type Media = {
+  type: 'image' | 'video';
+  url: string;
+};
 
 const NoticeDetail = ({ noticeDetail, comments }: { noticeDetail: PostDetail, comments: Comment[] }) => {
   const { t } = useTranslation('common');
 
-  const settings = {
+  const allMedia: Media[] = [
+    ...noticeDetail.media.img.map(i => ({ type: 'image' as const, url: i })),
+    ...noticeDetail.media.video.map(v => ({ type: 'video' as const, url: v }))
+  ];
+  
+
+  const settings = useMemo(() => ({
     dots: true,
     infinite: false,
     speed: 500,
-    slidesToShow: noticeDetail?.media.img.length > 2 ? 3 : noticeDetail?.media.img.length,
-    slidesToScroll: noticeDetail?.media.img.length > 2 ? 3 : noticeDetail?.media.img.length,
-  };
+    slidesToShow: allMedia.length > 2 ? 3 : allMedia.length,
+    slidesToScroll: allMedia.length > 2 ? 3 : allMedia.length,
+  }), [allMedia.length]);
 
   return (
     <>
@@ -40,19 +50,33 @@ const NoticeDetail = ({ noticeDetail, comments }: { noticeDetail: PostDetail, co
         </div>
         <div className='w-full max-h-full flex flex-col whitespace-pre-wrap relative'>
           <div className='w-[90%] h-[90%] mx-auto mb-10'>
-            {noticeDetail.media.img.length === 0 ? (
+            {allMedia.length === 0 ? (
               null
-            ) : noticeDetail.media.img.length <= 2 ? (
-              noticeDetail.media.img.map((media, index) => (
+            ) : allMedia.length <= 2 ? (
+              allMedia.map((media, index) => (
                 <div key={index} className="w-full h-full flex justify-center">
-                  <Image src={media} width={400} height={100} key={index} alt='post media' />
+                  {media.type === 'video' ? (
+                    <video width="400" height="100" controls>
+                      <source src={media.url} type="video/mp4" />
+                      Your browser does not support the video tag.
+                    </video>
+                  ) : (
+                    <Image src={media.url} width={400} height={100} key={index} alt='media' />
+                  )}
                 </div>
               ))
             ) : (
-              <Slider {...settings} className='relative w-full h-full flex justify-center items-center'>
-                {noticeDetail.media.img.map((media, index) => (
+              <Slider {...settings} className='w-full h-full flex justify-center items-center'>
+                {allMedia.map((media, index) => (
                   <div key={index} className="w-full h-full">
-                    <Image src={media} layout="fill" className='object-contain' key={index} alt='post media' />
+                    {media.type === 'video' ? (
+                      <video className='w-full h-full object-contain' controls>
+                        <source src={media.url} type="video/mp4" />
+                        Your browser does not support the video tag.
+                      </video>
+                    ) : (
+                      <img src={media.url} className='w-full h-full object-contain' key={index} alt='media' />
+                    )}
                   </div>
                 ))}
               </Slider>

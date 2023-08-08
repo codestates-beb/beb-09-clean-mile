@@ -13,6 +13,7 @@ import { showSuccessAlert, showErrorAlert } from '@/Redux/actions';
 import { useMutation, useQueryClient, useQuery } from 'react-query';
 import { Three, logo, meta_mask_logo } from '../Reference';
 import { ApiCaller } from '../Utils/ApiCaller';
+import { userCheckEmail, userVerifyEmailCode, userCheckNickname, userSignUp } from '@/services/api';
 
 declare global {
   interface Window {
@@ -34,135 +35,106 @@ const SignUp = () => {
 
   const [isPwdVisible, setPwVisible] = useState(false);
   const [isPwConfirmVisible, setPwConfirmVisible] = useState(false);
-  const [name, setName] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [nickname, setNickname] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [pwConfirm, setPwConfirm] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
-  const [emailError, setEmailError] = useState('');
-  const [pwConfirmMessage, setPwConfirmMessage] = useState('');
-  const [passwordError, setPasswordError] = useState('');
-  const [pwConfirmError, setPwConfirmError] = useState('');
-  const [nicknameCheck, setNicknameCheck] = useState(false);
-  const [emailCheck, setEmailCheck] = useState(false);
-
-  /**
-  * 이메일을 검증하는 함수
-  * 이메일은 특정 형식에 맞아야 함
-  * 만약 이메일이 이 형식에 맞지 않을 경우, `emailError` 상태를 오류 메시지로 업데이트
-  */
-  const validateEmail = () => {
-    const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    if (!re.test(email)) {
-      setEmailError('이메일 형식에 맞지 않습니다.');
-      setEmailCheck(false);
-    } else {
-      setEmailError('');
-      setEmailCheck(true);
-    }
-  }
-
-  useEffect(() => {
-    validateEmail();
-  }, [email]);
-
-  const phoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const regex = /^[0-9\b -]{0,13}$/;
-    if (regex.test(e.target.value)) {
-      setPhoneNumber(e.target.value);
-    }
-  }
-
-  useEffect(() => {
-    if (phoneNumber.length === 10) {
-      setPhoneNumber(phoneNumber.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3'));
-    }
-    if (phoneNumber.length === 13) {
-      setPhoneNumber(phoneNumber.replace(/-/g, '').replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3'));
-    }
-  }, [phoneNumber]);
+  const [formState, setFormState] = useState({
+    name: '',
+    phoneNumber: '',
+    nickname: '',
+    email: '',
+    password: '',
+    pwConfirm: '',
+    errorMessage: '',
+    emailError: '',
+    pwConfirmMessage: '',
+    passwordError: '',
+    pwConfirmError: '',
+    emailCheck: false,
+    nicknameCheck: false
+  });
 
   /**
    * 비밀번호 가시성 상태를 전환하는 함수
    */
-  const passwordVisibility = () => {
-    setPwVisible(!isPwdVisible);
-  };
+    const passwordVisibility = () => {
+      setPwVisible(!isPwdVisible);
+    };
+  
+    /**
+     * 비밀번호 확인 가시성 상태를 전환하는 함수      
+     */
+    const pwConfirmVisibility = () => {
+      setPwConfirmVisible(!isPwConfirmVisible);
+    };
 
-  /**
-   * 비밀번호 확인 가시성 상태를 전환하는 함수      
-   */
-  const pwConfirmVisibility = () => {
-    setPwConfirmVisible(!isPwConfirmVisible);
+  const updateFormState = (key: keyof typeof formState, value: any) => {
+    setFormState(prev => ({ ...prev, [key]: value }));
   };
+  const validateField = (type: "email" | "nickname" | "password" | "passwordConfirm") => {
+    switch (type) {
+      case "email":
+        const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!re.test(formState.email)) {
+          updateFormState('emailError', '이메일 형식에 맞지 않습니다.');
+          updateFormState('emailCheck', false);
+        } else {
+          updateFormState('emailError', '');
+          updateFormState('emailCheck', true);
+        }
+        break;
 
-  /**
-   * 닉네임을 유효성 검사하는 함수
-   * 닉네임은 최소 2자 이상이고 최대 8자 이하여야 함
-   * 유효하지 않은 경우 관련된 오류 메시지를 설
-   */
-  const validateNickname = () => {
-    if (nickname.length < 2) {
-      setErrorMessage(t('common:Nickname must be at least 2 characters long'));
-      setNicknameCheck(false);
-    } else if (nickname.length > 8) {
-      setErrorMessage(t('common:Nickname can be up to 8 characters'));
-      setNicknameCheck(false);
-    } else {
-      setErrorMessage('');
-      setNicknameCheck(true);
+      case "nickname":
+        if (formState.nickname.length < 2) {
+          updateFormState('errorMessage', t('common:Nickname must be at least 2 characters long'));
+          updateFormState('nicknameCheck', false);
+        } else if (formState.nickname.length > 8) {
+          updateFormState('errorMessage', t('common:Nickname can be up to 8 characters'));
+          updateFormState('nicknameCheck', false);
+        } else {
+          updateFormState('errorMessage', '');
+          updateFormState('nicknameCheck', true);
+        }
+        break;
+
+      case "password":
+        const passwordRegex = /^(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+        if (formState.password.length < 8) {
+          updateFormState('passwordError', t('common:Password must be at least 8 characters long'));
+        } else if (!passwordRegex.test(formState.password)) {
+          updateFormState('passwordError', t('common:Password must contain all English uppercase letters, lowercase letters, numbers, and special symbols'));
+        } else {
+          updateFormState('passwordError', '');
+        }
+        break;
+
+      case "passwordConfirm":
+        if (formState.password.length <= 0 && formState.pwConfirm.length <= 0) {
+          updateFormState('pwConfirmError', '');
+          updateFormState('pwConfirmMessage', '');
+        } else if (formState.password === formState.pwConfirm) {
+          updateFormState('pwConfirmMessage', t('common:Password matches'));
+          updateFormState('pwConfirmError', '');
+        } else if (formState.password !== formState.pwConfirm) {
+          updateFormState('pwConfirmError', t("common:Password doesn't match"));
+          updateFormState('pwConfirmMessage', '');
+        }
+        break;
     }
   };
 
   useEffect(() => {
-    validateNickname();
-  }, [nickname]);
-
-  /**
-   * 비밀번호의 유효성을 검증하는 함수
-   * 비밀번호는 최소 8자 이상이어야 하며, 최소한 하나의 대문자, 소문자, 숫자, 특수문자가 포함되어야 함
-   * 유효하지 않은 경우 관련된 오류 메시지를 설정
-   */
-  const validatePassword = () => {
-    const passwordRegex = /^(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
-    if (password.length < 8) {
-      setPasswordError(t('common:Password must be at least 8 characters long'));
-    } else if (!passwordRegex.test(password)) {
-      setPasswordError(t('common:Password must contain all English uppercase letters, lowercase letters, numbers, and special symbols'));
-    } else {
-      setPasswordError('');
-    }
-  };
-
-  /**
-   * 비밀번호 확인의 유효성을 검증하는 함수
-   * 비밀번호 확인 입력값이 비어있지 않아야 하며,
-   * 비밀번호 입력값과 비밀번호 확인 입력값이 동일해야 함
-   * 유효하지 않은 경우 관련된 오류 메시지를 설정
-   */
-  const passwordConfirm = () => {
-    if (password.length <= 0 && pwConfirm.length <= 0) {
-      setPwConfirmError('');
-      setPwConfirmMessage('');
-    } else if (password === pwConfirm) {
-      setPwConfirmMessage(t('common:Password matches'));
-      // setSignUpDisabled(false);
-      setPwConfirmError('');
-    } else if (password !== pwConfirm) {
-      setPwConfirmError(t("common:Password doesn't match"));
-      setPwConfirmMessage('');
-    }
-  }
+    validateField("email");
+  }, [formState.email]);
 
   useEffect(() => {
-    validatePassword();
-  }, [password]);
+    validateField("nickname");
+  }, [formState.nickname]);
 
   useEffect(() => {
-    passwordConfirm();
-  }, [pwConfirm]);
+    validateField("password");
+  }, [formState.password]);
+
+  useEffect(() => {
+    validateField("passwordConfirm");
+  }, [formState.pwConfirm]);
 
   /**
    * 사용자가 입력한 이메일을 검증하고 인증 코드를 발송하는 역할
@@ -172,21 +144,10 @@ const SignUp = () => {
    * @returns {Promise<void>} 아무것도 반환하지 않음
    */
   const checkEmail = async () => {
-    const formData = new FormData();
-
-    formData.append('email', email);
+    const { email } = formState;
 
     try {
-      const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/check-email`;
-      const dataBody = formData;
-      const headers = {
-        'Content-Type': 'application/form-data',
-        'Accept': 'application/json'
-      }
-
-      const isJSON = false;
-
-      const res = await ApiCaller.post(URL, dataBody, isJSON, headers);
+      const res = await userCheckEmail(email);
       if (res.status === 200) {
 
         Swal.fire({
@@ -247,22 +208,10 @@ const SignUp = () => {
    */
 
   const verifyEmailCode = async (verifyCode: string) => {
-    const formData = new FormData();
-
-    formData.append('email', email);
-    formData.append('email_verification_code', verifyCode);
+    const { email } = formState;
 
     try {
-
-      const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/verify-emailCode`;
-      const dataBody = formData;
-      const headers = {
-        'Content-Type': 'application/form-data',
-        'Accept': 'application/json'
-      }
-      const isJSON = false;
-
-      const res = await ApiCaller.post(URL, dataBody, isJSON, headers);
+      const res = await userVerifyEmailCode(email, verifyCode);
 
       if (res.status === 200) {
 
@@ -287,32 +236,21 @@ const SignUp = () => {
    * @returns {Promise<void>} 아무것도 반환하지 않음
    */
   const checkNickname = async () => {
-    const formData = new FormData();
-
-    formData.append('nickname', nickname);
+    const { nickname } = formState;
 
     try {
-
-      const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/validate-nickname`;
-      const dataBody = formData;
-      const headers = {
-        'Content-Type': 'application/form-data',
-        'Accept': 'application/json'
-      }
-      const isJSON = false;
-
-      const res = await ApiCaller.post(URL, dataBody, isJSON, headers);
+      const res = await userCheckNickname(nickname);
 
       if (res.status === 200) {
         dispatch(showSuccessAlert(res.data.message));
-          setNicknameCheck(false)
+        setFormState(prevState => ({ ...prevState, nicknameCheck: false }));
       } else {
         dispatch(showErrorAlert(res.data.message));
       }
     } catch (error) {
       const err = error as AxiosError;
       const data = err.response?.data as { message: string };
-      
+
       dispatch(showErrorAlert(data?.message));
     }
   }
@@ -391,28 +329,15 @@ const SignUp = () => {
       }
     });
 
-    const formData = new FormData();
+    const { email, name, phoneNumber, password, nickname } = formState;
 
-    formData.append('email', email);
-    formData.append('name', name);
-    formData.append('phone_number', phoneNumber);
-    formData.append('password', password);
-    formData.append('nickname', nickname);
+    let walletAddress;
     if (userAddressQuery.data) {
-      formData.append('wallet_address', String(userAddressQuery.data));
+      walletAddress = String(userAddressQuery.data);
     }
-    formData.append('social_provider', 'none');
 
     try {
-      const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/signup`;
-      const dataBody = formData;
-      const headers = {
-        'Content-Type': 'application/form-data',
-        'Accept': 'application/json'
-      }
-      const isJSON = false;
-
-      const res = await ApiCaller.post(URL, dataBody, isJSON, headers);
+      const res = await userSignUp(email, name, phoneNumber, password, nickname, walletAddress, 'none');
 
       Swal.close();
 
@@ -423,7 +348,7 @@ const SignUp = () => {
 
     } catch (error) {
       Swal.close();
-      
+
       const err = error as AxiosError;
       const data = err.response?.data as { message: string };
 
@@ -451,11 +376,13 @@ const SignUp = () => {
                         type='email'
                         id='email'
                         placeholder={t('common:E-Mail')}
-                        value={email}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)} />
+                        value={formState.email}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
+                          setFormState(prevState => ({ ...prevState, email: e.target.value }))
+                        } />
                     </div>
                     <button className={`
-                      ${!emailCheck ? 'bg-blue-300' : 'bg-main-blue hover:bg-blue-600'}
+                      ${!formState.emailCheck ? 'bg-blue-300' : 'bg-main-blue hover:bg-blue-600'}
                       border 
                       rounded-xl 
                       p-2
@@ -469,11 +396,11 @@ const SignUp = () => {
                       duration-300
                       `}
                       onClick={checkEmail}
-                      disabled={!emailCheck}>
+                      disabled={!formState.emailCheck}>
                       {t('common:Confirm')}
                     </button>
                   </div>
-                  <p className='w-full text-left font-normal text-xs text-red-500' style={{ minHeight: '1rem' }}>{email.length > 0 && emailError}</p>
+                  <p className='w-full text-left font-normal text-xs text-red-500' style={{ minHeight: '1rem' }}>{formState.email.length > 0 && formState.emailError}</p>
                 </div>
                 <div className='w-full flex flex-col sm:gap-4 xs:gap-2 justify-center items-center -mb-[1rem]'>
                   <label className='w-full sm:w-full xs:w-full font-semibold text-md lg:text-md md:text-md sm:text-base xs:text-sm' htmlFor='nickname'>{t('common:Nickname')}</label>
@@ -483,11 +410,13 @@ const SignUp = () => {
                         type='text'
                         id='nickname'
                         placeholder={t('common:Nickname')}
-                        value={nickname}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNickname(e.target.value)} />
+                        value={formState.nickname}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
+                          setFormState(prevState => ({ ...prevState, nickname: e.target.value }))
+                        } />
                     </div>
                     <button className={`
-                      ${!nicknameCheck ? 'bg-blue-300' : 'bg-main-blue hover:bg-blue-600'}
+                      ${!formState.nicknameCheck ? 'bg-blue-300' : 'bg-main-blue hover:bg-blue-600'}
                       border 
                       rounded-xl 
                       p-2
@@ -501,11 +430,11 @@ const SignUp = () => {
                       duration-300
                       `}
                       onClick={checkNickname}
-                      disabled={!nicknameCheck}>
+                      disabled={!formState.nicknameCheck}>
                       {t('common:Confirm')}
                     </button>
                   </div>
-                  <p className='w-full text-left font-normal text-xs text-red-500' style={{ minHeight: '1rem' }}>{nickname.length > 0 && errorMessage}</p>
+                  <p className='w-full text-left font-normal text-xs text-red-500' style={{ minHeight: '1rem' }}>{formState.nickname.length > 0 && formState.errorMessage}</p>
                 </div>
                 <div className='w-full flex flex-col sm:gap-4 xs:gap-2 justify-center items-center'>
                   <label className='w-full sm:w-full xs:w-full font-semibold text-md lg:text-md md:text-md sm:text-base xs:text-sm' htmlFor='name'>{t('common:Name')}</label>
@@ -523,8 +452,10 @@ const SignUp = () => {
                     xs:py-1"
                     type='text'
                     id='name'
-                    value={name}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)} />
+                    value={formState.name}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
+                      setFormState(prevState => ({ ...prevState, name: e.target.value }))
+                    } />
                 </div>
               </div>
               <div className='w-full flex flex-col gap-12 sm:gap-6 xs:gap-2 items-center justify-center'>
@@ -543,9 +474,11 @@ const SignUp = () => {
                       xs:py-1"
                       type='text'
                       id='phoneNumber'
-                      value={phoneNumber}
-                      onChange={phoneNumberChange}
-                      maxLength={13}/>
+                      value={formState.phoneNumber}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
+                        setFormState(prevState => ({ ...prevState, phoneNumber: e.target.value }))
+                      }
+                      maxLength={13} />
                   </div>
                   <p className='w-full text-left font-normal text-xs' style={{ minHeight: '1rem' }}>{t("common:Please enter the number without '-'")}</p>
                 </div>
@@ -555,10 +488,12 @@ const SignUp = () => {
                     <input className="w-full border border-gray-500 rounded-lg px-2 py-3 pr-10 lg:py-2 md:py-2 sm:py-2 xs:py-1"
                       type={isPwdVisible ? 'text' : 'password'}
                       id='password'
-                      value={password}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
+                      value={formState.password}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
+                        setFormState(prevState => ({ ...prevState, password: e.target.value }))
+                      }
                       placeholder={t('common:Password')} />
-                    <p className='font-normal text-xs text-red-500' style={{ minHeight: '1rem' }}>{password.length > 0 && passwordError}</p>
+                    <p className='font-normal text-xs text-red-500' style={{ minHeight: '1rem' }}>{formState.password.length > 0 && formState.passwordError}</p>
                   </div>
                   <button type="button" onClick={passwordVisibility} className="absolute right-3 top-1/2 md:top-[55%] sm:top-[60%] xs:top-[50%] transform -translate-y-1/2">
                     {isPwdVisible ? <IoEyeOffSharp size={20} /> : <IoEyeSharp size={20} />}
@@ -571,9 +506,11 @@ const SignUp = () => {
                       type={isPwConfirmVisible ? 'text' : 'password'}
                       id='passwordConfirm'
                       placeholder={t('common:Password Confirm')}
-                      value={pwConfirm}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPwConfirm(e.target.value)} />
-                    <p className={`w-full text-left ${pwConfirmError.length > 0 ? 'text-red-600' : 'text-blue-600'} text-xs`} style={{ minHeight: '1rem' }}>{pwConfirmError.length > 0 ? pwConfirmError : pwConfirmMessage}</p>
+                      value={formState.pwConfirm}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
+                        setFormState(prevState => ({ ...prevState, pwConfirm: e.target.value }))
+                      } />
+                    <p className={`w-full text-left ${formState.pwConfirm.length > 0 ? 'text-red-600' : 'text-blue-600'} text-xs`} style={{ minHeight: '1rem' }}>{formState.pwConfirmError.length > 0 ? formState.pwConfirmError : formState.pwConfirmMessage}</p>
                   </div>
                   <button type="button" onClick={pwConfirmVisibility} className="absolute right-3 top-1/2 md:top-[55%] sm:top-[60%] xs:top-[50%] transform -translate-y-1/2">
                     {isPwConfirmVisible ? <IoEyeOffSharp size={20} /> : <IoEyeSharp size={20} />}
@@ -630,7 +567,7 @@ const SignUp = () => {
             </div>
             <div className='w-full flex flex-col justify-center items-center gap-5 mt-12'>
               <button className={`
-                ${email.length === 0 && name.length === 0 && phoneNumber.length === 0 && password.length === 0 && nickname.length === 0 && !userAddressQuery.data ? 'bg-green-300 ' : 'bg-main-green hover:bg-green-600'}
+                ${!(formState.email.length > 0 && formState.name.length > 0 && formState.phoneNumber.length > 0 && formState.password.length > 0 && formState.nickname.length > 0 && userAddressQuery.data) ? 'bg-green-300 ' : 'bg-main-green hover:bg-green-600'}
                 w-[80%] 
                 lg:w-[70%] 
                 md:w-full 
@@ -647,7 +584,7 @@ const SignUp = () => {
                 font-semibold 
                 transition 
                 duration-300`}
-                disabled={!(email.length > 0 && name.length > 0 && phoneNumber.length > 0 && password.length > 0 && nickname.length > 0 && userAddressQuery.data)} onClick={signUp}>
+                disabled={!(formState.email.length > 0 && formState.name.length > 0 && formState.phoneNumber.length > 0 && formState.password.length > 0 && formState.nickname.length > 0 && userAddressQuery.data)} onClick={signUp}>
                 {t('common:SignUp')}
               </button>
               <div className='w-[80%] lg:w-[70%] md:w-full sm:w-full xs:w-full flex sm:flex-col xs:flex-col sm:items-center xs:items-center gap-6'>

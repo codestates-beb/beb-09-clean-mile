@@ -10,17 +10,21 @@ import { AxiosError } from 'axios';
 import { useRouter } from 'next/router';
 import { Comments } from '../Reference';
 import { EventDetailType, Comment, User } from '../Interfaces';
-import { ApiCaller } from '../Utils/ApiCaller';
 import { showSuccessAlert, showErrorAlert } from '@/Redux/actions';
+import { enterEvent } from '@/services/api';
+import { useUserSession } from '@/hooks/useUserSession';
 
 const EventDetail = ({ eventDetail, comments }: { eventDetail: EventDetailType, comments: Comment[] }) => {
   const router = useRouter();
   const dispatch = useDispatch();
+  const userData = useUserSession();
   const { t } = useTranslation('common');
-
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userInfoData, setUserInfoData] = useState<User | null>(null);
-  const [userEventData, setUserEventData] = useState<EventDetailType[] | null>(null);
+
+  useEffect(() => {
+    setIsLoggedIn(Boolean(sessionStorage.getItem('user')));
+  }, []);
+
 
   const settings = useMemo(() => ({
     dots: true,
@@ -30,32 +34,10 @@ const EventDetail = ({ eventDetail, comments }: { eventDetail: EventDetailType, 
     slidesToScroll: eventDetail.poster_url.length > 2 ? 3 : eventDetail.poster_url.length,
   }), [eventDetail.poster_url.length]);
 
-  useEffect(() => {
-    const user = sessionStorage.getItem('user');
-    const userInfo = sessionStorage.getItem('user_info');
-    if (userInfo) {
-      const userCache = JSON.parse(sessionStorage.getItem('user_info') || '');
-      setUserInfoData(userCache.queries[0]?.state.data.user);
-      setUserEventData(userCache.queries[0]?.state.data.events);
-    }
-    if (user) {
-      setIsLoggedIn(true);
-    } else {
-      setIsLoggedIn(false);
-    }
-  }, []);
-
-
   const entryEvent = async () => {
 
     try {
-      const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/events/entry/${eventDetail._id}`;
-      const dataBody = null;
-      const isJSON = false;
-      const headers = {};
-      const isCookie = true;
-
-      const res = await ApiCaller.post(URL, dataBody, isJSON, headers, isCookie);
+      const res = await enterEvent(eventDetail._id);
 
       if (res.status === 200) {
         dispatch(showSuccessAlert(res.data.message));
@@ -148,8 +130,8 @@ const EventDetail = ({ eventDetail, comments }: { eventDetail: EventDetailType, 
         </div>
         <Comments postDetailId={eventDetail._id} comments={comments} />
         <div className='w-full flex gap-3 xs:gap-2 justify-end my-16'>
-          {userEventData?.some(eventData => eventData._id === eventDetail._id) ? (
-              <button className='
+          {userData?.events.some(eventData => eventData._id === eventDetail._id) ? (
+            <button className='
                 w-[5%]
                 lg:w-[15%]
                 md:w-[15%]
@@ -167,33 +149,33 @@ const EventDetail = ({ eventDetail, comments }: { eventDetail: EventDetailType, 
                 duration-300
                 text-center
                 bg-yellow-500'
-                disabled>
-                {t('common:Completed application')}
-              </button>
-            ) : (
-              <button className={`
-                w-[5%]
-                lg:w-[15%]
-                md:w-[15%]
-                sm:w-[25%]
-                xs:w-[30%] 
-                border 
-                rounded-2xl 
-                xs:rounded-lg
-                p-3
-                sm:p-2 
-                xs:p-1
-                text-white 
-                xs:text-sm
-                transition 
-                duration-300
-                text-center
-                ${eventDetail.status !== 'recruiting' ? 'bg-yellow-400' : 'bg-main-yellow hover:bg-yellow-500 '}`}
-                disabled={eventDetail.status !== 'recruiting'}
-                onClick={entryEvent}>
-                {t('common:Entry')}
-              </button>
-            )
+              disabled>
+              {t('common:Completed application')}
+            </button>
+          ) : (
+            <button className={`
+              w-[5%]
+              lg:w-[15%]
+              md:w-[15%]
+              sm:w-[25%]
+              xs:w-[30%] 
+              border 
+              rounded-2xl 
+              xs:rounded-lg
+              p-3
+              sm:p-2 
+              xs:p-1
+              text-white 
+              xs:text-sm
+              transition 
+              duration-300
+              text-center
+              ${eventDetail.status !== 'recruiting' ? 'bg-yellow-400' : 'bg-main-yellow hover:bg-yellow-500 '}`}
+              disabled={!isLoggedIn || eventDetail.status !== 'recruiting'}
+              onClick={isLoggedIn ? entryEvent : undefined}>
+              {t('common:Entry')}
+            </button>
+          )
           }
           <Link href='/posts/events'
             className='

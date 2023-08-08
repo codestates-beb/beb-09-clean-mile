@@ -6,7 +6,7 @@ import useTranslation from 'next-translate/useTranslation';
 import { MdOutlineArrowForwardIos } from 'react-icons/md';
 import { SearchInput } from '../Reference';
 import { EventList } from '../Interfaces';
-import { ApiCaller } from '../Utils/ApiCaller';
+import { fetchEventsWithPaging } from '@/services/api';
 
 interface Item {
   _id: string;
@@ -32,23 +32,13 @@ const Events = ({ eventList, lastId }: { eventList: EventList[], lastId: string 
     }
   }
 
-  const fetchEvents = async ({ pageParam = lastId }) => {
-    let URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/events/list?last_id=${pageParam}`;
-
-    const res = await ApiCaller.get(URL, null, false, {}, true);
-    if (res.status === 200 && res.data.data.data) {
-      return res.data.data.data;
-    }
-    throw new Error('Error fetching data');
-  };
-
   const {
     data,
     fetchNextPage,
     hasNextPage,
     isLoading,
     isFetchingNextPage,
-  } = useInfiniteQuery('events', fetchEvents, {
+  } = useInfiniteQuery('events', fetchEventsWithPaging, {
     getNextPageParam: (lastPage, allPages) => {
       const lastItem = lastPage[lastPage.length - 1];
       return lastItem ? lastItem._id : null;
