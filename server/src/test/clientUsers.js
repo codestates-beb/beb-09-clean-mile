@@ -9,7 +9,7 @@ const {
   getPosts,
   getProfile,
   changeNickname,
-  setTokenCookie,
+  setClientTokenCookie,
 } = require('../services/client/usersController'); // 실제 함수들이 들어 있는 모듈의 경로로 바꿔주세요.
 const UserModel = require('../models/Users');
 const PostModel = require('../models/Posts');

@@ -38,7 +38,10 @@ module.exports = {
   },
 
   // cookie
-  cookieDomain: config.COOKIE_DOMAIN,
+  cookieDomain: {
+    client: config.CLIENT_COOKIE_DOMAIN,
+    admin: config.ADMIN_COOKIE_DOMAIN,
+  },
 
   // QR code JWT
   qrCodeJwt: {

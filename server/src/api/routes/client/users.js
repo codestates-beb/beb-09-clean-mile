@@ -239,7 +239,7 @@ module.exports = (app) => {
       const accessToken = jwtUtil.sign(email, user_id);
       const refreshToken = jwtUtil.refresh(email, user_id);
 
-      usersController.setTokenCookie(res, accessToken, refreshToken);
+      usersController.setClientTokenCookie(res, accessToken, refreshToken);
 
       // 사용자 DNFT 데이터 조회
       const dnftData = await dnftController.userDnftData(user_id);
@@ -285,8 +285,8 @@ module.exports = (app) => {
   route.post('/logout', isAuth, (req, res) => {
     try {
       // 쿠키를 삭제하여 로그아웃 처리
-      res.clearCookie('accessToken');
-      res.clearCookie('refreshToken');
+      res.clearCookie('clientAccessToken');
+      res.clearCookie('clientRefreshToken');
 
       return res.status(200).json({
         success: true,
@@ -308,7 +308,7 @@ module.exports = (app) => {
    */
   route.post('/refresh', async (req, res) => {
     try {
-      const refreshToken = req.cookies.refreshToken;
+      const refreshToken = req.cookies.clientRefreshToken;
 
       if (!refreshToken) {
         return res.status(401).json({
@@ -334,7 +334,11 @@ module.exports = (app) => {
       const newRefreshToken = jwtUtil.refresh(email, user_id);
 
       // 쿠키에 토큰 저장
-      usersController.setTokenCookie(res, newAccessToken, newRefreshToken);
+      usersController.setClientTokenCookie(
+        res,
+        newAccessToken,
+        newRefreshToken
+      );
 
       return res.status(200).json({
         success: true,

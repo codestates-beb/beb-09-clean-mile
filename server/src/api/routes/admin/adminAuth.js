@@ -2,6 +2,7 @@ const Router = require('express');
 const multer = require('multer');
 const jwtUtil = require('../../../utils/jwtAdminUtil');
 const userController = require('../../../services/client/usersController');
+const adminUserController = require('../../../services/admin/usersController');
 const isAdminAuth = require('../../middlewares/isAdminAuth');
 const { getUser } = require('../../../services/client/usersController');
 const storage = multer.memoryStorage(); // 이미지를 메모리에 저장
@@ -51,7 +52,7 @@ module.exports = (app) => {
       const refreshToken = jwtUtil.adminRefresh(email, adminResult.data._id);
 
       // 쿠키에 토큰 저장
-      userController.setTokenCookie(res, accessToken, refreshToken);
+      adminUserController.setAdminTokenCookie(res, accessToken, refreshToken);
 
       return res.status(200).json({
         success: true,
@@ -123,7 +124,11 @@ module.exports = (app) => {
       const newRefreshToken = jwtUtil.adminRefresh(email, user_id);
 
       // 쿠키에 토큰 저장
-      userController.setTokenCookie(res, newAccessToken, newRefreshToken);
+      adminUserController.setAdminTokenCookie(
+        res,
+        newAccessToken,
+        newRefreshToken
+      );
 
       return res.status(200).json({
         success: true,
