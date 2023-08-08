@@ -4,7 +4,7 @@ const jwtUtil = require('../../utils/jwtUtil');
  * jwt 인증 미들웨어
  */
 const verifyToken = async (req, res, next) => {
-  const accessToken = req.cookies.accessToken;
+  const accessToken = req.cookies.clientAccessToken;
   if (!accessToken) {
     return res.status(401).json({
       success: false,

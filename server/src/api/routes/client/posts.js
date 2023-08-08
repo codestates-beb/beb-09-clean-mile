@@ -328,13 +328,10 @@ module.exports = (app) => {
       const post_id = req.params.post_id;
       let user_id = null;
 
-      if (req.cookies.accessToken) {
-        const decoded = jwtUtil.verify(req.cookies.accessToken);
+      if (req.cookies.clientAccessToken) {
+        const decoded = jwtUtil.verify(req.cookies.clientAccessToken);
         if (!decoded.success) {
-          return res.status(401).json({
-            success: false,
-            message: `Access Token : ${result.message}`,
-          });
+          user_id = null;
         }
         user_id = decoded.decoded.user_id;
       }

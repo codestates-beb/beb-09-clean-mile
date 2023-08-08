@@ -275,7 +275,7 @@ const userBadges = async (userId) => {
       badgeList.push({
         name: badge.name,
         description: badge.description,
-        image_url: badge.image_url,
+        image: badge.image_url,
         badge_type: badgeType[badge.type],
       });
     }

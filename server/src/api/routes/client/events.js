@@ -69,8 +69,8 @@ module.exports = (app) => {
       let user_id = null;
 
       // 행사 참여 여부 확인
-      if (req.cookies.accessToken) {
-        const decoded = jwtUtil.verify(req.cookies.accessToken);
+      if (req.cookies.clientAccessToken) {
+        const decoded = jwtUtil.verify(req.cookies.clientAccessToken);
         if (!decoded.success) {
           user_id = null;
         } else {
