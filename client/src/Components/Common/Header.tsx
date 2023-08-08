@@ -5,7 +5,7 @@ import Swal from 'sweetalert2';
 import useTranslation from 'next-translate/useTranslation';
 import { useDispatch } from 'react-redux';
 import { useRouter } from 'next/router';
-import { AxiosError } from 'axios';
+import { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { GiHamburgerMenu, GiToken } from 'react-icons/gi';
 import { IoCloseSharp } from 'react-icons/io5';
 import { BiSolidDownArrow, BiSolidUser } from 'react-icons/bi';
@@ -19,6 +19,14 @@ import { useUserSession } from '@/hooks/useUserSession';
 import { getUserInfo, userLogout, getLatestNotice } from '@/services/api';
 
 
+interface AxiosError<T = any> extends Error {
+  config: AxiosRequestConfig;
+  code?: string;
+  request?: any;
+  response?: AxiosResponse<T>;
+}
+
+
 const Header = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -29,10 +37,9 @@ const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isMenu, setIsMenu] = useState(false);
   const [isUserMenuOpen, setUserMenuOpen] = useState(false);
-  const [userInfoData, setUserInfoData] = useState<User | null>(null);
   const [dnftData, setDnftData] = useState<Dnft | null>(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [latestNotice, setLatestNotice] = useState<Post | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     setIsLoggedIn(Boolean(sessionStorage.getItem('user')));
