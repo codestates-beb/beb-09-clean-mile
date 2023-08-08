@@ -91,7 +91,7 @@ export const EventCreateForm = () => {
         formData.append(key, validated[key]);
       }
 
-      const res = await axios.post("http://localhost:7000/admin/events/create", formData, {
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/events/create`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },

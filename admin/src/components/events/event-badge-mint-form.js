@@ -75,7 +75,7 @@ export const EventBadgeMintForm = ({ eventId }) => {
       formData.append("image", uploadFile);
       formData.append("event_id", eventId);
 
-      const res = await axios.post("http://localhost:7000/admin/events/createBadge", formData, {
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/events/createBadge`, formData, {
         withCredentials: true,
         headers: {
           "Content-Type": "multipart/form-data",

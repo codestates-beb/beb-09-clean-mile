@@ -97,7 +97,7 @@ export const AuthProvider = (props) => {
     try {
       isAuthenticated = getAuthenticated();
       if (isAuthenticated) {
-        const res = await axios.get("http://localhost:7000/admin/info", {
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/info`, {
           withCredentials: true,
         });
 
@@ -153,7 +153,7 @@ export const AuthProvider = (props) => {
         throw new Error("Not authenticated");
       }
 
-      const res = await axios.post("http://localhost:7000/admin/refresh", null, {
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/refresh`, null, {
         withCredentials: true,
       });
       toggleRefresh(true);
@@ -198,7 +198,7 @@ export const AuthProvider = (props) => {
     formData.append("password", password);
 
     try {
-      const res = await axios.post("http://localhost:7000/admin/login", formData, {
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/login`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
           Accept: "application/json",
@@ -231,7 +231,7 @@ export const AuthProvider = (props) => {
 
   const signOut = async () => {
     try {
-      const res = await axios.post("http://localhost:7000/admin/logout", null, {
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/admin/logout`, null, {
         withCredentials: true,
       });
 
