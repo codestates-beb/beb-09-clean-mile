@@ -45,7 +45,7 @@ resource "aws_security_group" "bastion_security_group" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = [var.manager_ip]
+    cidr_blocks = var.manager_ips
   }
 
   egress {
@@ -111,7 +111,7 @@ resource "aws_security_group" "client_security_group" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = [var.manager_ip]
+    cidr_blocks = var.manager_ips
   }
 
   ingress {
@@ -148,7 +148,7 @@ resource "aws_security_group" "admin_security_group" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = [var.manager_ip]
+    cidr_blocks = var.manager_ips
   }
 
   ingress {
