@@ -118,11 +118,6 @@ const UserProfile = ({
           >
             {userInfo?.wallet?.address}
           </p>
-          <div>
-            <p className='px-3 py-2 sm:px-2 md:text-sm sm:text-sm xs:text-sm bg-[#FBA1B7] hover:bg-main-insta rounded-xl transition duration-300 text-white font-bold'>
-              @insta_id
-            </p>
-          </div>
         </div>
         <div
           className={`w-full h-2/3 ${
