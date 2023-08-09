@@ -1,7 +1,7 @@
 import React from 'react';
-import { GetServerSidePropsContext } from 'next';
 import cookie from 'cookie';
 import axios from 'axios';
+import { GetServerSidePropsContext } from 'next';
 import { Header, MyPage, Footer } from '../../Components/Reference';
 import { ApiCaller } from '../../Components/Utils/ApiCaller';
 import { User, Pagination, Dnft, UserBadge } from '../../Components/Interfaces';

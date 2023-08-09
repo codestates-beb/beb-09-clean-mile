@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import ReactDOM from 'react-dom';
 import Image from 'next/image';
 import useTranslation from 'next-translate/useTranslation';
 import Swal from 'sweetalert2';
@@ -9,7 +8,6 @@ import { AxiosError, AxiosResponse } from 'axios';
 import { BsFillImageFill } from 'react-icons/bs';
 import { User, Pagination, Post, EventList, Dnft, UserBadge } from '../Interfaces';
 import { default_banner } from '../Reference';
-import { ApiCaller } from '../Utils/ApiCaller';
 import { showSuccessAlert, showErrorAlert } from '@/Redux/actions'
 import { fetchPageData, changeUserNickname, changeUserBanner, exchangeToken, upgradeUserDnft } from '@/services/api';
 

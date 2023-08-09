@@ -4,9 +4,7 @@ import Swal from 'sweetalert2';
 import { useDispatch } from 'react-redux';
 import { useRouter } from 'next/router';
 import { AxiosError } from 'axios';
-import { ApiCaller } from './Utils/ApiCaller';
-import { User, EventList } from './Interfaces';
-import { showSuccessAlert, showErrorAlert } from '@/Redux/actions';
+import { showErrorAlert } from '@/Redux/actions';
 import { useUserSession } from '@/hooks/useUserSession';
 import { userCreatePost } from '@/services/api'
 

@@ -9,7 +9,7 @@ import { useDispatch } from 'react-redux';
 import { AxiosError } from 'axios';
 import { useRouter } from 'next/router';
 import { Comments } from '../Reference';
-import { EventDetailType, Comment, User } from '../Interfaces';
+import { EventDetailType, Comment } from '../Interfaces';
 import { showSuccessAlert, showErrorAlert } from '@/Redux/actions';
 import { enterEvent } from '@/services/api';
 import { useUserSession } from '@/hooks/useUserSession';

@@ -1,6 +1,6 @@
 import React from 'react';
-import { useRouter } from 'next/router';
 import useTranslation from 'next-translate/useTranslation';
+import { useRouter } from 'next/router';
 
 const LanguageSwitch = () => {
   const { locale, asPath, push } = useRouter();
