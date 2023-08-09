@@ -66,20 +66,6 @@ const Login = () => {
     }
   }, [email, password]);
 
-   /**
-   * 로딩 상태의 SweetAlert를 표시하는 함수
-   * @param {string} title - SweetAlert의 제목
-   */
-  const showLoadingSwal = (title: string) => {
-    return Swal.fire({
-      title,
-      allowOutsideClick: false,
-      didOpen: () => {
-        Swal.showLoading();
-      }
-    });
-  }
-
   /**
    * 로그인 성공 시 호출되는 함수
    * @param {LoginAPIOutput} data - 로그인 API의 응답 데이터
@@ -109,14 +95,12 @@ const Login = () => {
    * @return {Promise<any>} 응답 데이터
    */
   const loginAPI = async (loginInput: LoginAPIInput) => {
-    showLoadingSwal(t('common:Loading'));
-    
     try {
       const res = await userLogin(loginInput);
       
       if (res.status === 200) {
         await Swal.fire({
-          title: 'Success',
+          title: t('common:Success'),
           text: res.data.message,
           icon: 'success',
           confirmButtonText: 'OK',
@@ -124,7 +108,14 @@ const Login = () => {
         });
         router.push('/');
       } else {
-        dispatch(showErrorAlert(res.data.message));
+        await Swal.fire({
+          title: t('common:Error'),
+          text: res.data.message,
+          icon: 'error',
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#6BCB77'
+        });
+        throw new Error(res.data.message);
       }
   
       return res.data.data;
@@ -133,7 +124,13 @@ const Login = () => {
 
       const data = err.response?.data as { message: string };
 
-      dispatch(showErrorAlert(data?.message));
+      // 400 에러 처리
+      if (err.response?.status === 400) {
+        console.error("400 error detected. Session storage won't be updated.");
+      } else {
+        dispatch(showErrorAlert(data?.message));
+      }
+
       throw error;
     } finally {
       Swal.close();

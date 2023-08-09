@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
+import Swal from 'sweetalert2';
 import useTranslation from 'next-translate/useTranslation';
 import { useInfiniteQuery, QueryFunctionContext } from 'react-query';
 import { useRouter } from 'next/router';
@@ -49,6 +49,19 @@ const Review = () => {
    * @type {string | undefined}
    */
   const [filter, setFilter] = useState<string | undefined>(undefined);
+  
+  /**
+   * 사용자 로그인 상태를 상태로 관리
+   * @type {boolean}
+   */
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  /**
+   * 컴포넌트 마운트 시, 세션 스토리지에서 사용자 로그인 정보를 가져와 상태를 설정
+   */
+  useEffect(() => {
+    setIsLoggedIn(Boolean(sessionStorage.getItem('user')));
+  }, []);
 
   /**
    * 라우터 쿼리를 기반으로 검색 유형과 검색어를 파악
@@ -121,6 +134,21 @@ const Review = () => {
     const selectedValue = e.target.value;
     setFilter(selectedValue);
   };
+
+  const handleButtonClick = () => {
+    if (!isLoggedIn) {
+      Swal.fire({
+        icon: 'warning',
+        title: t('common:Warning'),
+        text: t('common:You need to log in'),
+        confirmButtonText: t('common:OK')
+      }).then(() => {
+        router.push('/login')
+      });
+    } else {
+      router.push('/posts/create')
+    }
+  };
   
 
   return (
@@ -136,15 +164,25 @@ const Review = () => {
             <option className="text-sm xs:text-xs" value="asc">{t('common:Old order')}</option>
             <option className="text-sm xs:text-xs" value="view">{t('common:View order')}</option>
           </select>
-          <Link className='
-            w-[10%] sm:w-[20%] xs:w-[20%] flex items-center justify-center border rounded-lg py-2 xs:py-3 px-6 sm:px-2 xs:px-1 sm:text-sm xs:text-xs bg-main-blue text-white hover:bg-blue-600 transition duration-300'
-            href='/posts/create'>
-            <button className='w-full flex justify-center items-center text-center' type="button">
-              {t('common:Write')}
-            </button>
-          </Link>
+          <button className='
+            border 
+            rounded-xl 
+            py-2 
+            px-10
+            bg-main-blue
+            text-white 
+            font-semibold 
+            hover:bg-blue-600
+            transition-all 
+            duration-300 
+            text-md
+            text-center'
+            type='button'
+            onClick={handleButtonClick}>
+            {t('common:Write')}
+          </button>
         </div>
-        <div className={`w-full ${!hasData === null ? 'flex justify-center items-center' : 'grid grid-cols-5'} gap-12 lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-3 xs:grid-cols-3 lg:gap-18 md:gap-14 sm:gap-6 xs:gap-2`}>
+        <div className={`w-full ${!hasData ? 'flex justify-center items-center' : 'grid grid-cols-5'} gap-12 lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-3 xs:grid-cols-3 lg:gap-18 md:gap-14 sm:gap-6 xs:gap-2`}>
           {hasData ? (
             data?.pages.map((pageData, index) => (
               pageData.data?.map((item: Item) => (

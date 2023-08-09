@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import useTranslation from 'next-translate/useTranslation';
+import Swal from 'sweetalert2';
 import { useRouter } from 'next/router';
 import { SearchInput } from '../Reference';
 import { Post, Pagination } from '../Interfaces';
@@ -28,6 +29,19 @@ const General: React.FC<{ postList: Post[], postPagination: Pagination }> = ({ p
   const [currentPage, setCurrentPage] = useState(
     Number(router.query.page) || DEFAULT_PAGE
   );
+
+  /**
+   * 사용자 로그인 상태를 상태로 관리
+   * @type {boolean}
+   */
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  /**
+   * 컴포넌트 마운트 시, 세션 스토리지에서 사용자 로그인 정보를 가져와 상태를 설정
+   */
+  useEffect(() => {
+    setIsLoggedIn(Boolean(sessionStorage.getItem('user')));
+  }, []);
 
   /**
    * 게시글 페이징을 기반으로 사용 가능한 총 페이지 수
@@ -61,6 +75,21 @@ const General: React.FC<{ postList: Post[], postPagination: Pagination }> = ({ p
     router.push(`/posts/general?page=${currentPage}`);
   }, [currentPage]);
 
+  const handleButtonClick = () => {
+    if (!isLoggedIn) {
+      Swal.fire({
+        icon: 'warning',
+        title: t('common:Warning'),
+        text: t('common:You need to log in'),
+        confirmButtonText: '확인'
+      }).then(() => {
+        router.push('/login')
+      });
+    } else {
+      router.push('/posts/create')
+    }
+  };
+
   return (
     <div className='w-full flex flex-col justify-center gap-12 px-24 sm:px-2 xs:px-2 py-14 lg:py-12 md:py-6 sm:py-6 xs:py-3'>
       <h1 className='font-bold text-5xl lg:text-4xl md:text-3xl sm:text-2xl xs:text-xl text-center'>
@@ -87,8 +116,7 @@ const General: React.FC<{ postList: Post[], postPagination: Pagination }> = ({ p
                 {t('common:View order')}
               </option>
             </select>
-            <Link
-              className='
+            <button className='
               border 
               rounded-xl 
               py-2 
@@ -101,10 +129,10 @@ const General: React.FC<{ postList: Post[], postPagination: Pagination }> = ({ p
               duration-300 
               text-md
               text-center'
-              href='/posts/create'
-            >
-              <button type='button'>{t('common:Write')}</button>
-            </Link>
+              type='button'
+              onClick={handleButtonClick}>
+              {t('common:Write')}
+            </button>
           </div>
           <div className='w-full'>
             <table className='w-full text-center border-collapse sm:text-sm xs:text-xs overflow-x-scroll'>

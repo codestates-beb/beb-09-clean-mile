@@ -75,7 +75,7 @@ const SignUp = () => {
    * 주어진 유형에 따라 필드를 검증하는 함수
    * @param {"email" | "nickname" | "password" | "passwordConfirm"} type - 검증할 필드 유형
    */
-  const validateField = (type: "email" | "nickname" | "password" | "passwordConfirm") => {
+  const validateField = (type: "email" | "nickname" | "password" | "passwordConfirm" | "phoneNumber") => {
     switch (type) {
       case "email":
         const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -123,6 +123,15 @@ const SignUp = () => {
           updateFormState('pwConfirmError', t("common:Password doesn't match"));
           updateFormState('pwConfirmMessage', '');
         }
+      case "phoneNumber":
+        let formattedNumber = formState.phoneNumber.replace(/\D/g, '');
+        if (formattedNumber.length >= 4) {
+            const part1 = formattedNumber.substring(0, 3);
+            const part2 = formattedNumber.substring(3, 7);
+            const part3 = formattedNumber.substring(7);
+            formattedNumber = `${part1}-${part2}-${part3}`;
+        }
+        updateFormState('phoneNumber', formattedNumber);
         break;
     }
   };
@@ -142,6 +151,10 @@ const SignUp = () => {
   useEffect(() => {
     validateField("passwordConfirm");
   }, [formState.pwConfirm]);
+
+  useEffect(() => {
+    validateField("phoneNumber");
+  }, [formState.phoneNumber]);
 
   /**
    * 사용자가 입력한 이메일을 검증하고 인증 코드를 발송하는 함수
@@ -519,7 +532,7 @@ const SignUp = () => {
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
                         setFormState(prevState => ({ ...prevState, pwConfirm: e.target.value }))
                       } />
-                    <p className={`w-full text-left ${formState.pwConfirm.length > 0 ? 'text-red-600' : 'text-blue-600'} text-xs`} style={{ minHeight: '1rem' }}>{formState.pwConfirmError.length > 0 ? formState.pwConfirmError : formState.pwConfirmMessage}</p>
+                    <p className={`w-full text-left ${formState.pwConfirmError.length > 0 ? 'text-red-600' : 'text-blue-600'} text-xs`} style={{ minHeight: '1rem' }}>{formState.pwConfirmError.length > 0 ? formState.pwConfirmError : formState.pwConfirmMessage}</p>
                   </div>
                   <button type="button" onClick={pwConfirmVisibility} className="absolute right-3 top-1/2 md:top-[55%] sm:top-[60%] xs:top-[50%] transform -translate-y-1/2">
                     {isPwConfirmVisible ? <IoEyeOffSharp size={20} /> : <IoEyeSharp size={20} />}
