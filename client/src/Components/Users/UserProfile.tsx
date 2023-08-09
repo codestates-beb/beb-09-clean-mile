@@ -34,6 +34,10 @@ const UserProfile = ({
 
   const totalPages = postPagination?.totalPages;
 
+  /**
+   * 사용자가 선택한 페이지에 따라 페이지 데이터를 로드하는 함수
+   * @param {number} pageNumber - 사용자가 선택한 페이지 번호
+   */
   const handlePageChange = async (pageNumber: number) => {
     try {
       const res = await fetchPageData('users/profile/postPagination', userInfo._id, pageNumber);
@@ -46,6 +50,7 @@ const UserProfile = ({
   };
 
   useEffect(() => {
+    // 초기 로딩 시 현재 페이지 데이터를 불러오는 비동기 함수 실행
     (async () => {
       await handlePageChange(currentPage);
     })();

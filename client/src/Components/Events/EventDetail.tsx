@@ -15,17 +15,47 @@ import { enterEvent } from '@/services/api';
 import { useUserSession } from '@/hooks/useUserSession';
 
 const EventDetail = ({ eventDetail, comments }: { eventDetail: EventDetailType, comments: Comment[] }) => {
+  /**
+   * 컴포넌트에서 사용하는 라우터 인스턴스를 가져옴
+   * @type {NextRouter}
+   */
   const router = useRouter();
+
+  /**
+   * 리덕스 액션을 디스패치하기 위한 디스패치 함수를 가져옴
+   * @type {Dispatch<any>}
+   */
   const dispatch = useDispatch();
+
+  /**
+   * 사용자 세션 훅을 사용하여 사용자 데이터를 가져옴
+   * @type {object}
+   */
   const { userData } = useUserSession();
+
+  /**
+   * 공통 번역 훅을 사용하여 번역 함수를 가져옴
+   * @type {TFunction}
+   */
   const { t } = useTranslation('common');
+
+  /**
+   * 사용자 로그인 상태를 상태로 관리
+   * @type {boolean}
+   */
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
+  /**
+   * 컴포넌트 마운트 시, 세션 스토리지에서 사용자 로그인 정보를 가져와 상태를 설정
+   */
   useEffect(() => {
     setIsLoggedIn(Boolean(sessionStorage.getItem('user')));
   }, []);
 
-
+  /**
+   * 이벤트 디테일 포스터 URL의 길이를 기반으로 슬라이더 설정을 반환
+   * @type {object}
+   */
   const settings = useMemo(() => ({
     dots: true,
     infinite: false,
@@ -34,8 +64,11 @@ const EventDetail = ({ eventDetail, comments }: { eventDetail: EventDetailType, 
     slidesToScroll: eventDetail.poster_url.length > 2 ? 3 : eventDetail.poster_url.length,
   }), [eventDetail.poster_url.length]);
 
+  /**
+   * 선택한 이벤트에 참여
+   * API 요청 후, 응답에 따라 적절한 액션을 수행
+   */
   const entryEvent = async () => {
-
     try {
       const res = await enterEvent(eventDetail._id);
 

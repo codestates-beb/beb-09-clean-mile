@@ -24,18 +24,34 @@ const Login = () => {
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   
+  /**
+   * 비밀번호의 가시성을 토글하는 함수
+   */
   const togglePasswordVisibility = () => setPwVisible(prevState => !prevState);
 
+  /**
+   * 주어진 비밀번호가 유효한지 검사하는 함수
+   * @param {string} password - 검사할 비밀번호
+   * @return {boolean} 비밀번호의 유효성 결과
+   */
   const isPasswordValid = (password: string) => {
     const passwordRegex = /^(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
     return passwordRegex.test(password) && password.length >= 8;
   };
 
+  /**
+   * 주어진 이메일이 유효한지 검사하는 함수
+   * @param {string} email - 검사할 이메일
+   * @return {boolean} 이메일의 유효성 결과
+   */
   const isEmailValid = (email: string) => {
     const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     return re.test(email);
   };
 
+  /**
+   * 이메일과 비밀번호 유효성을 검사하고, 유효하지 않으면 오류 메시지를 설정하는 함수
+   */
   useEffect(() => {
     if (!isPasswordValid(password)) {
       setPasswordError(t('common:Password requirements not met'));
@@ -50,6 +66,10 @@ const Login = () => {
     }
   }, [email, password]);
 
+   /**
+   * 로딩 상태의 SweetAlert를 표시하는 함수
+   * @param {string} title - SweetAlert의 제목
+   */
   const showLoadingSwal = (title: string) => {
     return Swal.fire({
       title,
@@ -60,6 +80,12 @@ const Login = () => {
     });
   }
 
+  /**
+   * 로그인 성공 시 호출되는 함수
+   * @param {LoginAPIOutput} data - 로그인 API의 응답 데이터
+   * @param {LoginAPIInput} variables - 로그인 API의 입력 데이터
+   * @param {unknown} context - 알 수 없는 컨텍스트 데이터
+   */
   const handleLoginSuccess = (data: LoginAPIOutput, variables: LoginAPIInput, context: unknown): void => {
     queryClient.invalidateQueries('user');
     queryClient.setQueryData('user', data);
@@ -67,10 +93,21 @@ const Login = () => {
     sessionStorage.setItem('user', JSON.stringify(dehydratedState));
   }
   
+   /**
+   * 로그인 과정에서 오류가 발생하면 호출되는 함수
+   * @param {AxiosError} error - 발생한 에러
+   * @param {LoginAPIInput} variables - 로그인 API의 입력 데이터
+   * @param {unknown} context - 알 수 없는 컨텍스트 데이터
+   */
   const handleError = (error: AxiosError, variables: LoginAPIInput, context: unknown): void => {
     console.log('Mutation Error: ', error);
   }
 
+  /**
+   * 사용자 로그인을 위한 API 호출 함수
+   * @param {LoginAPIInput} loginInput - 로그인 정보
+   * @return {Promise<any>} 응답 데이터
+   */
   const loginAPI = async (loginInput: LoginAPIInput) => {
     showLoadingSwal(t('common:Loading'));
     
@@ -103,11 +140,18 @@ const Login = () => {
     }
   };
 
+  /**
+   * 로그인 API를 호출하기 위한 useMutation 훅
+   */
   const loginMutation = useMutation(loginAPI, {
     onSuccess: handleLoginSuccess,
     onError: handleError
   });
 
+  
+  /**
+   * 로그인 실행 함수
+   */
   const login = () => {
     loginMutation.mutate({ email, password });
   };

@@ -17,6 +17,7 @@ import { Post } from '../Interfaces';
 import { showSuccessAlert, showErrorAlert } from '@/Redux/actions';
 import { useUserSession } from '@/hooks/useUserSession';
 import { getUserInfo, userLogout, getLatestNotice } from '@/services/api';
+
 interface AxiosError<T = any> extends Error {
   config: AxiosRequestConfig;
   code?: string;
@@ -51,8 +52,7 @@ const Header = () => {
   }
 
   /**
-   * 메뉴 열기/닫기 상태를 토글하고, 화살표의 회전 값을 조절하는 함수
-   * 메뉴의 열림 상태(`isMenuOpen`)를 반전시키고, 화살표의 회전 값(`arrowRotation`)을 180도 증가시킴
+   * 메뉴 열기/닫기 상태를 토글
    */
   const menuToggle = () => {
     setUserMenuOpen(prevState => !prevState);
@@ -84,6 +84,7 @@ const Header = () => {
     }
   });
 
+
   useEffect(() => {
     if (isLoggedIn) {
       loginMutation.mutate();
@@ -91,6 +92,11 @@ const Header = () => {
   }, [isLoggedIn]);
 
 
+  /**
+   * 로그아웃할 것인지 확인하는 다이얼로그를 표시
+   * 
+   * @returns Swal의 Promise 결과 객체
+   */
   const confirmLogout = () => {
     return Swal.fire({
       title: t('common:Do you want to log out'),
@@ -103,6 +109,11 @@ const Header = () => {
     });
   }
 
+  /**
+   * 로그아웃 프로세스를 수행
+   * 
+   * @returns 로그아웃 처리 후 결과 데이터
+   */
   const performLogout = async () => {
     const res = await userLogout();
 
@@ -119,6 +130,9 @@ const Header = () => {
     return res.data.data;
   }
 
+  /**
+   * 세션 정보 삭제
+   */
   const clearSession = () => {
     if (typeof window !== "undefined") {
       sessionStorage.removeItem('user');
@@ -128,6 +142,9 @@ const Header = () => {
     queryClient.removeQueries('user_info');
   }
 
+  /**
+   * 사용자가 로그아웃할 것인지 확인 후 로그아웃 처리 수행
+   */
   const logout = async () => {
     const result = await confirmLogout();
 
@@ -144,6 +161,9 @@ const Header = () => {
     }
   }
 
+  /**
+   * 최신 공지사항을 가져옴
+   */
   useEffect(() => {
     const fetchLatestNotice = async () => {
       try {

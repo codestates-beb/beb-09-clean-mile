@@ -6,26 +6,57 @@ import { SearchInput } from '../Reference';
 import { Post, Pagination } from '../Interfaces';
 
 const DEFAULT_PAGE = 1;
+
 const General: React.FC<{ postList: Post[], postPagination: Pagination }> = ({ postList, postPagination }) => {
+  /**
+   * 라우터 인스턴스를 가져옴
+   * @type {NextRouter}
+   */
   const router = useRouter();
+
+  /**
+   * 공통 번역 훅을 사용하여 번역 함수를 가져옴
+   * @type {TFunction}
+   */
   const { t } = useTranslation('common');
 
+  /**
+   * 사용자가 현재 있는 페이지를 나타냄
+   * 라우터의 쿼리에서 페이지를 가져오거나 기본 페이지 상수를 기본값으로 사용
+   * @type {number}
+   */
   const [currentPage, setCurrentPage] = useState(
     Number(router.query.page) || DEFAULT_PAGE
   );
 
+  /**
+   * 게시글 페이징을 기반으로 사용 가능한 총 페이지 수
+   * @type {number}
+   */
   const totalPages = postPagination?.totalPages;
 
+  /**
+   * 페이지 변경 이벤트 처리
+   * 주어진 페이지 번호로 현재 페이지를 설정
+   * @param {number} pageNumber - 새 페이지 번호
+   */
   const handlePageChange = (pageNumber: number) => {
     setCurrentPage(pageNumber);
   };
 
-  // 필터 변경 핸들러
+  /**
+   * 필터 변경을 처리
+   * 선택한 순서에 따라 해당 URL로 리디렉션
+   * @param {React.ChangeEvent<HTMLSelectElement>} e - 선택 요소의 변경으로 트리거된 이벤트
+   */
   const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const order = e.target.value;
     router.push(`/posts/general?page=${currentPage}&order=${order}`);
   };
 
+  /**
+   * 현재 페이지가 변경될 때마다 히스토리에 새 경로를 푸시함
+   */
   useEffect(() => {
     router.push(`/posts/general?page=${currentPage}`);
   }, [currentPage]);
@@ -37,10 +68,9 @@ const General: React.FC<{ postList: Post[], postPagination: Pagination }> = ({ p
       </h1>
       <div className={`flex justify-center items-center w-full`}>
         <div
-          className={`w-full ${
-            postList?.length <= 4 ||
+          className={`w-full ${postList?.length <= 4 ||
             (postList === null && 'min-h-screen items-center justify-around')
-          }`}
+            }`}
         >
           <div className='flex justify-end mb-3 gap-3'>
             <select
@@ -89,7 +119,7 @@ const General: React.FC<{ postList: Post[], postPagination: Pagination }> = ({ p
                 </tr>
               </thead>
               <tbody>
-              {postList === null ? (
+                {postList === null ? (
                   <tr>
                     <td colSpan={6} className='p-6 text-center'>
                       {t('common:There are no registered posts')}
@@ -98,51 +128,51 @@ const General: React.FC<{ postList: Post[], postPagination: Pagination }> = ({ p
                 ) : (
                   postList?.map((post, i) => {
                     return (
-                    <tr
-                      className='
+                      <tr
+                        className='
                       hover:bg-gray-200 
                       transition-all 
                       duration-300 
                       cursor-pointer'
-                      key={i}
-                      onClick={() => router.push(`/posts/general/${post._id}`)}>
-                      <td className='border-b p-6 sm:p-3 xs:p-2'>
-                        <p className='text-xl sm:text-sm xs:text-xs font-semibold'>
-                          {i + 1}
-                        </p>
-                      </td>
-                      <td className='border-b p-6 sm:p-3 xs:p-2'>
-                        <p className='text-gray-600 sm:text-sm xs:text-xs'>
-                          {post.title.length >= 20
-                            ? post.title.slice(0, 20) + '...'
-                            : post.title}
-                        </p>
-                      </td>
-                      <td className='border-b p-6 sm:p-3 xs:p-2'>
-                        <p className='text-gray-600 sm:text-sm xs:text-xs'>
-                          {post.content.length >= 20
-                            ? post.content.slice(0, 60) + '...'
-                            : post.content}
-                        </p>
-                      </td>
-                      <td className='border-b p-6 sm:p-3 xs:p-2'>
-                        <p className='text-gray-600 sm:text-sm xs:text-xs'>
-                          {post.user_id === null
-                            ? t('common:Unknown')
-                            : post.user_id?.nickname}
-                        </p>
-                      </td>
-                      <td className='border-b p-6 sm:p-3 xs:p-2'>
-                        <p className='text-gray-600 sm:text-sm xs:text-xs'>
-                          {post.updated_at.split('T')[0]}
-                          <br />
-                          {post.updated_at.substring(11, 19)}
-                        </p>
-                      </td>
-                      <td className='border-b p-6 sm:p-3 xs:p-2'>
-                        <p className='text-gray-600'>{post.view.count}</p>
-                      </td>
-                    </tr>
+                        key={i}
+                        onClick={() => router.push(`/posts/general/${post._id}`)}>
+                        <td className='border-b p-6 sm:p-3 xs:p-2'>
+                          <p className='text-xl sm:text-sm xs:text-xs font-semibold'>
+                            {i + 1}
+                          </p>
+                        </td>
+                        <td className='border-b p-6 sm:p-3 xs:p-2'>
+                          <p className='text-gray-600 sm:text-sm xs:text-xs'>
+                            {post.title.length >= 20
+                              ? post.title.slice(0, 20) + '...'
+                              : post.title}
+                          </p>
+                        </td>
+                        <td className='border-b p-6 sm:p-3 xs:p-2'>
+                          <p className='text-gray-600 sm:text-sm xs:text-xs'>
+                            {post.content.length >= 20
+                              ? post.content.slice(0, 60) + '...'
+                              : post.content}
+                          </p>
+                        </td>
+                        <td className='border-b p-6 sm:p-3 xs:p-2'>
+                          <p className='text-gray-600 sm:text-sm xs:text-xs'>
+                            {post.user_id === null
+                              ? t('common:Unknown')
+                              : post.user_id?.nickname}
+                          </p>
+                        </td>
+                        <td className='border-b p-6 sm:p-3 xs:p-2'>
+                          <p className='text-gray-600 sm:text-sm xs:text-xs'>
+                            {post.updated_at.split('T')[0]}
+                            <br />
+                            {post.updated_at.substring(11, 19)}
+                          </p>
+                        </td>
+                        <td className='border-b p-6 sm:p-3 xs:p-2'>
+                          <p className='text-gray-600'>{post.view.count}</p>
+                        </td>
+                      </tr>
                     )
                   })
                 )}
@@ -153,9 +183,8 @@ const General: React.FC<{ postList: Post[], postPagination: Pagination }> = ({ p
                 {Array.from({ length: totalPages }, (_, i) => (
                   <button
                     key={i + 1}
-                    className={`px-2 py-2 mx-1 xs:text-sm ${
-                      currentPage === i + 1 ? 'font-bold' : ''
-                    }`}
+                    className={`px-2 py-2 mx-1 xs:text-sm ${currentPage === i + 1 ? 'font-bold' : ''
+                      }`}
                     onClick={() => handlePageChange(i + 1)}
                   >
                     {i + 1}

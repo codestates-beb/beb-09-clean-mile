@@ -7,25 +7,56 @@ import { Post, Pagination } from '../../Components/Interfaces';
 const DEFAULT_PAGE = 1;
 
 const Notice = ({ noticeList, noticePagination }: { noticeList: Post[], noticePagination: Pagination }) => {
+  /**
+   * 컴포넌트에서 사용하는 라우터 인스턴스를 가져옴
+   * @type {NextRouter}
+   */
   const router = useRouter();
+
+  /**
+   * 공통 번역 훅을 사용하여 번역 함수를 가져옴
+   * @type {TFunction}
+   */
   const { t } = useTranslation('common');
 
+  /**
+   * 현재 페이지의 상태를 설정
+   * 초기값은 라우터의 쿼리에서 페이지 번호를 가져오거나 
+   * 페이지 번호가 없을 경우 기본 페이지 값을 사용
+   * @type {number}
+   */
   const [currentPage, setCurrentPage] = useState(
     Number(router.query.page) || DEFAULT_PAGE
   );
 
-  // 필터 변경 핸들러
+  /**
+   * 필터(순서)가 변경될 때 호출되는 핸들러
+   * 변경된 필터 값에 따라 notice 페이지로 라우트를 변경
+   * @param {React.ChangeEvent<HTMLSelectElement>} e - select 요소의 변경 이벤트 객체
+   */
   const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const order = e.target.value;
     router.push(`/notice?page=${currentPage}&order=${order}`);
   };
 
+  /**
+   * 페이징 정보에서 전체 페이지 수를 가져옴
+   * @type {number | undefined}
+   */
   const totalPages = noticePagination?.totalPages;
 
+  /**
+   * 페이지가 변경될 때 호출되는 핸들러
+   * 선택된 페이지 번호로 현재 페이지의 상태를 업데이트
+   * @param {number} pageNumber - 선택된 페이지 번호
+   */
   const handlePageChange = (pageNumber: number) => {
     setCurrentPage(pageNumber);
   };
 
+  /**
+   * 현재 페이지 상태가 변경될 때마다 페이지를 다시 로드
+   */
   useEffect(() => {
     router.push(`/notice?page=${currentPage}`);
   }, [currentPage]);
