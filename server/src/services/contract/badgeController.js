@@ -243,8 +243,8 @@ const transferBadge = async (recipient, eventId) => {
       const badge_score = badgeScore[badge.type];
 
       badge.owners.push(recipient);
-      await badge.save();
-      return { success: true, badge_score: badge_score };
+      const badgeResult = await badge.save();
+      return { success: true, badge_score: badge_score, data: badgeResult };
     } else {
       return { success: false, message: '토큰 전송 실패' };
     }
