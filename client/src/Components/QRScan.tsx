@@ -21,10 +21,11 @@ const QRScan = () => {
   const verifyEvent = async (tokenData: string) => {
     try {
       const res = await userVerifyEvent(tokenData);
+      console.log(tokenData)
       if (res.status === 200) {
         Swal.fire({
           title: res.data.badge.name,
-          text: res.data.badge.description,
+          html: `<p>${res.data.badge.badge_type}</p><br><p>${res.data.badge.description}</p>`,
           imageUrl: res.data.badge.image_url,
           imageWidth: 400,
           imageHeight: 200,

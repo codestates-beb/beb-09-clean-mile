@@ -256,7 +256,7 @@ const MyPage = ({
   const handleBadgeClick = (badge: BadgeType) => {
     Swal.fire({
       title: badge.name,
-      text: `${badge.description}`,
+      html: `<p>${badge.badge_type}</p><br><p>${badge.description}</p>`,
       imageUrl: badge.image,
       imageWidth: 400,
       imageHeight: 200,
