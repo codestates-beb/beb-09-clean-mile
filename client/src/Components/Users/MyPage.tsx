@@ -22,6 +22,13 @@ const MAX_FILE_SIZE = 10; // is MB
 const MAX_LENGTH = 8;
 const MIN_LENGTH = 2;
 
+type BadgeType = {
+  name: string;
+  description: string;
+  badge_type: string;
+  image: string;
+}
+
 const MyPage = ({
   userInfo,
   eventPagination,
@@ -137,13 +144,13 @@ const MyPage = ({
   const profileChange = async () => {
     const hasNicknameChange = nickname !== userInfo.nickname;
     const hasImageChange = uploadFile !== null;
-  
+
     try {
       if (hasNicknameChange) {
         const res = await changeUserNickname(nickname);
-          handleResponse(res, 'nickname', nickname);
+        handleResponse(res, 'nickname', nickname);
       }
-  
+
       if (hasImageChange) {
         const res = await changeUserBanner(uploadFile);
         console.log(res.data)
@@ -246,6 +253,17 @@ const MyPage = ({
     }
   }
 
+  const handleBadgeClick = (badge: BadgeType) => {
+    Swal.fire({
+      title: badge.name,
+      html: `<p>${badge.badge_type}</p><br><p>${badge.description}</p>`,
+      imageUrl: badge.image,
+      imageWidth: 400,
+      imageHeight: 200,
+      imageAlt: 'Badge Image'
+    });
+  }
+
   return (
     <>
       <div className="w-full min-h-screen">
@@ -326,26 +344,49 @@ const MyPage = ({
                 </>
               )}
               {isEditing ? (
-                <button className='
-                  text-white 
-                  font-semibold 
-                  bg-main-yellow 
-                  hover:bg-yellow-400 
-                  px-8 
-                  lg:px-6
-                  xs:px-4
-                  xs:text-sm
-                  py-1 
-                  rounded-lg 
-                  transition 
-                  duration-300
-                  cursor-pointer'
-                  type="button"
-                  onClick={profileChange}
-                  disabled={errorMessage !== ''}
-                >
-                  {t('common:Save')}
-                </button>
+                <div className='flex gap-2'>
+                  <button className='
+                    text-white 
+                    font-semibold 
+                    bg-main-yellow 
+                    hover:bg-yellow-400 
+                    px-8 
+                    lg:px-6
+                    xs:px-4
+                    xs:text-sm
+                    py-1 
+                    rounded-lg 
+                    transition 
+                    duration-300
+                    cursor-pointer'
+                    type="button"
+                    title={t('common:Save')}
+                    onClick={profileChange}
+                    disabled={errorMessage !== ''}
+                  >
+                    {t('common:Save')}
+                  </button>
+                  <button className='
+                    text-white 
+                    font-semibold 
+                    bg-main-yellow 
+                    hover:bg-yellow-400 
+                    px-8 
+                    lg:px-6
+                    xs:px-4
+                    xs:text-sm
+                    py-1 
+                    rounded-lg 
+                    transition 
+                    duration-300
+                    cursor-pointer'
+                    type="button"
+                    title={t('common:Cancel')}
+                    onClick={() => setIsEditing(false)}
+                  >
+                    {t('common:Cancel')}
+                  </button>
+                </div>
               ) : (
                 <button className='
                   text-white 
@@ -362,6 +403,7 @@ const MyPage = ({
                   duration-300
                   cursor-pointer'
                   type="button"
+                  title={t('common:Edit')}
                   onClick={myPageEdit}
                 >
                   {t('common:Edit')}
@@ -404,6 +446,7 @@ const MyPage = ({
                 duration-300 
                 text-white 
                 font-bold'
+                title={t('common:DNFT Upgrade')}
                 onClick={upgradeDnft}>
                 {t('common:DNFT Upgrade')}
               </button>
@@ -421,6 +464,7 @@ const MyPage = ({
                 duration-300 
                 text-white 
                 font-bold'
+                title={t('common:Token Exchange')}
                 onClick={tokenExchange}>
                 {t('common:Token Exchange')}
               </button>
@@ -438,6 +482,7 @@ const MyPage = ({
                 duration-300 
                 text-white 
                 font-bold'
+                title={t('common:QR Code Scan')}
                 onClick={() => router.push('/qrscan')}>
                 {t('common:QR Code Scan')}
               </button>
@@ -450,7 +495,7 @@ const MyPage = ({
               userBadges.map((badge, i) => {
                 return (
                   <div className='w-[10rem] 
-                  lg:w-[8rem] 
+                    lg:w-[8rem] 
                     md:w-[6rem] 
                     sm:w-[6rem] 
                     xs:w-[5rem] 
@@ -462,8 +507,11 @@ const MyPage = ({
                     border 
                     rounded-full 
                     overflow-hidden 
-                    relative'
-                    key={i}>
+                    relative
+                    cursor-pointer'
+                    key={i}
+                    title='Badge Info'
+                    onClick={() => handleBadgeClick(badge)}>
                     <Image src={badge.image} layout='fill' objectFit='cover' alt='profile image' />
                   </div>
                 )
