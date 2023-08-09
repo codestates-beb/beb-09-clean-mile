@@ -5,7 +5,8 @@ resource "aws_launch_template" "client_template" {
   instance_type = "t2.micro"
   key_name      = aws_key_pair.key_pair.key_name
   vpc_security_group_ids = [
-    aws_security_group.client_security_group.id
+    aws_security_group.client_security_group.id,
+    aws_security_group.bastion_security_group.id,
   ]
 
   block_device_mappings {
@@ -14,6 +15,10 @@ resource "aws_launch_template" "client_template" {
       volume_size = 15
       volume_type = "gp2"
     }
+  }
+
+  network_interfaces {
+    associate_public_ip_address = true
   }
 
   iam_instance_profile {
@@ -78,6 +83,10 @@ resource "aws_launch_template" "admin_template" {
       volume_size = 15
       volume_type = "gp2"
     }
+  }
+
+  network_interfaces {
+    associate_public_ip_address = true
   }
 
   iam_instance_profile {
