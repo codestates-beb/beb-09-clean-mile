@@ -41,7 +41,14 @@ const eventSchema = new mongoose.Schema({
   status: {
     // 이벤트 진행 상태
     type: String,
-    enum: ['created', 'recruiting', 'progressing', 'finished', 'canceled'],
+    enum: [
+      'created',
+      'recruiting',
+      'recruited',
+      'progressing',
+      'finished',
+      'canceled',
+    ],
     default: 'created',
   },
   event_type: {
