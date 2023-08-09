@@ -56,6 +56,22 @@ const MyPage = ({
   const [postData, setPostData] = useState<Post[]>([]);
   const [eventsData, setEventsData] = useState<EventList[] | null>(null);
   const [localUserInfo, setLocalUserInfo] = useState<User>(userInfo);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    setIsLoggedIn(Boolean(sessionStorage.getItem('user')));
+
+    if (!isLoggedIn) {
+      Swal.fire({
+        icon: 'warning',
+        title: t('common:Warning'),
+        text: t('common:You need to log in'),
+        confirmButtonText: t('common:OK')
+      }).then(() => {
+        router.push('/login')
+      });
+    }
+  }, []);
 
   /**
    * 파일 업로드 이벤트를 처리

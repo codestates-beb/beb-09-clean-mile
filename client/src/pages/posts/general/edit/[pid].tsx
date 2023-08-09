@@ -1,4 +1,5 @@
 import React from 'react';
+import cookie from 'cookie';
 import { GetServerSidePropsContext } from 'next';
 import { Header, GeneralEdit, Footer } from '../../../../Components/Reference'
 import { ApiCaller } from '../../../../Components/Utils/ApiCaller';
@@ -18,6 +19,16 @@ export default GeneralEditPage;
 
 export const getServerSideProps = async (context: GetServerSidePropsContext) => {
   const { pid } = context.query;
+  const cookies = cookie.parse(context.req.headers.cookie || '');
+
+  if (!cookies.clientAccessToken) {
+    return {
+      redirect: {
+        destination: '/login',
+        permanent: false,
+      },
+    }
+  }
 
   const URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/posts/detail/${pid}`;
   const dataBody = null;

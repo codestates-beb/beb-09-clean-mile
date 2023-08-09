@@ -41,7 +41,14 @@ export const getServerSideProps = async (
 ) => {
   const cookiesObj = cookie.parse(context.req.headers.cookie || '');
 
-  console.log(cookiesObj)
+  if (!cookiesObj.clientAccessToken) {
+    return {
+      redirect: {
+        destination: '/login',
+        permanent: false,
+      },
+    }
+  }
 
   let cookiesStr = '';
   if (context.req && cookiesObj) {
