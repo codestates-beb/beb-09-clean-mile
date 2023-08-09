@@ -16,12 +16,20 @@ type Media = {
 const NoticeDetail = ({ noticeDetail, comments }: { noticeDetail: PostDetail, comments: Comment[] }) => {
   const { t } = useTranslation('common');
 
+  /**
+   * 게시물의 모든 미디어를 합치기 위한 배열
+   * 이미지와 비디오를 포함하며 각각의 미디어 타입에 따라 구분
+   * @type {Media[]}
+   */
   const allMedia: Media[] = [
     ...noticeDetail.media.img.map(i => ({ type: 'image' as const, url: i })),
     ...noticeDetail.media.video.map(v => ({ type: 'video' as const, url: v }))
   ];
   
-
+  /**
+   * 슬라이드 설정을 위한 useMemo 훅
+   * 전체 미디어의 수에 따라 슬라이드를 보여주는 설정을 결정
+   */
   const settings = useMemo(() => ({
     dots: true,
     infinite: false,
@@ -85,7 +93,6 @@ const NoticeDetail = ({ noticeDetail, comments }: { noticeDetail: PostDetail, co
             {noticeDetail.content}
           </div>
         </div>
-        <Comments postDetailId={noticeDetail._id} comments={comments} />
         <div className='w-full flex gap-3 xs:gap-2 justify-end my-16'>
           <Link href='/notice'
             className='
@@ -112,6 +119,7 @@ const NoticeDetail = ({ noticeDetail, comments }: { noticeDetail: PostDetail, co
             </button>
           </Link>
         </div>
+        <Comments postDetailId={noticeDetail._id} comments={comments} />
       </div>
     </>
   )

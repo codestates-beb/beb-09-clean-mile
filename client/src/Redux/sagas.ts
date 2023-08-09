@@ -9,11 +9,15 @@ import {
   showErrorAlert
 } from './actions';
 
+/**
+ * 주어진 액션으로부터 얻은 메시지를 토스트 알림으로 보여줌
+ * 
+ * @param {AlertActionTypes} action - 알림을 표시하기 위한 액션 타입
+ */
 function* showAlert(action: AlertActionTypes) {
   if ('payload' in action) {
     const { type, payload: { message } } = action;
 
-    // 'icon' and 'title' will change depending on the type of alert
     let icon: 'success' | 'error' = 'success';
     let title: string = 'Success';
 
@@ -33,10 +37,10 @@ function* showAlert(action: AlertActionTypes) {
       title: title,
       text: message,
       icon: icon,
-      toast: true, // This makes it a toast!
+      toast: true, 
       position: 'top-end', 
       showConfirmButton: false,
-      timer: 3000,  // Will disappear after 3 seconds
+      timer: 3000, 
       timerProgressBar: true,
       didOpen: (toast) => {
         toast.addEventListener('mouseenter', Swal.stopTimer)
@@ -45,10 +49,13 @@ function* showAlert(action: AlertActionTypes) {
     });
   }
 
-  // Close the alert in the state after it has been shown
+  // 알림이 표시된 후 상태에서 알림을 닫음
   yield put({ type: CLOSE_ALERT });
 }
 
+/**
+ * 알림 관련 액션을 모니터링하고 해당 액션 발생 시 showAlert 함수를 실행
+ */
 function* watchAlerts(): Generator<AllEffect<ForkEffect<never>>, void, unknown> {
   yield all([
     takeEvery([

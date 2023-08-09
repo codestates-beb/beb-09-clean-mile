@@ -83,6 +83,10 @@ const MyPage = ({
   const postTotalPages = postPagination?.totalPages;
   const eventTotalPages = eventPagination?.totalPages;
 
+  /**
+   * 게시글 페이지 번호 변경 시 데이터를 가져오는 함수
+   * @param {number} pageNumber - 가져올 페이지 번호
+   */
   const handlePostPageChange = async (pageNumber: number) => {
     try {
       const res = await fetchPageData('users/profile/postPagination', userInfo._id, pageNumber);
@@ -101,6 +105,10 @@ const MyPage = ({
     })();
   }, []);
 
+  /**
+   * 이벤트 페이지 번호 변경 시 데이터를 가져오는 함수
+   * @param {number} pageNumber - 가져올 페이지 번호
+   */
   const handleEventPageChange = async (pageNumber: number) => {
     try {
       const res = await fetchPageData('users/profile/eventPagination', userInfo._id, pageNumber);
@@ -119,6 +127,9 @@ const MyPage = ({
   }, []);
 
 
+  /**
+   * 마이 페이지 수정 상태로 전환하는 함수
+   */
   const myPageEdit = () => {
     setIsEditing(true);
   };
@@ -141,6 +152,10 @@ const MyPage = ({
     validateNickname();
   }, [nickname]);
 
+  /**
+   * 프로필 정보 변경 함수
+   * 닉네임과 이미지 변경 여부를 확인하여 해당 정보를 업데이트
+   */
   const profileChange = async () => {
     const hasNicknameChange = nickname !== userInfo.nickname;
     const hasImageChange = uploadFile !== null;
@@ -163,6 +178,12 @@ const MyPage = ({
     }
   };
 
+  /**
+   * API 응답 처리 함수
+   * @param {AxiosResponse} res - Axios로부터 받은 응답
+   * @param {'nickname' | 'banner_img_url'} type - 변경하려는 사용자 정보 유형
+   * @param {string} value - 변경하려는 값
+   */
   const handleResponse = (res: AxiosResponse, type: 'nickname' | 'banner_img_url', value: string) => {
     if (res.status === 200) {
       dispatch(showSuccessAlert(t('common:Profile change was successful')))
@@ -190,6 +211,9 @@ const MyPage = ({
     }
   }
 
+  /**
+   * 마일리지를 토큰으로 교환하는 함수
+   */
   const tokenExchange = async () => {
     try {
       const res = await exchangeToken(userInfo._id);
@@ -205,6 +229,9 @@ const MyPage = ({
     }
   };
 
+  /**
+   * DNFT 업그레이드 함수
+   */
   const upgradeDnft = async () => {
     Swal.fire({
       title: t('common:Upgrading'),
@@ -234,6 +261,11 @@ const MyPage = ({
     }
   };
 
+  /**
+   * 상태에 따른 클래스 이름 반환 함수
+   * @param {string} status - 상태 문자열
+   * @returns {string} - 상태에 따른 클래스명
+   */
   const getClassNameForStatus = (status: string) => {
     switch (status) {
       case 'created': return 'bg-main-insta';
@@ -245,7 +277,12 @@ const MyPage = ({
     }
   }
 
-  const getClassNameForType = (type: string) => {
+  /**
+   * 유형에 따른 클래스 이름 반환 함수
+   * @param {string} type - 유형 문자열
+   * @returns {string} - 유형에 따른 클래스명
+   */
+    const getClassNameForType = (type: string) => {
     switch (type) {
       case 'fcfs': return 'bg-main-yellow';
       case 'random': return 'bg-main-green';
@@ -253,6 +290,10 @@ const MyPage = ({
     }
   }
 
+  /**
+   * 뱃지 클릭 시 동작하는 함수
+   * @param {BadgeType} badge - 클릭된 뱃지 정보
+   */
   const handleBadgeClick = (badge: BadgeType) => {
     Swal.fire({
       title: badge.name,

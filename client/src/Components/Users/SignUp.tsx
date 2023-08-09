@@ -51,20 +51,30 @@ const SignUp = () => {
   /**
    * 비밀번호 가시성 상태를 전환하는 함수
    */
-    const passwordVisibility = () => {
-      setPwVisible(!isPwdVisible);
-    };
+  const passwordVisibility = () => {
+    setPwVisible(!isPwdVisible);
+  };
   
-    /**
-     * 비밀번호 확인 가시성 상태를 전환하는 함수      
-     */
-    const pwConfirmVisibility = () => {
-      setPwConfirmVisible(!isPwConfirmVisible);
-    };
+  /**
+   * 비밀번호 확인 가시성 상태를 전환하는 함수      
+   */
+  const pwConfirmVisibility = () => {
+    setPwConfirmVisible(!isPwConfirmVisible);
+  };
 
+  /**
+   * 폼 상태를 업데이트하는 함수
+   * @param {keyof typeof formState} key - 변경할 상태의 키
+   * @param {any} value - 새로운 값
+   */
   const updateFormState = (key: keyof typeof formState, value: any) => {
     setFormState(prev => ({ ...prev, [key]: value }));
   };
+
+  /**
+   * 주어진 유형에 따라 필드를 검증하는 함수
+   * @param {"email" | "nickname" | "password" | "passwordConfirm"} type - 검증할 필드 유형
+   */
   const validateField = (type: "email" | "nickname" | "password" | "passwordConfirm") => {
     switch (type) {
       case "email":
@@ -134,7 +144,7 @@ const SignUp = () => {
   }, [formState.pwConfirm]);
 
   /**
-   * 사용자가 입력한 이메일을 검증하고 인증 코드를 발송하는 역할
+   * 사용자가 입력한 이메일을 검증하고 인증 코드를 발송하는 함수
    *
    * @async
    * @function checkEmail

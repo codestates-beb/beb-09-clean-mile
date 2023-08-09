@@ -28,11 +28,16 @@ const Create = () => {
   const [selectEvent, setSelectEvent] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
+  /**
+   * 사용자의 로그인 상태를 세션 스토리지를 확인하여 설정
+   */
   useEffect(() => {
     setIsLoggedIn(Boolean(sessionStorage.getItem('user')));
   }, []);
 
-
+  /**
+   * 사용자 데이터를 기반으로 첫 번째 이벤트를 선택
+   */
   useEffect(() => {
     if (userData?.events && userData?.events.length > 0) {
       setSelectEvent(userData?.events[0]._id);
@@ -41,10 +46,17 @@ const Create = () => {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  /**
+   * 파일 선택을 위한 인풋을 트리거함
+   */
   const handleFileSelect = useCallback(() => {
     fileInputRef.current?.click();
   }, []);
 
+  /**
+   * 카테고리 선택 변경을 처리하는 함수
+   * @param {React.ChangeEvent<HTMLSelectElement>} e - 카테고리 변경 이벤트 객체
+   */
   const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedCategory = e.target.value;
     setSelectCategory(selectedCategory);
@@ -72,6 +84,9 @@ const Create = () => {
     setSelectedFile(files)
   };
 
+  /**
+   * 새로운 게시물을 생성하는 함수
+   */
   const createPost = async () => {
     try {
       const res = await userCreatePost(selectCategory, title, content, selectEvent, images, videos);

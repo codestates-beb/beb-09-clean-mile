@@ -9,6 +9,7 @@ import { IoIosArrowBack } from 'react-icons/io';
 import { showSuccessAlert, showErrorAlert } from '@/Redux/actions';
 import { userVerifyEvent } from '@/services/api';
 
+// 동적 임포트를 사용하여 서버 사이드 렌더링(SSR) 없이 "react-web-qr-reader"를 가져옴
 const QrReader = dynamic(() => import("react-web-qr-reader"), {
   ssr: false
 });
@@ -18,6 +19,10 @@ const QRScan = () => {
   const dispatch = useDispatch();
   const { t } = useTranslation('common');
 
+  /**
+   * 이벤트 토큰 데이터를 기반으로 사용자 이벤트를 확인하는 함수
+   * @param {string} tokenData - 이벤트 토큰 데이터
+   */
   const verifyEvent = async (tokenData: string) => {
     try {
       const res = await userVerifyEvent(tokenData);
@@ -45,12 +50,20 @@ const QRScan = () => {
     }
   }
 
+  /**
+   * QR 코드 스캔 결과를 처리하는 함수
+   * @param {any} scanData - 스캔된 QR 데이터
+   */
   const handleScan = (scanData: any) => {
     if (scanData) {
       verifyEvent(scanData.data);
     }
   };
 
+  /**
+   * QR 코드 스캔 중 발생한 오류를 처리하는 함수
+   * @param {any} err - 발생한 오류
+   */
   const handleError = (err: any) => {
     console.error(err);
   };

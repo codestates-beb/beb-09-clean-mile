@@ -26,7 +26,6 @@ export const getServerSideProps = async (context: GetServerSidePropsContext) => 
   const isJSON = false;
   const isCookie = false;
 
-  // username과 다른 쿼리 파라미터를 사용하여 필요한 데이터를 가져옵니다.
   const res = await ApiCaller.get(URL, dataBody, isJSON, headers, isCookie);
 
   let noticeDetail;
@@ -35,7 +34,7 @@ export const getServerSideProps = async (context: GetServerSidePropsContext) => 
     noticeDetail = res.data.data.post;
     comments = res.data.data.comment;
   } else {
-    // API 호출에 실패하면 오류 메시지를 출력하고 빈 객체를 반환합니다.
+    // API 호출에 실패하면 오류 메시지를 출력하고 빈 객체를 반환
     console.error('API 호출 실패:', res.data.message);
     noticeDetail = null;
     comments = null;
@@ -43,6 +42,6 @@ export const getServerSideProps = async (context: GetServerSidePropsContext) => 
 
 
 
-  // 이 데이터를 페이지의 props로 반환합니다.
+  // 이 데이터를 페이지의 props로 반환
   return { props: { noticeDetail, comments } };
 }

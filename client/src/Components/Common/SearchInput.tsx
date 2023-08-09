@@ -3,11 +3,36 @@ import useTranslation from 'next-translate/useTranslation';
 import { useRouter } from 'next/router';
 
 const SearchInput = () => {
+  /**
+   * 컴포넌트에서 사용하는 라우터 인스턴스를 가져옴
+   * @type {NextRouter}
+   */
   const router = useRouter();
+
+  /**
+   * 공통 번역 훅을 사용하여 번역 함수를 가져옴
+   * @type {TFunction}
+   */
   const { t } = useTranslation('common');
+
+  /**
+   * 사용자가 선택한 필터 옵션을 상태로 관리
+   * @type {string}
+   */
   const [search, setSearch] = useState('');
+
+  /**
+   * 사용자가 선택한 필터 옵션을 상태로 관리
+   * @type {string}
+   */
   const [filter, setFilter] = useState('title');
 
+  /**
+   * 주어진 기본 경로와 파라미터를 바탕으로 새로운 URL 경로를 생성
+   * @param {string} base - 기본 경로 
+   * @param {object} params - 추가될 파라미터 객체
+   * @returns {string} 생성된 URL 경로
+   */
   const generatePath = (base:string, params: object) => {
     const url = new URL(base, 'http://dummy.com'); // dummy domain to support URL API
 
@@ -18,6 +43,9 @@ const SearchInput = () => {
     return url.pathname + url.search;
   }
 
+  /**
+   * 현재 경로에 따라 검색 파라미터를 설정하고, 해당 파라미터를 사용하여 새로운 경로로 이동
+   */
   const handleSearch = () => {
     let path;
     let params;
