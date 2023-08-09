@@ -201,6 +201,7 @@ module.exports = (app) => {
       return res.status(200).json({
         success: true,
         message: '행사 참여 인증 및 뱃지 지급 성공',
+        badge: transferBadgeResult.data,
       });
     } catch (err) {
       console.error('Error:', err);
