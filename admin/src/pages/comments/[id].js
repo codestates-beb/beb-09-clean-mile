@@ -1,5 +1,4 @@
 import Head from "next/head";
-import React, { useEffect, useState } from "react";
 import axios from "axios";
 import cookie from "cookie";
 import { Box, Container, Stack, Typography, Button } from "@mui/material";

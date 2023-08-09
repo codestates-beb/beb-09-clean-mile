@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   Box,
   Card,
@@ -54,7 +53,7 @@ export const PostDetails = ({ post }) => {
                 fullWidth
                 label="Writer"
                 name="writer"
-                value={post.user_id === null ? "Unknwon" : post.user_id.nickname}
+                value={post.user_id?.nickname ? post.user_id.nickname : "Unknown"}
                 InputProps={{
                   readOnly: true,
                 }}
@@ -77,7 +76,7 @@ export const PostDetails = ({ post }) => {
                   fullWidth
                   label="Event ID"
                   name="event_id"
-                  value={event_id}
+                  value={post.event_id}
                   InputProps={{
                     readOnly: true,
                   }}

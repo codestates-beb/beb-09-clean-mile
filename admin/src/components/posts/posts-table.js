@@ -70,7 +70,7 @@ export const PostsTable = ({ items = [], pageCount, page, handlePageChange, path
                         <TableCell align="center">
                           {post.content ? `${post.content.slice(0, 20)}...` : "N/A"}
                         </TableCell>
-                        <TableCell align="center">{post.user_id.nickname}</TableCell>
+                        <TableCell align="center">{post.user_id?.nickname ? post.user_id.nickname : "Unknown"}</TableCell>
                         <TableCell align="center">{post.category ? post.category : "N/A"}</TableCell>
                         <TableCell align="center">
                           {post.view.count}

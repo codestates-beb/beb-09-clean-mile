@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   Box,
   Card,
@@ -7,7 +6,6 @@ import {
   TextField,
   Unstable_Grid2 as Grid,
 } from "@mui/material";
-import axios from "axios";
 
 export const CommentDetails = ({ comment = {} }) => {
   return (

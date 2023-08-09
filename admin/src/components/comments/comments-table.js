@@ -65,7 +65,7 @@ export const CommentsTable = ({ items = [], pageCount, page, handlePageChange })
                         <TableCell align="center">
                           {comment.content ? `${comment.content.slice(0, 20)}...` : "N/A"}
                         </TableCell>
-                        <TableCell align="center">{comment.user_id.nickname}</TableCell>
+                        <TableCell align="center">{comment.user_id?.nickname ? comment.user_id.nickname : "Unknown"}</TableCell>
                         <TableCell align="center">{comment.likes.count}</TableCell>
                         <TableCell align="center">{createdAt}</TableCell>
                       </TableRow>

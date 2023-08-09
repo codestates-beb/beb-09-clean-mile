@@ -29,6 +29,7 @@ export const EventEntryTable = ({
   const { id } = router.query;
 
   const handleUserSelected = (userId) => {
+    if (!userId) return;
     router.push(`/users/${userId}`);
   };
 
@@ -52,7 +53,7 @@ export const EventEntryTable = ({
         link.remove();
       }
     } catch (err) {
-      console.log(error);
+      console.log(err);
     }
   };
 
@@ -82,17 +83,21 @@ export const EventEntryTable = ({
                   <TableCell align="center">Email</TableCell>
                   <TableCell align="center">Wallet Address</TableCell>
                   <TableCell align="center">Badge</TableCell>
-                  <TableCell align="center">Token</TableCell>
+                  <TableCell align="center">Mileage</TableCell>
                   <TableCell align="center">Entry In</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {items.map((entry, i) => {
+                {items?.length === 0 ? <TableRow>
+                  <TableCell colSpan={7} align="center">
+                    등록된 사용자가 없습니다.
+                  </TableCell>
+                </TableRow> : items.map((entry, i) => {
                   return (
                     <TableRow
                       hover
                       key={entry._id}
-                      onClick={() => handleUserSelected(entry._id)}
+                      onClick={() => handleUserSelected(entry.user_id?._id)}
                       sx={{
                         "&:hover": {
                           cursor: "pointer",
@@ -103,14 +108,13 @@ export const EventEntryTable = ({
                         <Typography variant="subtitle2">{i + 1}</Typography>
                       </TableCell>
                       <TableCell align="center">
-                        <Typography variant="subtitle2">{entry.user_id.name}</Typography>
+                        <Typography variant="subtitle2">{entry.user_id?.name ? entry.user_id.name : "Unknown"}</Typography>
                       </TableCell>
-                      <TableCell align="center">{entry.user_id.email}</TableCell>
-                      <TableCell align="center">{`${
-                        entry.user_id.wallet.address.slice(0, 6) +
+                      <TableCell align="center">{entry.user_id?.email ? entry.user_id?.email : "Unknown"}</TableCell>
+                      <TableCell align="center">{entry.user_id?.wallet?.address ? `${entry.user_id.wallet.address.slice(0, 6) +
                         "..." +
                         entry.user_id.wallet.address.slice(-4)
-                      }`}</TableCell>
+                        }` : "N/A"}</TableCell>
                       <TableCell align="center">
                         {entry.is_nft_issued ? (
                           <Chip label="Issued" color="success" />
@@ -119,7 +123,7 @@ export const EventEntryTable = ({
                         )}
                       </TableCell>
                       <TableCell align="center">
-                        {entry.is_token_rewarded ? (
+                        {entry.is_mileage_rewarded ? (
                           <Chip label="Issued" color="success" />
                         ) : (
                           <Chip label="Pending" color="error" />
