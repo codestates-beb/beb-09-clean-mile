@@ -1,6 +1,6 @@
 import React from 'react';
 import { GetServerSidePropsContext } from 'next';
-import { Header, Notice, NewNotice, Footer } from '../../Components/Reference';
+import { Header, Notice, Footer } from '../../Components/Reference';
 import { ApiCaller } from '../../Components/Utils/ApiCaller';
 import { Post, Pagination } from '../../Components/Interfaces';
 

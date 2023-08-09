@@ -13,7 +13,7 @@ import { IoMdCreate } from 'react-icons/io';
 import { FiLogOut } from 'react-icons/fi';
 import { useMutation, useQueryClient, dehydrate } from 'react-query';
 import { Nav, NewNotice, hero_img, LanguageSwitch } from '../Reference';
-import { User, UserInfo, Post, Dnft } from '../Interfaces';
+import { Post } from '../Interfaces';
 import { showSuccessAlert, showErrorAlert } from '@/Redux/actions';
 import { useUserSession } from '@/hooks/useUserSession';
 import { getUserInfo, userLogout, getLatestNotice } from '@/services/api';

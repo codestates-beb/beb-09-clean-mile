@@ -1,11 +1,9 @@
 import React, { useEffect, useState, useRef } from 'react';
 import useTranslation from 'next-translate/useTranslation';
-import Swal from 'sweetalert2';
 import { useDispatch } from 'react-redux';
 import { useRouter } from 'next/router';
 import { AxiosError } from 'axios';
-import { ApiCaller } from '../Utils/ApiCaller';
-import { UserInfo, PostDetail } from '../Interfaces';
+import { PostDetail } from '../Interfaces';
 import { showSuccessAlert, showErrorAlert } from '@/Redux/actions';
 import { updatePost } from '@/services/api';
 
