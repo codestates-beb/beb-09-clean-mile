@@ -1,7 +1,7 @@
 import React from 'react';
-import { GetServerSidePropsContext } from 'next';
 import cookie from 'cookie';
 import axios from 'axios';
+import { GetServerSidePropsContext } from 'next';
 import { Header, EventDetail, Footer } from '../../../Components/Reference'
 import { ApiCaller } from '../../../Components/Utils/ApiCaller';
 import { EventDetailType, Comment } from '../../../Components/Interfaces';

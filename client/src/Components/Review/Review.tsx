@@ -1,14 +1,11 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { useInfiniteQuery, QueryFunctionContext } from 'react-query';
-import { useRouter } from 'next/router';
-import useTranslation from 'next-translate/useTranslation';
 import Image from 'next/image';
 import Link from 'next/link';
-import Swal from 'sweetalert2';
+import useTranslation from 'next-translate/useTranslation';
+import { useInfiniteQuery, QueryFunctionContext } from 'react-query';
+import { useRouter } from 'next/router';
 import { MdOutlineArrowForwardIos } from 'react-icons/md';
 import { SearchInput } from '../Reference';
-import { Post, User } from '../Interfaces';
-import { useUserSession } from '@/hooks/useUserSession';
 import { fetchReviews } from '@/services/api';
 
 interface Item {

@@ -8,9 +8,8 @@ import { useDispatch } from 'react-redux';
 import { useMutation, useQueryClient, dehydrate } from 'react-query';
 import { IoEyeSharp, IoEyeOffSharp } from 'react-icons/io5';
 import { Three, logo } from '../Reference';
-import { ApiCaller } from '../Utils/ApiCaller';
 import { LoginAPIInput, LoginAPIOutput } from '../Interfaces';
-import { showSuccessAlert, showErrorAlert } from '@/Redux/actions';
+import { showErrorAlert } from '@/Redux/actions';
 import { userLogin } from '@/services/api';
 
 const Login = () => {

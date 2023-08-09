@@ -10,7 +10,6 @@ import { IoEyeSharp, IoEyeOffSharp } from 'react-icons/io5';
 import { showSuccessAlert, showErrorAlert } from '@/Redux/actions';
 import { useMutation, useQueryClient, useQuery } from 'react-query';
 import { Three, logo, meta_mask_logo } from '../Reference';
-import { ApiCaller } from '../Utils/ApiCaller';
 import { userCheckEmail, userVerifyEmailCode, userCheckNickname, userSignUp } from '@/services/api';
 
 declare global {
