@@ -58,10 +58,14 @@ const Comments = ({ postDetailId, comments }: { postDetailId: string, comments: 
    */
   const likeComment = async (commentId: string) => {
     try {
-
       const res = await userLikeComment(commentId);
       if (res.status === 200) {
-        setLikedComments({ ...likedComments, [commentId]: !likedComments[commentId] });
+        const updatedLikes = { ...likedComments, [commentId]: !likedComments[commentId] };
+        setLikedComments(updatedLikes);
+
+        localStorage.setItem('likedComments', JSON.stringify(updatedLikes));
+      } else {
+        dispatch(showErrorAlert(res.data.message));
       }
 
     } catch (error) {
@@ -71,6 +75,13 @@ const Comments = ({ postDetailId, comments }: { postDetailId: string, comments: 
       dispatch(showErrorAlert(data?.message));
     }
   }
+
+  useEffect(() => {
+    const storedLikes = localStorage.getItem('likedComments');
+    if (storedLikes) {
+      setLikedComments(JSON.parse(storedLikes));
+    }
+  }, []);
 
   /**
    * 댓글 편집 모드로 전환하는 함수

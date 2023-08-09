@@ -203,7 +203,7 @@ const EventDetail = ({ eventDetail, comments }: { eventDetail: EventDetailType, 
               transition 
               duration-300
               text-center
-              ${eventDetail.status !== 'recruiting' ? 'bg-yellow-700' : 'bg-main-yellow hover:bg-yellow-500 '}`}
+              ${eventDetail.status !== 'recruiting' ? 'bg-yellow-500' : 'bg-main-yellow hover:bg-yellow-500 '}`}
               disabled={!isLoggedIn || eventDetail.status !== 'recruiting'}
               onClick={isLoggedIn ? entryEvent : undefined}>
               {t('common:Entry')}

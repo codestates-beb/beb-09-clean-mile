@@ -44,6 +44,7 @@ const Events = () => {
     switch (status) {
       case 'created': return 'bg-main-insta';
       case 'recruiting': return 'bg-main-blue';
+      case 'recruited': return 'bg-red-500';
       case 'progressing': return 'bg-main-green';
       case 'finished': return 'bg-main-red';
       case 'canceled': return 'bg-gray-500';

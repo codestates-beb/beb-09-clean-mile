@@ -12,7 +12,7 @@ import { BiSolidDownArrow, BiSolidUser } from 'react-icons/bi';
 import { IoMdCreate } from 'react-icons/io';
 import { FiLogOut } from 'react-icons/fi';
 import { useMutation, useQueryClient, dehydrate } from 'react-query';
-import { Nav, NewNotice, hero_img, LanguageSwitch } from '../Reference';
+import { Nav, NewNotice, hero_img, LanguageSwitch, logo_2 } from '../Reference';
 import { Post } from '../Interfaces';
 import { showSuccessAlert, showErrorAlert } from '@/Redux/actions';
 import { useUserSession } from '@/hooks/useUserSession';
@@ -183,7 +183,7 @@ const Header = () => {
     <>
       <div className="w-full mx-auto h-20 flex items-center justify-between px-10 sm:px-3 xs:px-3 border-b bg-white md:gap-6 sm:gap-4 xs:gap-4 sticky top-0 z-50">
         <div className="w-[15%] md:w-[30%] sm:w-full xs:w-[50%] h-full flex items-center sm:justify-start overflow-hidden">
-          <img src='/assets/images/clean_mile_logo_2.png' className='w-[50%] lg:w-[90%] md:w-[90%] sm:w-[80%] xs:w-[100%] cursor-pointer' alt="logo" onClick={() => navigateTo('/')} />
+          <Image src={logo_2} width={1500} height={100} className='w-[50%] lg:w-[90%] md:w-[90%] sm:w-[80%] xs:w-[100%] cursor-pointer' alt="logo" onClick={() => navigateTo('/')} />
         </div>
         <div className="w-3/4 md:w-full sm:w-full h-full flex justify-end items-center gap-10">
           <nav className='flex justify-center items-center md:hidden sm:hidden xs:hidden relative'>
@@ -264,7 +264,7 @@ const Header = () => {
               <LanguageSwitch />
             </ul>
           </nav>
-          <div className="flex gap-5">
+          <div className="flex gap-5 md:justify-center sm:justify-center xs:justify-center md:items-center sm:items-center xs:items-center">
             {isLoggedIn ? (
               <div className='flex items-center gap-3'>
                 <div className='w-[3rem] 
@@ -389,7 +389,8 @@ const Header = () => {
                   rounded-lg 
                   transition 
                   duration-300
-                  sm:text-sm"
+                  sm:text-sm
+                  xs:text-xs"
                   onClick={() => router.push('/login')}>
                   {t('common:Login')}
                 </button>
@@ -400,13 +401,15 @@ const Header = () => {
                   hover:text-white 
                   px-4 
                   sm:px-2
+                  xs:px-1
                   py-2 
                   sm:py-1
+                  xs:py-2
                   rounded-lg 
                   transition 
                   duration-300
                   sm:text-sm
-                  "
+                  xs:text-xs"
                   onClick={() => router.push('/signup')}>
                   {t('common:Register')}
                 </button>
