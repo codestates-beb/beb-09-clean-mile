@@ -2,7 +2,7 @@ import React from "react";
 import Head from "next/head";
 import cookie from 'cookie';
 import axios from "axios";
-import { Box, Container, Stack, Typography, Button } from "@mui/material";
+import { Box, Container, Stack, Typography } from "@mui/material";
 import { Layout as DashboardLayout } from "src/layouts/dashboard/layout";
 import { EventEditForm } from "src/components/events/event-edit-form";
 

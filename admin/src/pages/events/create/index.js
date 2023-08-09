@@ -1,5 +1,5 @@
 import Head from "next/head";
-import { Box, Container, Stack, Typography, Button } from "@mui/material";
+import { Box, Container, Stack, Typography } from "@mui/material";
 import { Layout as DashboardLayout } from "src/layouts/dashboard/layout";
 import { EventCreateForm } from "src/components/events/event-create-form";
 

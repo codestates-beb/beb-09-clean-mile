@@ -23,7 +23,7 @@ export const EventQRCodeLoader = ({ eventId }) => {
           confirmButtonColor: "#6BCB77",
         }).then(() => {
           Swal.close();
-          setQRcode(res.data.data);
+          setQRCode(res.data.data);
         });
       } else {
         Swal.fire({
