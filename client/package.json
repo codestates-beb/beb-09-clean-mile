@@ -43,6 +43,7 @@
     "redux-devtools-extension": "^2.13.9",
     "redux-saga": "^1.2.3",
     "redux-thunk": "^2.4.2",
+    "sharp": "^0.32.4",
     "slick-carousel": "^1.8.1",
     "sweetalert2": "^11.7.20",
     "sweetalert2-react-content": "^5.0.7",

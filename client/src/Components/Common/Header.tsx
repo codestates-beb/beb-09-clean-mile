@@ -17,8 +17,6 @@ import { User, UserInfo, Post, Dnft } from '../Interfaces';
 import { showSuccessAlert, showErrorAlert } from '@/Redux/actions';
 import { useUserSession } from '@/hooks/useUserSession';
 import { getUserInfo, userLogout, getLatestNotice } from '@/services/api';
-
-
 interface AxiosError<T = any> extends Error {
   config: AxiosRequestConfig;
   code?: string;
@@ -26,18 +24,16 @@ interface AxiosError<T = any> extends Error {
   response?: AxiosResponse<T>;
 }
 
-
 const Header = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
   const dispatch = useDispatch();
   const { t } = useTranslation('common');
-  const userData = useUserSession();
+  const { userData, setUserData } = useUserSession();
 
   const [isOpen, setIsOpen] = useState(false);
   const [isMenu, setIsMenu] = useState(false);
   const [isUserMenuOpen, setUserMenuOpen] = useState(false);
-  const [dnftData, setDnftData] = useState<Dnft | null>(null);
   const [latestNotice, setLatestNotice] = useState<Post | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
@@ -68,7 +64,7 @@ const Header = () => {
    * @returns {UseMutationResult} 리액트 쿼리의 useMutation hook으로부터 반환되는 결과 객체
    */
   const loginMutation = useMutation(getUserInfo, {
-    onSuccess: (data: UserInfo) => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries('user_info');
       queryClient.setQueryData('user_info', data);
 
@@ -81,6 +77,7 @@ const Header = () => {
       userInfoCache.queries = dehydratedState.queries.filter((query) => query.queryKey === 'user_info');
 
       sessionStorage.setItem('user_info', JSON.stringify(userInfoCache));
+      setUserData(data.data.data);
     },
     onError: (error) => {
       console.log('Mutation Error: ', error);
@@ -111,7 +108,7 @@ const Header = () => {
 
     if (res.status === 200) {
       dispatch(showSuccessAlert(res.data.message));
-      router.replace('/');
+      router.push('/');
       clearSession();
     } else {
       dispatch(showErrorAlert(res.data.message));
@@ -159,6 +156,7 @@ const Header = () => {
     }
     fetchLatestNotice();
   }, []);
+
   return (
     <>
       <div className="w-full mx-auto h-20 flex items-center justify-between px-10 sm:px-3 xs:px-3 border-b bg-white md:gap-6 sm:gap-4 xs:gap-4 sticky top-0 z-50">

@@ -1,3 +1,4 @@
 .terraform*
 terraform*
-private_key.pem
+clean-mile-key-pair.pem
+setup*

@@ -23,7 +23,7 @@ type Media = {
 const GeneralDetail = ({ postDetail, comments }: { postDetail: PostDetail, comments: Comment[] }) => {
   const router = useRouter();
   const dispatch = useDispatch();
-  const userData = useUserSession();
+  const { userData } = useUserSession();
   const { t } = useTranslation('common');
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -36,7 +36,7 @@ const GeneralDetail = ({ postDetail, comments }: { postDetail: PostDetail, comme
     ...postDetail.media.img.map(i => ({ type: 'image' as const, url: i })),
     ...postDetail.media.video.map(v => ({ type: 'video' as const, url: v }))
   ];
-  
+
 
   const settings = useMemo(() => ({
     dots: true,
@@ -63,7 +63,7 @@ const GeneralDetail = ({ postDetail, comments }: { postDetail: PostDetail, comme
 
     if (res.status === 200) {
       dispatch(showSuccessAlert(res.data.message));
-      router.replace('/general');
+      router.replace('/posts/general');
     } else {
       dispatch(showErrorAlert(res.data.message));
     }

@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import Image from 'next/image';
 import useTranslation from 'next-translate/useTranslation';
 import { useRouter } from 'next/router';
-import { hero_img, insta_icon, insta_logo } from '../Reference';
+import { hero_img, default_banner, dummy_1, dummy_2, dummy_3, dummy_4, dummy_5, dummy_6, dummy_7, dummy_8 } from '../Reference';
 
 const Main = () => {
   const router = useRouter();
@@ -10,8 +10,15 @@ const Main = () => {
 
   const dummy = [
     { id: 1, image: hero_img, insta_id: 'et', insta_content: 'Et neque dolores quia veritatis rerum aliquam labore asperiores.Dolorem sequi itaque velit nihil natus fuga.Quis alias voluptas repudiandae iusto inventore neque.Et consequatur dolorum.' },
-    { id: 2, image: insta_icon, insta_id: 'rem', insta_content: 'Ea maxime dolore quam doloremque dolores exercitationem.' },
-    { id: 3, image: insta_logo, insta_id: 'voluptas', insta_content: 'Porro dolorem tenetur animi aperiam ea autem.' },
+    { id: 2, image: default_banner, insta_id: 'rem', insta_content: 'Ea maxime dolore quam doloremque dolores exercitationem.' },
+    { id: 3, image: dummy_1, insta_id: 'voluptas', insta_content: 'Porro dolorem tenetur animi aperiam ea autem.' },
+    { id: 4, image: dummy_2, insta_id: 'provident', insta_content: 'quaerat necessitatibus autem' },
+    { id: 5, image: dummy_3, insta_id: 'est', insta_content: 'consequuntur nihil eos' },
+    { id: 6, image: dummy_4, insta_id: 'aut', insta_content: 'numquam voluptate molestiae' },
+    { id: 7, image: dummy_5, insta_id: 'quas', insta_content: 'aut similique minima' },
+    { id: 8, image: dummy_6, insta_id: 'ut', insta_content: 'sequi quaerat incidunt' },
+    { id: 9, image: dummy_7, insta_id: 'non', insta_content: 'eos esse repellendus' },
+    { id: 10, image: dummy_8, insta_id: 'reiciendis', insta_content: 'voluptatem vero ratione' },
   ]
 
   return (
@@ -77,7 +84,9 @@ const Main = () => {
                   <div className="mb-4">
                     <h2 className="text-xl font-bold hover:underline sm:text-lg xs:text-sm">{item.insta_id}</h2>
                   </div>
-                  <p className="text-gray-700 font-semibold lg:text-sm sm:text-xs xs:text-xs overflow-ellipsis overflow-hidden">{item.insta_content}</p>
+                  <p className="text-gray-700 font-semibold lg:text-sm sm:text-xs xs:text-xs overflow-ellipsis overflow-hidden">
+                  {item.insta_content.length > 30 ? item.insta_content.slice(0, 30) + '...' : item.insta_content}
+                  </p>
                 </div>
               </div>
             )

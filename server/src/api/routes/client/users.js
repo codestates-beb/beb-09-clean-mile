@@ -285,8 +285,10 @@ module.exports = (app) => {
   route.post('/logout', isAuth, (req, res) => {
     try {
       // 쿠키를 삭제하여 로그아웃 처리
-      res.clearCookie('clientAccessToken');
-      res.clearCookie('clientRefreshToken');
+      // res.clearCookie('clientAccessToken');
+      // res.clearCookie('clientRefreshToken');
+      res.cookie('clientAccessToken', '', { expires: new Date(0) });
+      res.cookie('clientRefreshToken', '', { expires: new Date(0) });
 
       return res.status(200).json({
         success: true,

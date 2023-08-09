@@ -10,7 +10,6 @@ resource "aws_ecr_repository" "ecr_repo" {
     var.common_tags,
     {
       ManagedBy   = "Terraform"
-      Environment = var.environment
     }
   )
 }

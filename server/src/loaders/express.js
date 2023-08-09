@@ -7,12 +7,14 @@ const config = require('../config');
 
 module.exports = (app) => {
   // Enable Cross Origin Resource Sharing to all origins by default
+  const corsOptions = {
+    origin:  config.origin,
+    credentials: true,
+    methods: ['GET', 'POST', 'OPTIONS', 'DELETE', 'PATCH'],
+  };
+
   app.use(
-    cors({
-      origin: config.origin,
-      credentials: true,
-      methods: ['GET', 'POST', 'OPTIONS', 'DELETE', 'PATCH'],
-    })
+    cors(corsOptions)
   );
 
   // application/x-www-form-urlencoded

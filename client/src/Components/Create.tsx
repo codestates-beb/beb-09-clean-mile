@@ -17,7 +17,7 @@ interface IFile extends File {
 const Create = () => {
   const router = useRouter();
   const dispatch = useDispatch();
-  const userData = useUserSession();
+  const { userData } = useUserSession();
   const { t } = useTranslation('common');
 
   const [selectCategory, setSelectCategory] = useState('');

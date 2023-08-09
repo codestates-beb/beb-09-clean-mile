@@ -9,35 +9,29 @@ variable "common_tags" {
 variable "ecr_repos" {
   type = map(object({
     name                 = string
-    environment          = string
     image_tag_mutability = string
     scan_on_push         = bool
+    name_tag             = string
   }))
   description = "ECR repositories to create"
   default = {
     "clean-mile-server" = {
       name                 = "clean-mile-server"
-      environment          = "production"
       image_tag_mutability = "MUTABLE"
       scan_on_push         = true
+      name_tag             = "Clean Mile Server"
     }
     "clean-mile-client" = {
       name                 = "clean-mile-client"
-      environment          = "production"
       image_tag_mutability = "MUTABLE"
       scan_on_push         = true
+      name_tag             = "Clean Mile Client"
     }
     "clean-mile-admin" = {
       name                 = "clean-mile-admin"
-      environment          = "production"
       image_tag_mutability = "MUTABLE"
       scan_on_push         = true
-    }
-    "clean-mile-daemon" = {
-      name                 = "clean-mile-daemon"
-      environment          = "production"
-      image_tag_mutability = "MUTABLE"
-      scan_on_push         = true
+      name_tag             = "Clean Mile Admin"
     }
   }
 }
@@ -63,23 +57,38 @@ variable "vpc_cidr" {
 variable "public_subnet_cidrs" {
   type        = list(string)
   description = "CIDR blocks for the public subnets"
-  default     = ["10.0.1.0/24", "10.0.2.0/24"]
+  default     = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
 }
 
 variable "private_subnet_cidrs" {
   type        = list(string)
   description = "CIDR blocks for the private subnets"
-  default     = ["10.0.3.0/24", "10.0.4.0/24"]
+  default     = ["10.0.4.0/24", "10.0.5.0/24"]
 }
 
 variable "availability_zones" {
   type        = list(string)
   description = "Availability zones to use for the subnets"
-  default     = ["ap-northeast-2a", "ap-northeast-2b"]
+  default     = ["ap-northeast-2a", "ap-northeast-2b", "ap-northeast-2c"]
 }
 
 variable "domain_name" {
   type        = string
   description = "Domain name for the hosted zone"
   default     = "clean-mile.co"
+}
+
+variable "manager_ip" {
+  type        = string
+  description = "IP address of the manager"
+}
+
+variable "mongo_vpc_id" {
+  type        = string
+  description = "Mongo Atlas VPC ID of the VPC to peer with"
+}
+
+variable "mongo_vpc_cidr" {
+  type        = string
+  description = "Mongo Atlas VPC CIDR block to peer with"
 }
