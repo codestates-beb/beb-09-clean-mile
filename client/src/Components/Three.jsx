@@ -1,6 +1,6 @@
 import React, { Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';       // react에서 three.js를 간편하게 활용할 수 있도록 하는 라이브러리
-import { OrbitControls, PerspectiveCamera, Stars, useGLTF, Environment   } from "@react-three/drei";
+import { OrbitControls, PerspectiveCamera, Stars, useGLTF } from "@react-three/drei";
 
 function Model({ url }) {
 	// useGLTF 훅을 통해 glTF 형식의 3D 모델을 불러옴
