@@ -12,12 +12,26 @@ const updateEventStatus = async (event) => {
     const currentTime = getKorDate();
 
     // status = 'created' -> 'recruiting'
-    if (event.status === 'created' && event.recruitment_start_at <= currentTime) {
+    if (
+      event.status === 'created' &&
+      event.recruitment_start_at <= currentTime
+    ) {
       event.status = 'recruiting';
     }
 
+    // status = 'recruiting' -> 'recruited'
+    if (
+      (event.status === 'recruiting' && event.remaining === 0) ||
+      (event.status === 'recruiting' && event.recruitment_end_at <= currentTime)
+    ) {
+      event.status = 'recruited';
+    }
+
     // status = 'recruiting' -> 'progressing'
-    if (event.status === 'recruiting' && event.event_start_at <= currentTime) {
+    if (
+      (event.status === 'recruiting' && event.event_start_at <= currentTime) ||
+      (event.status === 'recruited' && event.event_start_at <= currentTime)
+    ) {
       event.status = 'progressing';
     }
 
