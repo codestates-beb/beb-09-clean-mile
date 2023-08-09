@@ -270,6 +270,7 @@ const MyPage = ({
     switch (status) {
       case 'created': return 'bg-main-insta';
       case 'recruiting': return 'bg-main-blue';
+      case 'recruited': return 'bg-red-500';
       case 'progressing': return 'bg-main-green';
       case 'finished': return 'bg-main-red';
       case 'canceled': return 'bg-gray-500';
@@ -529,11 +530,11 @@ const MyPage = ({
               </button>
             </div>
           </div>
-          <div className={`w-full h-2/3 ${userBadges.length === 0 ? 'flex font-bold' : 'grid grid-cols-10'} lg:grid-cols-6 md:grid-cols-5 sm:grid-cols-3 xs:grid-cols-3 gap-4 justify-items-center bg-gray-200 rounded-xl px-6 py-6`}>
-            {userBadges.length === 0 ? (
+          <div className={`w-full h-2/3 ${userBadges?.length === 0 ? 'flex font-bold' : 'grid grid-cols-10'} lg:grid-cols-6 md:grid-cols-5 sm:grid-cols-3 xs:grid-cols-3 gap-4 justify-items-center bg-gray-200 rounded-xl px-6 py-6`}>
+            {userBadges?.length === 0 ? (
               <p className='w-full flex justify-center items-center'>{t('common:There are no registered badges')}</p>
             ) : (
-              userBadges.map((badge, i) => {
+              userBadges?.map((badge, i) => {
                 return (
                   <div className='w-[10rem] 
                     lg:w-[8rem] 

@@ -135,6 +135,7 @@ const Events = () => {
               <option className="text-sm xs:text-xs" value="all">{t('common:All')}</option>
               <option className="text-sm xs:text-xs" value="created">{t('common:Before proceeding')}</option>
               <option className="text-sm xs:text-xs" value="recruiting">{t('common:Recruiting')}</option>
+              <option className="text-sm xs:text-xs" value="recruited">{t('common:End of recruitment')}</option>
               <option className="text-sm xs:text-xs" value="progressing">{t('common:In progress')}</option>
               <option className="text-sm xs:text-xs" value="finished">{t('common:End of progress')}</option>
               <option className="text-sm xs:text-xs" value="canceled">{t('common:Cancel Progress')}</option>
@@ -180,6 +181,7 @@ const Events = () => {
                           switch (item.status) {
                             case 'created': return t('common:Before proceeding');
                             case 'recruiting': return t('common:Recruiting');
+                            case 'recruited': return t('common:End of recruitment')
                             case 'progressing': return t('common:In progress');
                             case 'finished': return t('common:End of progress');
                             case 'canceled': return t('common:Cancel Progress');

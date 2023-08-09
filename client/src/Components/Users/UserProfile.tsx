@@ -15,6 +15,14 @@ import { default_banner } from '../Reference';
 import { showSuccessAlert, showErrorAlert } from '@/Redux/actions';
 import { fetchPageData } from '@/services/api';
 
+type BadgeType = {
+  name: string;
+  description: string;
+  badge_type: string;
+  image: string;
+}
+
+
 const UserProfile = ({
   userInfo,
   postPagination,
