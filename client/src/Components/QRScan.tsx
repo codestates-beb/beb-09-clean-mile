@@ -1,6 +1,7 @@
 import React from "react";
 import dynamic from 'next/dynamic';
 import useTranslation from 'next-translate/useTranslation';
+import Swal from 'sweetalert2';
 import { useDispatch } from 'react-redux';
 import { AxiosError } from "axios";
 import { useRouter } from 'next/router';
@@ -21,11 +22,18 @@ const QRScan = () => {
     try {
       const res = await userVerifyEvent(tokenData);
       if (res.status === 200) {
-        dispatch(showSuccessAlert(res.data.message));
+        Swal.fire({
+          title: res.data.badge.name,
+          text: res.data.badge.description,
+          imageUrl: res.data.badge.image_url,
+          imageWidth: 400,
+          imageHeight: 200,
+          imageAlt: 'Badge Image'
+        });
         router.replace(`/users/mypage`);
-
       } else {
         dispatch(showErrorAlert(res.data.message));
+        router.back();
       }
     } catch (error) {
       const err = error as AxiosError;

@@ -130,7 +130,7 @@ const EventDetail = ({ eventDetail, comments }: { eventDetail: EventDetailType, 
         </div>
         <Comments postDetailId={eventDetail._id} comments={comments} />
         <div className='w-full flex gap-3 xs:gap-2 justify-end my-16'>
-          {userData?.events.some(eventData => eventData._id === eventDetail._id) ? (
+          {userData?.events?.some(eventData => eventData._id === eventDetail._id) ? (
             <button className='
                 w-[5%]
                 lg:w-[15%]
@@ -175,8 +175,7 @@ const EventDetail = ({ eventDetail, comments }: { eventDetail: EventDetailType, 
               onClick={isLoggedIn ? entryEvent : undefined}>
               {t('common:Entry')}
             </button>
-          )
-          }
+          )}
           <Link href='/posts/events'
             className='
             w-[5%]
