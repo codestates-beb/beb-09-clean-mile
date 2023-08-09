@@ -206,7 +206,7 @@ const ReviewDetail = ({ reviewDetail, comments }: { reviewDetail: PostDetail, co
             <p>{reviewDetail.content}</p>
           </div>
         </div>
-        <div className='w-full flex gap-3 xs:gap-2 justify-end my-16'>
+        <div className='w-full flex gap-3 xs:gap-2 justify-end my-6'>
           {isLoggedIn && userData?.user._id === reviewDetail.user_id._id ? (
             <>
               <button className='

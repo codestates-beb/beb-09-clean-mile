@@ -206,7 +206,7 @@ const GeneralDetail = ({ postDetail, comments }: { postDetail: PostDetail, comme
             <p>{postDetail.content}</p>
           </div>
         </div>
-        <div className='w-full flex gap-3 xs:gap-2 justify-end my-16'>
+        <div className='w-full flex gap-3 xs:gap-2 justify-end my-6'>
           {isLoggedIn && userData?.user._id === postDetail.user_id?._id ? (
             <>
               <button className='

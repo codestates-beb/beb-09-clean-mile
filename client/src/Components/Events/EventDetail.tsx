@@ -103,7 +103,7 @@ const EventDetail = ({ eventDetail, comments }: { eventDetail: EventDetailType, 
             <p>{eventDetail.view.count}</p>
           </div>
         </div>
-        <div className='w-[90%] max-h-full flex items-center justify-center whitespace-pre-wrap'>
+        <div className='w-[90%] max-h-full flex items-center justify-center gap-2 whitespace-pre-wrap'>
           <div className='w-[60%] h-[60%] mx-auto mb-10'>
             <div className="w-full h-full flex justify-center items-center">
               {Array.isArray(eventDetail.poster_url)
@@ -162,7 +162,7 @@ const EventDetail = ({ eventDetail, comments }: { eventDetail: EventDetailType, 
             </p>
           </div>
         </div>
-        <div className='w-full flex gap-3 xs:gap-2 justify-end my-16'>
+        <div className='w-full flex gap-3 xs:gap-2 justify-end my-6'>
           {userData?.events?.some(eventData => eventData._id === eventDetail._id) ? (
             <button className='
                 w-[5%]
@@ -173,7 +173,9 @@ const EventDetail = ({ eventDetail, comments }: { eventDetail: EventDetailType, 
                 border 
                 rounded-2xl 
                 xs:rounded-lg
-                p-3
+                p-2
+                lg:p-2
+                md:p-2
                 sm:p-2 
                 xs:p-1
                 text-white 
@@ -195,7 +197,9 @@ const EventDetail = ({ eventDetail, comments }: { eventDetail: EventDetailType, 
               border 
               rounded-2xl 
               xs:rounded-lg
-              p-3
+              p-2
+              lg:p-2
+              md:p-2
               sm:p-2 
               xs:p-1
               text-white 
