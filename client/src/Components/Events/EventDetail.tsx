@@ -161,7 +161,6 @@ const EventDetail = ({ eventDetail, comments }: { eventDetail: EventDetailType, 
             </p>
           </div>
         </div>
-        <Comments postDetailId={eventDetail._id} comments={comments} />
         <div className='w-full flex gap-3 xs:gap-2 justify-end my-16'>
           {userData?.events?.some(eventData => eventData._id === eventDetail._id) ? (
             <button className='
@@ -234,6 +233,7 @@ const EventDetail = ({ eventDetail, comments }: { eventDetail: EventDetailType, 
             </button>
           </Link>
         </div>
+        <Comments postDetailId={eventDetail._id} comments={comments} />
       </div>
     </>
   )

@@ -93,7 +93,6 @@ const NoticeDetail = ({ noticeDetail, comments }: { noticeDetail: PostDetail, co
             {noticeDetail.content}
           </div>
         </div>
-        <Comments postDetailId={noticeDetail._id} comments={comments} />
         <div className='w-full flex gap-3 xs:gap-2 justify-end my-16'>
           <Link href='/notice'
             className='
@@ -120,6 +119,7 @@ const NoticeDetail = ({ noticeDetail, comments }: { noticeDetail: PostDetail, co
             </button>
           </Link>
         </div>
+        <Comments postDetailId={noticeDetail._id} comments={comments} />
       </div>
     </>
   )

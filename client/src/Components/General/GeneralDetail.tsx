@@ -206,7 +206,6 @@ const GeneralDetail = ({ postDetail, comments }: { postDetail: PostDetail, comme
             <p>{postDetail.content}</p>
           </div>
         </div>
-        <Comments postDetailId={postDetail._id} comments={comments} />
         <div className='w-full flex gap-3 xs:gap-2 justify-end my-16'>
           {isLoggedIn && userData?.user._id === postDetail.user_id?._id ? (
             <>
@@ -309,6 +308,7 @@ const GeneralDetail = ({ postDetail, comments }: { postDetail: PostDetail, comme
             </Link>
           )}
         </div>
+        <Comments postDetailId={postDetail._id} comments={comments} />
       </div>
     </>
   )

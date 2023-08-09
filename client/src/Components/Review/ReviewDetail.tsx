@@ -206,7 +206,6 @@ const ReviewDetail = ({ reviewDetail, comments }: { reviewDetail: PostDetail, co
             <p>{reviewDetail.content}</p>
           </div>
         </div>
-        <Comments postDetailId={reviewDetail._id} comments={comments} />
         <div className='w-full flex gap-3 xs:gap-2 justify-end my-16'>
           {isLoggedIn && userData?.user._id === reviewDetail.user_id._id ? (
             <>
@@ -309,6 +308,7 @@ const ReviewDetail = ({ reviewDetail, comments }: { reviewDetail: PostDetail, co
             </Link>
           )}
         </div>
+        <Comments postDetailId={reviewDetail._id} comments={comments} />
       </div>
     </>
   )
