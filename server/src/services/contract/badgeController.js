@@ -195,7 +195,6 @@ const transferBadge = async (recipient, eventId) => {
     // const event = await EventModel.findById(eventId);
 
     const badge = await BadgeModel.findOne({ event_id: eventId });
-    console.log(badge);
     if (!badge) return { success: false, message: '뱃지 데이터 요청 실패' };
     const tokenId = badge.badge_id;
 

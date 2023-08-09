@@ -143,15 +143,12 @@ module.exports = (app) => {
 
       // 행사 참여 인증 후 이벤트 아이디 반환
       const verify_token = await eventsController.verifyQRAuth(token, user_id);
-      console.log(verify_token);
       if (!verify_token.success) {
         return res.status(400).json({
           success: false,
           message: verify_token.message,
         });
       }
-
-      console.log(user_id, verify_token.event_id);
 
       // 뱃지 지급 후 뱃지 점수 반환
       const transferBadgeResult = await badgeController.transferBadge(user_id, verify_token.event_id);
