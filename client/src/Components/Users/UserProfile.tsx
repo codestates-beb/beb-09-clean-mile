@@ -70,6 +70,21 @@ const UserProfile = ({
     }
   };
 
+  /**
+   * 뱃지 클릭 시 동작하는 함수
+   * @param {BadgeType} badge - 클릭된 뱃지 정보
+   */
+    const handleBadgeClick = (badge: BadgeType) => {
+      Swal.fire({
+        title: badge.name,
+        html: `<p>${badge.badge_type}</p><br><p>${badge.description}</p>`,
+        imageUrl: badge.image,
+        imageWidth: 400,
+        imageHeight: 200,
+        imageAlt: 'Badge Image'
+      });
+    }
+
   return (
     <div className='w-full min-h-screen'>
       <div className='w-full h-[30rem] md:h-[25rem] sm:h-[20rem] xs:h-[15rem] border-2 border-dashed rounded-xl'>
@@ -136,23 +151,24 @@ const UserProfile = ({
           ) : (
             userBadges?.map((badge, i) => {
               return (
-                <div
-                  className='w-[10rem] 
-                    lg:w-[8rem] 
-                    md:w-[6rem] 
-                    sm:w-[6rem] 
-                    xs:w-[5rem] 
-                    h-[10rem] 
-                    lg:h-[8rem] 
-                    md:h-[6rem] 
-                    sm:h-[6rem] 
-                    xs:h-[5rem] 
-                    border 
-                    rounded-full 
-                    overflow-hidden 
-                    relative'
+                <div className='
+                  w-[10rem] 
+                  lg:w-[8rem] 
+                  md:w-[6rem] 
+                  sm:w-[6rem] 
+                  xs:w-[5rem] 
+                  h-[10rem] 
+                  lg:h-[8rem] 
+                  md:h-[6rem] 
+                  sm:h-[6rem] 
+                  xs:h-[5rem] 
+                  border 
+                  rounded-full 
+                  overflow-hidden 
+                  relative'
                   key={i}
-                >
+                  title='Badge Info'
+                  onClick={() => {handleBadgeClick}}>
                   <Image
                     src={badge.image}
                     layout='fill'

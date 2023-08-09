@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import Image from 'next/image';
 import useTranslation from 'next-translate/useTranslation';
 import { useRouter } from 'next/router';
-import { hero_img, default_banner, dummy_1, dummy_2, dummy_3, dummy_4, dummy_5, dummy_6, dummy_7, dummy_8 } from '../Reference';
+import { hero_img, insta_logo, insta_icon, default_banner, dummy_1, dummy_2, dummy_3, dummy_4, dummy_5, dummy_6, dummy_7, dummy_8 } from '../Reference';
 
 const Main = () => {
   const router = useRouter();
@@ -26,7 +26,7 @@ const Main = () => {
       <div className='hero-bg py-[10%] md:py-[2%] sm:py-[5%] xs:py-[4%] px-[20%] lg:px-[5%] md:px-[3%] sm:px-[1%] xs:px-[2%]'>
         <div className='w-full h-full flex flex-col justify-center md:justify-end sm:justify-end xs:justify-end md:items-center sm:items-center xs:items-center md:pb-5 sm:pb-2 xs:pb-2 items-end gap-12 lg:gap-6 md:gap-4 sm:gap-4 xs:gap-4 text-right md:text-center sm:text-center xs:text-center'>
           <h1 className='text-7xl font-bold lg:text-4xl md:text-3xl sm:text-2xl xs:text-lg'>Clean Mile</h1>
-          <p className='whitespace-normal w-[60%] lg:w-[70%] md:w-[90%] sm:w-[100%] xs:w-[100%] lg:text-sm md:text-xs sm:text-xs xs:text-xs font-semibold md:font-semibold sm:font-semibold xs:font-semibold'>
+          <p className='whitespace-normal w-[60%] lg:w-[60%] md:w-[90%] sm:w-[100%] xs:w-[100%] lg:text-sm md:text-xs sm:text-xs xs:text-xs font-semibold md:font-semibold sm:font-semibold xs:font-semibold'>
             <span>
               {t('common:It is a community service that aims to collect information about environmental protection events in one place to improve accessibility and user-friendliness, and to encourage active participation by issuing certification badges (NFTs) to users who participate in events')}
             </span>
@@ -46,8 +46,8 @@ const Main = () => {
       </div>
       <div className='my-12 flex flex-col items-center gap-12 xs:gap-6'>
         <div className='flex flex-col items-center gap-12'>
-          <img src='/assets/images/insta_logo.png' alt='instagram logo' className='w-[65%] lg:w-[65%] md:w-[45%] sm:w-[35%] xs:w-[35%]' />
-          <img src='/assets/images/insta_icon.png' alt='instagram icon' className='w-[55%] lg:w-[55%] md:w-[35%] sm:w-[25%] xs:w-[25%]' />
+          <Image src={insta_logo} alt='instagram logo' width={1500} height={100} className='w-[65%] lg:w-[65%] md:w-[45%] sm:w-[35%] xs:w-[35%]' />
+          <Image src={insta_icon} alt='instagram icon' width={1500} height={100} className='w-[55%] lg:w-[55%] md:w-[35%] sm:w-[25%] xs:w-[25%]' />
         </div>
         <div className='flex justify-center gap-12 sm:gap-6 xs:gap-2'>
           <p className='font-semibold text-main-insta text-3xl lg:text-2xl md:text-xl sm:text-lg xs:text-xs'>#Plogging</p>
