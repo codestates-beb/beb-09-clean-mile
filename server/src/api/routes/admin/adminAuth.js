@@ -1,3 +1,4 @@
+const config = require('../../../config');
 const Router = require('express');
 const multer = require('multer');
 const jwtUtil = require('../../../utils/jwtAdminUtil');
@@ -75,9 +76,22 @@ module.exports = (app) => {
    */
   route.post('/logout', isAdminAuth, async (req, res) => {
     try {
-      // 쿠키를 삭제하여 로그아웃 처리
-      res.clearCookie('accessToken');
-      res.clearCookie('refreshToken');
+      // 로그아웃 시 쿠키 덮어쓰기
+      res.cookie('accessToken', '', {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'None',
+        expires: new Date(0), // 즉시 만료
+        domain: config.cookieDomain.admin,
+      });
+
+      res.cookie('refreshToken', '', {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'None',
+        expires: new Date(0), // 즉시 만료
+        domain: config.cookieDomain.admin,
+      });
 
       return res.status(200).json({
         success: true,
