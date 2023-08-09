@@ -9,16 +9,16 @@ const Main = () => {
   const { t } = useTranslation('common');
 
   const dummy = [
-    { id: 1, image: hero_img, insta_id: 'et', insta_content: 'Et neque dolores quia veritatis rerum aliquam labore asperiores.Dolorem sequi itaque velit nihil natus fuga.Quis alias voluptas repudiandae iusto inventore neque.Et consequatur dolorum.' },
-    { id: 2, image: default_banner, insta_id: 'rem', insta_content: 'Ea maxime dolore quam doloremque dolores exercitationem.' },
-    { id: 3, image: dummy_1, insta_id: 'voluptas', insta_content: 'Porro dolorem tenetur animi aperiam ea autem.' },
-    { id: 4, image: dummy_2, insta_id: 'provident', insta_content: 'quaerat necessitatibus autem' },
-    { id: 5, image: dummy_3, insta_id: 'est', insta_content: 'consequuntur nihil eos' },
-    { id: 6, image: dummy_4, insta_id: 'aut', insta_content: 'numquam voluptate molestiae' },
-    { id: 7, image: dummy_5, insta_id: 'quas', insta_content: 'aut similique minima' },
-    { id: 8, image: dummy_6, insta_id: 'ut', insta_content: 'sequi quaerat incidunt' },
-    { id: 9, image: dummy_7, insta_id: 'non', insta_content: 'eos esse repellendus' },
-    { id: 10, image: dummy_8, insta_id: 'reiciendis', insta_content: 'voluptatem vero ratione' },
+    { id: 1, image: hero_img, insta_id: 'illiilliil', insta_content: '바다와 함께하는 작은 발견. 비치코밍의 기쁨! \n#비치코밍 #해변의보물 #자연과함께' },
+    { id: 2, image: default_banner, insta_id: 'hyo_o', insta_content: '플로깅은 운동이자 환경 보호! 오늘도 성공적! \n#플로깅챌린지 #조깅과환경보호' },
+    { id: 3, image: dummy_1, insta_id: 'beach_combing', insta_content: '해변에서 발견한 쓰레기들. 나의 작은 노력으로 깨끗한 바다를 \n#비치코밍 #바다를지켜요' },
+    { id: 4, image: dummy_2, insta_id: 'iris_0502', insta_content: 'Your personal environmental campaign! Small actions, significant changes for the earth. 💚 \n#PloggingMovement #FitPlanet' },
+    { id: 5, image: dummy_3, insta_id: 'cheery_y_23', insta_content: 'Clean up as you work out with plogging! Every step counts towards a greener earth. 💪🌎 \n#PloggingForThePlanet #StepsTowardsChange' },
+    { id: 6, image: dummy_4, insta_id: 'x_x__y21', insta_content: '플로깅으로 두 마리 토끼 잡기: 건강도 챙기고 환경도 지키기 \n#플로깅운동 #환경보호' },
+    { id: 7, image: dummy_5, insta_id: 'jisoo_03', insta_content: 'Where fitness meets environmental care! Boost your health + Save the planet = 🍀 \n#PloggingBenefits #HealthMeetsEco' },
+    { id: 8, image: dummy_6, insta_id: 'sang_hyun_25', insta_content: '가족과 함께하는 비치코밍의 특별한 순간! 바다의 보물을 찾는 우리 가족의 작은 모험. 🐚 \n#FamilyBeachDay #TreasuresInTheSand' },
+    { id: 9, image: dummy_7, insta_id: 'pocarisweat', insta_content: '비치코밍 키트 증정 이벤트! 🎉 여름의 기억을 바다에서 찾아보세요. 증정 키트로 시작해보는 비치코밍, 어떠세요? 참여 방법은 프로필 링크 클릭! \n#비치코밍시작 #여름의기억' },
+    { id: 10, image: dummy_8, insta_id: 'haeundae_beach_combing', insta_content: '🏖️🚯 바다를 사랑하는 우리, 오늘도 비치코밍으로 깨끗한 해변 만들기 \n#비치코밍 #해변을지키자' },
   ]
 
   return (
@@ -51,7 +51,7 @@ const Main = () => {
         </div>
         <div className='flex justify-center gap-12 sm:gap-6 xs:gap-2'>
           <p className='font-semibold text-main-insta text-3xl lg:text-2xl md:text-xl sm:text-lg xs:text-xs'>#Plogging</p>
-          <p className='font-semibold text-main-insta text-3xl lg:text-2xl md:text-xl sm:text-lg xs:text-xs'>#BeachComing</p>
+          <p className='font-semibold text-main-insta text-3xl lg:text-2xl md:text-xl sm:text-lg xs:text-xs'>#BeachCombing</p>
           <p className='font-semibold text-main-insta text-3xl lg:text-2xl md:text-xl sm:text-lg xs:text-xs'>#Garbage</p>
         </div>
         <div className='w-full grid grid-cols-5 gap-24 lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-3 xs:grid-cols-3 lg:gap-18 md:gap-14 sm:gap-6 xs:gap-2'>
@@ -82,10 +82,10 @@ const Main = () => {
                 </div>
                 <div className='p-6 sm:p-3 xs:p-2 w-full'>
                   <div className="mb-4">
-                    <h2 className="text-xl font-bold hover:underline sm:text-lg xs:text-sm">{item.insta_id}</h2>
+                    <h2 className="text-xl font-bold hover:underline sm:text-lg xs:text-sm">@{item.insta_id}</h2>
                   </div>
                   <p className="text-gray-700 font-semibold lg:text-sm sm:text-xs xs:text-xs overflow-ellipsis overflow-hidden">
-                  {item.insta_content.length > 30 ? item.insta_content.slice(0, 30) + '...' : item.insta_content}
+                  {item.insta_content.length > 50 ? item.insta_content.slice(0, 50) + '...' : item.insta_content}
                   </p>
                 </div>
               </div>

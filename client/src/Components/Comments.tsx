@@ -160,7 +160,7 @@ const Comments = ({ postDetailId, comments }: { postDetailId: string, comments: 
 
   return (
     <>
-      <div className='w-full flex flex-col gap-4'>
+      <div className='w-full flex flex-col gap-4 my-6'>
         <h2 className='text-xl font-bold xs:text-base'>{t('common:Comment')}</h2>
         {comments.length !== 0 ? (
           comments.map((comment, i) => {
