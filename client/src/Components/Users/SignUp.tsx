@@ -6,8 +6,6 @@ import useTranslation from 'next-translate/useTranslation';
 import { AxiosError } from 'axios';
 import { useRouter } from 'next/router';
 import { useDispatch } from 'react-redux';
-import { RiKakaoTalkFill } from 'react-icons/ri';
-import { FcGoogle } from 'react-icons/fc';
 import { IoEyeSharp, IoEyeOffSharp } from 'react-icons/io5';
 import { showSuccessAlert, showErrorAlert } from '@/Redux/actions';
 import { useMutation, useQueryClient, useQuery } from 'react-query';
@@ -589,32 +587,6 @@ const SignUp = () => {
                 disabled={!(formState.email.length > 0 && formState.name.length > 0 && formState.phoneNumber.length > 0 && formState.password.length > 0 && formState.nickname.length > 0 && userAddressQuery.data)} onClick={signUp}>
                 {t('common:SignUp')}
               </button>
-              <div className='w-[80%] lg:w-[70%] md:w-full sm:w-full xs:w-full flex sm:flex-col xs:flex-col sm:items-center xs:items-center gap-6'>
-                <button className='
-                  w-[80%] 
-                  sm:w-full 
-                  xs:w-full 
-                  flex 
-                  items-center 
-                  justify-center 
-                  bg-main-yellow 
-                  hover:bg-yellow-500 
-                  px-7 
-                  py-2 
-                  rounded-xl 
-                  text-white 
-                  text-lg 
-                  font-semibold 
-                  transition 
-                  duration-300'>
-                  <RiKakaoTalkFill size={25} className='w-[30%]' />
-                  <span className='text-center w-[90%] md:text-sm sm:text-sm xs:text-sm'>{t('common:KaKao')}</span>
-                </button>
-                <button className='w-[80%] sm:w-full xs:w-full flex items-center justify-center bg-white hover:bg-gray-300 px-7 py-2 rounded-xl text-gray-700 border text-lg font-semibold transition duration-300'>
-                  <FcGoogle size={25} className='w-[30%]' />
-                  <span className='text-center w-[90%] md:text-sm sm:text-sm xs:text-sm'>{t('common:Google')}</span>
-                </button>
-              </div>
             </div>
           </div>
           <div>

@@ -399,22 +399,6 @@ const MyPage = ({
                 md:text-sm 
                 sm:text-sm 
                 xs:text-sm 
-                bg-[#FBA1B7] 
-                hover:bg-main-insta 
-                rounded-xl 
-                transition 
-                duration-300 
-                text-white 
-                font-bold'>
-                {t('common:Instagram Connect')}
-              </button>
-              <button className='
-                px-3 
-                py-2 
-                sm:px-2 
-                md:text-sm 
-                sm:text-sm 
-                xs:text-sm 
                 bg-main-green 
                 hover:bg-green-500 
                 rounded-xl 
