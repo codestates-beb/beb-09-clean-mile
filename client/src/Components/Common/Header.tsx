@@ -109,6 +109,8 @@ const Header = () => {
     if (res.status === 200) {
       dispatch(showSuccessAlert(res.data.message));
       router.push('/');
+      setUserData(null);
+      setIsLoggedIn(false);
       clearSession();
     } else {
       dispatch(showErrorAlert(res.data.message));
