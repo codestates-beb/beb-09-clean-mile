@@ -60,8 +60,6 @@ export const getServerSideProps = async (
 
     const res = await ApiCaller.get(URL, dataBody, isJSON, headers, isCookie);
 
-    console.log(res)
-
     let userInfo;
     let userPosts;
     let postPagination;

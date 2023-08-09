@@ -172,7 +172,9 @@ const Events = () => {
                   </div>
                   <div className='flex flex-col px-6 sm:px-2 xs:px-2 py-4 gap-6'>
                     <div className='flex lg:flex-col md:flex-col sm:flex-col xs:flex-col justify-between sm:justify-center xs:justify-center items-center sm:items-center xs:items-center sm:gap-2 xs:gap-4 h-[80px] md:h-[100px] xs:h-[30px]'>
-                      <h2 className="text-lg font-bold hover:underline sm:text-lg xs:text-sm">{item.title}</h2>
+                      <h2 className="text-lg font-bold hover:underline sm:text-lg xs:text-sm">
+                        {item.title.length > 15 ? item.title.slice(0, 15) + '...' : item.title}
+                      </h2>
                       <p className={`text-md font-bold sm:text-xs xs:text-xs text-white rounded-lg sm:rounded-md xs:rounded-md px-1 ${getClassNameForStatus(item.status)}`}>
                         {(() => {
                           switch (item.status) {
