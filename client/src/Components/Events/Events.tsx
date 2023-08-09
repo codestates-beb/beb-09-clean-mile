@@ -44,6 +44,7 @@ const Events = () => {
     switch (status) {
       case 'created': return 'bg-main-insta';
       case 'recruiting': return 'bg-main-blue';
+      case 'recruited': return 'bg-red-500';
       case 'progressing': return 'bg-main-green';
       case 'finished': return 'bg-main-red';
       case 'canceled': return 'bg-gray-500';
@@ -135,6 +136,7 @@ const Events = () => {
               <option className="text-sm xs:text-xs" value="all">{t('common:All')}</option>
               <option className="text-sm xs:text-xs" value="created">{t('common:Before proceeding')}</option>
               <option className="text-sm xs:text-xs" value="recruiting">{t('common:Recruiting')}</option>
+              <option className="text-sm xs:text-xs" value="recruited">{t('common:End of recruitment')}</option>
               <option className="text-sm xs:text-xs" value="progressing">{t('common:In progress')}</option>
               <option className="text-sm xs:text-xs" value="finished">{t('common:End of progress')}</option>
               <option className="text-sm xs:text-xs" value="canceled">{t('common:Cancel Progress')}</option>
@@ -172,12 +174,15 @@ const Events = () => {
                   </div>
                   <div className='flex flex-col px-6 sm:px-2 xs:px-2 py-4 gap-6'>
                     <div className='flex lg:flex-col md:flex-col sm:flex-col xs:flex-col justify-between sm:justify-center xs:justify-center items-center sm:items-center xs:items-center sm:gap-2 xs:gap-4 h-[80px] md:h-[100px] xs:h-[30px]'>
-                      <h2 className="text-lg font-bold hover:underline sm:text-lg xs:text-sm">{item.title}</h2>
+                      <h2 className="text-lg font-bold hover:underline sm:text-lg xs:text-sm">
+                        {item.title.length > 15 ? item.title.slice(0, 15) + '...' : item.title}
+                      </h2>
                       <p className={`text-md font-bold sm:text-xs xs:text-xs text-white rounded-lg sm:rounded-md xs:rounded-md px-1 ${getClassNameForStatus(item.status)}`}>
                         {(() => {
                           switch (item.status) {
                             case 'created': return t('common:Before proceeding');
                             case 'recruiting': return t('common:Recruiting');
+                            case 'recruited': return t('common:End of recruitment')
                             case 'progressing': return t('common:In progress');
                             case 'finished': return t('common:End of progress');
                             case 'canceled': return t('common:Cancel Progress');

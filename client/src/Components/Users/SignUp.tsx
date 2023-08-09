@@ -364,7 +364,7 @@ const SignUp = () => {
   }
 
   return (
-    <div className='w-full min-h-screen grid grid-cols-2 sm:flex sm:items-center sm:justify-center'>
+    <div className='w-full min-h-screen grid grid-cols-2 sm:flex xs:flex sm:items-center xs:items-center sm:justify-center xs:justify-center'>
       <div className="block sm:hidden xs:hidden">
         <Three />
       </div>

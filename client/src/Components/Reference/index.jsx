@@ -25,6 +25,7 @@ import SearchInput from '../Common/SearchInput';
 import LanguageSwitch from '../Common/LanguageSwitch';
 
 import logo from '../../assets/images/clean_mile_logo.png';
+import logo_2 from '../../assets/images/clean_mile_logo_2.png';
 import hero_img from '../../assets/images/plogging.png';
 import insta_logo from '../../assets/images/insta_logo.png';
 import insta_icon from '../../assets/images/insta_icon.png';
@@ -66,6 +67,7 @@ export {
   SearchInput,
   LanguageSwitch,
   logo,
+  logo_2,
   hero_img,
   insta_logo,
   insta_icon,

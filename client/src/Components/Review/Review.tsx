@@ -176,7 +176,7 @@ const Review = () => {
                       <p className='text-lg font-bold hover:underline sm:text-lg xs:text-sm'>
                         {item.title}
                       </p>
-                      <h2 className="text-lg font-semibold hover:underline sm:text-lg xs:text-sm" onClick={() => router.push(`/user/profile`)}>
+                      <h2 className="text-lg font-semibold hover:underline sm:text-lg xs:text-sm" onClick={() => router.push(`/users/profile?id=${item.user_id._id}`)}>
                         {item.user_id === null ? t('common:Unknown') : item.user_id.nickname}
                       </h2>
                     </div>

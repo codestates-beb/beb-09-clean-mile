@@ -25,12 +25,6 @@ const GeneralEdit = ({ postDetailDefault }: { postDetailDefault: PostDetail }) =
   const dispatch = useDispatch();
 
   /**
-   * 사용자 세션 훅을 사용하여 사용자 데이터를 가져옴
-   * @type {object}
-   */
-  const { userData } = useUserSession();
-
-  /**
    * 공통 번역 훅을 사용하여 번역 함수를 가져옴
    * @type {TFunction}
    */

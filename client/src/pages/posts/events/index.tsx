@@ -37,7 +37,6 @@ export const getServerSideProps = async (context: GetServerSidePropsContext) => 
     const isCookie = true;
 
     const res = await ApiCaller.get(URL, dataBody, isJSON, headers, isCookie);
-    console.log(res.data.data.data)
 
     let eventList;
     let lastId;

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
+import Swal from 'sweetalert2';
 import useTranslation from 'next-translate/useTranslation';
 import { useDispatch } from 'react-redux';
 import { useRouter } from 'next/router';
@@ -13,6 +14,14 @@ import {
 import { default_banner } from '../Reference';
 import { showSuccessAlert, showErrorAlert } from '@/Redux/actions';
 import { fetchPageData } from '@/services/api';
+
+type BadgeType = {
+  name: string;
+  description: string;
+  badge_type: string;
+  image: string;
+}
+
 
 const UserProfile = ({
   userInfo,
@@ -165,10 +174,11 @@ const UserProfile = ({
                   border 
                   rounded-full 
                   overflow-hidden 
-                  relative'
+                  relative
+                  cursor-pointer'
                   key={i}
                   title='Badge Info'
-                  onClick={() => {handleBadgeClick}}>
+                  onClick={() => {handleBadgeClick(badge)}}>
                   <Image
                     src={badge.image}
                     layout='fill'

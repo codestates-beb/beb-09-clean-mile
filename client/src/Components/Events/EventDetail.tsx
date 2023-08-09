@@ -141,15 +141,16 @@ const EventDetail = ({ eventDetail, comments }: { eventDetail: EventDetailType, 
             </p>
             <p className=''>
               <span className='font-bold text-lg'>진행 기간: </span>
-              <br />{eventDetail.event_start_at.split('T')[0]} ~ {eventDetail.event_end_at.split('T')[0]}
+              <br />{eventDetail.event_start_at.split('T')[0]} {eventDetail.event_start_at.substring(11, 16)} 
+              ~ {eventDetail.event_end_at.split('T')[0]} {eventDetail.event_end_at.substring(11, 16)}
             </p>
             <p className=''>
               <span className='font-bold text-lg'>모집 기간: </span>
-              <br />{eventDetail.recruitment_start_at.split('T')[0]} ~ {eventDetail.recruitment_end_at.split('T')[0]}
+              <br />{eventDetail.recruitment_start_at.split('T')[0]} {eventDetail.recruitment_start_at.substring(11, 16)} ~ {eventDetail.recruitment_end_at.split('T')[0]} {eventDetail.recruitment_end_at.substring(11, 16)}
             </p>
             <p className=''>
               <span className='font-bold text-lg'>모집 방법: </span>
-              <br />{eventDetail.event_type === 'fcfr' ? '선착순' : '추첨'}
+              <br />{eventDetail.event_type === 'fcfs' ? '선착순' : '추첨'}
             </p>
             <p className=''>
               <span className='font-bold text-lg'>총 모집 인원: </span>
@@ -202,7 +203,7 @@ const EventDetail = ({ eventDetail, comments }: { eventDetail: EventDetailType, 
               transition 
               duration-300
               text-center
-              ${eventDetail.status !== 'recruiting' ? 'bg-yellow-400' : 'bg-main-yellow hover:bg-yellow-500 '}`}
+              ${eventDetail.status !== 'recruiting' ? 'bg-yellow-500' : 'bg-main-yellow hover:bg-yellow-500 '}`}
               disabled={!isLoggedIn || eventDetail.status !== 'recruiting'}
               onClick={isLoggedIn ? entryEvent : undefined}>
               {t('common:Entry')}
