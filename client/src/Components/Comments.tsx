@@ -186,7 +186,7 @@ const Comments = ({ postDetailId, comments }: { postDetailId: string, comments: 
                       <AiOutlineHeart className='text-main-red cursor-pointer sm:w-[30%] xs:w-[30%]' size={26} onClick={() => likeComment(comment._id)} />
                     )}
                     {/* ... comment content ... */}
-                    {isLoggedIn && userData?.user._id === comment.user_id._id && (
+                    {isLoggedIn && userData?.user._id === comment.user_id?._id && (
                       <>
                         <MdOutlineCreate className="text-red-500 cursor-pointer sm:w-[30%] xs:w-[30%]" size={26} onClick={() => handleEditComment(comment._id)} />
                         <AiOutlineDelete className="text-red-500 cursor-pointer sm:w-[30%] xs:w-[30%]" size={26} onClick={() => deleteComment(comment._id)} />
