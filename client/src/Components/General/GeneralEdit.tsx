@@ -12,8 +12,28 @@ interface IFile extends File {
 }
 
 const GeneralEdit = ({ postDetailDefault }: { postDetailDefault: PostDetail }) => {
+  /**
+   * 컴포넌트에서 사용하는 라우터 인스턴스를 가져옴
+   * @type {NextRouter}
+   */
   const router = useRouter();
+
+  /**
+   * 리덕스 액션을 디스패치하기 위한 디스패치 함수를 가져옴
+   * @type {Dispatch<any>}
+   */
   const dispatch = useDispatch();
+
+  /**
+   * 사용자 세션 훅을 사용하여 사용자 데이터를 가져옴
+   * @type {object}
+   */
+  const { userData } = useUserSession();
+
+  /**
+   * 공통 번역 훅을 사용하여 번역 함수를 가져옴
+   * @type {TFunction}
+   */
   const { t } = useTranslation('common');
 
   const [selectCategory, setSelectCategory] = useState('');
@@ -23,24 +43,30 @@ const GeneralEdit = ({ postDetailDefault }: { postDetailDefault: PostDetail }) =
   const [videos, setVideos] = useState<IFile[]>([]);
   const [selectedFile, setSelectedFile] = useState<IFile[]>([]);
 
+  /**
+   * 파일을 선택할 수 있도록 input 요소의 참조를 생성
+   * @type {RefObject<HTMLInputElement>}
+   */
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  /**
+   * 파일 입력 요소를 클릭하여 사용자가 파일을 선택할 수 있도록 함
+   */
   const handleFileSelect = () => {
     fileInputRef.current?.click();
   };
 
   /**
-   * 사용자가 파일을 선택하면 이를 처리하는 함수
-   * 이 함수는 선택한 파일의 확장자를 확인하고,
-   * 확장자에 따라 이미지 또는 비디오를 각각의 상태에 저장
-   * @param {Event} e - 파일 입력 이벤트 객체
+   * 사용자가 파일을 선택했을 때 해당 파일의 확장자를 확인하고 
+   * 해당 확장자에 따라 이미지 또는 비디오 상태를 업데이트하는 함수
+   * @param {React.ChangeEvent<HTMLInputElement>} e - 파일을 선택했을 때 발생하는 이벤트 객체
    */
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files: IFile[] = Array.from(e.target.files!) as IFile[];
 
     files.forEach((file) => {
       const extension = file.name.split('.').pop()?.toLowerCase();
-  
+
       if (['jpg', 'jpeg', 'png'].includes(extension || '')) {
         setImages((prevImages) => [...prevImages, file]);
       } else if (['mp4', 'avi', 'mov'].includes(extension || '')) {
@@ -49,6 +75,11 @@ const GeneralEdit = ({ postDetailDefault }: { postDetailDefault: PostDetail }) =
     });
     setSelectedFile(files)
   };
+
+  /**
+   * 게시물을 수정하고 수정된 게시물의 ID를 반환하는 함수
+   * 성공적으로 게시물이 수정되면 수정된 게시물 페이지로 리디렉션
+   */
   const editPost = async () => {
     try {
       const updatedPostId = await updatePost(postDetailDefault._id, title, content, images, videos);

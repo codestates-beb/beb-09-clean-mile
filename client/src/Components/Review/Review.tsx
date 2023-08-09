@@ -31,14 +31,34 @@ interface FetchReviewParams extends QueryFunctionContext<'reviews'> {
 
 
 const Review = () => {
+  /**
+   * 라우터 인스턴스를 가져옴
+   * @type {NextRouter}
+   */
   const router = useRouter();
+
+  /**
+   * 공통 번역 훅을 사용하여 번역 함수를 가져옴
+   * @type {TFunction}
+   */
   const { t } = useTranslation('common');
 
+  /**
+   * 필터 상태를 관리
+   * 'all'로 선택된 경우 undefined로 설정
+   * @type {string | undefined}
+   */
   const [filter, setFilter] = useState<string | undefined>(undefined);
 
+  /**
+   * 라우터 쿼리를 기반으로 검색 유형과 검색어를 파악
+   */
   const searchType = router.query.title ? 'title' : router.query.content ? 'content' : null;
   const searchTerm = searchType ? router.query[searchType] as string : '';
 
+  /**
+   * 무한 쿼리를 사용하여 이벤트 데이터를 가져옴
+   */
   const {
     data,
     fetchNextPage,
@@ -59,10 +79,16 @@ const Review = () => {
     }
   );
 
+  /**
+   * 필터나 검색어가 변경될 때마다 데이터를 다시 가져옴
+   */
   useEffect(() => {
     refetch();
   }, [searchTerm, searchType, filter, refetch]);
 
+  /**
+   * 무한 스크롤 로직을 위한 IntersectionObserver를 설정
+   */
   const observer = useRef<IntersectionObserver | null>();
   const lastElementRef = useCallback(
     (node: HTMLElement | null) => {
@@ -80,10 +106,17 @@ const Review = () => {
     [isLoading, isFetchingNextPage, hasNextPage, fetchNextPage]  // 의존성 업데이트
   );
 
+  /**
+   * 어떤 페이지라도 데이터가 있는지 여부를 확인
+   * @type {boolean}
+   */
   const hasData = data?.pages.some(page => page.data?.length > 0);
 
 
-  // 필터 변경 핸들러
+  /**
+   * 드롭다운에서 필터 값을 변경할 때의 핸들러 함수
+   * @param {React.ChangeEvent<HTMLSelectElement>} e - 선택 이벤트 객체
+   */
   const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedValue = e.target.value;
     setFilter(selectedValue);

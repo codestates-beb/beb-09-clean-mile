@@ -20,13 +20,7 @@ module.exports = (app) => {
    */
   route.get('/list', async (req, res) => {
     try {
-      const {
-        last_id = null,
-        limit = 10,
-        title = null,
-        content = null,
-        status = null,
-      } = req.query;
+      const { last_id = null, limit = 10, title = null, content = null, status = null } = req.query;
 
       // 행사 리스트 조회
       const result = await postsController.getEvents(
@@ -79,11 +73,7 @@ module.exports = (app) => {
       }
 
       // 행사 상세 조회
-      const result = await eventsController.findEventDetail(
-        req,
-        event_id,
-        user_id
-      );
+      const result = await eventsController.findEventDetail(req, event_id, user_id);
       if (!result.success) {
         return res.status(404).json({
           success: false,
@@ -114,10 +104,7 @@ module.exports = (app) => {
       const { event_id } = req.params;
 
       // 행사 참여 신청
-      const result = await eventsController.eventEntry(
-        event_id,
-        req.decoded.user_id
-      );
+      const result = await eventsController.eventEntry(event_id, req.decoded.user_id);
       if (!result.success) {
         return res.status(400).json({
           success: false,
@@ -164,10 +151,7 @@ module.exports = (app) => {
       }
 
       // 뱃지 지급 후 뱃지 점수 반환
-      const transferBadgeResult = await badgeController.transferBadge(
-        user_id,
-        verify_token.event_id
-      );
+      const transferBadgeResult = await badgeController.transferBadge(user_id, verify_token.event_id);
       if (!transferBadgeResult.success) {
         return res.status(400).json({
           success: false,
@@ -176,9 +160,7 @@ module.exports = (app) => {
       }
 
       // event entry 업데이트(인증 + 배지 지급 상태)
-      const updateEventEntryResult = await eventsController.updateEventEntry(
-        verify_token.entry_id
-      );
+      const updateEventEntryResult = await eventsController.updateEventEntry(verify_token.entry_id);
       if (!updateEventEntryResult.success) {
         return res.status(400).json({
           success: false,
@@ -187,10 +169,7 @@ module.exports = (app) => {
       }
 
       // user 업데이트 (배지 개수 및 총 점수)
-      const updateUserResult = await eventsController.updateUserBadge(
-        user_id,
-        transferBadgeResult.badge_score
-      );
+      const updateUserResult = await eventsController.updateUserBadge(user_id, transferBadgeResult.badge_score);
       if (!updateUserResult.success) {
         return res.status(400).json({
           success: false,

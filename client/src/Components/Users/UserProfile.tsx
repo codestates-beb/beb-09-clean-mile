@@ -34,6 +34,10 @@ const UserProfile = ({
 
   const totalPages = postPagination?.totalPages;
 
+  /**
+   * 사용자가 선택한 페이지에 따라 페이지 데이터를 로드하는 함수
+   * @param {number} pageNumber - 사용자가 선택한 페이지 번호
+   */
   const handlePageChange = async (pageNumber: number) => {
     try {
       const res = await fetchPageData('users/profile/postPagination', userInfo._id, pageNumber);
@@ -46,6 +50,7 @@ const UserProfile = ({
   };
 
   useEffect(() => {
+    // 초기 로딩 시 현재 페이지 데이터를 불러오는 비동기 함수 실행
     (async () => {
       await handlePageChange(currentPage);
     })();
@@ -64,6 +69,21 @@ const UserProfile = ({
       dispatch(showErrorAlert(t('common:Failed to copy wallet address')));
     }
   };
+
+  /**
+   * 뱃지 클릭 시 동작하는 함수
+   * @param {BadgeType} badge - 클릭된 뱃지 정보
+   */
+    const handleBadgeClick = (badge: BadgeType) => {
+      Swal.fire({
+        title: badge.name,
+        html: `<p>${badge.badge_type}</p><br><p>${badge.description}</p>`,
+        imageUrl: badge.image,
+        imageWidth: 400,
+        imageHeight: 200,
+        imageAlt: 'Badge Image'
+      });
+    }
 
   return (
     <div className='w-full min-h-screen'>
@@ -131,23 +151,24 @@ const UserProfile = ({
           ) : (
             userBadges?.map((badge, i) => {
               return (
-                <div
-                  className='w-[10rem] 
-                    lg:w-[8rem] 
-                    md:w-[6rem] 
-                    sm:w-[6rem] 
-                    xs:w-[5rem] 
-                    h-[10rem] 
-                    lg:h-[8rem] 
-                    md:h-[6rem] 
-                    sm:h-[6rem] 
-                    xs:h-[5rem] 
-                    border 
-                    rounded-full 
-                    overflow-hidden 
-                    relative'
+                <div className='
+                  w-[10rem] 
+                  lg:w-[8rem] 
+                  md:w-[6rem] 
+                  sm:w-[6rem] 
+                  xs:w-[5rem] 
+                  h-[10rem] 
+                  lg:h-[8rem] 
+                  md:h-[6rem] 
+                  sm:h-[6rem] 
+                  xs:h-[5rem] 
+                  border 
+                  rounded-full 
+                  overflow-hidden 
+                  relative'
                   key={i}
-                >
+                  title='Badge Info'
+                  onClick={() => {handleBadgeClick}}>
                   <Image
                     src={badge.image}
                     layout='fill'

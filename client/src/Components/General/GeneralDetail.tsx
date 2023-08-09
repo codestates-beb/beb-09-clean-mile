@@ -21,23 +21,57 @@ type Media = {
 };
 
 const GeneralDetail = ({ postDetail, comments }: { postDetail: PostDetail, comments: Comment[] }) => {
+  /**
+   * 컴포넌트에서 사용하는 라우터 인스턴스를 가져옴
+   * @type {NextRouter}
+   */
   const router = useRouter();
+
+  /**
+   * 리덕스 액션을 디스패치하기 위한 디스패치 함수를 가져옴
+   * @type {Dispatch<any>}
+   */
   const dispatch = useDispatch();
+
+  /**
+   * 사용자 세션 훅을 사용하여 사용자 데이터를 가져옴
+   * @type {object}
+   */
   const { userData } = useUserSession();
+
+  /**
+   * 공통 번역 훅을 사용하여 번역 함수를 가져옴
+   * @type {TFunction}
+   */
   const { t } = useTranslation('common');
 
+  /**
+   * 사용자 로그인 상태를 상태로 관리
+   * @type {boolean}
+   */
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
+  /**
+   * 컴포넌트 마운트 시, 세션 스토리지에서 사용자 로그인 정보를 가져와 상태를 설정
+   */
   useEffect(() => {
     setIsLoggedIn(Boolean(sessionStorage.getItem('user')));
   }, []);
 
+  /**
+   * 게시물의 모든 미디어를 합치기 위한 배열
+   * 이미지와 비디오를 포함하며 각각의 미디어 타입에 따라 구분
+   * @type {Media[]}
+   */
   const allMedia: Media[] = [
     ...postDetail.media.img.map(i => ({ type: 'image' as const, url: i })),
     ...postDetail.media.video.map(v => ({ type: 'video' as const, url: v }))
   ];
 
-
+  /**
+   * 슬라이드 설정을 위한 useMemo 훅
+   * 전체 미디어의 수에 따라 슬라이드를 보여주는 설정을 결정
+   */
   const settings = useMemo(() => ({
     dots: true,
     infinite: false,
@@ -46,6 +80,11 @@ const GeneralDetail = ({ postDetail, comments }: { postDetail: PostDetail, comme
     slidesToScroll: allMedia.length > 2 ? 3 : allMedia.length,
   }), [allMedia.length]);
 
+  /**
+   * 게시물 삭제를 확인하는 함수
+   * SweetAlert2를 사용하여 사용자에게 삭제를 확인하는 팝업을 표시
+   * @returns {Promise<SweetAlertResult<any>>} 삭제를 진행할지 또는 취소할지에 대한 사용자의 결정.
+   */
   const confirmDelete = () => {
     return Swal.fire({
       title: t('common:Are you sure you want to delete it'),
@@ -58,6 +97,10 @@ const GeneralDetail = ({ postDetail, comments }: { postDetail: PostDetail, comme
     });
   }
 
+  /**
+   * 실제로 게시물을 삭제하는 함수
+   * @returns {Promise<any>} 삭제 응답 데이터.
+   */
   const performDelete = async () => {
     const res = await userPostDelete(postDetail._id);
 
@@ -71,6 +114,10 @@ const GeneralDetail = ({ postDetail, comments }: { postDetail: PostDetail, comme
     return res.data.data;
   }
 
+  /**
+   * 게시물 삭제를 처리하는 함수
+   * 삭제를 확인한 후 실제 삭제를 수행하고, 그 결과에 따라 알림을 표시 
+   */
   const postDelete = async () => {
     const result = await confirmDelete();
 
@@ -89,17 +136,13 @@ const GeneralDetail = ({ postDetail, comments }: { postDetail: PostDetail, comme
     }
   }
 
+  /**
+   * 사용자 프로필 페이지로 이동하는 함수
+   * 게시물 작성자의 프로필을 확인하거나, 자신의 프로필 페이지로 리디렉션
+   */
   const handleProfile = () => {
     if (postDetail.user_id === null) {
-      Swal.fire({
-        title: t('common:Error'),
-        text: t('common:User does not exist'),
-        icon: 'error',
-        confirmButtonText: 'OK',
-        confirmButtonColor: '#6BCB77'
-      }).then(() => {
-        Swal.close();
-      });
+      dispatch(showErrorAlert(t('common:User does not exist')));
     } else {
       if (postDetail.user_id._id === userData?.user._id) {
         router.push(`/users/mypage`)
@@ -163,7 +206,6 @@ const GeneralDetail = ({ postDetail, comments }: { postDetail: PostDetail, comme
             <p>{postDetail.content}</p>
           </div>
         </div>
-        <Comments postDetailId={postDetail._id} comments={comments} />
         <div className='w-full flex gap-3 xs:gap-2 justify-end my-16'>
           {isLoggedIn && userData?.user._id === postDetail.user_id?._id ? (
             <>
@@ -266,6 +308,7 @@ const GeneralDetail = ({ postDetail, comments }: { postDetail: PostDetail, comme
             </Link>
           )}
         </div>
+        <Comments postDetailId={postDetail._id} comments={comments} />
       </div>
     </>
   )

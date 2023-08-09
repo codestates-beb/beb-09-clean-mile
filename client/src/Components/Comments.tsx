@@ -23,10 +23,16 @@ const Comments = ({ postDetailId, comments }: { postDetailId: string, comments: 
   const [editingComment, setEditingComment] = useState<string | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
+  /**
+   * 로그인 여부를 세션 스토리지를 확인하여 설정합니다.
+   */
   useEffect(() => {
     setIsLoggedIn(Boolean(sessionStorage.getItem('user')));
   }, []);
 
+  /**
+   * 댓글을 생성하는 함수
+   */
   const createComment = async () => {
     try {
       const res = await userCreateComment(postDetailId, comment);
@@ -46,6 +52,10 @@ const Comments = ({ postDetailId, comments }: { postDetailId: string, comments: 
     }
   }
 
+  /**
+   * 댓글에 '좋아요'를 표시하는 함수
+   * @param {string} commentId - 좋아요를 누를 댓글의 ID
+   */
   const likeComment = async (commentId: string) => {
     try {
 
@@ -62,11 +72,19 @@ const Comments = ({ postDetailId, comments }: { postDetailId: string, comments: 
     }
   }
 
+  /**
+   * 댓글 편집 모드로 전환하는 함수
+   * @param {string} commentId - 편집할 댓글의 ID
+   */
   const handleEditComment = (commentId: string) => {
     setEditingComment(commentId);
     setEditCommentInput(comment);
   };
 
+  /**
+   * 댓글을 편집하는 함수
+   * @param {string} commentId - 편집할 댓글의 ID
+   */
   const editComment = async (commentId: string) => {
 
     try {
@@ -86,6 +104,10 @@ const Comments = ({ postDetailId, comments }: { postDetailId: string, comments: 
     }
   }
 
+  /**
+   * 댓글을 삭제하기 전에 확인을 요구하는 다이얼로그를 표시하는 함수
+   * @returns {Promise<SweetAlertResult>} - 사용자의 응답에 따른 SweetAlert 결과
+   */
   const confirmDelete = () => {
     return Swal.fire({
       title: t('common:Are you sure you want to delete it'),
@@ -98,7 +120,10 @@ const Comments = ({ postDetailId, comments }: { postDetailId: string, comments: 
     });
   }
 
-
+  /**
+   * 댓글을 삭제하는 함수
+   * @param {string} commentId - 삭제할 댓글의 ID
+   */
   const deleteComment = async (commentId: string) => {
     const result = await confirmDelete();
     if (result.isConfirmed) {
@@ -186,7 +211,7 @@ const Comments = ({ postDetailId, comments }: { postDetailId: string, comments: 
                       <AiOutlineHeart className='text-main-red cursor-pointer sm:w-[30%] xs:w-[30%]' size={26} onClick={() => likeComment(comment._id)} />
                     )}
                     {/* ... comment content ... */}
-                    {isLoggedIn && userData?.user._id === comment.user_id._id && (
+                    {isLoggedIn && userData?.user._id === comment.user_id?._id && (
                       <>
                         <MdOutlineCreate className="text-red-500 cursor-pointer sm:w-[30%] xs:w-[30%]" size={26} onClick={() => handleEditComment(comment._id)} />
                         <AiOutlineDelete className="text-red-500 cursor-pointer sm:w-[30%] xs:w-[30%]" size={26} onClick={() => deleteComment(comment._id)} />
