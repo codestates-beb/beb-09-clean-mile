@@ -1,3 +1,4 @@
+const config = require('../../../config');
 const Router = require('express');
 const multer = require('multer');
 const jwtUtil = require('../../../utils/jwtUtil');
@@ -284,11 +285,22 @@ module.exports = (app) => {
    */
   route.post('/logout', isAuth, (req, res) => {
     try {
-      // 쿠키를 삭제하여 로그아웃 처리
-      // res.clearCookie('clientAccessToken');
-      // res.clearCookie('clientRefreshToken');
-      res.cookie('clientAccessToken', '', { expires: new Date(0) });
-      res.cookie('clientRefreshToken', '', { expires: new Date(0) });
+      // 로그아웃 시 쿠키 덮어쓰기
+      res.cookie('clientAccessToken', '', {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'None',
+        expires: new Date(0), // 즉시 만료
+        domain: config.cookieDomain.client,
+      });
+
+      res.cookie('clientRefreshToken', '', {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'None',
+        expires: new Date(0), // 즉시 만료
+        domain: config.cookieDomain.client,
+      });
 
       return res.status(200).json({
         success: true,
