@@ -78,9 +78,9 @@ variable "domain_name" {
   default     = "clean-mile.co"
 }
 
-variable "manager_ip" {
-  type        = string
-  description = "IP address of the manager"
+variable "manager_ips" {
+  type        = list(string)
+  description = "IP addresses to allow SSH access to the manager instance"
 }
 
 variable "mongo_vpc_id" {

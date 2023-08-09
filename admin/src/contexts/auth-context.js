@@ -25,13 +25,13 @@ const handlers = {
       ...// if payload (user) is provided, then is authenticated
       (user
         ? {
-            isAuthenticated: true,
-            isLoading: false,
-            user,
-          }
+          isAuthenticated: true,
+          isLoading: false,
+          user,
+        }
         : {
-            isLoading: false,
-          }),
+          isLoading: false,
+        }),
     };
   },
   [HANDLERS.SIGN_IN]: (state, action) => {
@@ -121,7 +121,7 @@ export const AuthProvider = (props) => {
         // TODO: use real user data
         const user = {
           id: userData._id,
-          avatar: "/assets/avatars/avatar-anika-visser.png",
+          avatar: "https://gold-cool-goat-213.mypinata.cloud/ipfs/QmfFbvLH37DebBqmVBm7V8ecfzgjFPnPeHRYiYk1PNoW84/6level.png",
           name: userData.name,
           email: userData.email,
         };
