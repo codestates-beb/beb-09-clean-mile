@@ -146,7 +146,6 @@ const transferBadges = async (recipients, eventId) => {
         gasPrice,
         gasLimit,
       });
-    console.log('실핼 중...');
     transaction.wait();
 
     const badgeScore = [1, 5, 10];

@@ -203,7 +203,7 @@ const userDnftData = async (userId) => {
  */
 const upgradeDnft = async (user_id) => {
   try {
-    // dfnt 정보 조회
+    // dnft 정보 조회
     const dnft = await DnftModel.findOne({ user_id: user_id });
     if (!dnft) return { success: false, message: '데이터 요청 실패' };
 
@@ -213,13 +213,15 @@ const upgradeDnft = async (user_id) => {
     const transaction = await dnftContract
       .connect(signer)
       .upgradeDNFT(tokenId, { gasPrice, gasLimit });
-    await transaction.wait();
 
     if (transaction) {
+      const dnftLevel = await dnftContract.dnftLevel(tokenId);
+      if (dnftLevel === dnft.dnft_level) return { success: false };
+
+      dnft.dnft_level = dnftLevel;
+
       const dnftURI = await dnftContract.tokenURI(tokenId);
       dnft.token_uri = dnftURI;
-      const dnftLevel = await dnftContract.dnftLevel(tokenId);
-      dnft.dnft_level = dnftLevel;
       const result = await dnft.save();
       if (!result) return { success: false };
       else return { success: true };
