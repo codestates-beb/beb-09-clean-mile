@@ -161,7 +161,7 @@ $ cd admin && npm install
 $ npm run dev
 ```
 
->> docker-compose.yml 파일에 client, admin 서비스가 추가되어 있지만, 빌드를 테스트하기 위한 용도로만 사용하였습니다.
+> docker-compose.yml 파일에 client, admin 서비스가 추가되어 있지만, 컨테이너 이미지 빌드를 테스트하기 위한 용도로만 사용하였습니다.
 
 <br/>
 
