@@ -6,6 +6,18 @@
 
 <br/>
 
+## 목차
+
+1. [프로젝트 목표](#🌱-프로젝트-목표-🌱)
+2. [프로젝트 주요 기능](#🌍-프로젝트-주요-기능)
+3. [팀원 소개](#👨‍💻-팀원-소개)
+4. [기술 스택](#🔧-기술-스택)
+5. [서비스 아키텍처](#🌐-서비스-아키텍처)
+6. [프로젝트 실행 방법](#🚀-프로젝트-실행-방법)
+7. [상세 정보](#🗂️-상세-정보)
+
+
+
 ## 🌱 프로젝트 목표 🌱
 
 - ### 환경 보호 행사 정보 제공
@@ -24,6 +36,70 @@
 - 행사에 참여 후 QR 인증을 통한 참여 인증
 - 사용자들이 환경 보호 행사에 참여할 때마다 행사 참여 기록을 블록체인에 저장하고, 참여자들에게 NFT (ERC-1155) 형태의 인증 배지 발급
 - 관리자 페이지에서 커뮤니티 사용자, 게시글 관리
+
+<br/>
+
+## 👨‍💻 팀원 소개
+
+| <img src="https://avatars.githubusercontent.com/u/61569834?v=4" width="150" height="150"/> | <img src="https://img.koreapas.com/i/1bbfb22/resize" width="150" height="150"/> | <img src="https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcTNvMh7Hea9AZjrCAGa2k8RfkZdcqPbU9OC2MFOqlSf6ABXFkPU" width="150" height="150"/> | <img src="https://avatars.githubusercontent.com/u/126757767?v=4" width="150" height="150"/> |
+| ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| [piatoss3612](https://github.com/piatoss3612)                                              | [KimSeoYeon23](https://github.com/KimSeoYeon23)                                 | [dlwltn98](https://github.com/dlwltn98)                                                                                                        | [dokpark21](https://github.com/dokpark21)                                                   |
+| 이효확(팀장)                                                                               | 김서연                                                                          | 이지수                                                                                                                                         | 박상현                                                                                      |
+| 총괄                                                                                       | 프론트엔드                                                                      | 백엔드                                                                                                                                         | 컨트랙트                                                                                    |
+
+<br/>
+
+## 🔧 기술 스택
+
+- ### Front-end
+
+    <img src="https://img.shields.io/badge/typescript-3178C6?style=for-the-badge&logo=typescript&logoColor=black"> 
+    <img src="https://img.shields.io/badge/javascript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black"> 
+    <img src="https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=React&logoColor=black"> 
+    <img src="https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=Next.js&logoColor=white"> 
+    <img src="https://img.shields.io/badge/next_translate-000000?style=for-the-badge&logoColor=white">
+    <img src="https://img.shields.io/badge/redux-764ABC?style=for-the-badge&logo=redux&logoColor=white"> 
+    <img src="https://img.shields.io/badge/reduxsaga-999999?style=for-the-badge&logo=reduxsaga&logoColor=white"> 
+    <img src="https://img.shields.io/badge/tailwindcss-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white"> 
+    <img src="https://img.shields.io/badge/axios-5A29E4?style=for-the-badge&logo=axios&logoColor=white"> 
+    <img src="https://img.shields.io/badge/reactquery-FF4154?style=for-the-badge&logo=reactquery&logoColor=white"> 
+    <img src="https://img.shields.io/badge/web3.js-F16822?style=for-the-badge&logo=web3dotjs&logoColor=white"> 
+    <img src="https://img.shields.io/badge/three.js-000000?style=for-the-badge&logo=threedotjs&logoColor=white">
+    <img src="https://img.shields.io/badge/mui-007FFF?style=for-the-badge&logo=mui&logoColor=white">
+    <img src="https://img.shields.io/badge/eslint-4B32C3?style=for-the-badge&logo=eslint&logoColor=white">
+
+- ### Back-End
+
+    <img src="https://img.shields.io/badge/javascript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black"> 
+    <img src="https://img.shields.io/badge/node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white"> 
+    <img src="https://img.shields.io/badge/express-000000?style=for-the-badge&logo=express&logoColor=white"> 
+    <img src="https://img.shields.io/badge/jsonwebtokens-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white"> 
+    <img src="https://img.shields.io/badge/mongodb-47A248?style=for-the-badge&logo=mongodb&logoColor=white"> 
+    <img src="https://img.shields.io/badge/mocha-8D6748?style=for-the-badge&logo=mocha&logoColor=white">
+    <img src="https://img.shields.io/badge/chai-A30701?style=for-the-badge&logo=chai&logoColor=white">
+    <img src="https://img.shields.io/badge/jest-C21325?style=for-the-badge&logo=jest&logoColor=white">
+    <img src="https://img.shields.io/badge/postman-FF6C37?style=for-the-badge&logo=postman&logoColor=white">
+    <img src="https://img.shields.io/badge/ethers.js-3C3C3D?style=for-the-badge&logoColor=white">
+    <img src="https://img.shields.io/badge/aws_sdk-232F3E?style=for-the-badge&logo=amazonaws&logoColor=white">
+    <img src="https://img.shields.io/badge/amazons3-569A31?style=for-the-badge&logo=amazons3&logoColor=white">
+
+- ### Blockchain
+
+    <img src="https://img.shields.io/badge/solidity-363636?style=for-the-badge&logo=solidity&logoColor=white">
+    <img src="https://img.shields.io/badge/openzeppelin-4E5EE4?style=for-the-badge&logo=openzeppelin&logoColor=white">
+    <img src="https://img.shields.io/badge/mocha-8D6748?style=for-the-badge&logo=mocha&logoColor=white">
+    <img src="https://img.shields.io/badge/chai-A30701?style=for-the-badge&logo=chai&logoColor=white">
+    <img src="https://img.shields.io/badge/hardhat-000000?style=for-the-badge&logo=hardhat&logoColor=white">
+
+- ### Daemon
+
+    <img src="https://img.shields.io/badge/pm2-2B037A?style=for-the-badge&logo=pm2&logoColor=white">
+
+- ### Infra
+    <img src="https://img.shields.io/badge/githubactions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white">
+    <img src="https://img.shields.io/badge/docker-2496ED?style=for-the-badge&logo=docker&logoColor=white">
+    <img src="https://img.shields.io/badge/terraform-7B42BC?style=for-the-badge&logo=terraform&logoColor=white">
+    <img src="https://img.shields.io/badge/amazon_aws-232F3E?style=for-the-badge&logo=amazonaws&logoColor=white">
 
 <br/>
 
@@ -87,72 +163,7 @@ $ npm run dev
 
 <br/>
 
-## 👨‍💻 팀원
-
-| <img src="https://avatars.githubusercontent.com/u/61569834?v=4" width="150" height="150"/> | <img src="https://img.koreapas.com/i/1bbfb22/resize" width="150" height="150"/> | <img src="https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcTNvMh7Hea9AZjrCAGa2k8RfkZdcqPbU9OC2MFOqlSf6ABXFkPU" width="150" height="150"/> | <img src="https://avatars.githubusercontent.com/u/126757767?v=4" width="150" height="150"/> |
-| ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| [piatoss3612](https://github.com/piatoss3612)                                              | [KimSeoYeon23](https://github.com/KimSeoYeon23)                                 | [dlwltn98](https://github.com/dlwltn98)                                                                                                        | [dokpark21](https://github.com/dokpark21)                                                   |
-| 이효확(팀장)                                                                               | 김서연                                                                          | 이지수                                                                                                                                         | 박상현                                                                                      |
-| 총괄                                                                                       | 프론트엔드                                                                      | 백엔드                                                                                                                                         | 컨트랙트                                                                                    |
-
-<br/>
-
-## 🔧 Stack
-
-- ### Front-end
-
-    <img src="https://img.shields.io/badge/typescript-3178C6?style=for-the-badge&logo=typescript&logoColor=black"> 
-    <img src="https://img.shields.io/badge/javascript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black"> 
-    <img src="https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=React&logoColor=black"> 
-    <img src="https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=Next.js&logoColor=white"> 
-    <img src="https://img.shields.io/badge/next_translate-000000?style=for-the-badge&logoColor=white">
-    <img src="https://img.shields.io/badge/redux-764ABC?style=for-the-badge&logo=redux&logoColor=white"> 
-    <img src="https://img.shields.io/badge/reduxsaga-999999?style=for-the-badge&logo=reduxsaga&logoColor=white"> 
-    <img src="https://img.shields.io/badge/tailwindcss-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white"> 
-    <img src="https://img.shields.io/badge/axios-5A29E4?style=for-the-badge&logo=axios&logoColor=white"> 
-    <img src="https://img.shields.io/badge/reactquery-FF4154?style=for-the-badge&logo=reactquery&logoColor=white"> 
-    <img src="https://img.shields.io/badge/web3.js-F16822?style=for-the-badge&logo=web3dotjs&logoColor=white"> 
-    <img src="https://img.shields.io/badge/three.js-000000?style=for-the-badge&logo=threedotjs&logoColor=white">
-    <img src="https://img.shields.io/badge/mui-007FFF?style=for-the-badge&logo=mui&logoColor=white">
-    <img src="https://img.shields.io/badge/eslint-4B32C3?style=for-the-badge&logo=eslint&logoColor=white">
-
-- ### Back-End
-
-    <img src="https://img.shields.io/badge/javascript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black"> 
-    <img src="https://img.shields.io/badge/node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white"> 
-    <img src="https://img.shields.io/badge/express-000000?style=for-the-badge&logo=express&logoColor=white"> 
-    <img src="https://img.shields.io/badge/jsonwebtokens-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white"> 
-    <img src="https://img.shields.io/badge/mongodb-47A248?style=for-the-badge&logo=mongodb&logoColor=white"> 
-    <img src="https://img.shields.io/badge/mocha-8D6748?style=for-the-badge&logo=mocha&logoColor=white">
-    <img src="https://img.shields.io/badge/chai-A30701?style=for-the-badge&logo=chai&logoColor=white">
-    <img src="https://img.shields.io/badge/jest-C21325?style=for-the-badge&logo=jest&logoColor=white">
-    <img src="https://img.shields.io/badge/postman-FF6C37?style=for-the-badge&logo=postman&logoColor=white">
-    <img src="https://img.shields.io/badge/ethers.js-3C3C3D?style=for-the-badge&logoColor=white">
-    <img src="https://img.shields.io/badge/aws_sdk-232F3E?style=for-the-badge&logo=amazonaws&logoColor=white">
-    <img src="https://img.shields.io/badge/amazons3-569A31?style=for-the-badge&logo=amazons3&logoColor=white">
-
-- ### Blockchain
-
-    <img src="https://img.shields.io/badge/solidity-363636?style=for-the-badge&logo=solidity&logoColor=white">
-    <img src="https://img.shields.io/badge/openzeppelin-4E5EE4?style=for-the-badge&logo=openzeppelin&logoColor=white">
-    <img src="https://img.shields.io/badge/mocha-8D6748?style=for-the-badge&logo=mocha&logoColor=white">
-    <img src="https://img.shields.io/badge/chai-A30701?style=for-the-badge&logo=chai&logoColor=white">
-    <img src="https://img.shields.io/badge/hardhat-000000?style=for-the-badge&logo=hardhat&logoColor=white">
-
-- ### Daemon
-
-    <img src="https://img.shields.io/badge/pm2-2B037A?style=for-the-badge&logo=pm2&logoColor=white">
-
-- ### Infra
-    <img src="https://img.shields.io/badge/githubactions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white">
-    <img src="https://img.shields.io/badge/docker-2496ED?style=for-the-badge&logo=docker&logoColor=white">
-    <img src="https://img.shields.io/badge/terraform-7B42BC?style=for-the-badge&logo=terraform&logoColor=white">
-    <img src="https://img.shields.io/badge/amazon_aws-232F3E?style=for-the-badge&logo=amazonaws&logoColor=white">
-    <img src="https://img.shields.io/badge/amazonec2-FF9900?style=for-the-badge&logo=amazonec2&logoColor=white">
-
-<br/>
-
-## 🗂️ Documents
+## 🗂️ 상세 정보
 
 - #### [프로젝트 소개](https://github.com/codestates-beb/beb-09-clean-mile/wiki)
 - #### [아이디어 노트](https://github.com/codestates-beb/beb-09-clean-mile/wiki/Idea)
