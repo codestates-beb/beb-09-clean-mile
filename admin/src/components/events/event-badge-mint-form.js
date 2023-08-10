@@ -13,7 +13,7 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect, useRef } from "react";
 
 const types = [
   {
@@ -40,6 +40,8 @@ export const EventBadgeMintForm = ({ eventId }) => {
   const [fileUrl, setFileUrl] = useState("");
   const [uploadFile, setUploadFile] = useState(null);
 
+  const imageInputRef = useRef();
+
   /**
    * 파일 업로드 이벤트를 처리
    * @param {Event} e - 파일 업로드 이벤트
@@ -63,6 +65,8 @@ export const EventBadgeMintForm = ({ eventId }) => {
           }
         }
       }
+
+      imageInputRef.current.value = "";
     }
   }, []);
 
@@ -124,10 +128,17 @@ export const EventBadgeMintForm = ({ eventId }) => {
     event.preventDefault();
     try {
       mintBadge();
+      if (imageInputRef.current) {
+        imageInputRef.current.value = "";
+      }
     } catch (error) {
       console.log(error);
     }
   }, []);
+
+  useEffect(() => {
+    console.log("uploadFile", uploadFile);
+  }, [uploadFile]);
 
   return (
     <form autoComplete="off" noValidate onSubmit={handleSubmit}>
@@ -182,6 +193,7 @@ export const EventBadgeMintForm = ({ eventId }) => {
                   onChange={fileUpload}
                   required
                   type="file"
+                  inputRef={imageInputRef}
                   inputProps={{
                     accept: "image/*",
                   }}
