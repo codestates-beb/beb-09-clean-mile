@@ -109,7 +109,7 @@ const Notice = ({ noticeList, noticePagination }: { noticeList: Post[], noticePa
                           {post.title.length >= 20 ? post.title.slice(0, 20) + '...' : post.title}
                         </p>
                       </td>
-                      <td className="border-b p-6 sm:p-3 xs:p-2">
+                      <td className="w-[40%] border-b p-6 sm:p-3 xs:p-2">
                         <p className="text-gray-600 sm:text-sm xs:text-xs">
                           {post.content.length >= 20 ? post.content.slice(0, 60) + '...' : post.content}
                         </p>

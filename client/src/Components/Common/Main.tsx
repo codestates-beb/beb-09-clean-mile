@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import useTranslation from 'next-translate/useTranslation';
 import { useRouter } from 'next/router';
@@ -7,6 +7,19 @@ import { hero_img, insta_logo, insta_icon, default_banner, dummy_1, dummy_2, dum
 const Main = () => {
   const router = useRouter();
   const { t } = useTranslation('common');
+
+    /**
+   * 사용자 로그인 상태를 상태로 관리
+   * @type {boolean}
+   */
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+    /**
+     * 컴포넌트 마운트 시, 세션 스토리지에서 사용자 로그인 정보를 가져와 상태를 설정
+     */
+    useEffect(() => {
+      setIsLoggedIn(Boolean(sessionStorage.getItem('user')));
+    }, []);
 
   const dummy = [
     { id: 1, image: hero_img, insta_id: 'illiilliil', insta_content: '바다와 함께하는 작은 발견. 비치코밍의 기쁨! \n#비치코밍 #해변의보물 #자연과함께' },
@@ -23,9 +36,9 @@ const Main = () => {
 
   return (
     <div className='px-12 sm:px-6 xs:px-4'>
-      <div className='hero-bg py-[10%] md:py-[2%] sm:py-[5%] xs:py-[4%] px-[20%] lg:px-[5%] md:px-[3%] sm:px-[1%] xs:px-[2%]'>
+      <div className='hero-bg py-[10%] md:py-[2%] sm:py-[5%] xs:py-[1%] xs:h-[35rem] px-[20%] lg:px-[5%] md:px-[3%] sm:px-[1%] xs:px-[2%]'>
         <div className='w-full h-full flex flex-col justify-center md:justify-end sm:justify-end xs:justify-end md:items-center sm:items-center xs:items-center md:pb-5 sm:pb-2 xs:pb-2 items-end gap-12 lg:gap-6 md:gap-4 sm:gap-4 xs:gap-4 text-right md:text-center sm:text-center xs:text-center'>
-          <h1 className='text-7xl font-bold lg:text-4xl md:text-3xl sm:text-2xl xs:text-lg'>Clean Mile</h1>
+          <h1 className='text-7xl font-bold lg:text-4xl md:text-3xl sm:text-2xl xs:text-xl'>Clean Mile</h1>
           <p className='whitespace-normal w-[60%] lg:w-[60%] md:w-[90%] sm:w-[100%] xs:w-[100%] lg:text-sm md:text-xs sm:text-xs xs:text-xs font-semibold md:font-semibold sm:font-semibold xs:font-semibold'>
             <span>
               {t('common:It is a community service that aims to collect information about environmental protection events in one place to improve accessibility and user-friendliness, and to encourage active participation by issuing certification badges (NFTs) to users who participate in events')}
@@ -38,16 +51,16 @@ const Main = () => {
           </p>
           <div className='flex justify-end items-end w-full md:justify-center sm:justify-center xs:justify-center'>
             <button className='bg-main-blue hover:bg-blue-600 rounded-xl text-white font-semibold px-20 py-3 md:px-16 sm:px-12 xs:px-6 md:text-sm sm:text-sm xs:text-xs transition duration-300'
-              onClick={() => router.push('/login')}>
+              onClick={() => isLoggedIn ? router.push('/posts/events') : router.push('/login')}>
               {t('common:Get Started')}
             </button>
           </div>
         </div>
       </div>
       <div className='my-12 flex flex-col items-center gap-12 xs:gap-6'>
-        <div className='flex flex-col items-center gap-12'>
-          <Image src={insta_logo} alt='instagram logo' width={1500} height={100} className='w-[65%] lg:w-[65%] md:w-[45%] sm:w-[35%] xs:w-[35%]' />
-          <Image src={insta_icon} alt='instagram icon' width={1500} height={100} className='w-[55%] lg:w-[55%] md:w-[35%] sm:w-[25%] xs:w-[25%]' />
+        <div className='flex flex-col items-center gap-12 xs:gap-6'>
+          <Image src={insta_logo} alt='instagram logo' width={1500} height={100} className='w-[65%] lg:w-[65%] md:w-[45%] sm:w-[45%] xs:w-[45%]' />
+          <Image src={insta_icon} alt='instagram icon' width={1500} height={100} className='w-[55%] lg:w-[55%] md:w-[35%] sm:w-[35%] xs:w-[35%]' />
         </div>
         <div className='flex justify-center gap-12 sm:gap-6 xs:gap-2'>
           <p className='font-semibold text-main-insta text-3xl lg:text-2xl md:text-xl sm:text-lg xs:text-xs'>#Plogging</p>
@@ -82,7 +95,7 @@ const Main = () => {
                 </div>
                 <div className='p-6 sm:p-3 xs:p-2 w-full'>
                   <div className="mb-4">
-                    <h2 className="text-xl font-bold hover:underline sm:text-lg xs:text-sm">@{item.insta_id}</h2>
+                    <h2 className="w-full text-xl font-bold hover:underline sm:text-sm xs:text-sm overflow-ellipsis overflow-hidden">@{item.insta_id}</h2>
                   </div>
                   <p className="text-gray-700 font-semibold lg:text-sm sm:text-xs xs:text-xs overflow-ellipsis overflow-hidden">
                   {item.insta_content.length > 50 ? item.insta_content.slice(0, 50) + '...' : item.insta_content}

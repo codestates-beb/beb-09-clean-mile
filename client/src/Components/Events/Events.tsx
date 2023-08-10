@@ -4,7 +4,7 @@ import useTranslation from 'next-translate/useTranslation';
 import { useInfiniteQuery, QueryFunctionContext } from 'react-query';
 import { useRouter } from 'next/router';
 import { MdOutlineArrowForwardIos } from 'react-icons/md';
-import { SearchInput } from '../Reference';
+import { SearchInput, default_banner } from '../Reference';
 import { EventList } from '../Interfaces';
 import { fetchEventsWithPaging } from '@/services/api';
 
@@ -132,7 +132,7 @@ const Events = () => {
         <div className='w-full'>
           <div className='flex justify-end mb-3'>
             <SearchInput />
-            <select className="border border-black py-2 px-4 pr-7 rounded-md text-sm" onChange={handleFilterChange}>
+            <select className="xs:w-[20%] border border-black py-2 px-4 pr-7 rounded-md text-sm" onChange={handleFilterChange}>
               <option className="text-sm xs:text-xs" value="all">{t('common:All')}</option>
               <option className="text-sm xs:text-xs" value="created">{t('common:Before proceeding')}</option>
               <option className="text-sm xs:text-xs" value="recruiting">{t('common:Recruiting')}</option>
@@ -167,17 +167,17 @@ const Events = () => {
                   <div className='border-b-2 relative pb-[65%] sm:pb-[90%] xs:pb-[90%]'>
                     <Image
                       className='rounded-t-3xl object-cover'
-                      src={item.poster_url[0]}
+                      src={item.poster_urllength === 0 ? default_banner : item.poster_url[0]}
                       layout='fill'
                       alt='event poster'
                     />
                   </div>
                   <div className='flex flex-col px-6 sm:px-2 xs:px-2 py-4 gap-6'>
-                    <div className='flex lg:flex-col md:flex-col sm:flex-col xs:flex-col justify-between sm:justify-center xs:justify-center items-center sm:items-center xs:items-center sm:gap-2 xs:gap-4 h-[80px] md:h-[100px] xs:h-[30px]'>
+                    <div className='flex lg:flex-col md:flex-col sm:flex-col xs:flex-col justify-between sm:justify-center xs:justify-center items-center sm:items-center xs:items-center sm:gap-2 xs:gap-4 h-[80px] md:h-[100px] sm:h-[5rem] xs:h-[50px]'>
                       <h2 className="text-lg font-bold hover:underline sm:text-lg xs:text-sm">
-                        {item.title.length > 15 ? item.title.slice(0, 15) + '...' : item.title}
+                        {item.title.length > 10 ? item.title.slice(0, 10) + '...' : item.title}
                       </h2>
-                      <p className={`text-md font-bold sm:text-xs xs:text-xs text-white rounded-lg sm:rounded-md xs:rounded-md px-1 ${getClassNameForStatus(item.status)}`}>
+                      <p className={`text-base font-bold sm:text-xs xs:text-xs text-white rounded-lg sm:rounded-md xs:rounded-md px-1 ${getClassNameForStatus(item.status)}`}>
                         {(() => {
                           switch (item.status) {
                             case 'created': return t('common:Before proceeding');

@@ -524,6 +524,7 @@ export const upgradeUserDnft = async () => {
  */
 export const userVerifyEvent = async (tokenData: string) => {
   const formData = new FormData();
+  console.log('tokenData', tokenData);
   
   formData.append('token', tokenData);
 

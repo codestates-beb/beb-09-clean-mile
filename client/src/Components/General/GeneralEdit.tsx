@@ -77,7 +77,7 @@ const GeneralEdit = ({ postDetailDefault }: { postDetailDefault: PostDetail }) =
   const editPost = async () => {
     try {
       const updatedPostId = await updatePost(postDetailDefault._id, title, content, images, videos);
-      dispatch(showSuccessAlert(t('common:SuccessMessage')));
+      dispatch(showSuccessAlert(t('Success')));
       router.replace(`/posts/review/${updatedPostId}`);
     } catch (error) {
       const err = error as AxiosError;
@@ -109,9 +109,7 @@ const GeneralEdit = ({ postDetailDefault }: { postDetailDefault: PostDetail }) =
             value={selectCategory}
             onChange={(e) => setSelectCategory(e.target.value)}
             required>
-            <option className="text-sm" value="" disabled>{t('common:Please select a category')}</option>
-            <option className="text-sm" value="general" selected>{t('common:General')}</option>
-            <option className="text-sm" value="review">{t('common:Review')}</option>
+            <option className="text-sm" defaultValue="general" selected>{t('common:General')}</option>
           </select>
         </div>
         <div className='w-2/5 sm:w-full xs:w-full'>
