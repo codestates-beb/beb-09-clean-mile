@@ -27,15 +27,63 @@
 
 <br/>
 
-## 🖥️ 구현 화면
-
-<br/>
-
 ## 🌐 서비스 아키텍처
 
 <br/>
 
 ## 🚀 프로젝트 실행 방법
+
+### 0. 필수 설치
+
+- [Node.js v16.14.0](https://nodejs.org/ko/)
+- [NPM v9.6.4](https://www.npmjs.com/)
+- [Docker](https://www.docker.com/) (선택사항)
+
+### 1. 프로젝트 클론
+
+```bash
+$ git clone https://github.com/codestates-beb/beb-09-clean-mile.git
+```
+### 2. 컨트랙트 배포
+
+- 컨트랙트 배포를 위해 Alchemy API Key와 Private Key가 필요합니다.
+
+```bash
+$ cd contract && npm install
+$ npx hardhat run scripts/deploy.js --network mumbai
+```
+
+### 3. 서버 실행
+
+- `server/src/config/config.json` 파일을 생성합니다.
+
+```bash
+$ cd server && npm install
+$ npm run dev
+```
+
+- 또는 docker-compose를 이용하여 실행할 수 있습니다.
+
+```bash
+$ docker compose up -d server
+```
+
+### 4. 사용자 & 관리자 클라이언트 실행
+
+- `client/.env` 파일을 생성합니다.
+- `admin/.env` 파일을 생성합니다.
+
+```bash
+$ cd client && npm install
+$ npm run dev
+```
+
+```bash
+$ cd admin && npm install
+$ npm run dev
+```
+
+>> docker-compose.yml 파일에 client, admin 서비스가 추가되어 있지만, 빌드를 테스트하기 위한 용도로만 사용하였습니다.
 
 <br/>
 
