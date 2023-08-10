@@ -86,18 +86,6 @@ resource "aws_alb_target_group" "main_alb_target_group_server" {
   )
 }
 
-resource "aws_alb_target_group_attachment" "main_alb_target_group_attachment_client1" {
-  target_group_arn = aws_alb_target_group.main_alb_target_group_client.arn
-  target_id        = aws_instance.client_instance1.id
-  port             = 3000
-}
-
-resource "aws_alb_target_group_attachment" "main_alb_target_group_attachment_server1" {
-  target_group_arn = aws_alb_target_group.main_alb_target_group_server.arn
-  target_id        = aws_instance.server_instance1.id
-  port             = 8080
-}
-
 resource "aws_alb_target_group_attachment" "main_alb_target_group_attachment_admin" {
   target_group_arn = aws_alb_target_group.main_alb_target_group_admin.arn
   target_id        = aws_instance.admin_instance.id

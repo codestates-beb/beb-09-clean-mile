@@ -4,10 +4,6 @@ resource "aws_launch_template" "client_template" {
   image_id      = "ami-0c9c942bd7bf113a2"
   instance_type = "t2.micro"
   key_name      = aws_key_pair.key_pair.key_name
-  vpc_security_group_ids = [
-    aws_security_group.client_security_group.id,
-    aws_security_group.bastion_security_group.id,
-  ]
 
   block_device_mappings {
     device_name = "/dev/xvda"
@@ -19,13 +15,17 @@ resource "aws_launch_template" "client_template" {
 
   network_interfaces {
     associate_public_ip_address = true
+    security_groups = [
+      aws_security_group.client_security_group.id,
+      aws_security_group.bastion_security_group.id,
+    ]
   }
 
   iam_instance_profile {
     name = aws_iam_instance_profile.ec2_to_ecr_instance_profile.name
   }
 
-  user_data = file("./scripts/setup-client.sh")
+  user_data = filebase64("./scripts/setup-client.sh")
 
   tags = merge(
     var.common_tags,
@@ -57,7 +57,7 @@ resource "aws_launch_template" "server_template" {
     name = aws_iam_instance_profile.ec2_to_ecr_instance_profile.name
   }
 
-  user_data = file("./scripts/setup-server.sh")
+  user_data = filebase64("./scripts/setup-server.sh")
 
   tags = merge(
     var.common_tags,
@@ -71,11 +71,8 @@ resource "aws_launch_template" "admin_template" {
   name          = "admin-template"
   description   = "Template for admin instances"
   image_id      = "ami-0c9c942bd7bf113a2"
-  instance_type = "t2.micro"
+  instance_type = "t3.micro"
   key_name      = aws_key_pair.key_pair.key_name
-  vpc_security_group_ids = [
-    aws_security_group.admin_security_group.id
-  ]
 
   block_device_mappings {
     device_name = "/dev/xvda"
@@ -87,13 +84,16 @@ resource "aws_launch_template" "admin_template" {
 
   network_interfaces {
     associate_public_ip_address = true
+    security_groups = [
+      aws_security_group.admin_security_group.id,
+    ]
   }
 
   iam_instance_profile {
     name = aws_iam_instance_profile.ec2_to_ecr_instance_profile.name
   }
 
-  user_data = file("./scripts/setup-admin.sh")
+  user_data = filebase64("./scripts/setup-admin.sh")
 
   tags = merge(
     var.common_tags,
