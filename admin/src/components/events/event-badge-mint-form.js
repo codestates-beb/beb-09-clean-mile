@@ -13,7 +13,7 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useState } from "react";
 
 const types = [
   {
@@ -37,7 +37,7 @@ export const EventBadgeMintForm = ({ eventId }) => {
   const [name, setName] = useState("");
   const [desc, setDesc] = useState("");
   const [type, setType] = useState("");
-  const [fileUrl, setFileUrl] = useState(null);
+  const [fileUrl, setFileUrl] = useState("");
   const [uploadFile, setUploadFile] = useState(null);
 
   /**
@@ -54,14 +54,14 @@ export const EventBadgeMintForm = ({ eventId }) => {
       const FSIZE = FILE.size / Math.pow(10, 6);
 
       if (FSIZE < SIZE) {
-        EXTENSIONS.forEach((e) => {
-          if (e.type === TYPE) {
-            console.log("FILE", FILE);
+        for (let i = 0; i < EXTENSIONS.length; i++) {
+          if (EXTENSIONS[i].type === TYPE) {
             const objectURL = URL.createObjectURL(FILE);
             setFileUrl(objectURL);
             setUploadFile(FILE);
+            return;
           }
-        });
+        }
       }
     }
   }, []);
