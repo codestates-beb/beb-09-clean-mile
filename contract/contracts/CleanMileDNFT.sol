@@ -12,6 +12,7 @@ error NotOwner(uint256 _tokenId, address sender);
 error NonexistentToken(uint256 _tokenId);
 error BadgeNotSet();
 error MaxLevel(uint256 _tokenId);
+error UpgradeConditionNotMatched(uint256 _tokenId);
 
 contract CleanMileDNFT is ERC721, ICleanMileDNFT, Ownable {
     using Counters for Counters.Counter;
@@ -169,7 +170,7 @@ contract CleanMileDNFT is ERC721, ICleanMileDNFT, Ownable {
         }
 
         // if the next level is not higher than the current level, do nothing
-        return false;
+        revert UpgradeConditionNotMatched(_tokenId);
     }
 
     function upgradeCheck(uint256 _tokenId) public view returns (DNFTLevel) {
