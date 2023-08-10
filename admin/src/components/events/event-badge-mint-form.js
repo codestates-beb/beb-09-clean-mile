@@ -40,7 +40,7 @@ export const EventBadgeMintForm = ({ eventId }) => {
   const [fileUrl, setFileUrl] = useState("");
   const [uploadFile, setUploadFile] = useState(null);
 
-  const imageInputRef = useRef();
+  const imageInputRef = useRef(null);
 
   /**
    * 파일 업로드 이벤트를 처리
@@ -73,7 +73,7 @@ export const EventBadgeMintForm = ({ eventId }) => {
   const mintBadge = async () => {
     try {
       const formData = new FormData();
-      console.log("uploadFile", uploadFile);
+      console.log("uploadFile", imageInputRef.current.value);
       formData.append("name", name);
       formData.append("description", desc);
       formData.append("type", type);
@@ -134,7 +134,7 @@ export const EventBadgeMintForm = ({ eventId }) => {
     } catch (error) {
       console.log(error);
     }
-  }, []);
+  }, [name, desc, type, uploadFile]);
 
   useEffect(() => {
     console.log("uploadFile", uploadFile);
