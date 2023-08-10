@@ -13,7 +13,7 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useState, useEffect, useRef } from "react";
 
 const types = [
   {
@@ -37,39 +37,42 @@ export const EventBadgeMintForm = ({ eventId }) => {
   const [name, setName] = useState("");
   const [desc, setDesc] = useState("");
   const [type, setType] = useState("");
-  const [fileUrl, setFileUrl] = useState(null);
+  const [fileUrl, setFileUrl] = useState("");
   const [uploadFile, setUploadFile] = useState(null);
+
+  const imageInputRef = useRef(null);
 
   /**
    * 파일 업로드 이벤트를 처리
    * @param {Event} e - 파일 업로드 이벤트
    * @returns {void}
    */
-  const fileUpload = (e) => {
+  const fileUpload = useCallback((e) => {
     if (e.target.files) {
       const FILE = e.target.files[0];
-      console.log(e.target.files[0]);
       const SIZE = 10;
       const TYPE = FILE.type.split("/")[1];
       const FSIZE = FILE.size / Math.pow(10, 6);
 
       if (FSIZE < SIZE) {
-        EXTENSIONS.forEach((e) => {
-          if (e.type === TYPE) {
-            console.log("FILE", FILE);
+        for (let i = 0; i < EXTENSIONS.length; i++) {
+          if (EXTENSIONS[i].type === TYPE) {
             const objectURL = URL.createObjectURL(FILE);
             setFileUrl(objectURL);
             setUploadFile(FILE);
+            return;
           }
-        });
+        }
       }
-    }
-  };
 
-  const mintBadge = useCallback(async () => {
+      imageInputRef.current.value = "";
+    }
+  }, []);
+
+  const mintBadge = async () => {
     try {
       const formData = new FormData();
-      console.log("uploadFile", uploadFile);
+
       formData.append("name", name);
       formData.append("description", desc);
       formData.append("type", type);
@@ -118,19 +121,27 @@ export const EventBadgeMintForm = ({ eventId }) => {
         Swal.close();
       });
     }
-  }, []);
+  };
 
   const handleSubmit = useCallback((event) => {
     event.preventDefault();
     try {
       mintBadge();
+      setName("");
+      setDesc("");
+      setType("");
+      setFileUrl("");
+      setUploadFile(null);
+      if (imageInputRef.current) {
+        imageInputRef.current.value = "";
+      }
     } catch (error) {
       console.log(error);
     }
-  }, []);
+  }, [name, desc, type, uploadFile]);
 
   return (
-    <form autoComplete="off" noValidate>
+    <form autoComplete="off" noValidate onSubmit={handleSubmit}>
       <Card sx={{ p: 3 }}>
         <CardHeader title="Mint" />
         <CardContent sx={{ pt: 1 }}>
@@ -182,6 +193,7 @@ export const EventBadgeMintForm = ({ eventId }) => {
                   onChange={fileUpload}
                   required
                   type="file"
+                  inputRef={imageInputRef}
                   inputProps={{
                     accept: "image/*",
                   }}
@@ -215,7 +227,7 @@ export const EventBadgeMintForm = ({ eventId }) => {
               )}
             </Grid>
             <Stack direction={"row"} spacing={1} sx={{ mt: 3 }}>
-              <Button variant="contained" color="success" onClick={handleSubmit}>
+              <Button variant="contained" color="success" type="submit">
                 Mint
               </Button>
             </Stack>
