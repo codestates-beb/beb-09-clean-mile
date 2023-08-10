@@ -34,7 +34,6 @@ const EXTENSIONS = [{ type: "gif" }, { type: "jpg" }, { type: "jpeg" }, { type: 
 
 export const EventBadgeMintForm = ({ eventId }) => {
   const router = useRouter();
-  const imageInputRef = useRef(null);
   const [name, setName] = useState("");
   const [desc, setDesc] = useState("");
   const [type, setType] = useState("");
@@ -57,6 +56,7 @@ export const EventBadgeMintForm = ({ eventId }) => {
       if (FSIZE < SIZE) {
         EXTENSIONS.forEach((e) => {
           if (e.type === TYPE) {
+            console.log("FILE", FILE);
             const objectURL = URL.createObjectURL(FILE);
             setFileUrl(objectURL);
             setUploadFile(FILE);
@@ -69,7 +69,7 @@ export const EventBadgeMintForm = ({ eventId }) => {
   const mintBadge = useCallback(async () => {
     try {
       const formData = new FormData();
-      console.log(uploadFile);
+      console.log("uploadFile", uploadFile);
       formData.append("name", name);
       formData.append("description", desc);
       formData.append("type", type);
@@ -128,13 +128,6 @@ export const EventBadgeMintForm = ({ eventId }) => {
       console.log(error);
     }
   }, []);
-
-  const handleClear = useCallback(() => {
-    setName("");
-    setDesc("");
-    setType("");
-    setUploadFile("");
-  });
 
   return (
     <form autoComplete="off" noValidate>
@@ -224,9 +217,6 @@ export const EventBadgeMintForm = ({ eventId }) => {
             <Stack direction={"row"} spacing={1} sx={{ mt: 3 }}>
               <Button variant="contained" color="success" onClick={handleSubmit}>
                 Mint
-              </Button>
-              <Button variant="contained" color="warning" onClick={handleClear}>
-                Clear
               </Button>
             </Stack>
           </Box>
