@@ -621,6 +621,7 @@ const MyPage = ({
                             switch (event.status) {
                               case 'created': return t('common:Before proceeding');
                               case 'recruiting': return t('common:Recruiting');
+                              case 'recruited': return t('common:End of recruitment');
                               case 'progressing': return t('common:In progress');
                               case 'finished': return t('common:End of progress');
                               case 'canceled': return t('common:Cancel Progress');
