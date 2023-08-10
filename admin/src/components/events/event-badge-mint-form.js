@@ -130,7 +130,7 @@ export const EventBadgeMintForm = ({ eventId }) => {
   }, []);
 
   return (
-    <form autoComplete="off" noValidate>
+    <form autoComplete="off" noValidate onSubmit={handleSubmit}>
       <Card sx={{ p: 3 }}>
         <CardHeader title="Mint" />
         <CardContent sx={{ pt: 1 }}>
@@ -215,7 +215,7 @@ export const EventBadgeMintForm = ({ eventId }) => {
               )}
             </Grid>
             <Stack direction={"row"} spacing={1} sx={{ mt: 3 }}>
-              <Button variant="contained" color="success" onClick={handleSubmit}>
+              <Button variant="contained" color="success" type="submit">
                 Mint
               </Button>
             </Stack>
