@@ -89,6 +89,7 @@ select {
   }
 }
 
+/* slide */
 .slick-track {
   display: flex !important;
   align-items: center !important;
@@ -112,4 +113,11 @@ select {
   position: relative;
   height: 300px;
   margin: 0 20px;
+}
+
+/* Sweetalert */
+.swal2-popup .swal2-image {
+  max-width: 100%;
+  height: auto;
+  display: block;
 }

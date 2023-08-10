@@ -97,9 +97,7 @@ const General: React.FC<{ postList: Post[], postPagination: Pagination }> = ({ p
       </h1>
       <div className={`flex justify-center items-center w-full`}>
         <div
-          className={`w-full ${postList?.length <= 4 ||
-            (postList === null && 'min-h-screen items-center justify-around')
-            }`}
+          className={`w-full ${(postList?.length <= 4 || postList === null) && 'min-h-screen items-center justify-around'}`}
         >
           <div className='flex justify-end mb-3 gap-3'>
             <select

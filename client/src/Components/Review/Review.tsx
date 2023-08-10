@@ -5,7 +5,7 @@ import useTranslation from 'next-translate/useTranslation';
 import { useInfiniteQuery, QueryFunctionContext } from 'react-query';
 import { useRouter } from 'next/router';
 import { MdOutlineArrowForwardIos } from 'react-icons/md';
-import { SearchInput } from '../Reference';
+import { SearchInput, default_banner } from '../Reference';
 import { fetchReviews } from '@/services/api';
 
 interface Item {
@@ -204,7 +204,7 @@ const Review = () => {
                   <div className='border-b-2 relative pb-[65%] sm:pb-[90%] xs:pb-[90%]'>
                     <Image
                       className='rounded-t-3xl object-cover'
-                      src={item.media.img[0]}
+                      src={item.media.img.length === 0 ? default_banner : item.media.img[0]}
                       layout='fill'
                       alt='event poster'
                     />

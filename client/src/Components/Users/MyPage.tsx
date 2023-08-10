@@ -300,8 +300,8 @@ const MyPage = ({
       title: badge.name,
       html: `<p>${badge.badge_type}</p><br><p>${badge.description}</p>`,
       imageUrl: badge.image,
-      imageWidth: 400,
-      imageHeight: 200,
+      imageWidth: 300,
+      imageHeight: 300,
       imageAlt: 'Badge Image'
     });
   }
@@ -554,6 +554,11 @@ const MyPage = ({
                     key={i}
                     title='Badge Info'
                     onClick={() => handleBadgeClick(badge)}>
+                    <Image src={badge.image} layout='fill' objectFit='cover' alt='profile image' />
+                    <Image src={badge.image} layout='fill' objectFit='cover' alt='profile image' />
+                    <Image src={badge.image} layout='fill' objectFit='cover' alt='profile image' />
+                    <Image src={badge.image} layout='fill' objectFit='cover' alt='profile image' />
+                    <Image src={badge.image} layout='fill' objectFit='cover' alt='profile image' />
                     <Image src={badge.image} layout='fill' objectFit='cover' alt='profile image' />
                   </div>
                 )

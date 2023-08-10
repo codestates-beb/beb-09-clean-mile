@@ -18,7 +18,7 @@ const ReviewEdit = ({ reviewDetailDefault }: { reviewDetailDefault: PostDetail }
 
   const [selectCategory, setSelectCategory] = useState('');
   const [title, setTitle] = useState('');
-  const [content, setContent ] = useState('');
+  const [content, setContent] = useState('');
   const [images, setImages] = useState<IFile[]>([]);
   const [videos, setVideos] = useState<IFile[]>([]);
   const [selectedFile, setSelectedFile] = useState<IFile[]>([]);
@@ -46,7 +46,7 @@ const ReviewEdit = ({ reviewDetailDefault }: { reviewDetailDefault: PostDetail }
 
     files.forEach((file) => {
       const extension = file.name.split('.').pop()?.toLowerCase();
-  
+
       if (['jpg', 'jpeg', 'png'].includes(extension || '')) {
         setImages((prevImages) => [...prevImages, file]);
       } else if (['mp4', 'avi', 'mov'].includes(extension || '')) {
@@ -59,7 +59,7 @@ const ReviewEdit = ({ reviewDetailDefault }: { reviewDetailDefault: PostDetail }
   const editPost = async () => {
     try {
       const updatedPostId = await updatePost(reviewDetailDefault._id, title, content, images, videos);
-      dispatch(showSuccessAlert(t('common:SuccessMessage')));
+      dispatch(showSuccessAlert(t('Success')));
       router.replace(`/posts/review/${updatedPostId}`);
     } catch (error) {
       const err = error as AxiosError;
@@ -86,7 +86,7 @@ const ReviewEdit = ({ reviewDetailDefault }: { reviewDetailDefault: PostDetail }
             px-4 
             w-full
             sm:text-sm
-            xs:text-sm" 
+            xs:text-sm"
             value={selectCategory}
             onChange={(e) => setSelectCategory(e.target.value)}
             required>
@@ -94,13 +94,13 @@ const ReviewEdit = ({ reviewDetailDefault }: { reviewDetailDefault: PostDetail }
           </select>
         </div>
         <div className='w-2/5 sm:w-full xs:w-full'>
-          <input 
-            className='w-full sm:w-[50%] xs:w-[50%] border-b focus:border-black transition duration-300 py-2 px-3' 
+          <input
+            className='w-full sm:w-[50%] xs:w-[50%] border-b focus:border-black transition duration-300 py-2 px-3'
             type="text"
-            defaultValue={reviewDetailDefault.title} 
+            defaultValue={reviewDetailDefault.title}
             placeholder={reviewDetailDefault.title}
             value={title}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)}/>
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)} />
         </div>
         <div className='w-full h-[45rem]'>
           <input
@@ -109,7 +109,7 @@ const ReviewEdit = ({ reviewDetailDefault }: { reviewDetailDefault: PostDetail }
             className='w-full hidden'
             onChange={handleFileChange}
             multiple
-            />
+          />
           <div className='flex w-[30%] lg:w-[50%] md:w-[70%] sm:w-full xs:w-full justify-between mb-5'>
             <p className='border-b w-[60%] xs:text-sm m-0'>
               {selectedFile.length > 0 ? (
@@ -118,7 +118,7 @@ const ReviewEdit = ({ reviewDetailDefault }: { reviewDetailDefault: PostDetail }
                 t('common:Please select a file')
               )}
             </p>
-            <button 
+            <button
               className='border rounded-lg p-2 bg-main-blue text-white hover:bg-blue-600 transition duration-300 xs:text-sm'
               onClick={handleFileSelect}>
               {t('common:Select File')}
@@ -131,10 +131,10 @@ const ReviewEdit = ({ reviewDetailDefault }: { reviewDetailDefault: PostDetail }
             w-full 
             h-full 
             p-3 
-            outline-none" 
+            outline-none"
             defaultValue={reviewDetailDefault.content}
             placeholder={reviewDetailDefault.content}
-            value={content} 
+            value={content}
             onChange={(e) => setContent(e.target.value)} />
         </div>
         <div className='w-full flex gap-3 justify-end mt-16'>
