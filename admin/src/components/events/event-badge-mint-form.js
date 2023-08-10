@@ -45,7 +45,7 @@ export const EventBadgeMintForm = ({ eventId }) => {
    * @param {Event} e - 파일 업로드 이벤트
    * @returns {void}
    */
-  const fileUpload = (e) => {
+  const fileUpload = useCallback((e) => {
     if (e.target.files) {
       const FILE = e.target.files[0];
       console.log(e.target.files[0]);
@@ -64,9 +64,9 @@ export const EventBadgeMintForm = ({ eventId }) => {
         });
       }
     }
-  };
+  }, []);
 
-  const mintBadge = useCallback(async () => {
+  const mintBadge = async () => {
     try {
       const formData = new FormData();
       console.log("uploadFile", uploadFile);
@@ -118,7 +118,7 @@ export const EventBadgeMintForm = ({ eventId }) => {
         Swal.close();
       });
     }
-  }, []);
+  };
 
   const handleSubmit = useCallback((event) => {
     event.preventDefault();
