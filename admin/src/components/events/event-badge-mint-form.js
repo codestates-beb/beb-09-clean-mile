@@ -50,7 +50,6 @@ export const EventBadgeMintForm = ({ eventId }) => {
   const fileUpload = useCallback((e) => {
     if (e.target.files) {
       const FILE = e.target.files[0];
-      console.log(e.target.files[0]);
       const SIZE = 10;
       const TYPE = FILE.type.split("/")[1];
       const FSIZE = FILE.size / Math.pow(10, 6);
@@ -73,7 +72,7 @@ export const EventBadgeMintForm = ({ eventId }) => {
   const mintBadge = async () => {
     try {
       const formData = new FormData();
-      console.log("uploadFile", imageInputRef.current.value);
+
       formData.append("name", name);
       formData.append("description", desc);
       formData.append("type", type);
@@ -128,6 +127,11 @@ export const EventBadgeMintForm = ({ eventId }) => {
     event.preventDefault();
     try {
       mintBadge();
+      setName("");
+      setDesc("");
+      setType("");
+      setFileUrl("");
+      setUploadFile(null);
       if (imageInputRef.current) {
         imageInputRef.current.value = "";
       }
@@ -135,10 +139,6 @@ export const EventBadgeMintForm = ({ eventId }) => {
       console.log(error);
     }
   }, [name, desc, type, uploadFile]);
-
-  useEffect(() => {
-    console.log("uploadFile", uploadFile);
-  }, [uploadFile]);
 
   return (
     <form autoComplete="off" noValidate onSubmit={handleSubmit}>
