@@ -167,7 +167,7 @@ const Events = () => {
                   <div className='border-b-2 relative pb-[65%] sm:pb-[90%] xs:pb-[90%]'>
                     <Image
                       className='rounded-t-3xl object-cover'
-                      src={item.poster_urllength === 0 ? default_banner : item.poster_url[0]}
+                      src={item.poster_url.length === 0 ? default_banner : item.poster_url[0]}
                       layout='fill'
                       alt='event poster'
                     />
