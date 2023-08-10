@@ -49,6 +49,7 @@ export const EventBadgeMintForm = ({ eventId }) => {
   const fileUpload = (e) => {
     if (e.target.files) {
       const FILE = e.target.files[0];
+      console.log(e.target.files[0]);
       const SIZE = 10;
       const TYPE = FILE.type.split("/")[1];
       const FSIZE = FILE.size / Math.pow(10, 6);
@@ -68,7 +69,7 @@ export const EventBadgeMintForm = ({ eventId }) => {
   const mintBadge = useCallback(async () => {
     try {
       const formData = new FormData();
-
+      console.log(uploadFile);
       formData.append("name", name);
       formData.append("description", desc);
       formData.append("type", type);
@@ -84,6 +85,7 @@ export const EventBadgeMintForm = ({ eventId }) => {
 
       if (res && res.status === 200) {
         Swal.fire({
+
           title: "Success!",
           text: res.data.message,
           icon: "success",
