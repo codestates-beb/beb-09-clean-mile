@@ -1,0 +1,56 @@
+version: "3.9"
+services:
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile.dev
+    image: server
+    container_name: server
+    restart: always
+    ports:
+      - 8080:8080
+    volumes:
+      - /tmp/server/npm_cache:/root/.npm:z
+      - ./server/src:/usr/src/app/src:z
+    environment:
+      EXAMPLE_ENV: example
+
+  daemon:
+    build:
+      context: ./daemon
+      dockerfile: Dockerfile
+    image: daemon
+    container_name: daemon
+    restart: always
+
+  caddy:
+    image: caddy:latest
+    container_name: caddy
+    command: caddy reverse-proxy --to client:3000
+    ports:
+      - 443:443
+    restart: always
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    image: client
+    container_name: client
+    restart: always
+    ports:
+      - 3000:3000
+
+  admin:
+    build:
+      context: ./admin
+      dockerfile: Dockerfile
+    image: admin
+    container_name: admin
+    restart: always
+    ports:
+      - 3001:3000
+
+volumes:
+  ganache_data:
+    driver: local
