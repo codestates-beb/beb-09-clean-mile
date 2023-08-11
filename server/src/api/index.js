@@ -13,6 +13,10 @@ const adminNotices = require('./routes/admin/notices');
 module.exports = () => {
   const app = Router();
 
+  app.get('/', (req, res) => {
+    res.send('OK');
+  });
+
   /**
    ******** Client API ********
    */
