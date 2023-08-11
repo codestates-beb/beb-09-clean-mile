@@ -42,3 +42,24 @@ resource "aws_autoscaling_group" "server_asg" {
   }
 }
 
+resource "aws_autoscaling_group" "admin_asg" {
+  vpc_zone_identifier = [aws_subnet.public_subnets[0].id, aws_subnet.public_subnets[2].id]
+  desired_capacity    = 2
+  max_size            = 2
+  min_size            = 1
+  force_delete        = true
+
+  launch_template {
+    id      = aws_launch_template.admin_template.id
+    version = "$Latest"
+  }
+
+  health_check_type = "ELB"
+  target_group_arns = [aws_alb_target_group.main_alb_target_group_admin.arn]
+
+  tag {
+    key                 = "Name"
+    value               = "Admin ASG"
+    propagate_at_launch = true
+  }
+}

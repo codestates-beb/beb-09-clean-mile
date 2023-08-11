@@ -71,7 +71,7 @@ resource "aws_launch_template" "admin_template" {
   name          = "admin-template"
   description   = "Template for admin instances"
   image_id      = "ami-0c9c942bd7bf113a2"
-  instance_type = "t3.micro"
+  instance_type = "t2.micro"
   key_name      = aws_key_pair.key_pair.key_name
 
   block_device_mappings {

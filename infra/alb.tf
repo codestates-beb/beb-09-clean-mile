@@ -86,11 +86,11 @@ resource "aws_alb_target_group" "main_alb_target_group_server" {
   )
 }
 
-resource "aws_alb_target_group_attachment" "main_alb_target_group_attachment_admin" {
-  target_group_arn = aws_alb_target_group.main_alb_target_group_admin.arn
-  target_id        = aws_instance.admin_instance.id
-  port             = 3001
-}
+# resource "aws_alb_target_group_attachment" "main_alb_target_group_attachment_admin" {
+#   target_group_arn = aws_alb_target_group.main_alb_target_group_admin.arn
+#   target_id        = aws_instance.admin_instance.id
+#   port             = 3001
+# }
 
 
 resource "aws_lb_listener" "main_alb_listener_http" {
