@@ -113,6 +113,10 @@
 
 ## 🌐 서비스 아키텍처
 
+### Diagram
+![서비스 아키텍처](https://github.com/codestates-beb/beb-09-clean-mile/assets/61569834/1e91e5a5-8627-40d3-85ea-338ac5a1a949)
+
+### AWS Infrastructure
 ![20230810_024854](https://github.com/codestates-beb/beb-09-clean-mile/assets/61569834/96bca882-46ba-4420-8017-7b50aae73232)
 
 <br/>
@@ -182,7 +186,6 @@ $ npm run dev
 - #### [Wire Frame(admin)](https://github.com/codestates-beb/beb-09-clean-mile/wiki/Wire-Frame-%E2%80%90-admin)
 - #### [API 문서](https://documenter.getpostman.com/view/26736336/2s946o5pn6#7cce518f-94ac-4962-b5ce-bf200a001639)
 - #### [DB Schema](https://github.com/codestates-beb/beb-09-clean-mile/wiki/DB-Schema)
-- #### [구현 화면](https://github.com/codestates-beb/beb-09-clean-mile/wiki/%EA%B5%AC%ED%98%84-%ED%99%94%EB%A9%B4)
 - #### [발표자료](https://docs.google.com/presentation/d/12tAatS807ki-KKteL0nSU3NdAu2GexhEGhL3wRWXNLM/edit#slide=id.g239e59f90a6_0_3)
 
 ![Footer](https://capsule-render.vercel.app/api?type=waving&color=0:C6FCA6,100:56D80C&height=100&section=footer)
