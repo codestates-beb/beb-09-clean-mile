@@ -6,6 +6,14 @@
 
 <br/>
 
+## 배포 링크 및 발표 영상
+
+- [User Client](https://www.clean-mile.co/)
+- [Admin Client](https://admin.clean-mile.co/)
+- [발표 영상](https://youtu.be/h5LOCKehv7c)
+
+<br/>
+
 ## 목차
 
 1. [프로젝트 목표](#-프로젝트-목표-)
@@ -16,7 +24,7 @@
 6. [프로젝트 실행 방법](#-프로젝트-실행-방법)
 7. [상세 정보](#%EF%B8%8F-상세-정보)
 
-
+<br/>
 
 ## 🌱 프로젝트 목표 🌱
 
